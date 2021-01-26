@@ -41,6 +41,7 @@ Selfmade watchface with tasker integration that triggers some webhooks and actio
 - Stock price notifications using FinnHub.io API
 - Mail delivery days notifications.
 - Waste collection notifications
+- Game timer. After hunting, game birds are supposed to hang for 40 'daydegrees'. This package appendes the temperature for each hour, and notifies me when the bird is ready for the freezer.
 
 ## Specs
 
@@ -55,7 +56,6 @@ Selfmade watchface with tasker integration that triggers some webhooks and actio
 - Sonoff controlled bathroom fan, turns on when humidity is high.
 - Ikea Trådfri switch for bed blanket warmer 
 - Ikea Trådfri switches for electric car heater, with notification before we go to bed if it's freezing overnight.
-- Game timer. After hunting, game birds are supposed to hang for 40 'daydegrees'. This package appendes the temperature for each hour, and notifies me when the bird is ready for the freezer.
 - Ring Doorbell
 - Google Nest speakers for announcement and multi room music.
 - Ender 3 3D Printer connected with Octoprint.
