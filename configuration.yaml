@@ -945,18 +945,6 @@ cover:
 
 
 alert:
-  # bonsai_plant:
-  #   name: Bonsai needs help
-  #   entity_id: plant.bonsai
-  #   state: 'problem'
-  #   repeat: 600
-  #   can_acknowledge: true
-  #   skip_first: true
-  #   message: "Bonsai needs help ({{ state_attr('plant.bonsai', 'problem') }})"
-  #   done_message: Bonsai is fine.
-  #   notifiers:
-  #     - me
-
 
   garage_door:
     name: Garage is open
