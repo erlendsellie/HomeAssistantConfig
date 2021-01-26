@@ -8,6 +8,15 @@
     peak: -20
     name: Nursery Noise
 
+  - platform: ffmpeg_noise
+    input: rtsp://erlend:lagopi@192.168.1.30:554/stream1
+    extra_arguments: -filter:a highpass=f=400,lowpass=f=2500,volume=volume=2 -codec:a libmp3lame -ar 16000
+    initial_state: false
+    duration: 5
+    reset: 10
+    peak: -20
+    name: Nursery Noise 1
+
   - platform: car_wash
     weather: weather.home
 

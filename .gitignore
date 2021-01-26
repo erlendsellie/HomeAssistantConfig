@@ -41,6 +41,11 @@ report*.json
 sendpicture*.pl
 stiantest.js
 
+
+webhooks.yaml
+ifttWebhooks.yaml
+watchWebHooks.yaml
+
 tellduslive.conf
 twilioexample.php
 ui-lovelace.yaml

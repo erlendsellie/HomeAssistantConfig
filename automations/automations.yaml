@@ -311,8 +311,6 @@
   alias: Door Bell
   mode: restart
   trigger:
-    - platform: webhook
-      webhook_id: dingdong
     - platform: state
       entity_id: binary_sensor.front_door_ding
       to: 'on'  
