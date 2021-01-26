@@ -163,38 +163,6 @@ wake_on_lan:
 
 
 
-# Allows you to issue voice commands from the frontend in enabled browsers
-# conversation:
-
-# Enables support for tracking state changes over time.
-# history:
-#   include:
-#     domains:
-#       # - group.Presence
-#       - climate
-#       - scene
-#       - sun
-#       - alarm_control_panel
-#       - verisure
-#       - lock
-#       - device_tracker
-#       - input_boolean
-#     entities:
-#       - lock.ytterdor
-#       - input_select.alarm
-#   exclude:
-#     domains:
-#       # - automation
-#       # - script
-#       - switch
-#       - light
-#       - sensor
-#       - script
-#       - automation
-#       - binary_sensor
-#       - media_player
-#       - binary_sensor
-
 
 
 # databases:
@@ -202,7 +170,7 @@ wake_on_lan:
 # logins:
 #   - username: hass
 #     host: '%'
-#     password: Lagopi
+#     password: secret
 # rights:
 #   - username: hass
 #     host: '%'
@@ -227,7 +195,7 @@ recorder:
       # logins:
       #   - username: hass
       #     host: '%'
-      #     password: Lagopi
+      #     password: Secret
       # rights:
       #   - username: hass
       #     host: '%'
