@@ -16,7 +16,6 @@
   - service: cover.open_cover 
     entity_id: cover.veranda_curtains
 
-
 - alias: Close Curtains
   trigger:
     - platform: event
