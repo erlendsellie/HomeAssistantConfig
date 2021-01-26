@@ -30,12 +30,6 @@
   platform: rest
   resource: http://192.168.1.75:5001/broadcast_message
 
-# - name: pappamail
-#   platform: smtp
-#   sender: erlendsellie@gmail.com
-#   recipient: lars.sellie@gmail.com
-
-
 - platform: nfandroidtv
   name: Shield Gentle
   host: 192.168.1.26
