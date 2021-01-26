@@ -1,0 +1,108 @@
+#######              ######
+######   tv_remote REMOTE  #####
+#######              ######
+
+- alias: tv_remote_bedroom_toggle
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: tv_remote
+        event: 1002
+  condition:
+    - condition: template
+      value_template: "{{states.input_boolean.trymasleep.state == 'on' or states.binary_sensor.trym_home.state == 'off'}}"
+  action:
+    - service: media_player.media_play_pause
+      entity_id: media_player.nvidia_shield
+    - condition: state
+      entity_id: media_player.nvidia_shield
+      state: 'off'
+    - service: media_player.turn_on
+      entity_id: media_player.nvidia_shield
+
+
+- alias: tv_remote_bedroom_dim_up
+  mode: queued
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: tv_remote
+        event: 2002
+  condition:
+    - condition: template
+      value_template: "{{states.input_boolean.trymasleep.state == 'on' or states.binary_sensor.trym_home.state == 'off'}}"
+  action:      
+    - service: media_player.volume_up
+      entity_id: media_player.tv_stua
+    - service: media_player.volume_up
+      entity_id: media_player.tv_stua
+    - service: media_player.volume_up
+      entity_id: media_player.tv_stua
+    - service: media_player.volume_up
+      entity_id: media_player.tv_stua
+
+- alias: tv_remote_bedroom_dim_down
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: tv_remote
+        event: 3002
+  condition:
+    - condition: template
+      value_template: "{{states.input_boolean.trymasleep.state == 'on' or states.binary_sensor.trym_home.state == 'off'}}"
+  action:      
+    - service: media_player.volume_down
+      entity_id: media_player.tv_stua
+    - service: media_player.volume_down
+      entity_id: media_player.tv_stua
+    - service: media_player.volume_down
+      entity_id: media_player.tv_stua
+    - service: media_player.volume_down
+      entity_id: media_player.tv_stua
+
+
+
+- alias: tv_remote_bedroom_right
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: tv_remote
+        event: 5002
+  condition:
+    - condition: template
+      value_template: "{{states.input_boolean.trymasleep.state == 'on' or states.binary_sensor.trym_home.state == 'off'}}"
+  action:      
+    - service: climate.set_temperature
+      entity_id: climate.varmepumpe
+      data_template:
+        temperature: "{{states.climate.varmepumpe.attributes.temperature + 1}}"
+    - service: script.turn_on
+      entity_id: script.playmessage
+      data_template:
+        variables:
+          message: "{{states.climate.varmepumpe.attributes.temperature}}"        
+
+- alias: tv_remote_bedroom_left
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: tv_remote
+        event: 4002
+  condition:
+    - condition: template
+      value_template: "{{states.input_boolean.trymasleep.state == 'on' or states.binary_sensor.trym_home.state == 'off'}}"
+  action:      
+    - service: climate.set_temperature
+      entity_id: climate.varmepumpe
+      data_template:
+        temperature: "{{states.climate.varmepumpe.attributes.temperature - 1}}"
+    - service: script.turn_on
+      entity_id: script.playmessage
+      data_template:
+        variables:
+          message: "{{states.climate.varmepumpe.attributes.temperature}}"        

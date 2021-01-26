@@ -1,0 +1,108 @@
+  # - platform: generic_thermostat
+  #   name: Gamingroom
+  #   heater: switch.bench
+  #   target_sensor: sensor.gaming_rom_temperature
+  #   min_temp: 16
+  #   max_temp: 26
+  #   hot_tolerance: 0.5
+  #   target_temp: 21
+
+
+  # - platform: generic_thermostat
+  #   name: Spisestue
+  #   heater: switch.kitchen_heater
+  #   target_sensor: sensor.stua_temperature
+  #   min_temp: 16
+  #   max_temp: 26
+  #   hot_tolerance: 0.5
+  # #   target_temp: 17
+
+  # - platform: broadlink
+  #   name: Varmepumpe_gammel
+  #   host: 192.168.1.239
+  #   mac: '34:EA:34:E3:C4:D9'
+  #   ircodes_ini: 'broadlink_climate_codes/panasonic_CS-RE_GKE.ini'
+  #   min_temp: 16
+  #   max_temp: 30
+  #   temp_sensor: sensor.stua_temperature
+  #   default_operation: Heat
+  #   customize:
+  #     operations:
+  #       - Idle
+  #       - Cool
+  #       - Heat
+  #       # - Fan
+  #     fan_modes:
+  #       - Auto
+  #       - Low
+  #       - Mid
+  #       - High
+  # #       # - Highest
+
+  # - platform: mill
+  #   username: !secret myemail
+  #   password: !secret mill_password
+
+  - platform: smartir
+    name: Varmepumpe
+    device_code: 1023
+    unique_id: living_ac
+    #controller_send_service: switch.broadlink_send_packet_192_168_1_239
+    controller_data: remote.broadlink_remote
+    temperature_sensor: sensor.stua_temperature
+    humidity_sensor: sensor.stua_humidity
+    #TODO door-sensor to show on/off?
+    #power_sensor: binary_sensor.ac_power        
+
+  # - platform: smartir
+  #   name: VarmePumpeSmart2
+  #   device_code: 1021
+  #   controller_send_service: switch.broadlink_send_packet_192_168_1_239
+  #   temperature_sensor: sensor.stua_temperature
+  #   humidity_sensor: sensor.stua_humidity
+
+
+  - platform: generic_thermostat
+    name: Toilet Heater
+    heater: switch.toilet_heater
+    target_sensor: sensor.toilet_temp
+    min_temp: 16
+    max_temp: 26
+    hot_tolerance: 0.5
+    keep_alive:
+      minutes: 30
+
+
+  - platform: generic_thermostat
+    name: Garage Heater
+    heater: switch.garage_heater
+    target_sensor: sensor.garage_temperature
+    min_temp: 0
+    max_temp: 14
+    hot_tolerance: 0.5
+    keep_alive:
+      minutes: 30
+
+
+
+  - platform: generic_thermostat
+    name: Office Heater
+    heater: switch.office_heater
+    target_sensor: sensor.office_temp_temperature
+    min_temp: 14
+    max_temp: 26
+    hot_tolerance: 0.5
+    keep_alive:
+      minutes: 30
+
+
+      
+   # target_temp: 21
+
+  # - platform: generic_thermostat
+  #   name: Trym Heater
+  #   heater: switch.trym_heater
+  #   target_sensor: sensor.trym_temp
+  #   min_temp: 16
+  #   max_temp: 26
+  #   hot_tolerance: 0.5

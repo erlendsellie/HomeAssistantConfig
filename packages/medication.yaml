@@ -1,0 +1,80 @@
+medication:
+  input_boolean:
+      takemeds:
+        name: Take Medication  
+
+
+
+  automation:
+    - alias: TakeMeds
+      trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_kitchen, binary_sensor.door_kitchen
+        to: 'on' 
+      condition:
+        condition: and
+        conditions:
+        - condition: time
+          after: '20:00:00'
+        - condition: state
+          entity_id: input_boolean.takemeds
+          state: 'on'
+        - condition: state
+          entity_id: person.erlend
+          state: 'home' 
+      action:
+      - service: notify.mobile_app_erlend_app
+        data_template:
+          title: 'Ta Medisin'
+          message: 'Ta Medisin'
+          data:
+            actions:
+              - action: medstaken
+                title: Taken!
+                destructive: true
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.kitchen_display
+          volume_level: "{{states.sensor.speakervolume.state | float + 0.2}}"
+      - service: tts.google_say
+        entity_id: media_player.kitchen_display
+        data_template:
+          message: 'Bip Bop Bip Bip'
+          language: 'no'
+      - delay:
+          seconds: 10
+      - service: media_player.media_stop
+        entity_id: media_player.kitchen_display
+
+
+
+
+    - alias: TurnOnMeds
+      trigger:
+        - platform: time
+          at: '20:00:00'
+      action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.takemeds
+      - condition: template
+        value_template: "{{ states.person.erlend.state != 'home' }}"
+      - service: notify.mobile_app_erlend_app
+        data_template:
+          title: 'Ta Medisin'
+          message: 'Ta Medisin'
+          data:
+            actions:
+              - action: medstaken
+                title: Taken!
+                destructive: true
+
+      
+    - alias: medsTaken
+      trigger:
+        platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: medstaken
+      action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.takemeds

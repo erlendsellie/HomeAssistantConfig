@@ -1,0 +1,78 @@
+#######              ######
+######   TRYM REMOTE  #####
+#######              ######
+
+- alias: trym_bedroom_toggle
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: trym_remote_control
+        event: 1002
+  action:
+  - service: light.toggle
+    entity_id:
+      - light.tyra
+    data_template:
+      brightness_pct: '{{ states.sensor.brightnessforlights.state }}'
+
+- alias: trym_bedroom_dim_up
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: trym_remote_control
+        event: 2002
+  action:      
+  - service: light.turn_on
+    data_template:
+      entity_id:
+        - light.tyra
+      brightness_pct: 100
+      #brightness: '{{(states.light.tyra.attributes.brightness) + 50}}'
+
+
+- alias: trym_bedroom_dim_down
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: trym_remote_control
+        event: 3002
+  action:      
+  - service: light.turn_off
+    data_template:
+      entity_id:
+        - light.tyra_2
+        - light.tyra_3          
+  - service: light.turn_on
+    data_template:
+      entity_id:
+        - light.tyra_1
+      brightness_pct: 1        
+      #brightness: '{{(states.light.tyra.attributes.brightness) - 50}}'
+  # - service: notify.me
+  #   data:
+  #     message: "dimmed down bedroom light"
+
+- alias: trym_bedroom_right
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: trym_remote_control
+        event: 5002
+  action:      
+  - service: homeassistant.turn_on
+    entity_id: input_boolean.tyraasleep
+
+- alias: trym_bedroom_left
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: trym_remote_control
+        event: 4002
+  action:      
+  - service: homeassistant.turn_off
+    entity_id: input_boolean.tyraasleep

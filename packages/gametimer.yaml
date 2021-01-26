@@ -1,0 +1,91 @@
+gametimer:
+  automation:      
+    - alias: GameTimerCheckTemp
+      trigger:
+        - platform: time_pattern
+          minutes: 5
+      condition:
+      - condition: state
+        entity_id: input_boolean.gametimer
+        state: 'on'
+      action:        
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.gametimer1
+          value: '{{ states.input_number.gametimer1.state | int + states.sensor.stua_temperature2.state | int }}'
+      # - service: input_number.set_value
+      #   data_template:
+      #     entity_id: input_number.gametimer2
+      #     value: '{{ states.input_number.gametimer2.state | int + states.sensor.ute_temperature.state | int }}'          
+
+    - alias: GameTimerNotify1
+      trigger:
+        - platform: state
+          entity_id: input_number.gametimer1
+      condition:
+      - condition: numeric_state
+        entity_id: input_number.gametimer1
+        above: 960
+      action:
+      - service: notify.me
+        data_template:
+          message: "Mørningstimer1 er ferdig! Nåværende døgngrader er {{((states.input_number.gametimer1.state | int / 24)) | round(1)}}" 
+
+
+    - alias: GarageCold
+      trigger:
+        - platform: numeric_state
+          entity_id: sensor.stua_temperature2
+          below: 0
+      condition:
+      - condition: state
+        entity_id: input_boolean.gametimer
+        state: 'on'
+      action:
+      - service: notify.me
+        data_template:
+          message: "Garasjetemperaturen er under null grader, mens vilt henger til mørning. Temp nå: {{states.sensor.stua_temperature2.state}}"
+
+
+  script:
+    resetgametimer1:
+      sequence:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.gametimer1
+          value: 0
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.gametimer
+
+  input_number:
+    gametimer1:
+      name: Mørningstimer 1
+      min: -0
+      max: 3000
+      step: 0.1
+      mode: box
+      unit_of_measurement: '°C'
+    # gametimer2:
+    #   name: Mørningstimer 2
+    #   min: -0
+    #   max: 1500
+    #   step: 0.1
+    #   mode: box
+    #   unit_of_measurement: '°C'
+
+
+  input_boolean:
+    gametimer:
+      name: 'Mørningstimer'
+
+  sensor:
+    - platform: template
+      sensors:
+        dogngrader1:
+          unit_of_measurement: 'Døgngrader'
+          value_template: >
+            {{((states.input_number.gametimer1.state | int / 24)) | round(1)}}
+        # dogngrader2:
+        #   unit_of_measurement: 'Døgngrader'
+        #   value_template: >
+        #     {{((states.input_number.gametimer2.state | int / 24)) | round(1)}}

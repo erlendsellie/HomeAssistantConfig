@@ -1,0 +1,4 @@
+x:
+  friendly_name: 'X'
+  initial_value: 0
+  icon: mdi:bug

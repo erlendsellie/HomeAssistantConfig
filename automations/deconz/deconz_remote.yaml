@@ -1,0 +1,520 @@
+# doubleclick: 1004
+# click: 1002
+# long click: 1003
+
+
+
+
+- alias: Open Curtains
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: smart_switch
+        event: 1002
+  action:      
+  - service: cover.open_cover 
+    entity_id: cover.veranda_curtains
+
+
+- alias: Close Curtains
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: smart_switch
+        event: 1003
+  action:      
+  - service: cover.close_cover  
+    entity_id: cover.veranda_curtains
+
+- alias: Stop Curtains
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: smart_switch
+        event: 1004
+  action:      
+  - service: cover.stop_cover
+    entity_id: cover.veranda_curtains
+
+- alias: turnOffLivingRemote
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: living_room_switch
+        event: 2002
+  action:
+  - service: light.turn_off
+    entity_id: light.tvsone, light.peis
+
+
+
+- alias: turnOnLivingRemote
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: living_room_switch
+        event: 1002
+  action:
+  - service: light.turn_on
+    entity_id: light.tvsone, light.peis
+
+
+- alias: turnOffAllLivingRemote
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: living_room_switch
+        event: 2003
+  action:
+  - service: light.turn_off
+    entity_id: group.living
+
+
+- alias: turnOnAllLivingRemote
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: living_room_switch
+        event: 1003
+  action:
+  - service: light.turn_on
+    entity_id: group.living
+  - service: light.turn_on
+    entity_id: light.peis
+    data_template:
+      #rgb_color: [255,128,25]
+      rgb_color: [255, 128, 25]
+      #rgb_color: [255,193,93] #caroline liker
+
+
+#######              ######
+###### TOILET  REMOTE #####
+#######              ######
+
+- alias: turnOffToiletRemote
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: toilet_switch
+        event: 2002
+  action:
+  - service: light.turn_off
+    entity_id: light.toilet
+
+
+
+- alias: turnOnToiletRemote
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: toilet_switch
+        event: 1002
+  action:
+  - service: light.turn_on
+    entity_id: light.toilet
+
+
+    #TODO hold action? Give 5 mins?
+
+#######              ######
+###### VINDFANG REMOTE #####
+#######              ######
+
+- alias: OpenGarageByClick
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: switch_vindfang
+        event: 1003
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: switch_vindfang
+        event: 1004
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: switch_vindfang
+        event: 1002
+  action:
+    - service: cover.toggle
+      entity_id: cover.garage_door
+    # - service: script.turn_on
+    #   entity_id: script.notify
+    #   data_template:
+    #     variables:
+    #       title: Toggling garage.
+    #       message: Toggling garage by button.
+
+
+# - alias: TurnOnVindFangLightByClick
+#   trigger:
+#     - platform: event
+#       event_type: deconz_event
+#       event_data:
+#         id: switch_vindfang
+#         event: 1002
+#   action:
+#   - service: switch.toggle
+#     entity_id: switch.nexa2    
+
+
+#######              ######
+###### OFFICE REMOTE #####
+#######              ######
+
+
+- alias: toggleOfficelightByClick
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: switch_kontor
+        event: 1002
+  action:
+  - service: light.toggle
+    entity_id: light.office_lights
+
+#######              ######
+###### BEDROOM REMOTE #####
+#######              ######
+
+- alias: bedroom_toggle
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: remote_bedroom
+        event: 1002
+  condition:
+  - condition: template
+    value_template: "{{ states.light.bedroom.state == 'on' }}"
+  action:
+  - service: light.toggle
+    entity_id: group.bedroomlights
+    data_template:
+      brightness_pct: '{{ states.sensor.brightnessforlights.state }}'
+
+
+- alias: bedroom_toggle_tv
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: remote_bedroom
+        event: 1002
+  condition:
+  - condition: template
+    value_template: "{{ states.light.bedroom.state == 'off' }}"        
+  action:
+  - service: media_player.media_play_pause
+    entity_id: media_player.tv_soverommet
+
+
+
+- alias: bedroom_turn_offtv
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: remote_bedroom
+        event: 2002
+  condition:
+  - condition: template
+    value_template: "{{ states.media_player.tv_soverommet.state == 'on' }}"
+  action:      
+  - service: media_player.turn_off
+    entity_id: media_player.tv_soverommet
+
+- alias: bedroom_dim_up
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: remote_bedroom
+        event: 2002
+  condition:
+  - condition: template
+    value_template: "{{ states.media_player.tv_soverommet.state != 'on' }}"        
+  action:      
+  - service: light.turn_on
+    data_template:
+      entity_id:
+        - light.erlend_bedroom
+        - light.caroline_bedroom
+      brightness_pct: 100
+      #brightness: '{{(states.light.caroline_bedroom.attributes.brightness) + 50}}'
+
+
+- alias: bedroom_dim_down
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: remote_bedroom
+        event: 3002
+  action:      
+  - service: light.turn_on
+    data_template:
+      entity_id:
+        - light.erlend_bedroom
+        - light.caroline_bedroom
+      brightness_pct: 1
+  # - service: notify.me
+  #   data:
+  #     message: "dimmed down bedroom light"
+
+- alias: bedroom_right
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: remote_bedroom
+        event: 5002
+  action:      
+  - service: light.toggle
+    entity_id:
+      - light.caroline_bedroom
+    data_template:
+      brightness_pct: 1
+ 
+- alias: bedroom_left
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: remote_bedroom
+        event: 4002
+  action:      
+  - service: light.toggle
+    entity_id:
+      - light.erlend_bedroom
+    data_template:
+      brightness_pct: 1
+      
+
+#######              ######
+###### Living Remote  #####
+#######              ######
+
+
+- alias: living_dim_up
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: dimmer_spisestue
+        event: 2002
+  action:      
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.brightness
+      value: '{{ (states.input_number.brightness.state)|int + 20 }}'
+
+
+- alias: living_dim_down
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: dimmer_spisestue
+        event: 3002
+  action:      
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.brightness
+      value: '{{ (states.input_number.brightness.state)|int - 20 }}'
+
+
+#######              ######
+#  transmitter_1_gang     #
+#######              ######
+- alias: switch_press
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: transmitter_1_gang
+        event: 1002
+  action:
+    - service: light.turn_on
+      entity_id: group.living     
+  # - service: homeassistant.turn_on
+  #   entity_id: script.playradioremote
+      data_template:
+        entity_id: group.living
+        brightness_pct: '{{ states.input_number.brightness.state | int }}'
+        profile: '{{ states.input_number.light_profile.state }}'
+    - service: light.turn_on
+      entity_id: light.peis  
+      data_template:
+        brightness_pct: '100'
+        #light.peis.color
+        #rgb_color: [255,128,25]
+        rgb_color: [255, 128, 25] #caroline liker
+
+- alias: switch_hold_and_double
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: transmitter_1_gang
+        event: 1001
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: transmitter_1_gang
+        event: 1004
+  action:      
+  # - service: homeassistant.turn_on
+  #   entity_id: script.playradioremote
+    - service: light.turn_off
+      entity_id: group.living     
+
+
+# - alias: switch_double
+#   trigger:
+#     - platform: event
+#       event_type: deconz_event
+#       event_data:
+#         id: transmitter_1_gang
+#         event: 1004
+#   action:      
+#   - service: homeassistant.start
+#     entity_id: script.stopradio
+
+
+
+
+#######              ######
+######     Cube       #####
+#######              ######
+
+
+- alias: Cube shake
+  trigger:
+    - platform: event
+      event_type: deconz_event
+      event_data:
+        id: lumi_sensor_cube_aqgl01_7
+        event: 7007
+  action:      
+  # - service: homeassistant.toggle
+  #   entity_id: input_boolean.trymasleep
+    - service: notify.me
+      data_template:
+          message: 'Ristrist!'
+
+
+# - alias: cube2004
+#   trigger:
+#     - platform: event
+#       event_type: deconz_event
+#       event_data:
+#         id: lumi_sensor_cube_aqgl01_7
+#         event: 2004
+#   action:      
+
+# - alias: cube6002
+#   trigger:
+#     - platform: event
+#       event_type: deconz_event
+#       event_data:
+#         id: lumi_sensor_cube_aqgl01_7
+#         event: 6002
+#   action:      
+
+# - alias: cube6002
+#   trigger:
+#     - platform: event
+#       event_type: deconz_event
+#       event_data:
+#         id: lumi_sensor_cube_aqgl01_7
+#         event: 4000
+#   action:      
+
+
+# - alias: cube3002
+#   trigger:
+#     - platform: event
+#       event_type: deconz_event
+#       event_data:
+#         id: lumi_sensor_cube_aqgl01_7
+#         event: 3002
+#   action:      
+
+
+# - alias: cube6002
+#   trigger:
+#     - platform: event
+#       event_type: deconz_event
+#       event_data:
+#         id: lumi_sensor_cube_aqgl01_7
+#         event: 1004
+#   action:    
+
+
+# - alias: cube6002
+#   trigger:
+#     - platform: event
+#       event_type: deconz_event
+#       event_data:
+#         id: lumi_sensor_cube_aqgl01_7
+#         event: 2004
+#   action:      
+
+# - alias: cube6002
+#   trigger:
+#     - platform: event
+#       event_type: deconz_event
+#       event_data:
+#         id: lumi_sensor_cube_aqgl01_7
+#         event: 2001
+#   action:      
+
+# - alias: cube6002
+#   trigger:
+#     - platform: event
+#       event_type: deconz_event
+#       event_data:
+#         id: lumi_sensor_cube_aqgl01_7
+#         event: 3006
+#   action:      
+
+# - alias: cube6002
+#   trigger:
+#     - platform: event
+#       event_type: deconz_event
+#       event_data:
+#         id: lumi_sensor_cube_aqgl01_7
+#         event: 5003
+#   action:      
+
+# - alias: cube6002
+#   trigger:
+#     - platform: event
+#       event_type: deconz_event
+#       event_data:
+#         id: lumi_sensor_cube_aqgl01_7
+#         event: 4005
+#   action:      
+
+# - alias: switch1217
+#   trigger:
+#     - platform: event
+#       event_type: deconz_event
+#       event_data:
+#         id: switch_8
+#         event: -1217
+#   action:      
+

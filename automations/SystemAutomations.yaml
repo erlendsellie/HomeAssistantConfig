@@ -1,0 +1,167 @@
+
+
+- alias: Restart Home Assistant When High Memory
+  trigger:
+  - platform: time
+    at: '03:20:00'    
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.memory_use_percent
+    above: 90
+  action:
+  - service: notify.me
+    data_template:
+      message: 'Restarted Home Assistant due to high Memory Usage at {{states.sensor.memory_use_percent.state}}'
+  - service: homeassistant.restart
+
+
+- alias: NotifyLowDiskSpace
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.disk_use_percent
+    above: 90
+  action:
+  - service: notify.me
+    data_template:
+      message: 'Disk usage of Ubuntu VM is at {{states.sensor.disk_use_percent.state}}'
+
+
+
+- alias: NotifySlowNetwork
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.speedtest_download
+    below: 70
+  action:
+  - service: notify.me
+    data_template:
+      message: 'The last Speedtest had a download speed of {{states.sensor.speedtest_download.state}}'
+
+
+- alias: NotifyDoorBellLow
+  trigger:
+  - platform: state
+    entity_id: person.erlend
+    to: 'home'
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.front_door_battery
+      below: 20
+  action:
+  - service: notify.me
+    data_template:
+      message: 'The Door bell battery is getting low: {{states.sensor.front_door_battery.state}}'
+
+
+
+
+- alias: NotifyGoogleWifiDown
+  mode: single
+  trigger:
+    - platform: template
+      value_template: "{{states.binary_sensor.google_wifi_connected.state != 'on' and states.binary_sensor.google_wifi_connected.state != 'off'}}"
+      for:
+        minutes: 5
+  action:
+  - service: notify.me
+    data_template:
+      message: 'Google Wifi seems to be down. Try https://1q4u4bxleoi6poeenew920ecy5g1z4te.ui.nabu.casa'
+  - wait_for_trigger:
+    - platform: template
+      value_template: "{{states.binary_sensor.google_wifi_connected.state == 'on' or states.binary_sensor.google_wifi_connected.state == 'off'}}"
+    timeout: '10:00:00' 
+    continue_on_timeout: false
+  - service: notify.me
+    data_template:
+      message: 'Google Wifi is up again'
+
+
+- alias: NotifyZWaveDown
+  mode: single
+  trigger:
+    - platform: template
+      value_template: "{{states.light.hallway.state != 'on' and states.light.hallway.state != 'off'}}"
+      for:
+        minutes: 15
+  action:
+  - service: notify.me
+    data_template:
+      message: 'The Z-wave network seems to be down, restarting'
+  - delay:
+      minutes: 2  
+  - service: hassio.addon_restart
+    data:
+      addon: core_zwave
+  - wait_for_trigger:
+    - platform: template
+      value_template: "{{states.light.hallway.state == 'on' or states.light.hallway.state == 'off'}}"
+      for:
+        minutes: 2
+    timeout: '03:00:00' 
+    continue_on_timeout: false
+  - service: notify.me
+    data_template:
+      message: 'The Z-wave network is up again'
+  - delay:
+      minutes: 20
+
+- alias: NotifyZigbeeDown
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.water_kitchen
+    to: 'unavailable'
+    for:
+      minutes: 2
+  action:
+  - service: notify.me
+    data_template:
+      message: 'The Zigbee network seems to be down'
+  - wait_for_trigger:
+    - platform: state
+      entity_id: binary_sensor.water_kitchen
+      to: 'on'
+      for:
+        minutes: 2
+    - platform: state
+      entity_id: binary_sensor.water_kitchen
+      to: 'off'
+      for:
+        minutes: 2
+    timeout: '03:00:00' 
+    continue_on_timeout: false
+  - service: notify.me
+    data_template:
+      message: 'The Zigbee network is up again'
+  
+
+- alias: NotifyMqttDown
+  trigger:
+    - platform: time
+      at: '02:00:00'    
+  action:
+  - service: switch.turn_on
+    entity_id: switch.fan_bathroom
+  - delay:
+      seconds: 10
+  - condition: template
+    value_template: "{{states.switch.fan_bathroom.state == 'off'}}"
+  - service: notify.me
+    data_template:
+      message: 'The MQTT network seems to be down'
+
+- alias: NotifyMqttDownreset
+  trigger:
+    - platform: time
+      at: '02:00:40'
+  action:
+  - service: switch.turn_off
+    entity_id: switch.fan_bathroom
+
+- alias: health check every 3 mins
+  trigger:
+    platform: time_pattern
+    minutes: /5
+  action:
+      - service: rest_command.healthcheck
+      
+      

@@ -1,0 +1,127 @@
+- alias: 'IfttcloseGarage'
+  trigger:
+    platform: webhook
+    webhook_id: ifttclosegarage
+  action:
+    - service: cover.close_cover
+      entity_id: cover.garage_door
+    - service: script.turn_on
+      entity_id: script.notify
+      data_template:
+        variables:
+          title: Garage closed by IFTT.
+          message: Garage closed by IFTT.
+
+- alias: 'IfttopenGarage'
+  trigger:
+    platform: webhook
+    webhook_id: ifttopengarage
+  action:
+    - service: cover.open_cover
+      entity_id: cover.garage_door
+    - service: script.turn_on
+      entity_id: script.notify
+      data_template:
+        variables:
+          title: Garage opened by IFTT.
+          message: Garage opened by IFTT.
+
+
+- alias: 'ifttBrigthness'
+  trigger:
+    platform: webhook
+    webhook_id: ifttbrigthness
+  action:
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.brightness
+      value: "{{ (trigger.json.value | float ) -1}}"  
+  - service: input_number.set_value
+    data_template:
+      entity_id: input_number.brightness
+      value: "{{ trigger.json.value | float }}"
+
+
+- alias: 'IFTTTurnOnTV'
+  trigger:
+    platform: webhook
+    webhook_id: turnontviftt
+  action:
+  - service: homeassistant.turn_on
+    entity_id: script.turnontv 
+
+
+- alias: 'IFTTTurnOffTV'
+  trigger:
+    platform: webhook
+    webhook_id: turnofftviftt
+  action:
+    - service: media_player.turn_off
+      entity_id: media_player.tv_stua
+
+- alias: 'IFTTTPauseTV'
+  trigger:
+    platform: webhook
+    webhook_id: pausetviftt
+  action:
+    - service: media_player.media_pause
+      entity_id: media_player.tv_stua
+
+
+
+- alias: 'svetlana'
+  trigger:
+    platform: webhook
+    webhook_id: svetlana
+  action:
+    - service: vacuum.start
+      entity_id: vacuum.xiaomi_vacuum_cleaner
+
+
+- alias: 'lockDoorIftt'
+  trigger:
+    platform: webhook
+    webhook_id: lockiftt
+  action:
+    - service: lock.lock
+      entity_id: lock.ytterdor
+      data_template:
+        code: "{{ trigger.json.value}}"
+
+
+- alias: 'IFTTturnofflights'
+  trigger:
+    platform: webhook
+    webhook_id: lightsoffiftt
+  action:
+  - service: homeassistant.turn_on
+    entity_id: script.lightsoff 
+
+
+
+- alias: 'IFTTturnonlights'
+  trigger:
+    platform: webhook
+    webhook_id: lightsoniftt
+  action:
+  - service: homeassistant.turn_on
+    entity_id: script.lightson 
+
+- alias: 'CarHeateriftt'
+  trigger:
+    platform: webhook
+    webhook_id: carheateriftt
+  action:
+  - service: switch.turn_on
+    entity_id: switch.carheater
+  - service: notify.me
+    data:
+      message: 'Car Heater turned on by Assistant.'
+
+- alias: 'CarHeaterMountediftt'
+  trigger:
+    platform: webhook
+    webhook_id: carheatermountediftt
+  action:
+  - service: homeassistant.turn_on
+    entity_id: input_boolean.carheatermounted

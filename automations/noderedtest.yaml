@@ -1,0 +1,19 @@
+
+- alias: nodered-garbage
+  trigger:
+    platform: event
+    event_type: nodered-garbage
+    # event_data:
+    #   entity_id: binary_sensor.switch_158d00023d314c 
+    #   click_type: single
+    #   #double, long_click_press, hold, single
+  action:
+  - service: notify.me
+    data_template:
+      message: "{{trigger.event.data.wastetype}} blir tømt {{trigger.event.data.date}}"
+      
+      
+      
+      #" {{ trigger.event_data.wastetype }} blir tømt den {{ trigger.event_data.date }} "
+      # data:
+      #   requireInteraction: true              

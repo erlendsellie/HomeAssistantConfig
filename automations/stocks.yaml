@@ -1,0 +1,50 @@
+- alias: CheapStocks
+  trigger:
+  - platform: template
+    value_template: "{{ (states.sensor.tsla.state | int) and (states.sensor.tsla.state | int  < states.input_number.stockprice.state |int)}}"
+  action:
+  - service: script.turn_on
+    entity_id: script.notify
+    data_template:
+      variables:
+        title: TSLA below threshold
+        message: Now at {{states.sensor.tsla.state}}.
+
+
+- alias: ExpensiveStocks
+  trigger:
+  - platform: template
+    value_template: "{{ (states.sensor.tsla.state | int) and (states.sensor.tsla.state | int  > states.input_number.expensive_stock_price.state |int)}}"
+  action:
+  - service: script.turn_on
+    entity_id: script.notify
+    data_template:
+      variables:
+        title: TSLA over threshold
+        message: Now at {{states.sensor.tsla.state}}.
+
+
+- alias: CheapStocksPLTR
+  trigger:
+  - platform: template
+    value_template: "{{ (states.sensor.pltr.state | int) and (states.sensor.pltr.state | int  < states.input_number.cheap_pltr.state |int)}}"
+  action:
+  - service: script.turn_on
+    entity_id: script.notify
+    data_template:
+      variables:
+        title: PLTR below threshold
+        message: Now at {{states.sensor.pltr.state}}.
+
+
+- alias: ExpensiveStocksPLTR
+  trigger:
+  - platform: template
+    value_template: "{{ (states.sensor.pltr.state | int) and (states.sensor.pltr.state | int  > states.input_number.expensive_pltr.state |int)}}"
+  action:
+  - service: script.turn_on
+    entity_id: script.notify
+    data_template:
+      variables:
+        title: PLTR over threshold
+        message: Now at {{states.sensor.pltr.state}}.

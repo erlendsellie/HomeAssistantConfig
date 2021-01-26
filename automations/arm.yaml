@@ -1,0 +1,145 @@
+
+# - id: arm_away2
+#   alias: arm_away2
+#   condition:
+#     condition: and
+#     conditions:
+#     # If People are not home, guest mode is off and caroline and erlend are not home.
+#     - condition: state
+#       entity_id: group.people
+#       state: 'not_home'
+#     - condition: state
+#       entity_id: input_boolean.guestmode
+#       state: 'off'      
+#     - condition: and
+#       conditions:
+#       # Should have this, but if someone is asleep,we should arm home.
+#       # - condition: state
+#       #   entity_id: input_boolean.casleep
+#       #   state: 'off'
+#       - condition: state
+#         entity_id: binary_sensor.carolinehome
+#         state: 'off'
+#       # - condition: state
+#       #   entity_id: group.caroline
+#       #   state: not_home
+#     - condition: and
+#       conditions:
+#       # - condition: state
+#       #   entity_id: input_boolean.easleep
+#       #   state: 'off'
+#       - condition: state
+#         entity_id: binary_sensor.erlendhome
+#         state: 'off'
+#         # entity_id: group.erlend
+#         # state: not_home
+#   trigger:
+#   - platform: state
+#     entity_id: group.people
+#     to: 'not_home'
+#   - platform: state
+#     entity_id: group.people
+#     to: 'not_home'
+#     for:
+#       minutes: 5
+#   - platform: state
+#     entity_id: lock.ytterdor
+#     to: 'locked'
+#     for:
+#       minutes: 5
+#   - platform: state
+#     entity_id: binary_sensor.carolinehome
+#     to: 'off'
+#   - platform: state
+#     entity_id: binary_sensor.erlendhome
+#     to: 'off'    
+#   action:
+#   - service: input_select.select_option
+#     data:
+#       entity_id: input_select.alarm
+#       option: Arm Away
+
+
+
+# #just add a condition template for someone asleep in arm away? So arm away will trigger,
+# # but arm home if someone is still asleep, regardless off home state?
+# # or validate that that person has to be home as well, to avoid wrongly asleep boolean.
+# # Easy template. And can reduce amount of code checks, ie guestmode.
+# - id: arm_night
+#   alias: arm_night
+#   condition:
+#     condition: and
+#     conditions:
+#     - condition: or
+#       conditions:
+#       - condition: state
+#         entity_id: input_boolean.easleep
+#         state: 'on'
+#       - condition: state
+#         entity_id: group.erlend
+#         state: not_home
+#     - condition: or
+#       conditions:
+#       - condition: state
+#         entity_id: input_boolean.casleep
+#         state: 'on'
+#       - condition: state
+#         entity_id: group.caroline
+#         state: not_home
+#     - condition: or
+#       conditions:
+#       - condition: state
+#         entity_id: input_boolean.easleep
+#         state: 'on'
+#       - condition: state
+#         entity_id: input_boolean.casleep
+#         state: 'on'
+#     - condition: or
+#       conditions:
+#       - condition: state
+#         entity_id: group.caroline
+#         state: home
+#       - condition: state
+#         entity_id: group.erlend
+#         state: home
+#     - condition: state
+#       entity_id: input_boolean.guestmode
+#       state: 'off'
+#   trigger:
+#   - platform: state
+#     entity_id: group.erlend
+#     to: not_home
+#   - platform: state
+#     entity_id: group.caroline
+#     to: not_home
+#   - platform: state
+#     entity_id: input_boolean.easleep
+#     to: 'on'
+#   - platform: state
+#     entity_id: input_boolean.casleep
+#     to: 'on'
+#   - platform: state
+#     entity_id: group.erlend
+#     to: not_home
+#     for:
+#       minutes: 5    
+#   - platform: state
+#     entity_id: group.caroline
+#     to: not_home
+#     for:
+#       minutes: 5    
+#   - platform: state
+#     entity_id: input_boolean.easleep
+#     to: 'on'
+#     for:
+#       minutes: 5    
+#   - platform: state
+#     entity_id: input_boolean.casleep
+#     to: 'on'
+#     for:
+#       minutes: 5
+#   action:
+#   - service: input_select.select_option
+#     data:
+#       entity_id: input_select.alarm
+#       option: 'Arm Home'

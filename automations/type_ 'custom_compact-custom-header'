@@ -1,0 +1,21 @@
+type: 'custom:compact-custom-header'
+main_config: true
+menu: overflow
+options: clock
+voice: hide
+clock_format: 12
+exceptions:
+  - conditions:
+      user: maykar
+    config:
+      voice: show
+      options: clock
+      clock_format: 24
+  - conditions:
+      user: maykar
+      user_agent: Mobile
+      media_query: (max-width: 600px)
+    config:
+      options: clock
+      clock_format: 12
+      hide_tabs: 4,5,9

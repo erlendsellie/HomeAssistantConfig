@@ -1,0 +1,302 @@
+
+  - platform: ffmpeg_noise
+    name: dafang_sound
+    input: ffmpeg -i rtsp://erlend:lagopi@192.168.1.30:554/stream2 -vn -filter:a silencedetect=n=-30dB:d=1 -f null -
+      #   input: ffmpeg -i rtsp://root:lagopi@192.168.1.124:8554/unicast -vn -filter:a silencedetect=n=-30dB:d=1 -f null -
+  - platform: car_wash
+    weather: weather.home
+
+
+  - platform: command_line
+    name: 'byasen.duckdns'
+    command: curl -m 3 -s byasen.duckdns.org:8123/ > /dev/null && echo ON || echo OFF
+    scan_interval: 180
+
+  - platform: ping
+    name: 'ipad'
+    host: 192.168.1.6
+
+  - platform: ping
+    name: 'XPS'
+    host: 192.168.1.32
+
+
+  # - platform: command_line
+  #   command: >-
+  #       curl 'https://www.posten.no/levering-av-post-2020/_/component/main/1/leftRegion/1?postCode=7072' \
+  #         -H 'x-requested-with: XMLHttpRequest' \
+  #         --compressed
+  #   name: MailToday
+  #   # json_attributes:
+  #   #   - nextDeliveryDays
+  #   value_template: "{{'i dag' in (value_json | string) }}"
+  #   scan_interval: 57600
+  #   command_timeout: 30
+
+
+  
+  - platform: bayesian
+    prior: 0.5
+    name: 'Home'
+    probability_threshold: 0.9
+    observations:
+      - entity_id: 'device_tracker.bt'
+        prob_given_true: 0.75
+        prob_given_false: 0.1
+        platform: 'state'
+        to_state: 'home'    
+      - entity_id: 'device_tracker.wifi'
+        prob_given_true: 0.75
+        prob_given_false: 0.1
+        platform: 'state'
+        to_state: 'home'
+      - entity_id: 'device_tracker.life360'
+        prob_given_true: 0.75
+        prob_given_false: 0.1
+        platform: 'state'
+        to_state: 'home'
+
+  - platform: template
+    scan_interval: 10
+    sensors:
+      mailtoday:
+        friendly_name: 'Mail Today'
+        value_template: "{{states.sensor.mailtoday.state == 'True'}}"
+      pricerelativycheap:
+        friendly_name: 'price Relativy Cheap'
+        value_template: >-
+          {%- set price = states.sensor.electricity_price_sivert_thonstads_vei_6b -%}
+          {{price.state | float < price.attributes.peak | float}}
+      ismaxprice:
+        friendly_name: 'Is Max price?'
+        value_template: >-
+          {%- set price = states.sensor.electricity_price_sivert_thonstads_vei_6b -%}
+          {{price.state | float  == price.attributes.max_price | float}}
+      pricegaining:
+        friendly_name: 'Price Gaining Next Hour'
+        value_template: >-
+          {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
+          {%-set hour = time.split(':')[0] | round -%}
+          {%-set nordpool = states.sensor.nordpool -%}
+          {%-set priceNextHour = nordpool.attributes.today[hour] | float -%}
+          {%-set priceNow = nordpool.attributes.today[hour-1] | float -%}
+          {%-set cheap = states.sensor.pricelevel.state != 'EXPENSIVE' and states.sensor.pricelevel.state != 'VERY_EXPENSIVE' -%}
+          {{(priceNow < priceNextHour)}}
+#Add time to these, and voila
+      echarging:
+        value_template: "{{states.sensor.erlend_battery_state.state != 'discharging'}}"
+      ccharging:
+        value_template: "{{ states.sensor.caroline_battery_state.state != 'discharging'}}"
+      tv_on:
+        value_template: "{{ states.media_player.tv_stua.state == 'Playing'}}"
+      garageanddooropen:
+        device_class: opening
+        value_template: "{{(states.binary_sensor.garage_backdoor.state == 'on' and states.cover.garage_door.state == 'on') and (states.binary_sensor.door_downstair.state == 'on' or states.binary_sensor.veranda.state == 'on') }}"
+      stairsexposed:
+        device_class: opening
+        value_template: >-
+            {{(states.binary_sensor.grind.state == 'on' and states.group.innedorsensorer.state == 'on')
+            and ((states.input_boolean.trymasleep.state == 'off' and states.binary_sensor.trym_home.state == 'on') 
+            or states.input_boolean.tyraasleep.state == 'off' )}}
+      upstairstairs:
+        device_class: opening
+        value_template: "{{states.binary_sensor.grind_oppe.state == 'on' and states.binary_sensor.trym_home.state == 'on' and states.input_boolean.trymasleep.state == 'on'}}"
+    # value_template: "{{(states.binary_sensor.grind_oppe.state == 'on' and ((states.input_boolean.trymasleep.state == 'on' and states.binary_sensor.trym_home.state == 'on') or states.input_boolean.tyraasleep.state == 'on'))}}"
+
+      # garagestatus:
+      #   device_class: opening
+      #   value_template: "{{ is_state('switch.garagestatus', 'on') }}"
+      # cheaperpower:
+      #   friendly_name: "Power is kinda cheap"
+      #   value_template: "{{ states('sensor.electricity_price_sivert_thonstads_vei_6b.state')|float < states('sensor.electricity_price_sivert_thonstads_vei_6b.attributes.avg_price')|float }}"
+      motiondriveway:
+        friendly_name: "Motion Detected In Driveway"
+        device_class: motion
+        value_template:  "{{ is_state('input_boolean.motiondriveway', 'on') }}"     
+      motion_driveway_or_garage:
+        friendly_name: 'Motion Driveway or Garage'
+        device_class: motion
+        value_template: "{{states.binary_sensor.motion_garage.state == 'on' or states.binary_sensor.motion_driveway.state == 'on'}}"
+      motion_office_nexa:
+        friendly_name: "Motion Office"
+        device_class: motion
+        value_template:  "{{ is_state('switch.soverombevegelse', 'on') }}"     
+      robot_charging:
+        device_class: battery_charging
+        value_template: "{{ is_state('binary_sensor.mower_dock', 'off') }}"
+        friendly_name: "Robot Charging"
+      robot_mowing:
+        friendly_name: "Mowing"
+        device_class: moving
+        delay_on:
+          seconds: 2
+        delay_off:   
+          seconds: 10
+        value_template: >-
+              {{
+              true or 
+              (is_state('binary_sensor.robot_charging', 'off')) 
+              and
+              is_state('switch.mower','on')
+              and
+              ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.vibration.last_changed)) < 200)  
+              or
+              (is_state('binary_sensor.vibration', 'on'))}}
+      robot_problem:
+        device_class: problem
+        value_template:  >-
+                {{(is_state('binary_sensor.robot_charging', 'off')) 
+                and
+                (is_state('binary_sensor.robot_mowing', 'off')) 
+                and
+                (is_state('binary_sensor.vibration', 'off'))
+                and
+                is_state('switch.mower','on')
+                }}
+        friendly_name: "Robot Stuck"    
+      robot_should_stop:
+        friendly_name: "Robot Should Stop"    
+        device_class: power
+        value_template: >-
+            {% set verandaOpen = is_state('binary_sensor.veranda_open','on') or is_state('binary_sensor.veranda','on') or is_state('binary_sensor.garage_backdoor','on') or is_state('binary_sensor.door_downstairs','on')%}
+            {% set isDocked = is_state('binary_sensor.robot_charging','on') %}
+            {% set justRained = is_state('binary_sensor.justrained','on')%}
+            {% set isStuck = is_state('binary_sensor.robot_problem','on')%}
+            {% if isStuck or true %}
+                false
+            {% else %}
+              {% if verandaOpen and isDocked == false %}
+                  true
+              {% else %}
+                {% if justRained and isDocked %}
+                  true
+                {% else %}
+                  false
+                {% endif %}
+              {% endif %}
+            {% endif %}      
+      justrained:
+        friendly_name: "Just Rained"
+        device_class: moisture
+        value_template: "{{states.sensor.netatmo_home_rain_last_hour.state | int > 1}}"
+        delay_off:
+          hours: 5
+      washing:
+        friendly_name: 'Washing'
+        device_class: power
+        delay_on:
+          seconds: 30
+        delay_off:
+          seconds: 120
+        value_template: "{{states.sensor.vaskemaskin_electric_w.state | float > 30 }}"
+        icon_template: >-
+          {% if is_state("binary_sensor.washing", "on") %}
+            mdi:washing-machine
+          {% else %}
+            mdi:washing-machine-off
+          {% endif %}
+      drying:
+        friendly_name: 'drying'
+        device_class: power
+        delay_on:
+          seconds: 30
+        delay_off:
+          minutes: 5
+        value_template: "{{states.sensor.torketrommel_electric_w.state | float > 300}}"
+        icon_template: >-
+          {% if is_state("binary_sensor.drying", "on") %}
+            mdi:tumble-dryer
+          {% else %}
+            mdi:tumble-dryer-off
+          {% endif %}
+      erlend_living_room:
+        friendly_name: "Erlend in living room"
+        device_class: occupancy
+        value_template: "{{ states('sensor.phone_beacon_living')|float > -80 }}"
+      garage_occupied:
+        friendly_name: "Garage Occupied"
+        device_class: occupancy
+        delay_off:
+          minutes: 2
+        delay_on:
+          minutes: 1
+        value_template: "{{ states('sensor.garage_occupied')|float == 1 }}"
+        icon_template: >
+              {% if (state == 'off')%}
+              mdi:car-off
+              {% else %}
+              mdi:car
+              {% endif %}
+      trym_home:
+        device_class: occupancy
+        value_template: "{{ is_state('input_boolean.tryminkindergarden', 'off') }}"
+      passathome:
+        friendly_name: "Passat Home"
+        device_class: occupancy
+        value_template: "{{states.binary_sensor.tile_garage.state == 'on' or states.binary_sensor.tile_home.state == 'on' }}"
+        delay_off:
+          seconds: 180
+        icon_template: >
+            {% if (state == 'off')%}
+            mdi:car-off
+            {% else %}
+            mdi:car
+            {% endif %}
+      erlendhome:
+        friendly_name: "Erlend Home"
+        device_class: presence
+        entity_picture_template: /local/CVbilde.jpg
+        # entity_id:
+        #   - device_tracker.erlend_bt
+        #   - device_tracker.erlend_wifi
+        #   - device_tracker.life360_erlend_sellie
+        #   - sensor.date_time
+        # value_template: "{{is_state('device_tracker.erlend_bt','home') or is_state('person.erlend','home')}}"
+        value_template: "{{is_state('person.erlend','home')}}"
+      carolinehome:
+        friendly_name: "Caroline Home"
+        device_class: presence
+        entity_picture_template: /local/caroline.png
+        # entity_id:
+        #   - device_tracker.caroline_bt
+        #   - device_tracker.caroline_wifi
+        #   - device_tracker.life360_caroline_winge #TODO Caroline and on last or. Fixed because buggy wifi.
+        # value_template: "{{is_state('device_tracker.caroline_bt','home') or states.person.caroline.state == 'home' }}"
+        value_template: "{{states.person.caroline.state == 'home' }}"
+
+
+
+
+
+
+
+
+  #((is_state('device_tracker.erlend_wifi','home')
+  #and is_state('device_tracker.life360_erlend_sellie','home')))}}" #device_tracker.pi_g_watch_r_7594
+      
+
+
+        #(is_state('device_tracker.caroline_wifi','home')
+        #and is_state('device_tracker.life360_caroline_winge','home'))}}"
+
+        # value_template: >
+        #   {% set threshold = 2 %}
+        #   {% set weight = namespace(a=0) %}
+        #   {% for entity_id in states.group.erlend.attributes.entity_id %}
+        #     {% if states(entity_id) == 'home' %}      
+        #           {% if entity_id == 'device_tracker.life360_erlend_sellie' %}
+        #               {% set weight.a = weight.a + 1 %}
+        #           {% endif %}  
+        #           {% if entity_id == 'device_tracker.erlend_wifi' %}
+        #               {% set weight.a = weight.a + 1 %}
+        #           {% endif %}  
+        #           {% if entity_id == 'device_tracker.erlend_bt' %}
+        #               {% set weight.a = weight.a + 2 %}
+        #           {% endif %}  
+        #       {% endif %}  
+        #   {% endfor %}  
+        #   {%if weight.a >= threshold %}
+        #     true
+        #   {%else%}
+        #     false
+        #   {%endif%}          

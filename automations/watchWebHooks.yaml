@@ -1,0 +1,528 @@
+
+
+# TODO Secrets for webhook_ids before uploading
+# - alias: 'klokkeknappoppkontoret'
+#   trigger:
+#     platform: webhook
+#     webhook_id: klokkeknappopp
+#   condition:
+#   - condition: state
+#     entity_id: binary_sensor.motion_downstairs_office
+#     state: 'on'  
+#   action:
+#   - service: homeassistant.turn_on
+#     entity_id: light.play
+  
+# - alias: 'klokkeknappoppkontoret'
+#   trigger:
+#     platform: webhook
+#     webhook_id: klokkeknappned
+#   condition:
+#   - condition: state
+#     entity_id: binary_sensor.motion_downstairs_office
+#     state: 'on'  
+#   action:
+#   - service: homeassistant.turn_off
+#     entity_id: light.play
+
+- alias: 'klokkeknappopp'
+  trigger:
+    platform: webhook
+    webhook_id: klokkeknappopp
+  condition:
+  - condition: template
+    value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+  action:
+  # - condition: state
+  #   entity_id: binary_sensor.motion_downstairs_office
+  #   state: 'off'  
+  - service: light.turn_on
+    entity_id: 
+      - light.sofa
+      - light.tv
+      - light.bed
+      - light.peis
+    
+- alias: 'klokkeknappned'
+  trigger:
+    platform: webhook
+    webhook_id: klokkeknappned
+  condition:
+  - condition: template
+    value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+  action:
+  # - condition: state
+  #   entity_id: binary_sensor.motion_downstairs_office
+  #   state: 'off'    
+  - service: light.turn_off
+    entity_id: light.tvsone, light.peis
+
+#Slå av lys
+- alias: 'klokke12'
+  trigger:
+    platform: webhook
+    webhook_id: klokke12
+  condition:
+  - condition: template
+    value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off'}}"
+  action:
+    - choose:
+      - conditions:
+          - condition: state
+            entity_id: binary_sensor.motion_downstairs_office
+            state: 'on'
+        sequence:
+        - service: light.turn_off
+          entity_id: light.office_light, light.play
+      - conditions:
+        - condition: state
+          entity_id: binary_sensor.motion_downstairs_office
+          state: 'off'
+        sequence:    
+        - service: light.turn_off
+          entity_id: light.tvsone, light.peis    
+  #- service: light.turn_off
+    #entity_id: light.kjokkenbord    
+
+#Slå på lys
+- alias: 'klokke9'
+  trigger:
+    platform: webhook
+    webhook_id: klokke9
+  condition:
+  - condition: template
+    value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off'}}"
+  action:
+    - choose:
+      - conditions:
+          - condition: state
+            entity_id: binary_sensor.motion_downstairs_office
+            state: 'on'
+        sequence:
+        - service: light.turn_on
+          entity_id: light.office_light, light.play
+          data_template:
+            brightness_pct: '100'
+      - conditions:
+        - condition: state
+          entity_id: binary_sensor.motion_downstairs_office
+          state: 'off'
+        sequence:
+        - service: input_number.set_value
+          data:
+            entity_id: input_number.brightness
+            value: 99    
+        - service: input_number.set_value
+          data:
+            entity_id: input_number.brightness
+            value: 100
+        - service: light.turn_on
+          entity_id: light.peis
+
+#dim middels
+- alias: 'klokke6'
+  trigger:
+    platform: webhook
+    webhook_id: klokke6
+  condition:
+  - condition: template
+    value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+  action:
+  - service: input_number.set_value
+    data:
+      entity_id: input_number.brightness
+      value: 51    
+  - service: input_number.set_value
+    data:
+      entity_id: input_number.brightness
+      value: 50
+  - service: light.turn_on
+    entity_id: light.peis
+
+
+#Dim lavt
+- alias: 'klokke3'
+  trigger:
+    platform: webhook
+    webhook_id: klokke3
+  condition:
+  - condition: template
+    value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+  action:
+  - service: input_number.set_value
+    data:
+      entity_id: input_number.brightness
+      value: 9    
+  - service: input_number.set_value
+    data:
+      entity_id: input_number.brightness
+      value: 10
+  - service: light.turn_on
+    entity_id: light.peis
+
+
+# Åpne Garasje
+- alias: 'klokkeklokke'
+  trigger:
+    platform: webhook
+    webhook_id: klokkeklokke
+  condition:
+  - condition: template
+    value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
+  action:
+    # - service: homeassistant.turn_on
+    #   entity_id: script.garagetoggle
+    - service: cover.toggle
+      entity_id: cover.garage_door
+      #- service: script.turn_on
+      # entity_id: script.notify
+      # data_template:
+      #   variables:
+      #     title: Toggling garage.
+      #     message: Toggling garage by watch.
+
+- alias: 'klokkeklokkecaroline'
+  trigger:
+    platform: webhook
+    webhook_id: klokkeklokkecaroline
+  condition:
+  - condition: template
+    value_template: "{{ states.person.caroline.state != 'Sykehuset' }}"
+  action:
+    # - service: homeassistant.turn_on
+    #   entity_id: script.garagetoggle
+    - service: cover.toggle
+      entity_id: cover.garage_door
+    - service: script.turn_on
+      entity_id: script.notifycaroline
+      data_template:
+        variables:
+          title: Toggling garage.
+          message: Toggling garage.
+
+
+#    - service: notify.html5_p30
+#      data_template:
+#          message: 'You {% if states.cover.garage_door.state == "open" %} closed {% else %} opened {% endif %}the garage'
+
+  # - service: notify.html5_p30
+  #   data_template:
+  #     message: The Garage is {{ states.cover.garage_door.state }}. Toggle?
+  #     data:
+  #       actions:
+  #         - action: togglegarage
+  #           title: 'Yes'
+
+- alias: togglegarageeventdata
+  trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: togglegarage
+  action:
+    - service: cover.toggle
+      entity_id: cover.garage_door
+    - service: script.turn_on
+      entity_id: script.notify
+      data_template:
+        variables:
+          title: 'Garage toggled'
+          message: 'You {% if states.cover.garage_door.state == "open" %} closed {% else %} opened {% endif %}the garage'
+
+
+- alias: 'klokketemp'
+  trigger:
+    platform: webhook
+    webhook_id: klokketemp
+  condition:
+  - condition: template
+    value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+  action:
+  - service: light.turn_off
+    entity_id: light.kitchensone    
+#  - service: light.turn_off
+#    entity_id: light.kjokkenbord
+
+
+#
+- alias: 'klokkedate'
+  trigger:
+    platform: webhook
+    webhook_id: klokkedate
+  condition:
+  - condition: template
+    value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+  action:  
+  - service: light.turn_on
+    data_template:
+      # brightness_pct: '{{ trigger.to_state.state | int }}'
+      entity_id: group.notdimmableliving
+      profile: '{{ states.input_number.light_profile.state }}'
+  - service: light.turn_on
+    entity_id: light.kjokkenbord, light.cabinet, light.table_lamp
+    data:
+      #rgb_color: [255,128,25]
+      brightness_pct: 100
+      rgb_color: [255, 128, 25] #caroline liker
+  - service: light.turn_on
+    entity_id: light.ledstrip_kitchen
+  - service: light.turn_on
+    entity_id: light.kitchen_ceiling_led, light.kitchen
+    data:
+      #rgb_color: [255,128,25]
+      brightness_pct: 100
+      color_temp: '215'
+
+
+#Pause TV
+- alias: 'klokkevenstrebat'
+  trigger:
+    platform: webhook
+    webhook_id: klokkevenstrebat
+  condition:
+  - condition: template
+    value_template: "{{states.binary_sensor.motion_downstairs_office.state == 'off'}}"        
+  action:
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: "{{ states.person.erlend.state  != 'home'}}"
+        sequence:
+        - service: media_player.media_play_pause
+          entity_id: media_player.spotify_erlend_sellie
+      - conditions:
+          - condition: state
+            entity_id: input_boolean.easleep
+            state: 'on'
+        sequence:
+        - service: media_player.media_play_pause
+          entity_id: media_player.bedroom
+      - conditions:
+        - condition: template
+          value_template: "{{ states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused'}}"
+        sequence:
+        - service: media_player.media_play_pause
+          entity_id: media_player.musikkstua
+      - conditions:
+        - condition: state
+          entity_id: input_boolean.easleep
+          state: 'off'
+        sequence:
+        - service: media_player.media_play_pause
+          entity_id: media_player.nvidia_shield
+
+  # - condition: template
+  #   value_template: "{{ states.media_player.tv_stua.state == 'off' }}"            
+  # - service: media_player.turn_on
+  #   entity_id: media_player.tv_stua_ir
+
+    
+# - alias: 'klokkevenstrebatnatta'
+#   trigger:
+#     platform: webhook
+#     webhook_id: klokkevenstrebat
+#   condition:
+#   - condition: template
+#     value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'on'}}"        
+#   action:
+#   - service: media_player.media_play_pause
+#     entity_id: media_player.bedroom_chromecast #media_player.tv_soverommet, media_player.bedroom
+
+
+- alias: 'klokkehoyrebat'
+  trigger:
+    platform: webhook
+    webhook_id: klokkehoyrebat
+  condition:
+  - condition: template
+    value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+  action:
+  - service: homeassistant.turn_on
+    entity_id: script.lightson
+
+
+
+- alias: 'klokke1'
+  trigger:
+    platform: webhook
+    webhook_id: klokke1
+  condition:
+  - condition: template
+    value_template: "{{ states.group.erlend.state == 'home' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+  action:
+    - choose:
+      - conditions:
+          - condition: state
+            entity_id: input_boolean.easleep
+            state: 'off'
+        sequence:
+        - service: media_player.toggle
+          entity_id: media_player.nvidia_shield          
+        - service: media_player.toggle
+          entity_id: media_player.tv_stua
+      - conditions:
+        - condition: state
+          entity_id: input_boolean.easleep
+          state: 'on'
+        - condition: state
+          entity_id: media_player.tv_soverommet
+          state: 'off'
+        sequence:
+        - service: media_player.turn_on
+          entity_id: media_player.bedroom
+      - conditions:
+        - condition: state
+          entity_id: input_boolean.easleep
+          state: 'on'
+        - condition: state
+          entity_id: media_player.tv_soverommet
+          state: 'on'
+        sequence:
+        - service: media_player.turn_off
+          entity_id: media_player.tv_soverommet          
+
+- alias: 'klokke11'
+  trigger:
+    platform: webhook
+    webhook_id: klokke11
+  condition:
+  - condition: template
+    value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+  action:
+  - service: light.toggle
+    entity_id: light.sofa
+
+
+- alias: 'klokke5'
+  trigger:
+    platform: webhook
+    webhook_id: klokke5
+  condition:
+  - condition: template
+    value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
+  action:
+    - service: cover.toggle
+      entity_id: cover.veranda_curtains
+
+
+- alias: 'klokkemotion'
+  trigger:
+    platform: webhook
+    webhook_id: klokkemotion
+  action:
+  - service: notify.mobile_app_erlend_app
+    data_template:
+      title: Driveway
+      message: Driveway
+      data:
+        image: https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}
+
+    
+
+- alias: 'klokkemower'
+  trigger:
+    platform: webhook
+    webhook_id: klokkemower
+  condition:
+  - condition: template
+    value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
+  action:
+    - service: switch.turn_on
+      entity_id: switch.mower
+
+
+- alias: 'moreActions'
+  trigger:
+    platform: webhook
+    webhook_id: moreactions
+  condition:
+  - condition: template
+    value_template: "{{ states.person.erlend.state != 'Work'}}"
+  action:
+    - choose:
+      - conditions:
+          - condition: state
+            entity_id: input_boolean.easleep
+            state: 'on'
+        sequence:
+          - service: notify.mobile_app_erlend_app
+            data_template:
+              title: 'Turn on the blanket heater?'
+              message: 'Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom.'
+              data:
+                ttl: 0
+                priority: high
+                actions:
+                - action: blanketoff
+                  title: 'Turn off'                
+                - action: blanket30min
+                  title: 'Yes, 30 minutes'
+                - action: blanketTVOff
+                  title: 'Yes, until TV Off'
+      - conditions:
+        - condition: state
+          entity_id: input_boolean.easleep
+          state: 'off'
+        sequence:
+          - service: notify.mobile_app_erlend_app
+            data_template:
+              message: 'Actions'
+              data:
+                ttl: 0
+                priority: high
+                actions:
+                  - action: togglecurtains
+                    title: Toggle Curtains
+                    destructive: false
+                  - action: trymtoggle
+                    title: Trym Asleep Toggle
+                    destructive: true
+                  - action: tyratoggle
+                    title: Tyra Asleep Toggle
+                    destructive: true
+                  - action: officeheater
+                    title: Office Heater
+                    destructive: true
+
+
+
+- alias: 'toggleCurtainsNotification'
+  trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: togglecurtains
+  action:
+    - service: cover.toggle
+      entity_id: cover.veranda_curtains
+
+
+- alias: notification_clean
+  trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: clean
+  action:
+    - service: vacuum.start
+      entity_id: vacuum.xiaomi_vacuum_cleaner
+
+- alias: notification_trym_toggle
+  trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: trymtoggle
+  action:
+    - service: input_boolean.toggle
+      entity_id: input_boolean.trymasleep
+
+- alias: notification_tyra_toggle
+  trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: tyratoggle
+  action:
+    - service: input_boolean.toggle
+      entity_id: input_boolean.tyraasleep
