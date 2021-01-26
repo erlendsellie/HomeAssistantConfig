@@ -592,8 +592,6 @@ rest_command:
       url: 'https://hc-ping.com/53f9779a-db7b-4497-9d95-5b729ce7bd77'
 
 shell_command:
-  lights_off_php: php -r 'include "php/homeassistant.php";callWebhook('lightsoff');'
-  lights_on_php: php -r 'include "php/homeassistant.php";callWebhook('lightson');'
   restart_container: docker restart homeassistant
   pb_send_image: 'perl sendpicture.pl'
   pb_send_image2: 'perl sendpicture2.pl'
