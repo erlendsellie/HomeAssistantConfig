@@ -30,6 +30,38 @@ This is used for:
 - Notify us if no one has picked them up from kindergarden before it closes.
 
 
+#### Smart watch control
+Selfmade watchface with tasker integration that triggers some webhooks and actionable notifications in Home Assistant that does the following:
+- Dim the lights in some occupied rooms to desired light level.
+- Toggle the garage
+- Toggle the curtains
+- Turn on/off the bed blanket heater
+
+#### Other:
+- Stock price notifications using FinnHub.io API
+- Mail delivery days notifications.
+- Waste collection notifications
+
+## Specs
+
+- Aqara motion sensors and magnet sensors
+- IKEA Trådfri / Hue / Namron lights, switches and bulbs
+- Aqara and 433mhz temperature and humidity sensors
+- A-OK Curtain controllers from AliExpress, controlled with ESP32.
+- ESP32-based light strips
+- ESP32-based garage door and garage occupied sensor.
+- Yale Doorman smartlock
+- Xiaomi Roborock S5 Vacuum cleaner
+- Sonoff controlled bathroom fan, turns on when humidity is high.
+- Ikea Trådfri switch for bed blanket warmer 
+- Ikea Trådfri switches for electric car heater, with notification before we go to bed if it's freezing overnight.
+- Game timer. After hunting, game birds are supposed to hang for 40 'daydegrees'. This package appendes the temperature for each hour, and notifies me when the bird is ready for the freezer.
+- Ring Doorbell
+- Google Nest speakers for announcement and multi room music.
+- Ender 3 3D Printer connected with Octoprint.
+- Tibber for power management. (Use Referral code https://invite.tibber.com/11541ba9 for 50 EUR bonus for smarthome equipment)
+- MiFlora sensors for plants
+- Power monitoring of washer and dryer for notifications when the laundry is done.
 
 
 ## Screenshots: 
