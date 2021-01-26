@@ -894,39 +894,10 @@ browser_mod:
 browser:
 
 panel_iframe:
-  # adguard:
-  #   title: AdGuard
-  #   icon: mdi:shield-check
-  #   url: https://sivert.duckdns.org:8124/hassio/ingress/a0d7b954_adguard
-  # setrollheimen:
-  #   title: SeTrollheimen
-  #   icon: mdi:image-filter-hdr
-  #   url: https://embed.metnet.no/?dash=vEWisKoESq
-  # nodered:
-  #   title: Node-RED
-  #   icon: mdi:sitemap
-  #   url: https://sivert.duckdns.org:1880/  
-  # vscode:
-  #   title: VS Code
-  #   icon: mdi:visual-studio-code
-  #   url: https://sivert.duckdns.org:1337  
   tautulli:
     title: Tautulli
     icon: mdi:filmstrip
-    url: https://sivert.duckdns.org:8181
-  # logviewer:
-  #   title: LogViewer
-  #   icon: mdi:bug
-  #   url: https://sivert.duckdns.org:4277
-  # deconz:
-  # title: deCONZ
-   # icon: mdi:zigbee
-   # url: http://sivert.duckdns.org:40850/pwa/index.html
-  # grafana:
-  #   title: Grafana
-  #   icon: mdi:chart-bar
-  #   url: https://sivert.duckdns.org:3000
-
+    url: !secret tautulliurl
 
 cover:
   - platform: template
