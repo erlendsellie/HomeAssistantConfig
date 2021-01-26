@@ -1337,8 +1337,6 @@ blankettvoff:
   sequence:
     - service: switch.turn_on
       entity_id: switch.blanket
-    - delay:
-        minutes: 10
     - wait_for_trigger:
       - platform: state
         entity_id: media_player.tv_soverommet
