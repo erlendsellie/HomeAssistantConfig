@@ -579,6 +579,14 @@
     pricelevel:
       friendly_name: "Price Level"
       value_template: "{{states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.price_level}}"
+    tibberheatdifference:
+      friendly_name: 'Tibber Heat Difference'
+      unit_of_measurement: "°C"
+      # The Heater is always set to 22 in Tibber. This way, we can see if Tibber wants to increase or decrease the temperature.
+      value_template: >-
+        {%-set targetTemp = 22 -%}
+        {%-set actualtemp = states.climate.stua_heater.attributes.temperature | float -%}
+        {{targetTemp - actualtemp}}
     baseheat:
       friendly_name: 'Base Heat'
       unit_of_measurement: "°C"
@@ -605,7 +613,6 @@
         {% elif isMaxPrice or isPeak %}
             {%-set temp = temp - 1 -%}
         {% endif %}
-
         {{temp}}
     tempsenttoheater:
       friendly_name: "Temp Sent To Heater"

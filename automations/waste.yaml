@@ -24,6 +24,14 @@
               variables:
                 title: Restavfall
                 message: tømmes i morgen
+          - delay:
+              hours: 14
+          - service: script.turn_on
+            entity_id: script.notifyboth
+            data_template:
+              variables:
+                title: Restavfall
+                message: tømmes i dag                
       - conditions:
           - condition: state
             entity_id: sensor.papir
@@ -33,13 +41,30 @@
             entity_id: script.say
             data_template:
               variables:
+                title: Papir
                 message: Papir tømmes i morgen
+          - delay:
+              hours: 14
+          - service: script.turn_on
+            entity_id: script.notifyboth
+            data_template:
+              variables:
+                title: Papir
+                message: tømmes i dag                
           - service: script.turn_on
             entity_id: script.notifyboth
             data_template:
               variables:
                 title: Papir
                 message: tømmes i morgen
+          - delay:
+              hours: 14
+          - service: script.turn_on
+            entity_id: script.notifyboth
+            data_template:
+              variables:
+                title: Papir
+                message: tømmes i dag
       - conditions:
           - condition: state
             entity_id: sensor.plastemballasje
@@ -56,3 +81,12 @@
               variables:
                 title: Plastemballasje
                 message: tømmes i morgen
+          - delay:
+              hours: 14
+          - service: script.turn_on
+            entity_id: script.notifyboth
+            data_template:
+              variables:
+                title: Plastemballasje
+                message: tømmes i dag              
+        
