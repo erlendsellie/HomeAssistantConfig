@@ -12,4 +12,8 @@
 
 
 
-![Screenshot](screenshot.png)
+![Home](screenshotHome.png)
+![Security](screenshotSecurity.png)
+![Printer](screenshotPrinter.png)
+![Power](screenshotpower.png)
+![Stocks](screenshotStocks.png)
