@@ -588,24 +588,6 @@ webostv:
 media_player: !include media_player.yaml
 
 rest_command:
-  restartslaveha:
-    url: http://192.168.1.244:8123/api/webhook/restartha
-    method: POST
-    headers:
-      accept: 'application/json, text/html'
-    content_type:  'application/json; charset=utf-8'
-  activate_skoda:
-    url: https://smartoblat.trondheimparkering.no/mypermits/activate-vehicle/89281/NF17739
-    method: GET
-  deactivate_skoda:
-    url: https://smartoblat.trondheimparkering.no/mypermits/deactivate-vehicle/89281/NF17739
-    method: GET
-  activate_passat:
-    url: https://smartoblat.trondheimparkering.no/mypermits/activate-vehicle/89281/BR53768
-    method: GET
-  deactivate_passat:
-    url: https://smartoblat.trondheimparkering.no/mypermits/deactivate-vehicle/89281/BR53768
-    method: GET
   healthcheck:
       url: 'https://hc-ping.com/53f9779a-db7b-4497-9d95-5b729ce7bd77'
 
