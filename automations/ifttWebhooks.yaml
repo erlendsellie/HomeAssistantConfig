@@ -42,13 +42,13 @@
       value: "{{ trigger.json.value | float }}"
 
 
-- alias: 'IFTTTurnOnTV'
-  trigger:
-    platform: webhook
-    webhook_id: !secret ifttturnontv
-  action:
-  - service: homeassistant.turn_on
-    entity_id: script.turnontv 
+# - alias: 'IFTTTurnOnTV'
+#   trigger:
+#     platform: webhook
+#     webhook_id: !secret ifttturnontv
+#   action:
+#   - service: homeassistant.turn_on
+#     entity_id: script.turnontv 
 
 
 - alias: 'IFTTTurnOffTV'

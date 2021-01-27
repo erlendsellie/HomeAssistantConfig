@@ -1,12 +1,23 @@
 
   - platform: ffmpeg_noise
-    input: !secret tapo_stream
+    input: !secret tyra_tapo_hq
     extra_arguments: -filter:a highpass=f=400,lowpass=f=2500,volume=volume=2 -codec:a libmp3lame -ar 16000
     initial_state: off
     duration: 5
     reset: 10
     peak: -20
     name: Nursery Noise
+
+
+  - platform: ffmpeg_noise
+    name : 'Tyra sound'
+    input: !secret tyra_tapo_hq
+    extra_arguments: -filter:a highpass=f=300,lowpass=f=2500,volume=volume=2 -codec:a libmp3lame -ar 16000
+    output: -f mp3 icecast://stream_user:stream_pw@127.0.0.1:8000/babyphone.mp3
+    initial_state: false
+    duration: 2
+    reset: 60
+    peak: -32
 
   - platform: car_wash
     weather: weather.home

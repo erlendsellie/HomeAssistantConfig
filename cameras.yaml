@@ -1,0 +1,107 @@
+
+    #Octoprint
+  - platform: mjpeg
+    name: OctoPrint
+    still_image_url: !secret octoprint_still
+    mjpeg_url: !secret octoprint_mjpeg
+
+
+    #Garage
+  - platform: generic
+    name: Garasje
+    still_image_url: !secret garage_still
+    stream_source: !secret garage_stream
+  
+
+    #Dogs
+  - platform: generic
+    name: dogs_still
+    still_image_url: !secret dogs_still
+    authentication: basic
+    framerate: 24
+    username: root
+    password: !secret dafang_password
+    verify_ssl: false
+
+
+    #Trym
+  - platform: generic
+    name: Trym_dafang
+    username: root
+    password: !secret dafang_password
+    authentication: basic
+    still_image_url: !secret trym_dafang_still
+    stream_source: !secret trym_dafang_stream
+    scan_interval: 5
+
+  - platform: generic
+    name: Trym_still
+    still_image_url: !secret trym_dafang_still
+    framerate: 24
+    authentication: basic
+    username: root
+    password: !secret dafang_password
+    verify_ssl: false
+
+
+    ##Tyra 
+  - platform: generic
+    name: Tyra Tapo HQ
+    username: erlend
+    password: !secret dafang_password
+    authentication: basic
+    still_image_url: !secret tyra_picture_url
+    stream_source: !secret tyra_tapo_hq
+    verify_ssl: false
+    scan_interval: 5
+    
+    
+  - platform: generic
+    name: Tyra Tapo
+    username: erlend
+    password: !secret dafang_password
+    authentication: basic
+    still_image_url: !secret tyra_picture_url
+    stream_source: !secret tyra_tapo_lq
+    verify_ssl: false
+    scan_interval: 5
+
+
+    # Last picture
+  - platform: generic
+    name: last_picture
+    still_image_url: !secret last_picture_url
+
+
+    ## Driveway
+  - platform: generic
+    name: driveway
+    still_image_url: !secret outdoorcamerastream
+
+  - platform: generic
+    name: driveway_stream
+    still_image_url: !secret outdoorcamerastream
+    stream_source: !secret driveway_stream
+
+
+
+  # - platform: generic
+  #   name: garden
+  #   still_image_url: !secret garden_still
+
+  # - platform: generic
+  #   name: garden_stream
+  #   still_image_url: !secret garden_still
+  #   stream_source: !secret garden_stream
+
+
+  #Treg, men fungerer.
+  # - platform: ffmpeg
+  #   name: dogs
+  #   input: !secret dogs_stream
+
+
+
+#image src='https://api.sat24.com/crop?type=snow&lat=63.4305&lon=10.3951&width=300&height=300&zoom=1.00&continent=eu' width=300 height=300
+#https://en.sat24.com/en/freeimages for å konfigurere.
+

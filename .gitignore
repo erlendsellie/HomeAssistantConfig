@@ -43,8 +43,6 @@ stiantest.js
 appdeamon
 
 
-webhooks.yaml
-watchWebHooks.yaml
 
 tellduslive.conf
 twilioexample.php
@@ -64,7 +62,6 @@ secrets.yaml
 known_devices.yaml
 arduinologAm43.txt
 backup
-cameras.yaml
 life360.conf
 mariadbconfigERLEND
 utklippfraconfig.yaml
