@@ -40,10 +40,10 @@ raspbee_gateway_config_*
 report*.json
 sendpicture*.pl
 stiantest.js
+appdeamon
 
 
 webhooks.yaml
-ifttWebhooks.yaml
 watchWebHooks.yaml
 
 tellduslive.conf

@@ -826,7 +826,7 @@ script: !include script.yaml
 
 
 ffmpeg:
-  # ffmpeg_bin:  /usr/bin/ffmpeg
+  ffmpeg_bin:  /usr/bin/ffmpeg
 
 camera: !include cameras.yaml
 stream:
