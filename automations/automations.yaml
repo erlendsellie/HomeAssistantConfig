@@ -1022,20 +1022,20 @@
   - service: climate.set_temperature
     data_template:
       entity_id: climate.varmepumpe
-      temperature: '{{ states.sensor.tempsenttoheater.state | int }}'      
+      temperature: '{{ states.sensor.tempsenttoheater.state | float }}'      
   - service: logbook.log
     data_template:
       name: Varmepumpe
-      message: "set to {{ states.sensor.tempsenttoheater.state | int }} degrees and {{states.input_select.operationmode.state}}"
+      message: "set to {{ states.sensor.tempsenttoheater.state | float }} degrees and {{states.input_select.operationmode.state}}"
   - service: climate.set_temperature
     data_template:
       entity_id: climate.toilet_heater
-      temperature: '{{ (states.sensor.baseheat.state | int) }}'      
+      temperature: '{{ (states.sensor.baseheat.state | float) }}'      
       #Millsmart
   # - service: climate.set_temperature
   #   data_template:
   #     entity_id: climate.stua_heater
-  #     temperature: '{{ (states.sensor.tempsenttoheater.state | int) - 1}}'      
+  #     temperature: '{{ (states.sensor.tempsenttoheater.state | float) - 1}}'      
 
 
 - id: adjustfan

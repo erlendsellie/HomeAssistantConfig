@@ -658,12 +658,11 @@
         {%-set differenceStr = difference | string %}      
         {%-set decimal = differenceStr.split('.')[1] | int %}
         {% if decimal < 6 and decimal > 0  %}
-          {%-set difference = difference %}
-
+          {%-set difference = ([([difference + 0.5, 0.5] | min),0] | max) %}
         {% else %}
           {%-set difference = difference | round() %}
         {% endif %}
-
+        
         {% if isHeating and baseTemp > 15 %} 
           {%-set temp = temp + ([difference, 0] | max) -%}
         {% endif %}
