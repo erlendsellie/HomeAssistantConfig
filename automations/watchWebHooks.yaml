@@ -241,7 +241,7 @@
           entity_id: media_player.bedroom
       - conditions:
         - condition: template
-          value_template: "{{ states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused'}}"
+          value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.nvidia_shield.state != 'paused' and states.media_player.nvidia_shield.state != 'playing'))}}"
         sequence:
         - service: media_player.media_play_pause
           entity_id: media_player.musikkstua
