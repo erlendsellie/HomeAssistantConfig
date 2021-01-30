@@ -95,9 +95,10 @@
           {%-set hour = time.split(':')[0] | round -%}
           {%-set nordpool = states.sensor.nordpool -%}
           {%-set priceNextHour = nordpool.attributes.today[hour] | float -%}
+          {%-set priceNextNextHour = nordpool.attributes.today[hour + 1] | float -%}
           {%-set priceNow = nordpool.attributes.today[hour-1] | float -%}
           {%-set cheap = states.sensor.pricelevel.state != 'EXPENSIVE' and states.sensor.pricelevel.state != 'VERY_EXPENSIVE' -%}
-          {{(priceNow < priceNextHour)}}
+          {{(priceNow < priceNextHour) or (priceNow < priceNextNextHour)}}
 #Add time to these, and voila
       echarging:
         value_template: "{{states.sensor.erlend_battery_state.state != 'discharging'}}"
