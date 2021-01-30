@@ -208,7 +208,7 @@
     - service: climate.set_temperature
       entity_id: climate.tyra
       data_template:
-        temperature: "{{states.sensor.tyratemp.state}}"
+        temperature: "{{states.sensor.tyratemp.state | float}}"
 
 
 

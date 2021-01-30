@@ -453,6 +453,9 @@
         - condition: state
           entity_id: person.erlend
           state: 'home'
+        - condition: state
+          entity_id: input_boolean.trymasleep
+          state: 'off'          
         sequence:
         - service: media_player.media_pause
           entity_id: media_player.nvidia_shield

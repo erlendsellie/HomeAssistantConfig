@@ -947,7 +947,7 @@
     - service: climate.set_temperature
       entity_id: climate.trym
       data_template:
-        temperature: "{{states.sensor.trymtemp.state}}"
+        temperature: "{{states.sensor.trymtemp.state | float}}"
 
 
 
