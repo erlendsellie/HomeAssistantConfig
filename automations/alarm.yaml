@@ -319,13 +319,18 @@
   - platform: state
     entity_id: binary_sensor.erlendhome
     to: 'on'
+    from: 'off'
   - platform: state
     entity_id: binary_sensor.carolienhome
-    to: 'on'    
+    to: 'on'   
+    from: 'off' 
   condition:
     - condition: state
       entity_id: binary_sensor.garage_occupied
-      state: 'off'   
+      state: 'off'
+    - condition: state
+      entity_id: cover.garage_door
+      state: 'closed'
   action:    
     - service: cover.open_cover
       entity_id: cover.garage_door
