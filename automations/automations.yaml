@@ -2321,5 +2321,5 @@
   action:
     service: frontend.set_theme
     data:
-      name: default
+      name: ios-dark-mode-copy
       mode: dark
