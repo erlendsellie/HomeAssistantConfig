@@ -2298,28 +2298,3 @@
 #   - service: homeassistant.turn_off
 #     entity_id: input_boolean.trymasleep
 
-
-
-- alias: 'turnontrymasleep'
-  trigger:
-    - platform: state
-      entity_id: input_boolean.casleep
-      to: 'on'
-  action:
-  - service: homeassistant.turn_on
-    entity_id: input_boolean.trymasleep
-
-
-
-
-
-
-- alias: 'System - Set Custom Theme at Startup'
-  trigger:
-    platform: homeassistant
-    event: start
-  action:
-    service: frontend.set_theme
-    data:
-      name: ios-dark-mode-copy
-      mode: dark

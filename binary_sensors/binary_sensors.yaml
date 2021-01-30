@@ -99,7 +99,6 @@
           {%-set priceNow = nordpool.attributes.today[hour-1] | float -%}
           {%-set cheap = states.sensor.pricelevel.state != 'EXPENSIVE' and states.sensor.pricelevel.state != 'VERY_EXPENSIVE' -%}
           {{(priceNow < priceNextHour) or (priceNow < priceNextNextHour)}}
-#Add time to these, and voila
       echarging:
         value_template: "{{states.sensor.erlend_battery_state.state != 'discharging'}}"
       ccharging:
@@ -118,7 +117,14 @@
       upstairstairs:
         device_class: opening
         value_template: "{{states.binary_sensor.grind_oppe.state == 'on' and states.binary_sensor.trym_home.state == 'on' and states.input_boolean.trymasleep.state == 'on'}}"
-    # value_template: "{{(states.binary_sensor.grind_oppe.state == 'on' and ((states.input_boolean.trymasleep.state == 'on' and states.binary_sensor.trym_home.state == 'on') or states.input_boolean.tyraasleep.state == 'on'))}}"
+
+
+
+
+
+
+
+      # value_template: "{{(states.binary_sensor.grind_oppe.state == 'on' and ((states.input_boolean.trymasleep.state == 'on' and states.binary_sensor.trym_home.state == 'on') or states.input_boolean.tyraasleep.state == 'on'))}}"
 
       # garagestatus:
       #   device_class: opening

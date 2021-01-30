@@ -1,0 +1,73 @@
+upstairsdoors:
+  automation:
+  - alias: UpstairsDoorLeftOpen
+    trigger:
+    - platform: state
+      entity_id: binary_sensor.trymdoorleftopen
+      to: 'on'
+    - platform: state
+      entity_id: binary_sensor.bathroomleftopen
+      to: 'on'
+    - platform: state
+      entity_id: binary_sensor.tyradoorleftopen
+      to: 'on'
+    - platform: state
+      entity_id: input_boolean.casleep
+      to: 'on'    
+    action:
+      repeat:
+        while:
+          - condition: template
+            value_template: "{{states[trigger.entity_id].state  == 'on'}}"
+        sequence:
+        - service: script.turn_on
+          entity_id: script.notifyhome
+          data_template:
+            variables:
+              title: Dør åpen
+              message: "{{trigger.from_state.name}}"
+        - service: script.playsound
+          data_template:
+            variables:
+              sound: https://sivert.duckdns.org/local/sounds/korok.mp3
+        - delay:
+            minutes: 10
+
+
+  binary_sensor:
+  - platform: template
+    sensors:  
+      motionupstairs:
+        device_class: motion
+        delay_off:
+          minutes: 2
+        value_template: >-
+          {{states.binary_sensor.motion_upstairs.state
+          and states.binary_sensor.motion_bathroom.state
+          and states.binary_sensor.trym_motion.state
+          and states.binary_sensor.trym_motion.state
+          and states.binary_sensor.motion_bedroom.state}}
+      bathroomleftopen:
+        device_class: opening
+        friendly_name: 'Baderomsdøren ble ikke lukket'
+        delay_on:   
+          minutes: 5
+        value_template: >-
+            {{states.binary_sensor.motionupstairs.state == 'off' and
+            states.binary_sensor.door_bathroom.state == 'on'}}
+      trymdoorleftopen:
+        device_class: opening
+        friendly_name: 'Trym dør ble ikke lukket'
+        delay_on:   
+          minutes: 5
+        value_template: >-
+            {{states.binary_sensor.motionupstairs.state == 'off' and
+            states.binary_sensor.trym_door.state == 'on'}}
+      tyradoorleftopen:
+        device_class: opening
+        friendly_name: 'Tyra dør ble ikke lukket'
+        delay_on:   
+          minutes: 5        
+        value_template: >-
+            {{states.binary_sensor.motionupstairs.state == 'off' and
+            states.binary_sensor.tyra_door.state == 'on'}}
