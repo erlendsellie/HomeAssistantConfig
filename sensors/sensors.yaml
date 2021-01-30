@@ -508,7 +508,10 @@
     #   unit_of_measurement: "NOK/Kwh"
     #   value_template: '{{ (states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float + ((1875+(39/12)) +(0.426*float(states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.estimated_annual_consumption)))/float(states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.estimated_annual_consumption))}}'
     #   #value_template: '{{ states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float + 0.504125}}'
-
+    priceforgraph:
+      friendly_name: Power Price
+      unit_of_measurement: "W"
+      value_template: "{{states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float * 10000}}"
     averagepower:
       friendly_name: "Average Power Usage Today"
       unit_of_measurement: "W"

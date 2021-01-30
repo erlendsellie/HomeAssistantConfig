@@ -74,5 +74,4 @@
         id: trym_remote_control
         event: 4002
   action:      
-  - service: homeassistant.turn_off
-    entity_id: input_boolean.tyraasleep
+  - service: script.shush_tyra

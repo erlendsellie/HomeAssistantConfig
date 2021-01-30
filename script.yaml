@@ -1589,7 +1589,7 @@ shush_tyra:
     - service: media_player.play_media 
       entity_id: media_player.tyra
       data:
-        media_content_id: https://sivert.duckdns.org/local/sounds/shush.mp3
+        media_content_id: https://sivert.duckdns.org/local/sounds/shush_old.mp3
         media_content_type: music    
     - delay:
         minutes: 30
