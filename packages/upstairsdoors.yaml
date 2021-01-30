@@ -19,6 +19,9 @@ upstairsdoors:
         while:
           - condition: template
             value_template: "{{states[trigger.entity_id].state  == 'on'}}"
+          - condition: state
+            entity_id: input_select.alarm
+            state: 'Disarm'      
         sequence:
         - service: script.turn_on
           entity_id: script.notifyhome
@@ -43,10 +46,10 @@ upstairsdoors:
           minutes: 2
         value_template: >-
           {{states.binary_sensor.motion_upstairs.state
-          and states.binary_sensor.motion_bathroom.state
-          and states.binary_sensor.trym_motion.state
-          and states.binary_sensor.trym_motion.state
-          and states.binary_sensor.motion_bedroom.state}}
+          or states.binary_sensor.motion_bathroom.state
+          or states.binary_sensor.trym_motion.state
+          or states.binary_sensor.trym_motion.state
+          or states.binary_sensor.motion_bedroom.state}}
       bathroomleftopen:
         device_class: opening
         friendly_name: 'Baderomsdøren ble ikke lukket'
