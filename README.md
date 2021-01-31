@@ -48,6 +48,7 @@ Selfmade watchface with tasker integration that triggers some webhooks and actio
 - Aqara motion sensors and magnet sensors
 - IKEA Trådfri / Hue / Namron lights, switches and bulbs
 - Aqara and 433mhz temperature and humidity sensors
+- Xiaomi water leakage sensors and smoke detectors.
 - A-OK Curtain controllers from AliExpress, controlled with ESP32.
 - ESP32-based light strips
 - ESP32-based garage door and garage occupied sensor.
