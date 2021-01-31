@@ -57,6 +57,7 @@ logger:
     homeassistant.components.http: warning
     homeassistant.components.tibber: notset
     homeassistant.components.automation: info
+    homeassistant.components.script: info
     homeassistant.components.device_tracker.nmap_tracker: debug
     homeassistant.components.stream: fatal
     libav: fatal

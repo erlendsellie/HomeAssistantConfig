@@ -40,16 +40,6 @@ upstairsdoors:
   binary_sensor:
   - platform: template
     sensors:  
-      motionupstairs:
-        device_class: motion
-        delay_off:
-          minutes: 2
-        value_template: >-
-          {{states.binary_sensor.motion_upstairs.state
-          or states.binary_sensor.motion_bathroom.state
-          or states.binary_sensor.trym_motion.state
-          or states.binary_sensor.trym_motion.state
-          or states.binary_sensor.motion_bedroom.state}}
       bathroomleftopen:
         device_class: opening
         friendly_name: 'Baderomsdøren ble ikke lukket'

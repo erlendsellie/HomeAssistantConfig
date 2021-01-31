@@ -1,4 +1,26 @@
 iotlinkstasjoar:
+    automation:
+    - alias: TurnOnDesktop
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.motionoffice
+          to: 'on'
+      action:
+      - service: switch.turn_on
+        entity_id: switch.stasjonar
+      - service: switch
+
+    - alias: TurnOffDesktop
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.motionoffice
+          to: 'off'
+          for:
+            minutes: 15 #20, if considering the delay_off.
+      action:
+      - service: switch.turn_off
+        entity_id: switch.stasjonar
+
     binary_sensor:
       - platform: mqtt
         name: "Stasjonar - Connected"
