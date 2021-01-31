@@ -8,7 +8,6 @@ iotlinkstasjoar:
       action:
       - service: switch.turn_on
         entity_id: switch.stasjonar
-      - service: switch
 
     - alias: TurnOffDesktop
       trigger:

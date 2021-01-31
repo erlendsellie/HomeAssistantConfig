@@ -11,9 +11,6 @@ upstairsdoors:
     - platform: state
       entity_id: binary_sensor.tyradoorleftopen
       to: 'on'
-    - platform: state
-      entity_id: input_boolean.casleep
-      to: 'on'    
     action:
       repeat:
         while:

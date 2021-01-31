@@ -55,11 +55,11 @@ logger:
     #custom_components.hacs.storage: warning
     custom_components.hacs: warning
     homeassistant.components.http: warning
-    homeassistant.components.tibber: notset
     homeassistant.components.automation: info
     homeassistant.components.script: info
     homeassistant.components.device_tracker.nmap_tracker: debug
     homeassistant.components.stream: fatal
+    homeassistant.components.tibber: debug
     libav: fatal
     custom_components.pyscript: info
     #homeassistant.components.influxdb: debug

@@ -606,14 +606,10 @@
               {%-set temp = [15, borteTemp - (float(states.sensor.distancefromhome.state)/10) | round(0)] | max -%} 
             {% endif %}        
             {{temp}}
-    baseheat:
-      friendly_name: 'Base Heat'
+    pricecorrection:
+      friendly_name: 'Price Correction'
       unit_of_measurement: "°C"
       value_template: >-
-        {%-set alarm = states.input_select.alarm.state -%}
-        {%-set hjemmeTemp = states.input_number.hjemmetemp.state | float %}
-        {%-set borteTemp = states.input_number.bortetemp.state | float %}
-        {%-set nattaTemp = states.input_number.nattatemp.state | float %}
         {%-set priceGaining = states.binary_sensor.pricegaining.state == 'on' -%}
         {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
         {%-set isMaxPrice = states.binary_sensor.ismaxprice.state == 'on' -%}
@@ -621,21 +617,45 @@
         {%-set minPrice = states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.min_price | float -%}
         {%-set price = states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float -%}
         {%-set isMinPrice = minPrice == price -%}
-        {% if alarm == 'Disarm' %}
-          {%-set temp = hjemmeTemp -%}   
-        {% elif alarm == 'Arm Home'%}
-            {%-set temp = nattaTemp -%} 
-        {% else %}
-          {%-set temp = [15, borteTemp - (float(states.sensor.distancefromhome.state)/10) | round(0)] | max -%} 
-        {% endif %}  
-        {% if (priceGaining and temp > 15 and isPeak == false) or (temp > 15 and isMinPrice)  %}
+        {%-set temp =  0 -%}
+        {% if (priceGaining and isPeak == false) or (temp > 15 and isMinPrice)  %}
           {% if isHeating %} 
-            {%-set temp = temp + 1 -%}
+            {%-set temp =  temp + 1 -%}
           {% endif %}
         {% elif isMaxPrice or isPeak %}
-            {%-set temp = temp - 1 -%}
+            {%-set temp =  temp - 1 -%}
         {% endif %}
-        {{temp}}
+        {{temp}}        
+    baseheat:
+        friendly_name: 'Base Heat'
+        unit_of_measurement: "°C"
+        value_template: >-
+          {%-set alarm = states.input_select.alarm.state -%}
+          {%-set hjemmeTemp = states.input_number.hjemmetemp.state | float %}
+          {%-set borteTemp = states.input_number.bortetemp.state | float %}
+          {%-set nattaTemp = states.input_number.nattatemp.state | float %}
+          {%-set priceGaining = states.binary_sensor.pricegaining.state == 'on' -%}
+          {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
+          {%-set isMaxPrice = states.binary_sensor.ismaxprice.state == 'on' -%}
+          {%-set isPeak = states.binary_sensor.pricerelativycheap.state == 'off' -%}
+          {%-set minPrice = states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.min_price | float -%}
+          {%-set price = states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float -%}
+          {%-set isMinPrice = minPrice == price -%}
+          {% if alarm == 'Disarm' %}
+            {%-set temp = hjemmeTemp -%}   
+          {% elif alarm == 'Arm Home'%}
+              {%-set temp = nattaTemp -%} 
+          {% else %}
+            {%-set temp = [15, borteTemp - (float(states.sensor.distancefromhome.state)/10) | round(0)] | max -%} 
+          {% endif %}  
+          {% if (priceGaining and temp > 15 and isPeak == false) or (temp > 15 and isMinPrice)  %}
+            {% if isHeating %} 
+              {%-set temp = temp + 1 -%}
+            {% endif %}
+          {% elif isMaxPrice or isPeak %}
+              {%-set temp = temp - 1 -%}
+          {% endif %}
+          {{temp}}        
     tempsenttoheater:
       friendly_name: "Temp Sent To Heater"
       unit_of_measurement: "°C"
@@ -666,7 +686,7 @@
         {% if isHeating and baseTemp > 15 %} 
           {%-set temp = temp + ([difference, 0] | max) -%}
         {% endif %}
-        {{temp}}
+        {{temp or 22}}
     fanmode:
       friendly_name: "Fan Mode"
       value_template: >-

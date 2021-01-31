@@ -94,11 +94,11 @@
           {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
           {%-set hour = time.split(':')[0] | round -%}
           {%-set nordpool = states.sensor.nordpool -%}
-          {%-set priceNextHour = nordpool.attributes.today[hour] | float -%}
-          {%-set priceNextNextHour = nordpool.attributes.today[hour + 1] | float -%}
-          {%-set priceNow = nordpool.attributes.today[hour-1] | float -%}
+          {%-set priceNextHour = nordpool.attributes.today[hour+1] | float -%}
+          {%-set priceNextNextHour = nordpool.attributes.today[hour + 2] | float -%}
+          {%-set priceNow = nordpool.attributes.today[hour] | float -%}
           {%-set cheap = states.sensor.pricelevel.state != 'EXPENSIVE' and states.sensor.pricelevel.state != 'VERY_EXPENSIVE' -%}
-          {{(priceNow < priceNextHour) or (priceNow < priceNextNextHour)}}
+          {{(priceNow < priceNextHour) or ((priceNow < priceNextNextHour) and priceNow < priceNextHour)}}
       echarging:
         value_template: "{{states.sensor.erlend_battery_state.state != 'discharging'}}"
       ccharging:
