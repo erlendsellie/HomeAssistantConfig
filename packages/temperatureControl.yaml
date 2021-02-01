@@ -51,7 +51,7 @@ temperaturecontrol:
             {% elif isMaxPrice or isPeak %}
                 {%-set temp =  temp - 1 -%}
             {% endif %}
-            {{temp}}        
+            {{temp | float}}        
         baseheat:
             friendly_name: 'Base Heat'
             unit_of_measurement: "°C"
@@ -74,14 +74,9 @@ temperaturecontrol:
               {% else %}
                 {%-set temp = [15, borteTemp - (float(states.sensor.distancefromhome.state)/10) | round(0)] | max -%} 
               {% endif %}  
-              {% if (priceGaining and temp > 15 and isPeak == false) or (temp > 15 and isMinPrice)  %}
-                {% if isHeating %} 
-                  {%-set temp = temp + 1 -%}
-                {% endif %}
-              {% elif isMaxPrice or isPeak %}
-                  {%-set temp = temp - 1 -%}
-              {% endif %}
-              {{temp}}        
+              {%-set temp = temp + states.sensor.pricecorrection.state -%}   
+            
+              {{temp}}
         tempsenttoheater:
           friendly_name: "Temp Sent To Heater"
           unit_of_measurement: "°C"
@@ -185,21 +180,40 @@ temperaturecontrol:
   - alias: 'GarageHeaterOn'
     trigger:
       - platform: state
-        entity_id: cover.garage
+        entity_id: cover.garage_door
         to: 'off'
+      - platform: state
+        entity_id: binary_sensor.pricerelativycheap
+        to: 'off'        
     action:
     - service: climate.turn_on
-      entity_id: climate.garage
+      entity_id: climate.garage_heater
 
   - alias: 'GarageHeaterOff'
     trigger:
       - platform: state
-        entity_id: cover.garage
+        entity_id: cover.garage_door
+        to: 'on'
+      - platform: state
+        entity_id: binary_sensor.pricerelativycheap
         to: 'on'
     action:
     - service: climate.turn_off
-      entity_id: climate.garage
+      entity_id: climate.garage_heater
 
+  - alias: 'adjustGarageTemp'
+    trigger:
+      - platform: state
+        entity_id: sensor.pricecorrection
+      - platform: state
+        entity_id: input_number.garagetemp
+      - platform: state
+        entity_id: input_number.garagetemp                
+    action:
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.garage_heater
+          temperature: '{{ states.input_number.garagetemp.state | float + states.sensor.pricecorrection.state | float}}'      
 
   - id: adjusttemp
     alias: Climate Stua - Adjust temp
@@ -674,3 +688,56 @@ temperaturecontrol:
         data:
           entity_id: climate.stua_heater
           hvac_mode: 'heat'    
+
+  input_number:
+    hjemmetemp:
+      name: Hjemmetemperatur
+      ##initial: 22
+      min: 15
+      max: 30
+      step: 1
+      mode: slider
+  
+    bortetemp:
+      name: Bortetemperatur
+      ##initial: 20
+      min: 15
+      max: 30
+      step: 1
+      mode: slider
+  
+    nattatemp:
+      name: Nattatemperatur
+      ##initial: 20
+      min: 15
+      max: 30
+      step: 1
+      mode: slider
+      
+  
+    temperature:
+      name: Temperature
+      ##initial: 22
+      min: 16
+      max: 30
+      step: 1
+  
+    extradegrees:
+      name: Extra Degrees to heat when cold
+      ##initial: 22
+      min: 0
+      max: 10
+      step: 1 
+  
+    coldthreshold:
+      name: Threshold for extra degrees
+      ##initial: 22
+      min: -20 
+      max: 10
+      step: 1               
+
+    garagetemp:
+      name: 'Garage temperature'
+      min: -10
+      max: 20
+      step: 0.5

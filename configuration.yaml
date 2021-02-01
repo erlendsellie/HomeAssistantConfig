@@ -643,38 +643,6 @@ input_number:
     step: 1
     mode: slider
 
-  hjemmetemp:
-    name: Hjemmetemperatur
-    ##initial: 22
-    min: 15
-    max: 30
-    step: 1
-    mode: slider
-
-  bortetemp:
-    name: Bortetemperatur
-    ##initial: 20
-    min: 15
-    max: 30
-    step: 1
-    mode: slider
-
-  nattatemp:
-    name: Nattatemperatur
-    ##initial: 20
-    min: 15
-    max: 30
-    step: 1
-    mode: slider
-    
-
-  temperature:
-    name: Temperature
-    ##initial: 22
-    min: 16
-    max: 30
-    step: 1
-
   extradegrees:
     name: Extra Degrees to heat when cold
     ##initial: 22

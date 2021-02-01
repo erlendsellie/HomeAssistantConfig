@@ -11,6 +11,10 @@ upstairsdoors:
     - platform: state
       entity_id: binary_sensor.tyradoorleftopen
       to: 'on'
+    condition:
+      condition: state
+      entity_id: person.caroline
+      state: 'home'
     action:
       repeat:
         while:
