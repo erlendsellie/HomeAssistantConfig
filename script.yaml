@@ -1422,11 +1422,11 @@ playsound:
   - service: media_player.volume_set
     data_template:
       entity_id: media_player.hallway_speaker
-      volume_level: 0.4
+      volume_level: "{{0.2 + (extraVolume or 0.0)}}"
   - service: media_player.volume_set
     data_template:
       entity_id: media_player.living_room_speaker
-      volume_level: 0.2
+      volume_level: "{{0.2 + (extraVolume or 0.0)}}"
   - service: media_player.play_media
     data_template:
       entity_id: media_player.minis 
