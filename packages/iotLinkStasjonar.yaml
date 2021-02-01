@@ -39,7 +39,7 @@ iotlinkstasjoar:
             turn_on:
                 service: script.stasjonar_wake
             turn_off:
-                service: script.stasjonar_shutdown
+                service: script.stasjonar_suspend
             icon_template: mdi:laptop
     script:
         stasjonar_wake:
