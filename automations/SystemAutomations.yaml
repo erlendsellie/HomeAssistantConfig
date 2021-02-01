@@ -1,4 +1,27 @@
 
+- alias: 'Update Available Notifications'
+  trigger:
+    platform: state
+    entity_id: binary_sensor.updater
+  action:
+  - service: notify.me
+    data:
+      title: 'Update for Home Assistant is available.'
+      message: |
+        Version **{{ trigger.to_state.attributes.newest_version }}**:
+
+        - [GitHub](https://github.com/home-assistant/core/releases/tag/{{ trigger.to_state.attributes.newest_version }})
+        - [home-assistant.io]({{ trigger.to_state.attributes.release_notes }})
+  - service: persistent_notification.create
+    data:
+      title: New version of Home Assistant is available
+      message: |
+        Version **{{ trigger.to_state.attributes.newest_version }}**:
+
+        - [GitHub](https://github.com/home-assistant/core/releases/tag/{{ trigger.to_state.attributes.newest_version }})
+        - [home-assistant.io]({{ trigger.to_state.attributes.release_notes }})
+
+
 
 - alias: 'System - Set Custom Theme at Startup'
   trigger:

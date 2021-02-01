@@ -218,23 +218,6 @@
       data:
         message: "Okay, ill open the garage."
 
-
-
-########################################
-########                        ########
-########         Misc           ########
-########################################
-# Using Gogole Drive backup, so this is not in use atm.
-# - alias: Daily snapshot at 3 AM
-#   trigger:
-#     platform: time
-#     at: '3:15:00'
-#   action:
-#   - service: hassio.snapshot_full
-#     data_template:
-#       name: automated backup {{ now().strftime('%Y-%m-%d') }}
-
-
 ########################################
 ########                        ########
 ########         Security       ########
@@ -485,159 +468,6 @@
 ########         Heating         ########
 ########################################
 
-- alias: WarmupMorning
-  trigger:
-  - platform: time
-    at: '05:00:00'
-  - platform: time
-    at: '05:20:00'
-  condition:
-  # If we want heating when home, and we are home, and it's less than 21 inside and 10 outside.
-    condition: and
-    conditions:
-    # If we want heating when home.
-    - condition: numeric_state
-      entity_id: input_number.hjemmetemp
-      above: 15       
-      # If the current temp(at 0500) is less than 21
-    - condition: template
-      value_template: "{{states.climate.varmepumpe.attributes.current_temperature < 21}}"
-      #condition for (hjemmetemp - actual temp) > 2 degrees?
-      # WIll only start heating if big difference, until there is no difference.
-    #group.people problem
-    - condition: state
-      entity_id: group.people
-      state: 'home'
-    # - condition: template
-    #   value_template: "{{ float(states.sensor.stua_temperature.state) < (float(states.input_number.hjemmetemp.state))-0.5 }}"
-      #If ít's colder than 10. So, not do this in the summer.
-    - condition: numeric_state
-      entity_id: sensor.ute_temperature
-      below: 10
-  action:
-  - service: homeassistant.turn_on
-    entity_id: script.warmupmorning
-  - service: notify.me
-    data:
-      message: 'Warmup morning started. Temp is {{states.climate.varmepumpe.attributes.current_temperature}}'
-
-
-- alias: WarmupMorningExtraCold
-  id: WarmupmorningExtraCold
-  trigger:
-  - platform: time
-    at: '04:30:00'
-  condition:
-    condition: and
-    conditions:
-    #group.people problem
-    - condition: state
-      entity_id: group.people
-      state: 'home'
-      # if the temperature is under the threshold, for example -5 degrees.
-    - condition: template
-      value_template: '{{ float(states.sensor.ute_temperature.state) < (float(states.input_number.coldthreshold.state)) }}'
-      # If the task it to warm up more than 1 degree.
-    # - condition: template
-    #   value_template: "{{ float(states.sensor.stua_temperature.state) < (float(states.input_number.hjemmetemp.state) - 1) }}"
-  action:
-  - service: homeassistant.turn_on
-    entity_id: script.warmupmorning
-
-
-- alias: WarmupMorningExtraExtraCold2
-  id: WarmupmorningExtraExtraCold2
-  trigger:
-  - platform: time
-    at: '04:00:00'
-  condition:
-    condition: and
-    conditions:
-        #group.people problem
-    - condition: state
-      entity_id: group.people
-      state: 'home'
-    - condition: numeric_state
-      entity_id: sensor.ute_temperature
-      below: -8      
-    # - condition: template
-    #   value_template: "{{ float(states.sensor.stua_temperature.state) < (float(states.input_number.hjemmetemp.state) - 2) }}"
-  action:
-  - service: homeassistant.turn_on
-    entity_id: script.warmupmorning
-
-- id: endWarmupMorning
-  alias: EndWarmupUp
-  trigger:
-  - platform: template
-    value_template: "{{(states.sensor.stua_temperature.state >= states.input_number.hjemmetemp.state) and is_state('input_boolean.warmupmorning', 'on')}}"
-  - platform: state
-    entity_id: input_select.alarm 
-    to: 'Arm Home'
-  - platform: state
-    entity_id: input_select.alarm 
-    to: 'Arm Away'
-  # condition:
-  #   - condition: template
-  #     value_template: "{{(states.sensor.stua_temperature.state >= states.input_number.hjemmetemp.state) and is_state('input_boolean.warmupmorning', 'on')}}"
-  action:
-  - service: input_boolean.turn_off
-    entity_id: input_boolean.warmupmorning            
-  - service: climate.set_temperature
-    data_template:
-      entity_id: climate.varmepumpe
-      temperature: '{{ float(states.sensor.targettemp.state)}}'
-  - service: climate.set_hvac_mode
-    data_template:
-      entity_id: climate.varmepumpe
-      hvac_mode: "{{ states.input_select.operationmode.state}}"
-  - condition: template
-    value_template: "{{ states.input_select.operationmode.state == 'heat'}}"      
-  - service: climate.set_hvac_mode
-    data_template:
-      entity_id: climate.stua_heater
-      hvac_mode: 'heat'
-
-# - alias: WarmupMorningWeekend
-#   id: WarmupmorningWeekend
-#   trigger:
-#   - platform: time
-#     at: '06:50:00'
-#   condition:
-#     condition: and
-#     conditions:
-#     - condition: time
-#       weekday:
-#       - sat
-#       - sun
-#     - condition: state
-#       entity_id: group.people
-#       state: 'home'
-#     - condition: numeric_state
-#       entity_id: sensor.ute_temperature
-#       below: 10
-#       #Temperature is 2 degrees lower than target
-#     # - condition: template
-#     #   value_template: "{{ float(states.sensor.stua_temperature.state) < (float(states.sensor.tempsenttoheater.state) - 2) }}"
-#   action:
-#   - service: climate.set_temperature
-#     data_template:
-#       entity_id: climate.varmepumpe
-#       temperature: 28
-#       #temperature: '{{ float(states.sensor.tempsenttoheater.state) | int + 3 }}'
-#       #temperature: '{{ states.input_number.hjemmetemp.state | int }}'
-#   - service: logbook.log
-#     data_template:
-#        name: House
-#        message: is being heated up to 28 degrees.
-#        #message: is being heated up to '{{ float(states.sensor.tempsenttoheater.state) | int + 3 }}' degrees.
-#   - delay:
-#       minutes: 120
-#   - service: climate.set_temperature
-#     data_template:
-#       entity_id: climate.varmepumpe
-#       temperature: '{{ float(states.sensor.tempsenttoheater.state)}}'
-
 
 - alias: AskToTurnOnCarHeater
   id: AskToTurnOnCarHeater
@@ -802,41 +632,6 @@
   action:
   - service: input_boolean.turn_off
     entity_id: input_boolean.carheatermounted    
-#turn off carheater at 1400.
-
-  # - service: climate.set_hvac_mode
-  #   entity_id: climate.varmepumpe
-  #   hvac_mode: "Heat"
-
-#Unused?
-- id: sethjemmetemp
-  alias: Set Hjemmetemp
-  trigger:
-  - platform: state
-    entity_id: input_number.hjemmetemp
-  - platform: state
-    entity_id: input_select.alarm
-    to: 'Disarm'
-  condition:
-  - condition: state
-    entity_id: input_select.alarm
-    state: 'Disarm'
-  action:    
-  - service: input_number.set_value
-    data_template:
-      entity_id: input_number.temperature
-      value: '{{ states.input_number.hjemmetemp.state | int }}'
-  - service: input_number.set_value
-    data_template:
-      entity_id: input_number.temperature
-      value: '{{ states.input_number.hjemmetemp.state | int }}'
-  # - delay:
-  #     seconds: 60
-  # - service: input_boolean.turn_off
-  #   entity_id: input_boolean.warmupmorning      
-  # - service: climate.set_hvac_mode
-  #   entity_id: climate.varmepumpe
-  #   hvac_mode: "Heat"
 
 # - id: turnonkitchenandpanelheater
 #   alias: turnOnKitchenAndPanelHeater
@@ -911,175 +706,6 @@
 #   - service: switch.turn_off
 #     entity_id: switch.bench
 
-- id: TurnOffHeaters
-  alias: TurnOffHeaters
-  trigger:
-  - platform: state
-    entity_id: input_number.bortetemp
-  - platform: state
-    entity_id: input_select.alarm
-    to: 'Arm Away'
-    # for:
-    #    minutes: 4
-  - platform: state
-    entity_id: input_select.alarm
-    to: 'Arm Home'
-    # for:
-    #    minutes: 4
-  condition:
-    condition: or
-    conditions:
-    - condition: state
-      entity_id: input_select.alarm
-      state: 'Arm Away'
-    - condition: state
-      entity_id: input_select.alarm
-      state: 'Arm Home'       
-  action:
-  - service: homeassistant.turn_on
-    entity_id: script.turnoffheaters
-
-- alias: TrymTemp
-  trigger:
-    - platform: state
-      entity_id: sensor.trymtemp
-  action:
-    - service: climate.set_temperature
-      entity_id: climate.trym
-      data_template:
-        temperature: "{{states.sensor.trymtemp.state | float}}"
-
-
-
-- alias: 'TrymHeaterOn'
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.trym_window
-      to: 'off'
-  action:
-  - service: climate.turn_on
-    entity_id: climate.trym
-
-
-- alias: 'TrymHeaterOff'
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.trym_window
-      to: 'on'
-  action:
-  - service: climate.turn_off
-    entity_id: climate.trym
-
-
-- alias: 'GarageHeaterOn'
-  trigger:
-    - platform: state
-      entity_id: cover.garage
-      to: 'off'
-  action:
-  - service: climate.turn_on
-    entity_id: climate.garage
-
-- alias: 'GarageHeaterOff'
-  trigger:
-    - platform: state
-      entity_id: cover.garage
-      to: 'on'
-  action:
-  - service: climate.turn_off
-    entity_id: climate.garage
-
-
-- id: adjusttemp
-  alias: Climate Stua - Adjust temp
-  mode: restart
-  trigger:
-  - platform: homeassistant
-    event: start
-  - platform: state
-    entity_id: sensor.tempsenttoheater, input_select.operationmode, binary_sensor.pricegaining
-  condition:
-    condition: and
-    conditions:
-    # - condition: state
-    #   entity_id: input_select.operationmode
-    #   state: Heat
-      - condition: state
-        entity_id: input_boolean.warmupmorning
-        state: 'off'
-      - condition: numeric_state
-        entity_id: sensor.tempsenttoheater
-        above: 15
-  action:
-  - service: climate.set_hvac_mode
-    data_template:
-      entity_id: climate.toilet_heater
-      hvac_mode: 'heat'
-  - service: climate.set_hvac_mode
-    data_template:
-      entity_id: climate.varmepumpe
-      hvac_mode: '{{states.input_select.operationmode.state}}'
-  - service: climate.set_temperature
-    data_template:
-      entity_id: climate.varmepumpe
-      temperature: '{{ states.sensor.tempsenttoheater.state | float }}'      
-  - service: logbook.log
-    data_template:
-      name: Varmepumpe
-      message: "set to {{ states.sensor.tempsenttoheater.state | float }} degrees and {{states.input_select.operationmode.state}}"
-  - service: climate.set_temperature
-    data_template:
-      entity_id: climate.toilet_heater
-      temperature: '{{ (states.sensor.baseheat.state | float) }}'      
-      #Millsmart
-  # - service: climate.set_temperature
-  #   data_template:
-  #     entity_id: climate.stua_heater
-  #     temperature: '{{ (states.sensor.tempsenttoheater.state | float) - 1}}'      
-
-
-- id: adjustfan
-  alias: Climate Stua - Adjust fan
-  trigger:
-  - platform: state
-    entity_id: sensor.fanmode
-  - platform: state
-    entity_id: climate.varmepumpe
-  - platform: state
-    entity_id: input_boolean.warmupmorning
-  condition:
-    condition: and
-    conditions:
-    # - condition: state
-    #   entity_id: input_select.operationmode
-    #   state: Heat
-      - condition: state
-        entity_id: input_boolean.warmupmorning
-        state: 'off'
-      # - condition: numeric_state
-      #   entity_id: sensor.tempsenttoheater
-      #   above: 15
-  action:
-  - service: climate.set_fan_mode
-    data_template:
-      entity_id: climate.varmepumpe
-      fan_mode: '{{states.sensor.fanmode.state}}'
-
-
-- alias: Toggle Office Heater
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.motion_downstairs_office
-  action:
-  - service: >
-      {% if states('binary_sensor.motion_downstairs_office') == 'on' %}
-        climate.turn_on
-      {% else %}
-        climate.turn_off
-      {% endif %}
-    entity_id: climate.office_heater
-
-
 - alias: Restart slave HA
   trigger:
     - platform: homeassistant
@@ -1095,140 +721,6 @@
 
 
 
-- alias: TurnOffClimateStua
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.tempsenttoheater
-    below: 16
-  condition:
-    condition: and
-    conditions:
-      - condition: state
-        entity_id: input_boolean.warmupmorning
-        state: 'off'
-  action:
-  - service: climate.turn_off
-    data_template:
-      entity_id: climate.varmepumpe, climate.toilet_heater, climate.stua_heater
-  - service: homeassistant.turn_on
-    entity_id: script.turnoffheaters
-  - service: script.turn_on
-    entity_id: script.notify
-    data_template:
-      variables:
-        title: Varmepumpa ble automatisk slått av
-        message: Varmepumpa ble automatisk slått av
-
-
-#This will also turn off heaters if heat pump is turned off manually. No need to run only them.
-#Watch out if you implement some manual climate logic, men this will probably just help.
-#Also turn off when hjemmetemp is reached?
-- id: turnOffHeatersWhenPumpOff
-  alias: Climate - obey heatpump
-  trigger:
-    - platform: state
-      entity_id: climate.varmepumpe
-      to: 'off'
-    - platform: state
-      entity_id: climate.varmepumpe
-      to: 'auto'
-    - platform: state
-      entity_id: climate.varmepumpe
-      to: 'cool'
-    - platform: state
-      entity_id: climate.varmepumpe
-      to: 'fan'                  
-  action:
-    - service: homeassistant.turn_on
-      entity_id: script.turnoffheaters
-      # TODO turn on heaters when on?
-    
-
-# - id: adjustLightBrightness
-#   alias: adjustLightBrightness
-#   trigger:
-#   - platform: state
-#     entity_id: sensor.brightnessforlights
-#   condition:
-#   - condition: state
-#     entity_id: input_select.operationmode
-#     state: Heat
-#   action:
-#   - service: input_number.set_value
-#     data_template:
-#       entity_id: input_number.brigthness2
-#       value: '{{ states.sensor.brightnessforlights.state | int }}'    
-
-
-
-  # - service: homeassistant.turn_on
-  #   data_template:
-  #     entity_id: '{% if states.input_number.temperature.state == "20.0" %} script.heatpump20
-  #       {% elif states.input_number.temperature.state == "21.0" %} script.heatpump21
-  #       {% elif states.input_number.temperature.state == "22.0" %} script.heatpump22
-  #       {% elif states.input_number.temperature.state == "23.0" %} script.heatpump23
-  #       {% elif states.input_number.temperature.state == "24.0" %} script.heatpump24
-  #       {% elif states.input_number.temperature.state == "19.0" %} script.heatpump19
-  #       {% elif states.input_number.temperature.state == "18.0" %} script.heatpump18
-  #       {% elif states.input_number.temperature.state == "17.0" %} script.heatpump17
-  #       {% elif states.input_number.temperature.state == "16.0" %} script.heatpump16
-  #       {% elif states.input_number.temperature.state == "25.0" %} script.heatpump25
-  #       {% elif states.input_number.temperature.state == "26.0" %} script.heatpump26
-  #       {% else %} //NOTIFY YOURSELF because this should not happen {% endif %}
-  #
-  #       '
-
-
-# - id: adjusttempcool
-#   alias: Climate Stua - Adjust temp cool
-#   trigger:
-#   - platform: state
-#     entity_id: input_number.temperature
-#   - platform: state
-#     entity_id: group.presence
-#   condition:
-#   - condition: state
-#     entity_id: input_select.operationmode
-#     state: Cool
-#   action:
-#   - service: homeassistant.turn_on
-#     data_template:
-#       entity_id: '{% if states.input_number.temperature.state == "20.0" %} script.heatpumpcool20
-#         {% elif states.input_number.temperature.state == "21.0" %} script.heatpumpcool21
-#         {% elif states.input_number.temperature.state == "22.0" %} script.heatpumpcool22
-#         {% elif states.input_number.temperature.state == "23.0" %} script.heatpumpcool23
-#         {% elif states.input_number.temperature.state == "24.0" %} script.heatpumpcool24
-#         {% elif states.input_number.temperature.state == "19.0" %} script.heatpumpcool19
-#         {% elif states.input_number.temperature.state == "18.0" %} script.heatpumpcool18
-#         {% elif states.input_number.temperature.state == "17.0" %} script.heatpumpcool17
-#         {% elif states.input_number.temperature.state == "16.0" %} script.heatpumpcool16
-#         {% elif states.input_number.temperature.state == "25.0" %} script.heatpumpcool25
-#         {% elif states.input_number.temperature.state == "26.0" %} script.heatpumpcool26
-#         {% else %} //NOTIFY YOURSELF because this should not happen {% endif %}'
-
-
-
-# - id: Setgamingtemp
-#   alias: Set Gamingtemp
-#   trigger:
-#     platform: state
-#     entity_id: switch.soverombevegelse
-#     to: 'on'
-#   action:
-#   - service: switch.turn_on
-#     entity_id: switch.nexa2
-
-# - id: Setgamingtempborte
-#   alias: Set Gamingtempborte
-#   trigger:
-#     platform: state
-#     entity_id: switch.soverombevegelse
-#     to: 'off'
-#     for:
-#       minutes: 5
-#   action:
-#   - service: switch.turn_off
-#     entity_id: switch.nexa2
 
 - id: NotifyCloseVerandaDoor
   alias: NotifyCloseVerandaDoor
@@ -1244,65 +736,6 @@
         message: Verandaen har vært åpen i 60 minutter nå
 
 
-#TODO new one of this which works with tempsenttoheater.
-# - id: airConOffWhenDoorOpen
-#   alias: AirConOffWhenDoorOpen
-#   trigger:
-#   - platform: state
-#     entity_id: binary_sensor.veranda
-#     to: 'on'
-#     for:
-#       seconds: 60
-#   condition:
-#     condition: and
-#     conditions:
-#     # - condition: state
-#     #   entity_id: group.people
-#     #   state: home
-#     - condition: state
-#       entity_id: climate.varmepumpe
-#       state: 'heat'
-#     - condition: state
-#       entity_id:  input_boolean.warmupmorning
-#       state: 'off'      
-#   action:
-#   - service: input_number.set_value
-#     data_template:
-#       entity_id: input_number.temperature
-#       value: 16
-#   - service: climate.set_hvac_mode
-#     data_template:
-#       entity_id: climate.varmepumpe
-#       hvac_mode: 'heat'
-
-# - id: airConOnWhenDoorlocksHome
-#   alias: AirConOnWhenDoorlocksHome
-#   trigger:
-#   - platform: state
-#     entity_id: binary_sensor.veranda
-#     to: 'off'
-#   condition:
-#     condition: and
-#     conditions:
-#     - condition: state
-#       entity_id: group.people
-#       state: home
-#     - condition: state
-#       entity_id: climate.varmepumpe
-#       state: 'heat'
-#     - condition: state
-#       entity_id:  input_boolean.warmupmorning
-#       state: 'off'      
-#   action:
-#   - service: input_number.set_value
-#     data_template:
-#       entity_id: input_number.temperature
-#       value: '{{ states.sensor.hjememtemp.state | int }}'
-#   - service: climate.set_hvac_mode
-#     data_template:
-#       entity_id: climate.varmepumpe
-#       hvac_mode: 'heat'
-
 
 ########################################
 ########   Environment and      ########
@@ -1310,62 +743,6 @@
 ########################################
 
 
-#- id: turnlightsonwhenhome
-#  alias: turnlightsonwhenhome
-#  trigger:
-#  - platform: state
-#    entity_id: group.CandE
-#    to: home
-#  - platform: state
-#    entity_id: device_tracker.erlends7
-#    to: home
-#  condition:
-#  - condition: state
-#    entity_id: sun.sun
-#    state: below_horizon
-#  action:
-#  - service: homeassistant.turn_on
-#    entity_id: script.lightson
-
-
-# - id: Turnontablelamp
-#   alias: Turnontablelamp
-#   trigger:
-#   - platform: state
-#     entity_id: switch.cabinet
-#     to: 'on'
-#   - platform: state
-#   #TODO Replace with switch signal
-#     entity_id: switch.bed
-#     to: 'on' 
-#   action:
-#   - service: switch.turn_on
-#     entity_id: switch.table_lamp
-#   - service: switch.turn_on
-#     entity_id: switch.kitchen
-#   - service: light.turn_on
-#     entity_id: light.kjokkenbord
-
-
-# - id: Turnofftablelamp
-#   alias: Turnofftablelamp
-#   trigger:
-#   - platform: state
-#     entity_id: switch.cabinet
-#     to: 'off'
-#   - platform: state
-#   #TODO Replace with switch signal
-#     entity_id: switch.bed
-#     to: 'off'
-#   action:
-#   - service: switch.turn_off
-#     entity_id: switch.table_lamp
-#   - service: switch.turn_off
-#     entity_id: switch.kitchen
-#   - service: light.turn_off
-#     entity_id: light.kjokkenbord
-
-#TODO
 
 
 - id: TurnoffbedroomlightwhenHallMotion
@@ -1391,27 +768,6 @@
       - light.erlend_bedroom    
       - light.bedroom  
 
-
-# ### Bowl Light ###
-# - id: Turnonbowllight
-#   alias: Turnonbowllight
-#   trigger:
-#     platform: state
-#     entity_id: switch.bed
-#     to: 'on'
-#   action:
-#   - service: switch.turn_on
-#     entity_id: switch.table_light
-
-# - id: Turnoffbowllight
-#   alias: Turnoffbowllight
-#   trigger:
-#     platform: state
-#     entity_id: switch.bed
-#     to: 'off'
-#   action:
-#   - service: light.turn_off
-#     entity_id: switch.table_light
 
 ### Toilet Light ###
 - id: TurnOnToiletLight
@@ -1506,23 +862,6 @@
   - service: light.turn_off
     entity_id: light.vindfang
 
-# - id: washingMachineDone
-#   alias: washingMachineDone
-#   trigger:
-#     platform: state
-#     entity_id: binary_sensor.washer
-#     to: 'off'
-#   action:    
-#     - service: notify.me
-#       data_template:
-#         message: 'Washer is done'
-
-
-  # - service: light.turn_off
-  #   entity_id: light.nexadim1
-  # - service: light.turn_off
-  #   entity_id: light.nexadim1
-
 
 
 - id: adjustbrightness
@@ -1593,62 +932,6 @@
   - service: homeassistant.turn_off
     entity_id: switch.fan_bathroom
 
-# - id: Bathroom_Humidity_High_template
-#   alias: Bathroom Humidity High_template
-#   trigger:
-#     platform: template
-#     value_template: "{{states.sensor.bathroomhumidity.attributes.change > float(5)}}"
-#   action:
-#     service: notify.me
-#     data_template:
-#       message: 'Bathroom Humidity changed by {{states.sensor.bathroomhumidity.attributes.change}}.'
-
-
-#
-# - id: Guest_Bathroom_Humidity_High
-#   alias: Guest Bathroom Humidity High
-#   trigger:
-#   - platform: numeric_state
-#     entity_id: sensor.bathroom_humidity
-#     value_template: '{{ sensor.bathroom_humidity - sensor.gaming_rom_humidity }}'
-#     above: 5
-#   action:
-#   - service: homeassistant.turn_on
-#     entity_id: switch.fan_bathroom
-#
-# - id: Guest_Bathroom_Humidity_Normal
-#   alias: Guest Bathroom Humidity Normal
-#   trigger:
-#   - platform: numeric_state
-#     entity_id: sensor.bathroom_humidity
-#     value_template: '{{ sensor.bathroom_humidity - sensor.gaming_rom_humidity }}'
-#     below: 5
-#   action:
-#   - service: homeassistant.turn_off
-#     entity_id: switch.fan_bathroom
-
-# - id: erlendgaming
-#   alias: Erlend Gaming
-#   trigger:
-#     platform: state
-#     entity_id: switch.soverombevegelse
-#     to: 'on'
-#     for:
-#       minutes: 30
-#   condition:
-#     condition: or
-#     conditions:
-#     - condition: state
-#       entity_id: input_boolean.casleep
-#       state: 'on'
-#     - condition: state
-#       entity_id: group.caroline
-#       state: not_home
-#   action:
-#   - service: homeassistant.turn_on
-#     entity_id: script.startroomba
-#   - service: homeassistant.turn_on
-#     entity_id: script.lightsoff
 
 ########################################
 ########        Sleeping        ########
@@ -1675,21 +958,21 @@
   - service: homeassistant.turn_on
     entity_id: script.bedtvoff
 
-# - alias: TV Still on
-#   trigger:
-#     platform: state
-#     entity_id: input_boolean.casleep
-#     to: 'on'
-#     for:
-#       minutes: 90
-#   condition:
-#   - condition: state
-#     entity_id: input_boolean.easleep
-#     state: 'off'
-#   action:
-#   - service: notify.me
-#     data:
-#       message: 'TV på soverommet er fortsatt på'
+- alias: TV Still on
+  trigger:
+    platform: state
+    entity_id: input_boolean.casleep
+    to: 'on'
+    for:
+      minutes: 90
+  condition:
+  - condition: state
+    entity_id: input_boolean.easleep
+    state: 'off'
+  action:
+  - service: notify.me
+    data:
+      message: 'TV på soverommet er fortsatt på'
 
 - id: erlendnatta70
   alias: Erlend legger seg + 70 min
@@ -2009,6 +1292,7 @@
     entity_id: light.play
     data:
       color_name: purple
+  - service: script.restoreofficecolor
   # - delay:
   #     seconds: 10
   # - service: light.turn_off
@@ -2169,29 +1453,6 @@
 #   - service: homeassistant.turn_on
 #     entity_id: input_boolean.expensiveelectricity
 
-
-
-- alias: 'Update Available Notifications'
-  trigger:
-    platform: state
-    entity_id: binary_sensor.updater
-  action:
-  - service: notify.me
-    data:
-      title: 'Update for Home Assistant is available.'
-      message: |
-        Version **{{ trigger.to_state.attributes.newest_version }}**:
-
-        - [GitHub](https://github.com/home-assistant/core/releases/tag/{{ trigger.to_state.attributes.newest_version }})
-        - [home-assistant.io]({{ trigger.to_state.attributes.release_notes }})
-  - service: persistent_notification.create
-    data:
-      title: New version of Home Assistant is available
-      message: |
-        Version **{{ trigger.to_state.attributes.newest_version }}**:
-
-        - [GitHub](https://github.com/home-assistant/core/releases/tag/{{ trigger.to_state.attributes.newest_version }})
-        - [home-assistant.io]({{ trigger.to_state.attributes.release_notes }})
 
 
 

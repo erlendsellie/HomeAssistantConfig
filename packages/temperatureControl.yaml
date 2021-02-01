@@ -1,0 +1,676 @@
+temperaturecontrol:
+  sensor:
+    - platform: template
+      sensors:
+        heatpumpmode:
+          friendly_name: "Heat Pump Mode"
+          value_template: "{{states.climate.varmepumpe.attributes.last_on_operation}}"
+        pricelevel:
+          friendly_name: "Price Level"
+          value_template: "{{states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.price_level}}"
+        tibberheatdifference:
+          friendly_name: 'Tibber Heat Difference'
+          unit_of_measurement: "°C"
+          # The Heater is always set to 22 in Tibber. This way, we can see if Tibber wants to increase or decrease the temperature.
+          value_template: >-
+            {%-set targetTemp = 22 -%}
+            {%-set actualtemp = states.climate.stua_heater.attributes.temperature | float -%}
+            {{targetTemp - actualtemp}}
+        refheat:
+              friendly_name: 'Reference Heat'
+              unit_of_measurement: "°C"
+              value_template: >-
+                {%-set alarm = states.input_select.alarm.state -%}
+                {%-set hjemmeTemp = states.input_number.hjemmetemp.state | float %}
+                {%-set borteTemp = states.input_number.bortetemp.state | float %}
+                {%-set nattaTemp = states.input_number.nattatemp.state | float %}
+                {% if alarm == 'Disarm' %}
+                  {%-set temp = hjemmeTemp -%}   
+                {% elif alarm == 'Arm Home'%}
+                    {%-set temp = nattaTemp -%} 
+                {% else %}
+                  {%-set temp = [15, borteTemp - (float(states.sensor.distancefromhome.state)/10) | round(0)] | max -%} 
+                {% endif %}        
+                {{temp}}
+        pricecorrection:
+          friendly_name: 'Price Correction'
+          unit_of_measurement: "°C"
+          value_template: >-
+            {%-set priceGaining = states.binary_sensor.pricegaining.state == 'on' -%}
+            {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
+            {%-set isMaxPrice = states.binary_sensor.ismaxprice.state == 'on' -%}
+            {%-set isPeak = states.binary_sensor.pricerelativycheap.state == 'off' -%}
+            {%-set minPrice = states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.min_price | float -%}
+            {%-set price = states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float -%}
+            {%-set isMinPrice = minPrice == price -%}
+            {%-set temp =  0 -%}
+            {% if (priceGaining and isPeak == false) or (temp > 15 and isMinPrice)  %}
+              {% if isHeating %} 
+                {%-set temp =  temp + 1 -%}
+              {% endif %}
+            {% elif isMaxPrice or isPeak %}
+                {%-set temp =  temp - 1 -%}
+            {% endif %}
+            {{temp}}        
+        baseheat:
+            friendly_name: 'Base Heat'
+            unit_of_measurement: "°C"
+            value_template: >-
+              {%-set alarm = states.input_select.alarm.state -%}
+              {%-set hjemmeTemp = states.input_number.hjemmetemp.state | float %}
+              {%-set borteTemp = states.input_number.bortetemp.state | float %}
+              {%-set nattaTemp = states.input_number.nattatemp.state | float %}
+              {%-set priceGaining = states.binary_sensor.pricegaining.state == 'on' -%}
+              {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
+              {%-set isMaxPrice = states.binary_sensor.ismaxprice.state == 'on' -%}
+              {%-set isPeak = states.binary_sensor.pricerelativycheap.state == 'off' -%}
+              {%-set minPrice = states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.min_price | float -%}
+              {%-set price = states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float -%}
+              {%-set isMinPrice = minPrice == price -%}
+              {% if alarm == 'Disarm' %}
+                {%-set temp = hjemmeTemp -%}   
+              {% elif alarm == 'Arm Home'%}
+                  {%-set temp = nattaTemp -%} 
+              {% else %}
+                {%-set temp = [15, borteTemp - (float(states.sensor.distancefromhome.state)/10) | round(0)] | max -%} 
+              {% endif %}  
+              {% if (priceGaining and temp > 15 and isPeak == false) or (temp > 15 and isMinPrice)  %}
+                {% if isHeating %} 
+                  {%-set temp = temp + 1 -%}
+                {% endif %}
+              {% elif isMaxPrice or isPeak %}
+                  {%-set temp = temp - 1 -%}
+              {% endif %}
+              {{temp}}        
+        tempsenttoheater:
+          friendly_name: "Temp Sent To Heater"
+          unit_of_measurement: "°C"
+          value_template: >-
+            {%-set alarm = states.input_select.alarm.state -%}
+            {%-set uteTemp = states.sensor.ute_temperature.state | float or states.sensor.netatmo_home_temperature.state | float  -%}
+            {%-set prettyCold = float(uteTemp) < float(states.input_number.coldthreshold.state) -%}
+            {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
+            {%-set currentTemp = states.climate.varmepumpe.attributes.current_temperature | float %}
+            
+            {%-set baseTemp =  states.sensor.baseheat.state | float %}
+            {%-set difference = ([baseTemp - currentTemp] | max) | round(1) %}       
+            
+            {%-set temp = baseTemp -%}
+    
+            {% if prettyCold %} 
+              {%-set temp = temp + float(states.input_number.extradegrees.state) -%}
+            {% endif %}
+    
+            {%-set differenceStr = difference | string %}      
+            {%-set decimal = differenceStr.split('.')[1] | int %}
+            {% if decimal < 6 and decimal > 0  %}
+              {%-set difference = ([([difference + 0.5, 0.5] | min),0] | max) %}
+            {% else %}
+              {%-set difference = difference | round() %}
+            {% endif %}
+            
+            {% if isHeating and baseTemp > 15 %} 
+              {%-set temp = temp + ([difference, 0] | max) -%}
+            {% endif %}
+            {{temp or 22}}
+        fanmode:
+          friendly_name: "Fan Mode"
+          value_template: >-
+            {%-set targetTemp = states.climate.varmepumpe.attributes.temperature | float %}
+            {%-set currentTemp = states.climate.varmepumpe.attributes.current_temperature | float %}
+            {%-set operation = states.input_select.operationmode.state -%}
+            {% if operation == 'heat' %}
+            {%-set difference = targetTemp - currentTemp  %}
+            {% else %}
+            {%-set difference = ([targetTemp - currentTemp, currentTemp - targetTemp] | max) %}
+            {%endif%}
+            {% if difference > 4 %}
+              high
+            {% elif difference > 3 %}
+              mediumHigh
+            {% elif difference > 2 %}
+              mid
+            {% elif difference > 1 %}
+              auto
+            {% else %}
+              auto
+            {%endif%}  
+        priceforgraph:
+          friendly_name: Power Price
+          unit_of_measurement: "W"
+          value_template: "{{states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float * 10000}}"
+        averagepower:
+          friendly_name: "Average Power Usage Today"
+          unit_of_measurement: "W"
+          value_template: "{{ states.sensor.real_time_consumption_sivert_thonstads_vei_6b.attributes.averagePower | float }}"
+
+          #{{(priceNow < priceNextHour) and (states.sensor.pricelevel.state != 'EXPENSIVE')}}
+        trymtemp:
+          friendly_name: "Trym Temp"
+          value_template: >-
+            {% set dummy = states("sensor.time") %}
+            {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
+            {%-set hour = time.split(':')[0] | float -%}
+            {%-set trymasleep = states.input_boolean.trymasleep.state == 'on' -%}
+            {%-set trymaway = states.input_boolean.tryminkindergarden.state == 'on'%}
+            {%-set away = states.input_select.alarm.state == 'Arm Away'%}
+            {%-set windowopen = states.binary_sensor.trym_window.state == 'on'%}
+            {% if away or trymaway or windowopen %}
+            16
+            {% elif trymasleep or hour > 17 %}
+            18
+            {% else %}
+            16
+            {% endif %}
+        tyratemp:
+          friendly_name: "Tyra Temp"
+          value_template: >-
+            {% set dummy = states("sensor.time") %}
+            {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
+            {%-set hour = time.split(':')[0] | float -%}
+            {%-set tyraasleep = states.input_boolean.tyraasleep.state == 'on' -%}
+            {%-set away = states.input_select.alarm.state == 'Arm Away'%}
+            {%-set windowopen = states.binary_sensor.tyra_window.state == 'on' %}
+            {% if away or windowopen %}
+            14
+            {% elif tyraasleep or hour > 17 %}
+            16
+            {% else %}
+            14
+            {% endif %}        
+  binary_sensor:
+
+
+  automation:
+  - alias: 'GarageHeaterOn'
+    trigger:
+      - platform: state
+        entity_id: cover.garage
+        to: 'off'
+    action:
+    - service: climate.turn_on
+      entity_id: climate.garage
+
+  - alias: 'GarageHeaterOff'
+    trigger:
+      - platform: state
+        entity_id: cover.garage
+        to: 'on'
+    action:
+    - service: climate.turn_off
+      entity_id: climate.garage
+
+
+  - id: adjusttemp
+    alias: Climate Stua - Adjust temp
+    mode: restart
+    trigger:
+    - platform: homeassistant
+      event: start
+    - platform: state
+      entity_id: sensor.tempsenttoheater, input_select.operationmode, binary_sensor.pricegaining
+    condition:
+      condition: and
+      conditions:
+      # - condition: state
+      #   entity_id: input_select.operationmode
+      #   state: Heat
+        - condition: state
+          entity_id: input_boolean.warmupmorning
+          state: 'off'
+        - condition: numeric_state
+          entity_id: sensor.tempsenttoheater
+          above: 15
+    action:
+    - service: climate.set_hvac_mode
+      data_template:
+        entity_id: climate.toilet_heater
+        hvac_mode: 'heat'
+    - service: climate.set_hvac_mode
+      data_template:
+        entity_id: climate.varmepumpe
+        hvac_mode: '{{states.input_select.operationmode.state}}'
+    - service: climate.set_temperature
+      data_template:
+        entity_id: climate.varmepumpe
+        temperature: '{{ states.sensor.tempsenttoheater.state | int }}'      
+    - service: logbook.log
+      data_template:
+        name: Varmepumpe
+        message: "set to {{ states.sensor.tempsenttoheater.state | int }} degrees and {{states.input_select.operationmode.state}}"
+    - service: climate.set_temperature
+      data_template:
+        entity_id: climate.toilet_heater
+        temperature: '{{ (states.sensor.baseheat.state | float) }}'      
+        #Millsmart
+    # - service: climate.set_temperature
+    #   data_template:
+    #     entity_id: climate.stua_heater
+    #     temperature: '{{ (states.sensor.tempsenttoheater.state | float) - 1}}'      
+
+  - alias: TurnOffClimateStua
+    trigger:
+    - platform: numeric_state
+      entity_id: sensor.tempsenttoheater
+      below: 16
+    condition:
+      condition: and
+      conditions:
+        - condition: state
+          entity_id: input_boolean.warmupmorning
+          state: 'off'
+    action:
+    - service: climate.turn_off
+      data_template:
+        entity_id: climate.varmepumpe, climate.toilet_heater, climate.stua_heater
+    - service: homeassistant.turn_on
+      entity_id: script.turnoffheaters
+    - service: script.turn_on
+      entity_id: script.notify
+      data_template:
+        variables:
+          title: Varmepumpa ble automatisk slått av
+          message: Varmepumpa ble automatisk slått av
+
+
+  - id: adjustfan
+    alias: Climate Stua - Adjust fan
+    trigger:
+    - platform: state
+      entity_id: sensor.fanmode
+    - platform: state
+      entity_id: climate.varmepumpe
+    - platform: state
+      entity_id: input_boolean.warmupmorning
+    condition:
+      condition: and
+      conditions:
+      # - condition: state
+      #   entity_id: input_select.operationmode
+      #   state: Heat
+        - condition: state
+          entity_id: input_boolean.warmupmorning
+          state: 'off'
+        # - condition: numeric_state
+        #   entity_id: sensor.tempsenttoheater
+        #   above: 15
+    action:
+    - service: climate.set_fan_mode
+      data_template:
+        entity_id: climate.varmepumpe
+        fan_mode: '{{states.sensor.fanmode.state}}'
+
+
+  - alias: Toggle Office Heater
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_downstairs_office
+    action:
+    - service: >
+        {% if states('binary_sensor.motion_downstairs_office') == 'on' %}
+          climate.turn_on
+        {% else %}
+          climate.turn_off
+        {% endif %}
+      entity_id: climate.office_heater
+
+
+
+  #This will also turn off heaters if heat pump is turned off manually. No need to run only them.
+  #Watch out if you implement some manual climate logic, men this will probably just help.
+  #Also turn off when hjemmetemp is reached?
+  - id: turnOffHeatersWhenPumpOff
+    alias: Climate - obey heatpump
+    trigger:
+      - platform: state
+        entity_id: climate.varmepumpe
+        to: 'off'
+      - platform: state
+        entity_id: climate.varmepumpe
+        to: 'auto'
+      - platform: state
+        entity_id: climate.varmepumpe
+        to: 'cool'
+      - platform: state
+        entity_id: climate.varmepumpe
+        to: 'fan'                  
+    action:
+      - service: homeassistant.turn_on
+        entity_id: script.turnoffheaters
+        # TODO turn on heaters when on?
+
+  - alias: WarmupMorningExtraCold
+    id: WarmupmorningExtraCold
+    trigger:
+    - platform: time
+      at: '04:30:00'
+    condition:
+      condition: and
+      conditions:
+      #group.people problem
+      - condition: state
+        entity_id: group.people
+        state: 'home'
+        # if the temperature is under the threshold, for example -5 degrees.
+      - condition: template
+        value_template: '{{ float(states.sensor.ute_temperature.state) < (float(states.input_number.coldthreshold.state)) }}'
+        # If the task it to warm up more than 1 degree.
+      # - condition: template
+      #   value_template: "{{ float(states.sensor.stua_temperature.state) < (float(states.input_number.hjemmetemp.state) - 1) }}"
+    action:
+    - service: homeassistant.turn_on
+      entity_id: script.warmupmorning
+
+
+  - alias: WarmupMorningExtraExtraCold2
+    id: WarmupmorningExtraExtraCold2
+    trigger:
+    - platform: time
+      at: '04:00:00'
+    condition:
+      condition: and
+      conditions:
+          #group.people problem
+      - condition: state
+        entity_id: group.people
+        state: 'home'
+      - condition: numeric_state
+        entity_id: sensor.ute_temperature
+        below: -8      
+      # - condition: template
+      #   value_template: "{{ float(states.sensor.stua_temperature.state) < (float(states.input_number.hjemmetemp.state) - 2) }}"
+    action:
+    - service: homeassistant.turn_on
+      entity_id: script.warmupmorning
+
+  - id: endWarmupMorning
+    alias: EndWarmupUp
+    trigger:
+    - platform: template
+      value_template: "{{(states.sensor.stua_temperature.state >= states.input_number.hjemmetemp.state) and is_state('input_boolean.warmupmorning', 'on')}}"
+    - platform: state
+      entity_id: input_select.alarm 
+      to: 'Arm Home'
+    - platform: state
+      entity_id: input_select.alarm 
+      to: 'Arm Away'
+    # condition:
+    #   - condition: template
+    #     value_template: "{{(states.sensor.stua_temperature.state >= states.input_number.hjemmetemp.state) and is_state('input_boolean.warmupmorning', 'on')}}"
+    action:
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.warmupmorning            
+    - service: climate.set_temperature
+      data_template:
+        entity_id: climate.varmepumpe
+        temperature: '{{ float(states.sensor.targettemp.state)}}'
+    - service: climate.set_hvac_mode
+      data_template:
+        entity_id: climate.varmepumpe
+        hvac_mode: "{{ states.input_select.operationmode.state}}"
+    - condition: template
+      value_template: "{{ states.input_select.operationmode.state == 'heat'}}"      
+    - service: climate.set_hvac_mode
+      data_template:
+        entity_id: climate.stua_heater
+        hvac_mode: 'heat'
+
+  - alias: WarmupMorning
+    trigger:
+    - platform: time
+      at: '05:00:00'
+    - platform: time
+      at: '05:20:00'
+    condition:
+    # If we want heating when home, and we are home, and it's less than 21 inside and 10 outside.
+      condition: and
+      conditions:
+      # If we want heating when home.
+      - condition: numeric_state
+        entity_id: input_number.hjemmetemp
+        above: 15       
+        # If the current temp(at 0500) is less than 21
+      - condition: template
+        value_template: "{{states.climate.varmepumpe.attributes.current_temperature < 21}}"
+        #condition for (hjemmetemp - actual temp) > 2 degrees?
+        # WIll only start heating if big difference, until there is no difference.
+      #group.people problem
+      - condition: state
+        entity_id: group.people
+        state: 'home'
+      # - condition: template
+      #   value_template: "{{ float(states.sensor.stua_temperature.state) < (float(states.input_number.hjemmetemp.state))-0.5 }}"
+        #If ít's colder than 10. So, not do this in the summer.
+      - condition: numeric_state
+        entity_id: sensor.ute_temperature
+        below: 10
+    action:
+    - service: homeassistant.turn_on
+      entity_id: script.warmupmorning
+    - service: notify.me
+      data:
+        message: 'Warmup morning started. Temp is {{states.climate.varmepumpe.attributes.current_temperature}}'
+
+  - alias: 'TrymHeaterOn'
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.trym_window
+        to: 'off'
+    action:
+    - service: climate.turn_on
+      entity_id: climate.trym
+
+
+  - alias: 'TrymHeaterOff'
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.trym_window
+        to: 'on'
+    action:
+    - service: climate.turn_off
+      entity_id: climate.trym
+
+
+  - id: TurnOffHeaters
+    alias: TurnOffHeaters
+    trigger:
+    - platform: state
+      entity_id: input_number.bortetemp
+    - platform: state
+      entity_id: input_select.alarm
+      to: 'Arm Away'
+      # for:
+      #    minutes: 4
+    - platform: state
+      entity_id: input_select.alarm
+      to: 'Arm Home'
+      # for:
+      #    minutes: 4
+    condition:
+      condition: or
+      conditions:
+      - condition: state
+        entity_id: input_select.alarm
+        state: 'Arm Away'
+      - condition: state
+        entity_id: input_select.alarm
+        state: 'Arm Home'       
+    action:
+    - service: homeassistant.turn_on
+      entity_id: script.turnoffheaters
+
+  - alias: TrymTemp
+    trigger:
+      - platform: state
+        entity_id: sensor.trymtemp
+    action:
+      - service: climate.set_temperature
+        entity_id: climate.trym
+        data_template:
+          temperature: "{{states.sensor.trymtemp.state | float}}"
+
+
+
+
+# - alias: WarmupMorningWeekend
+#   id: WarmupmorningWeekend
+#   trigger:
+#   - platform: time
+#     at: '06:50:00'
+#   condition:
+#     condition: and
+#     conditions:
+#     - condition: time
+#       weekday:
+#       - sat
+#       - sun
+#     - condition: state
+#       entity_id: group.people
+#       state: 'home'
+#     - condition: numeric_state
+#       entity_id: sensor.ute_temperature
+#       below: 10
+#       #Temperature is 2 degrees lower than target
+#     # - condition: template
+#     #   value_template: "{{ float(states.sensor.stua_temperature.state) < (float(states.sensor.tempsenttoheater.state) - 2) }}"
+#   action:
+#   - service: climate.set_temperature
+#     data_template:
+#       entity_id: climate.varmepumpe
+#       temperature: 28
+#       #temperature: '{{ float(states.sensor.tempsenttoheater.state) | int + 3 }}'
+#       #temperature: '{{ states.input_number.hjemmetemp.state | int }}'
+#   - service: logbook.log
+#     data_template:
+#        name: House
+#        message: is being heated up to 28 degrees.
+#        #message: is being heated up to '{{ float(states.sensor.tempsenttoheater.state) | int + 3 }}' degrees.
+#   - delay:
+#       minutes: 120
+#   - service: climate.set_temperature
+#     data_template:
+#       entity_id: climate.varmepumpe
+#       temperature: '{{ float(states.sensor.tempsenttoheater.state)}}'
+      
+  script:
+
+    warmupcominghome:
+      alias: Warmup Coming Home
+      sequence:
+        - condition: template
+          value_template: "{{ false }}" #Plombert
+        - condition: template
+          value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
+        # If we want heating when home.
+        - condition: numeric_state
+          entity_id: input_number.hjemmetemp
+          above: 15       
+        - condition: numeric_state
+          entity_id: sensor.ute_temperature
+          below: 10
+        - condition: state
+          entity_id: input_select.operationmode
+          state: 'heat'
+        - condition: template
+          value_template: "{{(states.climate.varmepumpe.attributes.current_temperature | int) < (states.input_number.hjemmetemp.state | int)}}"
+        - service: logbook.log
+          data_template:
+            name: House
+            message: Is being heated.
+        - service: notify.me
+          data_template:
+            message: 'Warmup started. Temp is {{states.climate.varmepumpe.attributes.current_temperature}}'
+        - service: climate.set_hvac_mode
+          data_template:
+            entity_id: climate.varmepumpe
+            hvac_mode: 'heat'
+        - service: climate.set_temperature
+          data_template:
+            entity_id: climate.varmepumpe
+            temperature: 28
+        - service: climate.set_hvac_mode
+          data_template:
+            entity_id: climate.varmepumpe
+            hvac_mode: "high"
+        - service: climate.set_hvac_mode
+          data_template:
+            entity_id: climate.toilet_heater
+            hvac_mode: 'heat'
+        - service: climate.set_temperature
+          data_template:
+            entity_id: climate.toilet_heater
+            temperature: '{{ states.input_number.hjemmetemp.state | int}}'
+        - wait_template: "{{(states.sensor.stua_temperature.state > states.input_number.hjemmetemp.state) or (states.input_select.alarm.state == 'Disarm')}}"
+          timeout: '0:45:00'  
+        - service: climate.set_hvac_mode
+          data_template:
+            entity_id: climate.varmepumpe
+            hvac_mode: 'heat'        
+        - service: climate.set_temperature
+          data_template:
+            entity_id: climate.varmepumpe
+            temperature: '{{ float(states.input_number.bortetemp.state)}}'
+        - service: climate.set_hvac_mode
+          data_template:
+            entity_id: climate.varmepumpe
+            hvac_mode: "{{ states.input_select.operationmode.state}}"        
+    #TODO: Set tempsenttoheater instead of bortetemp(or just run automation), but override this if something indicates that we are not coming home.
+    
+    warmupmorning:
+      alias: Warmup Morning
+      sequence:
+      - condition: template
+        value_template: "{{ false }}" #Plombert    
+      - service: climate.set_hvac_mode
+        data_template:
+          entity_id: climate.varmepumpe
+          hvac_mode: 'heat'        
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.warmupmorning
+      - service: climate.set_fan_mode
+        data_template:
+          entity_id: climate.varmepumpe
+          fan_mode: 'high'
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.varmepumpe
+          temperature: 28
+      - service: climate.set_hvac_mode
+        data_template:
+          entity_id: climate.toilet_heater
+          hvac_mode: 'heat'
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.toilet_heater
+          temperature: '{{ states.input_number.hjemmetemp.state | int}}'      
+      - service: logbook.log
+        data_template:
+          name: House
+          message: "is being heated up to {{states.input_number.hjemmetemp.state}} degrees."
+      - wait_template: "{{ states.sensor.stua_temperature.state > states.input_number.hjemmetemp.state}}"
+        timeout: '1:00:00'  
+      # - service: climate.set_hvac_mode
+      #   data_template:
+      #     entity_id: climate.varmepumpe
+      #     hvac_mode: 'heat'        
+      - service: climate.set_temperature
+        data_template:
+          entity_id: climate.varmepumpe
+          temperature: >-
+            {%-set priceGaining = states.binary_sensor.pricegaining.state == 'on' -%}
+            {%-set uteTemp = states.sensor.ute_temperature.state | float or states.sensor.netatmo_home_temperature.state | float  -%}
+            {%-set temp = float(states.input_number.hjemmetemp.state) -%}
+            {%-set prettyCold = float(uteTemp) < float(states.input_number.coldthreshold.state) -%}
+            {% if prettyCold %} 
+              {%-set temp = temp + float(states.input_number.extradegrees.state) -%}
+            {% endif %}
+            {% if priceGaining and temp > 15 %}
+                {%-set temp = temp + 1 -%}
+            {% endif %}
+            {{temp}}
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.warmupmorning    
+      - service: climate.set_hvac_mode
+        data:
+          entity_id: climate.stua_heater
+          hvac_mode: 'heat'    
