@@ -74,8 +74,7 @@ temperaturecontrol:
               {% else %}
                 {%-set temp = [15, borteTemp - (float(states.sensor.distancefromhome.state)/10) | round(0)] | max -%} 
               {% endif %}  
-              {%-set temp = temp + states.sensor.pricecorrection.state -%}   
-            
+              {%-set temp = temp | float + states.sensor.pricecorrection.state | float -%}   
               {{temp}}
         tempsenttoheater:
           friendly_name: "Temp Sent To Heater"

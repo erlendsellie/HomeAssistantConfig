@@ -169,6 +169,8 @@
       - light.vindfang
       - light.peis
       - light.play
+      - light.driveway
+      - light.utespotter
 
     upstairs:
       name: Upstairs

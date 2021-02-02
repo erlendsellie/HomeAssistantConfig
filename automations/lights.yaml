@@ -741,6 +741,18 @@
     - service: homeassistant.turn_on
       entity_id: script.lightson
 
+- alias: AdjustUteSpotter
+  trigger:
+    - platform: state
+      entity_id: sun.sun
+  action:
+    - service: >
+        {% if states('sun.sun') == 'Above horizon' %}
+          light.turn_off
+        {% else %}
+          climate.turn_on
+        {% endif %}
+      entity_id: light.utespotter
 
 
 - alias: TurnOnDriveWayLight 
