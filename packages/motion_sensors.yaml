@@ -15,6 +15,6 @@ motionsensors:
       motionoffice:
         device_class: motion
         delay_off:
-          minutes: 5
+          minutes: 10
         value_template: >-
           {{states.binary_sensor.motion_downstairs.state}}

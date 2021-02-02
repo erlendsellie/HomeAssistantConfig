@@ -183,7 +183,7 @@ temperaturecontrol:
         to: 'off'
       - platform: state
         entity_id: binary_sensor.pricerelativycheap
-        to: 'off'        
+        to: 'on'        
     action:
     - service: climate.turn_on
       entity_id: climate.garage_heater
@@ -195,7 +195,7 @@ temperaturecontrol:
         to: 'on'
       - platform: state
         entity_id: binary_sensor.pricerelativycheap
-        to: 'on'
+        to: 'off'
     action:
     - service: climate.turn_off
       entity_id: climate.garage_heater
@@ -212,7 +212,7 @@ temperaturecontrol:
       - service: climate.set_temperature
         data_template:
           entity_id: climate.garage_heater
-          temperature: '{{ states.input_number.garagetemp.state | float + states.sensor.pricecorrection.state | float}}'      
+          temperature: '{{ states.input_number.garagetemp.state | float + [((states.sensor.pricecorrection.state | float * 3)), 1] | max }}'      
 
   - id: adjusttemp
     alias: Climate Stua - Adjust temp
