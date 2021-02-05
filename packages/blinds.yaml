@@ -5,6 +5,14 @@ blinds:
       entities:
         - cover.window
         - cover.door
+  script:
+      verandahalfway:
+          alias: "Veranda half way"
+          sequence:
+            - service: cover.set_cover_position
+              entity_id: cover.veranda_curtains
+              data:
+                position: 53
 
   automation:
   # - alias: Close Blinds When TV

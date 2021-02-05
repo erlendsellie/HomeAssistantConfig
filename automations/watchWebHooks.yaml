@@ -399,14 +399,14 @@
                   - action: togglecurtains
                     title: Toggle Curtains
                     destructive: false
+                  - action: curtainshalfway
+                    title: Curtains halfway
+                    destructive: false                    
                   - action: trymtoggle
                     title: Trym Asleep Toggle
                     destructive: true
                   - action: tyratoggle
                     title: Tyra Asleep Toggle
-                    destructive: true
-                  - action: officeheater
-                    title: Office Heater
                     destructive: true
 
 
@@ -420,6 +420,15 @@
   action:
     - service: cover.toggle
       entity_id: cover.veranda_curtains
+
+- alias: 'curtainshalfwayNotification'
+  trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: curtainshalfway
+  action:
+    - service: script.verandahalfway
 
 
 - alias: notification_clean

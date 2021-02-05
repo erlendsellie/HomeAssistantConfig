@@ -124,7 +124,7 @@
       minutes: 2  
   - service: hassio.addon_restart
     data:
-      addon: core_zwave
+      addon: addon_core_zwave_js
   - wait_for_trigger:
     - platform: template
       value_template: "{{states.light.hallway.state == 'on' or states.light.hallway.state == 'off'}}"

@@ -150,11 +150,11 @@ temperaturecontrol:
             {%-set away = states.input_select.alarm.state == 'Arm Away'%}
             {%-set windowopen = states.binary_sensor.trym_window.state == 'on'%}
             {% if away or trymaway or windowopen %}
-            16
+            14
             {% elif trymasleep or hour > 17 %}
             18
             {% else %}
-            16
+            14
             {% endif %}
         tyratemp:
           friendly_name: "Tyra Temp"
@@ -168,13 +168,35 @@ temperaturecontrol:
             {% if away or windowopen %}
             14
             {% elif tyraasleep or hour > 17 %}
-            16
+            18
             {% else %}
             14
             {% endif %}        
   binary_sensor:
-
-
+  - platform: template
+    scan_interval: 10
+    sensors:
+      pricerelativycheap:
+        friendly_name: 'price Relativy Cheap'
+        value_template: >-
+          {%- set price = states.sensor.electricity_price_sivert_thonstads_vei_6b -%}
+          {{price.state | float < price.attributes.peak | float}}
+      ismaxprice:
+        friendly_name: 'Is Max price?'
+        value_template: >-
+          {%- set price = states.sensor.electricity_price_sivert_thonstads_vei_6b -%}
+          {{price.state | float  == price.attributes.max_price | float}}
+      pricegaining:
+        friendly_name: 'Price Gaining Next Hour'
+        value_template: >-
+          {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
+          {%-set hour = time.split(':')[0] | round -%}
+          {%-set nordpool = states.sensor.nordpool -%}
+          {%-set priceNextHour = nordpool.attributes.today[hour+1] or nordpool.attributes.tomorrow[0] | float -%}
+          {%-set priceNextNextHour = nordpool.attributes.today[hour + 2] or nordpool.attributes.tomorrow[0] | float -%}
+          {%-set priceNow = nordpool.attributes.today[hour] | float -%}
+          {%-set cheap = states.sensor.pricelevel.state != 'EXPENSIVE' and states.sensor.pricelevel.state != 'VERY_EXPENSIVE' -%}
+          {{(priceNow < priceNextHour) or ((priceNow < priceNextNextHour) and priceNow < priceNextHour)}}
   automation:
   - alias: 'GarageHeaterOn'
     trigger:
@@ -212,7 +234,7 @@ temperaturecontrol:
       - service: climate.set_temperature
         data_template:
           entity_id: climate.garage_heater
-          temperature: '{{ states.input_number.garagetemp.state | float + [((states.sensor.pricecorrection.state | float * 3)), 1] | max }}'      
+          temperature: '{{ [states.input_number.garagetemp.state | float + [((states.sensor.pricecorrection.state | float * 5)), 1] | max, 0] | min }}'      
 
   - id: adjusttemp
     alias: Climate Stua - Adjust temp

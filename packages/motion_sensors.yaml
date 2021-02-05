@@ -5,13 +5,13 @@ motionsensors:
       motionupstairs:
         device_class: motion
         delay_off:
-          minutes: 2
+          minutes: 5
         value_template: >-
-          {{states.binary_sensor.motion_upstairs.state
-          or states.binary_sensor.motion_bathroom.state
-          or states.binary_sensor.trym_motion.state
-          or states.binary_sensor.trym_motion.state
-          or states.binary_sensor.motion_bedroom.state}}
+          {{states.binary_sensor.motion_upstairs.state == 'on'
+          or states.binary_sensor.motion_bathroom.state == 'on'
+          or states.binary_sensor.trym_motion.state == 'on'
+          or states.binary_sensor.tyra_motion.state == 'on'
+          or states.binary_sensor.motion_bedroom.state == 'on'}}
       motionoffice:
         device_class: motion
         delay_off:

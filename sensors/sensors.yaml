@@ -428,9 +428,10 @@
             {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trymsoveron.attributes.last_triggered)) / 60) | round(0)}}
         {% elif states.input_boolean.tryminkindergarden.state == 'on' %}
             {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trym_left_in_kindergarden.attributes.last_triggered)) / 60) | round(0)}}
-        {% else %}
-            {{((as_timestamp(utcnow()) - as_timestamp([states.automation.trymsoveroff.attributes.last_triggered, states.automation.trym_picked_up_in_kindergarden.attributes.last_triggered] | max)) / 60) | round(0)}}
-        {% endif %}
+          {% endif %}
+      #   {% else %}
+      #     {{((as_timestamp(utcnow()) - as_timestamp([states.automation.trymsoveroff.attributes.last_triggered, states.automation.trym_picked_up_in_kindergarden.attributes.last_triggered] | max)) / 60) | round(0)}}
+      # {% endif %}
     trymsleeptimeformatted:
       friendly_name: "Trym Sleep time"
       value_template: >-
@@ -447,10 +448,12 @@
       value_template: >-
         {% set dummy = states("sensor.time") %}
         {% if states.input_boolean.tyraasleep.state  == 'on'%}
-            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveron.attributes.last_triggered)) / 60) | round(0)}}        
-        {% else %}
-            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveroff.attributes.last_triggered)) / 60) | round(0)}}                
+            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveron.attributes.last_triggered)) / 60) | round(0)}} 
         {% endif %}
+
+    # {% else %}
+    #     {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveroff.attributes.last_triggered)) / 60) | round(0)}}                
+    # {% endif %}
     # trymsleeptime:
     #   friendly_name: "Trym Sleep time"
     #   unit_of_measurement: "minutes"

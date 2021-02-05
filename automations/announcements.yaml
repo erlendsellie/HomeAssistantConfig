@@ -670,35 +670,39 @@
   alias: Caroline Leaving Work
   trigger:
   - platform: zone
-    entity_id: device_tracker.life360_caroline_winge
+    entity_id: person.caroline
     zone: zone.sykehuset
     # Event is either enter or leave
     event: leave
     # for:
     #   minutes: 2
   - platform: zone
-    entity_id: device_tracker.life360_caroline_winge
+    entity_id: person.caroline
     zone: zone.ekra
     event: leave
   - platform: zone
-    entity_id: device_tracker.life360_caroline_winge
+    entity_id: person.caroline
     zone: zone.havstein    
     event: leave
   - platform: zone
-    entity_id: device_tracker.life360_caroline_winge
+    entity_id: person.caroline
     zone: zone.dalgard
     event: leave
   - platform: zone
-    entity_id: device_tracker.life360_caroline_winge
+    entity_id: person.caroline
     zone: zone.ugla
     event: leave
   - platform: zone
-    entity_id: device_tracker.life360_caroline_winge
+    entity_id: person.caroline
     zone: zone.mcdonalds
     event: leave
   - platform: zone
-    entity_id: device_tracker.life360_caroline_winge
+    entity_id: person.caroline
     zone: zone.nidaros
+    event: leave
+  - platform: zone
+    entity_id: person.caroline
+    zone: zone.maria
     event: leave
   action:
   - service: script.turn_on

@@ -78,27 +78,6 @@
       mailtoday:
         friendly_name: 'Mail Today'
         value_template: "{{states.sensor.mailtoday.state == 'True'}}"
-      pricerelativycheap:
-        friendly_name: 'price Relativy Cheap'
-        value_template: >-
-          {%- set price = states.sensor.electricity_price_sivert_thonstads_vei_6b -%}
-          {{price.state | float < price.attributes.peak | float}}
-      ismaxprice:
-        friendly_name: 'Is Max price?'
-        value_template: >-
-          {%- set price = states.sensor.electricity_price_sivert_thonstads_vei_6b -%}
-          {{price.state | float  == price.attributes.max_price | float}}
-      pricegaining:
-        friendly_name: 'Price Gaining Next Hour'
-        value_template: >-
-          {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
-          {%-set hour = time.split(':')[0] | round -%}
-          {%-set nordpool = states.sensor.nordpool -%}
-          {%-set priceNextHour = nordpool.attributes.today[hour+1] | float -%}
-          {%-set priceNextNextHour = nordpool.attributes.today[hour + 2] | float -%}
-          {%-set priceNow = nordpool.attributes.today[hour] | float -%}
-          {%-set cheap = states.sensor.pricelevel.state != 'EXPENSIVE' and states.sensor.pricelevel.state != 'VERY_EXPENSIVE' -%}
-          {{(priceNow < priceNextHour) or ((priceNow < priceNextNextHour) and priceNow < priceNextHour)}}
       echarging:
         value_template: "{{states.sensor.erlend_battery_state.state != 'discharging'}}"
       ccharging:
