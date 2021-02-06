@@ -6,6 +6,8 @@
       entity_id: sensor.alarm
     - platform: homeassistant
       event: start
+    - platform: state
+      entity_id: input_boolean.guestmode
   condition:
     - condition: state
       entity_id: input_boolean.guestmode

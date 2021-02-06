@@ -197,6 +197,7 @@
           {% else %}
             mdi:washing-machine-off
           {% endif %}
+        #{{((as_timestamp(states.sensor.vaskemaskin_remaining_program_time.state) or (as_timestamp(utcnow()) + 61)) - as_timestamp(utcnow())) < 60}}
       drying:
         friendly_name: 'drying'
         device_class: power

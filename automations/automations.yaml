@@ -1287,6 +1287,9 @@
     - condition: state
       entity_id: binary_sensor.motion_downstairs_office
       state: 'on'
+    - condition: state
+      entity_id: input_boolean.guestmode
+      state: 'off'
   action:
   - service: light.turn_on
     entity_id: light.play

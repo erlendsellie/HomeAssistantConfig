@@ -9,15 +9,9 @@
       entities:
       - person.caroline
       - person.erlend
-      - device_tracker.julianne
-      - device_tracker.tommy
-      - device_tracker.stian_wifi
-      - device_tracker.marianne
-      - device_tracker.lars
-      - device_tracker.andrine
-      - device_tracker.stale
-      - device_tracker.wenche
-      #- device_tracker.FredrikPixel
+      - device_tracker.julianne_wifi
+      - device_tracker.marianne_wifi
+      - device_tracker.andrine_wifi
 
     erlend:
       name: erlend
