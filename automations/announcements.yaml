@@ -154,6 +154,8 @@
     - condition: state
       entity_id: binary_sensor.hoveddor
       state: 'off'
+      for:
+        seconds: 30
     - condition: state
       entity_id: binary_sensor.motion_garage
       state: 'off'

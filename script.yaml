@@ -1099,75 +1099,6 @@ garagetoggle:
 ####      Overslept     ####
 ############################
 
-wakeup:
-  sequence:
-    - service: light.turn_on
-      entity_id: light.erlend_bedroom
-    - service: light.turn_off
-      entity_id: light.erlend_bedroom
-    - service: light.turn_on
-      entity_id: light.erlend_bedroom
-    - service: light.turn_off
-      entity_id: light.erlend_bedroom
-    - service: light.turn_on
-      entity_id: light.erlend_bedroom
-    - service: light.turn_off
-      entity_id: light.erlend_bedroom
-    - service: light.turn_on
-      entity_id: group.bedroomlights
-
-overslept:
-  sequence:
-    - service: notify.carolinepush
-      data:
-        title: Erlend har ikke stått opp enda.
-        message: Han burde vekkes.!
-    - service: notify.erlendpush
-      data:
-        title: Erlend har ikke stått opp enda.
-        message: Han burde vekkes!
-    - service: light.turn_on
-      entity_id: group.bedroomlights            
-    - service: light.turn_off
-      entity_id: group.bedroomlights            
-    - service: light.turn_on
-      entity_id: group.bedroomlights            
-    - service: light.turn_off
-      entity_id: group.bedroomlights            
-    - service: light.turn_on
-      entity_id: group.bedroomlights            
-    - service: light.turn_off
-      entity_id: group.bedroomlights
-    - service: light.turn_on
-      entity_id: group.bedroomlights            
-
-
-
-stilloverslept:
-  sequence:
-    - service: notify.erlendpush
-      data:
-        title: Erlend har ikke dratt på jobb enda
-        message: Vekk han om han skal på jobb!
-    - service: notify.carolinepush
-      data:
-        title: Erlend har ikke dratt på jobb enda
-        message: Vekk han om han skal på jobb!
-    - service: light.turn_on
-      entity_id: group.bedroomlights            
-    - service: light.turn_off
-      entity_id: group.bedroomlights            
-    - service: light.turn_on
-      entity_id: group.bedroomlights            
-    - service: light.turn_off
-      entity_id: group.bedroomlights            
-    - service: light.turn_on
-      entity_id: group.bedroomlights            
-    - service: light.turn_off
-      entity_id: group.bedroomlights
-    - service: light.turn_on
-      entity_id: group.bedroomlights            
-
 
 
 # garagescript:
@@ -1614,3 +1545,21 @@ reload:
   alias: 'Reload HA'
   sequence:
   - service: homeassistant.reload_core_config
+
+
+sendvacuumtokitchen:
+  alias: 'Send Svetlana to kitchen'
+  sequence:
+    - service: vacuum.stop
+      entity_id: vacuum.xiaomi_vacuum_cleaner
+    - service: vacuum.send_command
+      data:
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+        command: app_goto_target
+        params: [25000,32800]  
+
+dockvacuum:
+  alias: 'Send Svetlana to Dock'
+  sequence:
+    - service: vacuum.return_to_base
+      entity_id: vacuum.xiaomi_vacuum_cleaner

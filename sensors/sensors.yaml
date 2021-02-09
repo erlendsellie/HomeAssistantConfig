@@ -183,13 +183,24 @@
     - filter: lowpass
       time_constant: 10
 
-    # - filter: throttle
-    #   window_size: 10
-    # - filter: outlier
-    #   window_size: 4
-    #   radius: 2.0
-    # - filter: lowpass
-    #   time_constant: 60
+- platform: filter
+  name: "filtered consumption extra"
+  entity_id: sensor.real_time_consumption_sivert_thonstads_vei_6b
+  filters:
+    - filter: throttle
+      window_size: 4
+    - filter: outlier
+      window_size: 4
+      radius: 2.0
+    - filter: lowpass
+      time_constant: 10
+    - filter: throttle
+      window_size: 10
+    - filter: outlier
+      window_size: 4
+      radius: 2.0
+    - filter: lowpass
+      time_constant: 60
 
 
 

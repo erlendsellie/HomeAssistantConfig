@@ -337,6 +337,12 @@ light:
 
 
   - platform: group
+    name: kitchen_lights
+    entities:
+      - light.kitchen
+      - light.kitchen_ceiling_led
+
+  - platform: group
     name: office_lights
     entities:
       - light.office_light

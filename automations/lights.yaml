@@ -504,7 +504,7 @@
   condition:
     - condition: state
       entity_id: input_boolean.guestmode
-      state: 'off'
+      state: 'off'      
   action:
   - service: light.turn_on
     entity_id: 

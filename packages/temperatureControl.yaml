@@ -37,6 +37,7 @@ temperaturecontrol:
           unit_of_measurement: "°C"
           value_template: >-
             {%-set priceGaining = states.binary_sensor.pricegaining.state == 'on' -%}
+            {%-set priceFalling = states.binary_sensor.pricefalling.state == 'on' -%}
             {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
             {%-set isMaxPrice = states.binary_sensor.ismaxprice.state == 'on' -%}
             {%-set isPeak = states.binary_sensor.pricerelativycheap.state == 'off' -%}
@@ -48,10 +49,10 @@ temperaturecontrol:
               {% if isHeating %} 
                 {%-set temp =  temp + 1 -%}
               {% endif %}
-            {% elif isMaxPrice or isPeak %}
+            {% elif isMaxPrice or isPeak or priceFalling %}
                 {%-set temp =  temp - 1 -%}
             {% endif %}
-            {{temp | float}}        
+            {{temp | float}}
         baseheat:
             friendly_name: 'Base Heat'
             unit_of_measurement: "°C"
@@ -106,7 +107,7 @@ temperaturecontrol:
             {% if isHeating and baseTemp > 15 %} 
               {%-set temp = temp + ([difference, 0] | max) -%}
             {% endif %}
-            {{temp or 22}}
+            {{temp | round() or 22}}
         fanmode:
           friendly_name: "Fan Mode"
           value_template: >-
@@ -197,6 +198,18 @@ temperaturecontrol:
           {%-set priceNow = nordpool.attributes.today[hour] | float -%}
           {%-set cheap = states.sensor.pricelevel.state != 'EXPENSIVE' and states.sensor.pricelevel.state != 'VERY_EXPENSIVE' -%}
           {{(priceNow < priceNextHour) or ((priceNow < priceNextNextHour) and priceNow < priceNextHour)}}
+      pricefalling:
+        friendly_name: 'Price Falling Next Hours'
+        value_template: >-
+          {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
+          {%-set hour = time.split(':')[0] | round -%}
+          {%-set nordpool = states.sensor.nordpool -%}
+          {%-set priceNextHour = nordpool.attributes.today[hour+1] or nordpool.attributes.tomorrow[0] | float -%}
+          {%-set priceNextNextHour = nordpool.attributes.today[hour + 2] or nordpool.attributes.tomorrow[0] | float -%}
+          {%-set priceNow = nordpool.attributes.today[hour] | float -%}
+          {%-set cheap = states.sensor.pricelevel.state != 'EXPENSIVE' and states.sensor.pricelevel.state != 'VERY_EXPENSIVE' -%}
+          {{(priceNow > priceNextHour) and (priceNow > priceNextNextHour)}}
+
   automation:
   - alias: 'GarageHeaterOn'
     trigger:
