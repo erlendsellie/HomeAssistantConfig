@@ -64,7 +64,13 @@ guestmode:
       mode: restart
       trigger:
         - platform: state
-          entity_id: binary_sensor.guestmode_activated
+          entity_id: input_boolean.guestmode
+        - platform: state
+          entity_id: sensor.alarm
+      condition:
+        - condition: state
+          entity_id: input_boolean.guestmode
+          state: 'on'
       action:  
         - service: notify.mobile_app_erlend_app
           data_template:
@@ -75,7 +81,7 @@ guestmode:
               priority: high
               actions:
                 - action: toggleguestmode
-                  title: Toggle
+                  title: Turn off
                   destructive: false
         - wait_for_trigger:
           - platform: event
@@ -84,7 +90,7 @@ guestmode:
               action: toggleguestmode
           timeout: '00:30:00'      
           continue_on_timeout: false
-        - service: input_boolean.toggle
+        - service: input_boolean.turn_off
           entity_id: input_boolean.guestmode
 
   binary_sensor:

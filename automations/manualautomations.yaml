@@ -706,19 +706,6 @@
 #   - service: switch.turn_off
 #     entity_id: switch.bench
 
-- alias: Restart slave HA
-  trigger:
-    - platform: homeassistant
-      event: start
-  action:
-    # - service: rest_command.restartslaveha
-    - service: script.turn_on
-      entity_id: script.notify
-      data_template:
-        variables:
-          title: Home Asistant started
-          message: Home Asistant started
-
 
 
 

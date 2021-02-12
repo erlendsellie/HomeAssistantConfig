@@ -42,26 +42,28 @@ breaking_changes:
 
 
 logger:
-  default: warning
+  default: error
   logs:
     #homeassistant.components.websocket_api: debug
     #homeassistant.components: warning
-    homeassistant.components.switch.broadlink: info
-    homeassistant.components.verisure: info
+    #homeassistant.components.switch.broadlink: info
+    #homeassistant.components.verisure: info
     homeassistant.components.camera.generic: warning 
-    homeassistant.components.mqtt: notset
-    homeassistant.components.ffmpeg: debug
-    tibber: notset
+    #homeassistant.components.mqtt: notset
+    #homeassistant.components.ffmpeg: debug
+    #tibber: notset
     #custom_components.hacs.storage: warning
-    custom_components.hacs: warning
-    homeassistant.components.http: warning
-    homeassistant.components.automation: info
-    homeassistant.components.script: info
-    homeassistant.components.device_tracker.nmap_tracker: debug
-    homeassistant.components.stream: fatal
-    homeassistant.components.tibber: debug
+    #custom_components.hacs: warning
+    #homeassistant.components.http: warning
+    #homeassistant.components.automation: info
+    #homeassistant.components.script: info
+    #homeassistant.components.device_tracker.nmap_tracker: debug
+    #homeassistant.components.stream: fatal
+    #homeassistant.components.tibber: debug
     libav: fatal
-    custom_components.pyscript: info
+    aiohttp: fatal
+    homeassistant.components.websocket_api.http.connection: fatal
+    #custom_components.pyscript: info
     #homeassistant.components.influxdb: debug
     #homeassistant.components.upnp: error
     #remove this later.
@@ -188,7 +190,7 @@ recorder:
       - sensor.time_date
       - sensor.time_utc  
       - sensor.time
-      
+      - sensor.erlend_app_last_removed_notification
       
       #Maria DB Addon Config
       # databases:
@@ -439,7 +441,7 @@ switch:
   - platform: rest
     resource: http://192.168.1.88/api/printer/tool
     name: 'preheatPrinterTool'
-    body_on: '{"command": "target","targets": {"tool0": 205}}'
+    body_on: '{"command": "target","targets": {"tool0": 210}}'
     body_off: '{"command": "target","targets": {"tool0": 0}}'
     is_on_template: '{{ float(states.sensor.octoprint_target_tool0_temp.state) > 40}}'
     headers:

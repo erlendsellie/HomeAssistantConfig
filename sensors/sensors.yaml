@@ -4,6 +4,24 @@
 #   name: energy_spent
 #   unit_prefix: k
 #   round: 2
+- platform: nordpool
+  # Should the prices include vat? Default True
+  VAT: True
+  # What currency the api fetches the prices in
+  # this is only need if you want a sensor in a non local currecy
+  currency: "NOK"
+  # Helper so you can set your "low" price
+  # low_price = hour_price < average * low_price_cutoff
+  # What power regions your are interested in.
+  # Possible values: "DK1", "DK2", "FI", "LT", "LV", "Oslo", "Kr.sand", "Bergen", "Molde", "Tr.heim", "Tromsø", "SE1", "SE2", "SE3","SE4", "SYS", "EE"
+  region: "Tr.heim"
+  # How many decimals to use in the display of the price
+  precision: 4
+  # What the price should be displayed in default
+  # Possible values: MWh, kWh and Wh
+  # default: kWh
+  price_type: kWh
+  friendly_name: "nordpool"
 
 - platform: rest
   name: TSLA
@@ -187,13 +205,6 @@
   name: "filtered consumption extra"
   entity_id: sensor.real_time_consumption_sivert_thonstads_vei_6b
   filters:
-    - filter: throttle
-      window_size: 4
-    - filter: outlier
-      window_size: 4
-      radius: 2.0
-    - filter: lowpass
-      time_constant: 10
     - filter: throttle
       window_size: 10
     - filter: outlier

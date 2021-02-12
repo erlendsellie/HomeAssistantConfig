@@ -86,7 +86,7 @@ temperaturecontrol:
             {%-set prettyCold = float(uteTemp) < float(states.input_number.coldthreshold.state) -%}
             {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
             {%-set currentTemp = states.climate.varmepumpe.attributes.current_temperature | float %}
-            
+            {%-set priceCorrection =  states.sensor.pricecorrection.state | float %}
             {%-set baseTemp =  states.sensor.baseheat.state | float %}
             {%-set difference = ([baseTemp - currentTemp] | max) | round(1) %}       
             
@@ -103,8 +103,7 @@ temperaturecontrol:
             {% else %}
               {%-set difference = difference | round() %}
             {% endif %}
-            
-            {% if isHeating and baseTemp > 15 %} 
+            {% if isHeating and baseTemp > 15 and priceCorrection < 1 %} 
               {%-set temp = temp + ([difference, 0] | max) -%}
             {% endif %}
             {{temp | round() or 22}}
@@ -355,7 +354,7 @@ temperaturecontrol:
         entity_id: binary_sensor.motion_downstairs_office
     action:
     - service: >
-        {% if states('binary_sensor.motion_downstairs_office') == 'on' %}
+        {% if states('binary_sensor.motionoffice') == 'on' %}
           climate.turn_on
         {% else %}
           climate.turn_off

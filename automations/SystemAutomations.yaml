@@ -197,4 +197,14 @@
   action:
       - service: rest_command.healthcheck
       
+
+- alias: Restart slave HA
+  trigger:
+    - platform: homeassistant
+      event: start
+  action:
+    - service: notify.me
+      data_template:
+        title: Home Asistant started
+        message: '{{ states.sensor.alarm.state }}'
       

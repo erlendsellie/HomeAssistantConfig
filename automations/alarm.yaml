@@ -17,9 +17,6 @@
       data_template:
         entity_id: input_select.alarm
         option: '{{ states.sensor.alarm.state }}'
-    - service: notify.me
-      data_template:
-        message: '{{ states.sensor.alarm.state }}'
 
 - alias: RequestLocation
   trigger:
@@ -36,7 +33,7 @@
     entity_id: binary_sensor.motion_driveway_or_garage
     to: 'off'
     for:
-      minutes: 15
+      minutes: 7
   condition:
     - condition: template
       value_template: "{{ states.cover.garage_door.state  == 'open'}}" #Maybe add garage not occupied?
@@ -292,18 +289,18 @@
       entity_id: cover.garage_door
       state: 'open'
   action:
-  #When motion in driveway has been off for 2 minutes. Lets wait 15 minutes as a timeout.
+  #When motion in driveway has been off for 1 minutes. Lets wait 15 minutes as a timeout.
   - wait_template: >-     
         {{ (states.binary_sensor.motion_driveway.state == 'off')
         and 
-        ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 2}}
+        ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 1}}
     timeout: '0:15:00'
     #And if timed out, abort with the same logic
   - condition: template
     value_template: >-      
         {{ (states.binary_sensor.motion_driveway.state == 'off')
         and 
-        ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 2}}
+        ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 1}}
   - service: notify.mobile_app_erlend_app
     data_template:
       title: Garage closed since someone left.
