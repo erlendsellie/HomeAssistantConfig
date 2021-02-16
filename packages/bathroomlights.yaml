@@ -1,0 +1,198 @@
+bathroomlights:
+  automation:
+  - alias: turnOnBathroomLights
+    trigger:
+    - platform: state
+      entity_id: binary_sensor.motionbathroom
+      to: 'on'
+    - platform: state
+      entity_id: binary_sensor.door_bathroom 
+      to: 'on'
+    - platform: state
+      entity_id: binary_sensor.motion_upstairs
+      to: 'on'
+    condition:
+      - condition: state
+        entity_id: light.bathroom
+        state: 'off'
+    action:
+    - service: light.turn_on
+      entity_id: light.bathroom
+      data_template:
+        brightness_pct: '{{ states.sensor.brightnessforbathroomlights.state }}'
+    - service: light.turn_on
+      entity_id: light.upstairs
+      data_template:
+        brightness_pct: '{{ states.sensor.brightnessforupstairslights.state }}'
+    - delay:
+        minutes: 1
+    - condition: state
+      entity_id: binary_sensor.motion_bathroom
+      state: 'off'
+    - service: light.turn_off
+      entity_id: light.bathroom
+    - service: notify.me
+      data_template:
+        title: 'door unlocked'
+        message: 'The door was unlocked by {{states.sensor.unlockedby.state}}. The alarm is {{states.input_select.alarm.state}} and the time is {{ now().hour }}:{{ now().minute }}.'
+
+  - alias: turnOffBathroomLights
+    trigger:
+    - platform: state
+      entity_id: binary_sensor.motionbathroom 
+      to: 'off'
+    action:
+    - service: light.turn_off
+      entity_id: light.bathroom
+
+  # - alias: turnOnBathroomLights1
+  #   trigger:
+  #   - platform: state
+  #     entity_id: binary_sensor.door_bathroom 
+  #     to: 'on'
+  #   action:
+  #   - service: light.turn_on
+  #     entity_id: light.bathroom
+  #   - service: light.turn_on
+  #     entity_id: light.upstairs
+  #     data_template:
+  #       brightness_pct: '{{ states.sensor.brightnessforupstairslights.state }}'
+
+
+
+  # - alias: turnOnBathroomLights2
+  #   trigger:
+  #   - platform: state
+  #     entity_id: binary_sensor.door_bathroom 
+  #     to: 'on'
+  #   condition:
+  #   - condition: state
+  #     entity_id: binary_sensor.motion_bathroom
+  #     state: 'off'
+  #   action:
+  #   - service: light.turn_on
+  #     entity_id: light.bathroom
+  #     data_template:
+  #       brightness_pct: '{{ states.sensor.brightnessforbathroomlights.state }}'
+  #   - service: light.turn_on
+  #     entity_id: light.upstairs
+  #     data_template:
+  #       brightness_pct: '{{ states.sensor.brightnessforupstairslights.state }}'
+
+
+
+  # - alias: turnOnBathroomLights1
+  #   trigger:
+  #   - platform: state
+  #     entity_id: binary_sensor.door_bathroom 
+  #     to: 'on'
+  #   action:
+  #   - service: light.turn_on
+  #     entity_id: light.bathroom
+  #   - service: light.turn_on
+  #     entity_id: light.upstairs
+  #     data_template:
+  #       brightness_pct: '{{ states.sensor.brightnessforupstairslights.state }}'
+
+
+
+  # - alias: turnOnBathroomLights2
+  #   trigger:
+  #   - platform: state
+  #     entity_id: binary_sensor.door_bathroom 
+  #     to: 'on'
+  #   condition:
+  #   - condition: state
+  #     entity_id: binary_sensor.motion_bathroom
+  #     state: 'off'
+  #   action:
+  #   - service: light.turn_on
+  #     entity_id: light.bathroom
+  #     data_template:
+  #       brightness_pct: '{{ states.sensor.brightnessforbathroomlights.state }}'
+  #   - service: light.turn_on
+  #     entity_id: light.upstairs
+  #     data_template:
+  #       brightness_pct: '{{ states.sensor.brightnessforupstairslights.state }}'
+
+
+
+  # - alias: turnOnBathroomLights3
+  #   trigger:
+  #   - platform: state
+  #     entity_id: binary_sensor.motion_upstairs
+  #     to: 'on'
+  #   condition:
+  #     - condition: state
+  #       entity_id: light.bathroom
+  #       state: 'off'    
+  #   action:
+  #   - service: light.turn_on
+  #     entity_id: light.bathroom
+  #     data_template:
+  #       brightness_pct: '{{ states.sensor.brightnessforupstairslights.state }}'
+  #   - service: light.turn_on
+  #     entity_id: light.upstairs
+  #     data_template:
+  #       brightness_pct: '{{ states.sensor.brightnessforupstairslights.state }}'
+  #   #Turn on bathroom light when motion is detected Upstairs, '
+  #   # but turn it off if motion is not detected in bathroom after a minute.
+  #   - delay:
+  #       minutes: 1
+  #   - condition: state
+  #     entity_id: binary_sensor.motion_bathroom
+  #     state: 'off'
+  #   - service: light.turn_off
+  #     entity_id: light.bathroom
+
+  # - alias: turnOffBathroomLights
+  #   trigger:
+  #   - platform: state
+  #     entity_id: binary_sensor.motion_bathroom 
+  #     to: 'off'
+  #     for:
+  #       minutes: 15
+  #   - platform: state
+  #     entity_id: binary_sensor.motion_bathroom
+  #     to: 'off'
+  #     for:
+  #       minutes: 20
+  #   - platform: state
+  #     entity_id: binary_sensor.motion_bathroom
+  #     to: 'off'
+  #     for:
+  #       minutes: 30
+  #   action:
+  #   - service: light.turn_off
+  #     entity_id: light.bathroom
+  #   - service: light.turn_off
+  #     entity_id: light.bathroom
+
+  # - alias: BathroomLightTurnedOn
+  #   trigger:
+  #   - platform: state
+  #     entity_id: light.bathroom
+  #     to: 'on'
+  #     for:
+  #       seconds: 30
+  #   condition:
+  #     condition: and
+  #     conditions:
+  #     - condition: state
+  #       entity_id: binary_sensor.motion_bathroom
+  #       state: 'off'
+  #     - condition: state
+  #       entity_id: binary_sensor.door_bathroom
+  #       state: 'off'
+  #     - condition: state
+  #       entity_id: binary_sensor.motion_upstairs
+  #       state: 'off'
+  #   action:
+  #   - service: script.turn_on
+  #     entity_id: script.notify
+  #     data_template:
+  #       variables:
+  #         title: Baderomslyset ble slått på!
+  #         message: Baderomslyset tak ble slått på!
+    
+

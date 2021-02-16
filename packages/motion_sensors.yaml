@@ -18,3 +18,9 @@ motionsensors:
           minutes: 10
         value_template: >-
           {{states.binary_sensor.motion_downstairs_office.state == 'on'}}
+      motionbathroom:
+        device_class: motion
+        delay_off:
+          minutes: 20
+        value_template: >-
+          {{states.binary_sensor.motion_bathroom.state == 'on'}}

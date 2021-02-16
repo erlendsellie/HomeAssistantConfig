@@ -871,13 +871,13 @@
     data_template:
       title: 'door unlocked'
       message: 'The door was unlocked by {{states.sensor.unlockedby.state}}. The alarm is {{states.input_select.alarm.state}} and the time is {{ now().hour }}:{{ now().minute }}.'
-  - service: notify.me    
-    data:
-      title: 'door unlocked'
-      message: 'The door was unlocked by someone.'
-      data:
-        photo:
-          url: !secret outdoorcamerastream
+  # - service: notify.me    
+  #   data:
+  #     title: 'door unlocked'
+  #     message: 'The door was unlocked by someone.'
+  #     # data:
+  #     #   photo:
+  #     #     url: !secret outdoorcamerastream
   #Turn on guest mode instead?
   - service: input_select.select_option
     data:

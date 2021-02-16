@@ -638,11 +638,8 @@
 - alias: WasherDoneNotify
   trigger:
     platform: state
-    entity_id: binary_sensor.washing
+    entity_id: input_boolean.washer_emptied
     to: 'off'
-    from: 'on'
-    for:
-      seconds: 10
   action:
     repeat:
       while:

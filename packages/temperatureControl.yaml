@@ -205,8 +205,9 @@ temperaturecontrol:
           {%-set priceNextHour = nordpool.attributes.today[hour+1] or nordpool.attributes.tomorrow[0] | float -%}
           {%-set priceNextNextHour = nordpool.attributes.today[hour + 2] or nordpool.attributes.tomorrow[0] | float -%}
           {%-set priceNow = nordpool.attributes.today[hour] | float -%}
-          {%-set cheap = states.sensor.pricelevel.state != 'EXPENSIVE' and states.sensor.pricelevel.state != 'VERY_EXPENSIVE' -%}
-          {{(priceNow < priceNextHour) or ((priceNow < priceNextNextHour) and priceNow < priceNextHour)}}
+          {% set priceGainingNextHour = ((priceNextHour / priceNow)) > 1.15  %}
+          {% set priceGainingNextNextHour = ((priceNextNextHour / priceNow)) > 1.15  %}
+          {{priceGainingNextHour or (priceNextHour and priceGainingNextNextHour)}}
       pricefalling:
         friendly_name: 'Price Falling Next Hours'
         value_template: >-
@@ -217,8 +218,10 @@ temperaturecontrol:
           {%-set priceNextNextHour = nordpool.attributes.today[hour + 2] or nordpool.attributes.tomorrow[0] | float -%}
           {%-set priceNow = nordpool.attributes.today[hour] | float -%}
           {%-set cheap = states.sensor.pricelevel.state != 'EXPENSIVE' and states.sensor.pricelevel.state != 'VERY_EXPENSIVE' -%}
-          {{(priceNow > priceNextHour) and (priceNow > priceNextNextHour)}}
-
+          {% set priceFallingNextHour = (priceNextHour / priceNow) < 0.85 %}
+          {% set priceFallingNextNextHour = (priceNextNextHour / priceNow) < 0.85 %}
+          {% set priceGaining =  states.binary_sensor.pricegaining.state %}
+          {{(priceFallingNextHour or priceFallingNextNextHour) and priceGaining == false}} 
   automation:
   - alias: 'GarageHeaterOn'
     trigger:
@@ -291,6 +294,10 @@ temperaturecontrol:
       data_template:
         entity_id: climate.varmepumpe
         temperature: '{{ states.sensor.tempsenttoheater.state | int }}'      
+    - service: climate.set_temperature
+      data_template:
+        entity_id: climate.stua_heater
+        temperature: '{{ states.sensor.baseheat.state | int - 1 }}'              
     - service: logbook.log
       data_template:
         name: Varmepumpe
