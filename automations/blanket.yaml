@@ -24,7 +24,7 @@
             title: 'Yes, 30 minutes'            
           - action: blanket60min
             title: 'Yes, 60 minutes'
-          - action: blanketTVOff
+          - action: blankettvoff
             title: 'Yes, until TV Off'
 
 - alias: AskToTurnOnBlanketCaroline
@@ -51,7 +51,7 @@
             title: 'Yes, 30 minutes'
           - action: blanket60min
             title: 'Yes, 60 minutes'
-          - action: blanketTVOff
+          - action: blankettvoff
             title: 'Yes, until TV Off'            
 
 - alias: TurnOnBlanketTV
@@ -59,7 +59,7 @@
     - platform: event
       event_type: mobile_app_notification_action
       event_data:
-        action: blanketTVOff
+        action: blankettvoff
   action:
     - service: switch.turn_on
       entity_id: script.blankettvoff

@@ -16,6 +16,16 @@ temperaturecontrol:
             {%-set targetTemp = 22 -%}
             {%-set actualtemp = states.climate.stua_heater.attributes.temperature | float -%}
             {{targetTemp - actualtemp}}
+        gridprice:
+          friendly_name: GridPrice
+          unit_of_measurement: "NOK"
+          value_template: >-
+            {% set annualConsumption = states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.estimated_annual_consumption | float %}
+            {% set yearlyPriceGridPower = 2375 %}
+            {% set yearlyPriceTibber = 39*12 %}
+            {% set yearlyPrice = yearlyPriceTibber + yearlyPriceGridPower %}
+            {% set kwhprice = 0.452375%}
+            {{ (yearlyPrice + (kwhprice * annualConsumption)) / annualConsumption}}
         refheat:
               friendly_name: 'Reference Heat'
               unit_of_measurement: "°C"
@@ -45,12 +55,12 @@ temperaturecontrol:
             {%-set price = states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float -%}
             {%-set isMinPrice = minPrice == price -%}
             {%-set temp =  0 -%}
-            {% if (priceGaining and isPeak == false) or (temp > 15 and isMinPrice)  %}
-              {% if isHeating %} 
-                {%-set temp =  temp + 1 -%}
+            {% if isHeating %} 
+              {% if (priceGaining and isPeak == false) or (temp > 15 and isMinPrice)  %}
+                  {%-set temp =  temp + 1 -%}
+              {% elif isMaxPrice or isPeak or (priceFalling and isPeak == true) %}
+                  {%-set temp =  temp - 1 -%}
               {% endif %}
-            {% elif isMaxPrice or isPeak or priceFalling %}
-                {%-set temp =  temp - 1 -%}
             {% endif %}
             {{temp | float}}
         baseheat:
@@ -136,7 +146,7 @@ temperaturecontrol:
         averagepower:
           friendly_name: "Average Power Usage Today"
           unit_of_measurement: "W"
-          value_template: "{{ states.sensor.real_time_consumption_sivert_thonstads_vei_6b.attributes.averagePower | float }}"
+          value_template: "{{ states.sensor.real_time_consumption_sivert_thonstads_vei_6b.attributes.averagePower or 0 | float }}"
 
           #{{(priceNow < priceNextHour) and (states.sensor.pricelevel.state != 'EXPENSIVE')}}
         trymtemp:
@@ -350,6 +360,8 @@ temperaturecontrol:
 
   - alias: Toggle Office Heater
     trigger:
+      - platform: state
+        entity_id: binary_sensor.motionoffice
       - platform: state
         entity_id: binary_sensor.motion_downstairs_office
     action:

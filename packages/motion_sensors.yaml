@@ -17,4 +17,4 @@ motionsensors:
         delay_off:
           minutes: 10
         value_template: >-
-          {{states.binary_sensor.motion_downstairs.state}}
+          {{states.binary_sensor.motion_downstairs_office.state == 'on'}}

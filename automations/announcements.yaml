@@ -48,7 +48,7 @@
       state: 'off'
   action:
   - condition: template
-    value_template: "{{ (states.media_player.living_room_speaker.state != 'playing' and states.media_player.hallway_speaker.state != 'playing') and states.media_player.living_room_speaker.state != 'paused' and states.media_player.hallway_speaker.state != 'paused'}}"
+    value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
   - service: media_player.volume_set
     data_template:
       entity_id: media_player.hallway_speaker
@@ -87,7 +87,7 @@
       state: 'off'
   action:
   - condition: template
-    value_template: "{{ states.media_player.living_room_speaker.state != 'playing'}}"
+    value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
   - service: media_player.volume_set
     data_template:
       entity_id: media_player.hallway_speaker
@@ -164,7 +164,7 @@
       state: 'Disarm'
   action:
   - condition: template
-    value_template: "{{ states.media_player.minis.state != 'playing'}}"
+    value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
   - service: media_player.volume_set
     data_template:
       entity_id: media_player.minis
@@ -207,6 +207,45 @@
         entity_id: camera.driveway
         filename: "/config/www/snapshot2.jpg"
 
+- alias: Dogsafoot
+  trigger:
+    - platform: state
+      entity_id: 
+        - binary_sensor.door_livingroom
+        - binary_sensor.door_kitchen
+      to: 'on'
+  condition:
+    - condition: state
+      entity_id: binary_sensor.motion_upstairs
+      state: 'off'
+      for:
+        minutes: 10
+    - condition: state
+      entity_id: input_select.alarm
+      state: 'Arm Home'
+  action:
+    - service: tts.google_say
+      entity_id: media_player.clock
+      data_template:
+        message: Hundene har gått inn på stua
+    - service: light.turn_on
+      entity_id: light.bedroom
+    - delay:
+        seconds: 2  
+    - service: light.turn_off
+      entity_id: light.bedroom
+    - delay:
+        seconds: 2  
+    - service: light.turn_on
+      entity_id: light.bedroom
+    - delay:
+        seconds: 2  
+    - service: light.turn_off
+      entity_id: light.bedroom
+    - delay:
+        seconds: 2      
+    - service: light.turn_on
+      entity_id: light.bedroom          
 
 - alias: KidsAfoot
   trigger:
@@ -226,6 +265,10 @@
       entity_id: input_select.alarm
       state: 'Arm Home'
   action:
+    - service: tts.google_say
+      entity_id: media_player.clock
+      data_template:
+        message: Trym har gått ut fra rommet sitt
     - service: light.turn_on
       entity_id: light.bedroom
     - delay:
@@ -439,7 +482,8 @@
   action:
     - service: notify.me
       data_template:
-        message: 'Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.sensor.efoy_moisture.state }}'
+        variables:
+          message: 'Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.sensor.efoy_moisture.state }}'
     - service: script.turn_on
       entity_id: script.playmessage
       data_template:

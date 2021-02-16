@@ -389,7 +389,7 @@
                   title: 'Turn off'                
                 - action: blanket30min
                   title: 'Yes, 30 minutes'
-                - action: blanketTVOff
+                - action: blankettvoff
                   title: 'Yes, until TV Off'
       - conditions:
         - condition: state

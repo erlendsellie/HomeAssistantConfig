@@ -27,6 +27,7 @@
     #Trym
   - platform: generic
     name: Trym_dafang
+    verify_ssl: false
     username: root
     password: !secret dafang_password
     authentication: basic
@@ -36,12 +37,12 @@
 
   - platform: generic
     name: Trym_still
+    framerate: 10
+    verify_ssl: false
     still_image_url: !secret trym_dafang_still
-    framerate: 24
     authentication: basic
     username: root
     password: !secret dafang_password
-    verify_ssl: false
 
 
     ##Tyra 

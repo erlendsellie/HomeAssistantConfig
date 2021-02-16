@@ -42,7 +42,7 @@ breaking_changes:
 
 
 logger:
-  default: error
+  default: info
   logs:
     #homeassistant.components.websocket_api: debug
     #homeassistant.components: warning
@@ -67,7 +67,9 @@ logger:
     #homeassistant.components.influxdb: debug
     #homeassistant.components.upnp: error
     #remove this later.
-    
+    homeassistant.components.stream.worker: fatal
+    homeassistant.components.recorder: fatal
+    homeassistant.components.generic.camera: fatal
 zone:
   - name: Home
     latitude: !secret latitude
@@ -191,7 +193,7 @@ recorder:
       - sensor.time_utc  
       - sensor.time
       - sensor.erlend_app_last_removed_notification
-      
+      - sensor.erlend_app_last_notification
       #Maria DB Addon Config
       # databases:
       #   - homeassistant
@@ -297,7 +299,7 @@ octoprint:
   host: 192.168.1.88  
   api_key: !secret octoprint
 
-speedtestdotnet:
+# speedtestdotnet:
 
 
 
@@ -540,6 +542,16 @@ circadian_lighting:
   # sunset_time: '19:00:00'
   min_colortemp: 2300
   max_colortemp: 6500
+
+coinbase:
+  api_key: !secret coinbase_client_id
+  api_secret: !secret coinbase_client_secret
+  account_balance_currencies:
+    - BTC
+    - LINK
+  exchange_rate_currencies:
+    - BTC
+    - LINK
 
 
 webostv:

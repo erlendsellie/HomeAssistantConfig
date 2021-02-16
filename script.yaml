@@ -399,33 +399,33 @@ smoketriggered:
       entity_id: media_player.living_room_speaker
       volume_level: 1
   - service: tts.google_say
-    entity_id: media_player.minis
+    entity_id: media_player.minis, media_player.clock
     data_template:
       message: Røykvarsler utløst! {{states.sensor.peoplehome.state}} er hjemme. '
   - delay:
       seconds: 5
       #varsler bare en gang.
   - service: tts.google_say
-    entity_id: media_player.minis
+    entity_id: media_player.minis, media_player.clock
     data_template:
       message: Røykvarsler utløst! {{states.sensor.peoplehome.state}} er hjemme. '
   - delay:
       seconds: 5     
   - service: tts.google_say
-    entity_id: media_player.minis
+    entity_id: media_player.minis, media_player.clock
     data_template:
-      message: Røykvarsler utløst! {{states.sensor.peoplehome.state}} er hjemme. '
+      message: 'Røykvarsler utløst! {{states.sensor.peoplehome.state}} er hjemme. '
   - delay:
       seconds: 5
   - service: tts.google_say
-    entity_id: media_player.minis
+    entity_id: media_player.minis,  media_player.clock
     data_template:
-      message: Røykvarsler utløst! {{states.sensor.peoplehome.state}} er hjemme. '
+      message: 'Røykvarsler utløst! {{states.sensor.peoplehome.state}} er hjemme. '
   - delay:
       seconds: 12
   - service: media_player.volume_set
     data_template:
-      entity_id: media_player.minis
+      entity_id: media_player.minis, media_player.clock
       volume_level: 0.5
   - service: xiaomi_aqara.play_ringtone
     data:
@@ -450,8 +450,7 @@ alarmtriggered:
           {%- for entity_id in states.group.awaysensors.attributes.entity_id 
           if states(entity_id) == 'on' -%}
           {% set parts = entity_id.split('.') -%}
-          {{ states[parts[0]][parts[1]].name }} er åpen {%- if loop.first %} {% elif loop.last %}
-          and the {% else %}, {% endif -%}
+          {{ states[parts[0]][parts[1]].name }} er åpen ,
           {%- endfor %}
   - service: notify.carolinepush
     data_template:
@@ -461,10 +460,8 @@ alarmtriggered:
           {%- for entity_id in states.group.awaysensors.attributes.entity_id 
           if states(entity_id) == 'on' -%}
           {% set parts = entity_id.split('.') -%}
-          {{ states[parts[0]][parts[1]].name }} er åpen {%- if loop.first %} {% elif loop.last %}
-          and the {% else %}, {% endif -%}
-          {%- endfor %}
-  - service: vacuum.set_fan_speed
+          {{ states[parts[0]][parts[1]].name }} er åpen ,
+          {%- endfor %}  - service: vacuum.set_fan_speed
     entity_id: vacuum.xiaomi_vacuum_cleaner
     data:
       fan_speed: Turbo      
@@ -486,7 +483,7 @@ alarmtriggered:
       entity_id: media_player.living_room_speaker
       volume_level: 1
   - service: tts.google_say
-    entity_id: media_player.minis
+    entity_id: media_player.minis, media_player.clock
     data:
       message: 'Alarm! Husalarm utløst!.'
   - delay:
@@ -494,7 +491,7 @@ alarmtriggered:
   - service: homeassistant.turn_on
     entity_id: script.lightsoff          
   - service: tts.google_say
-    entity_id: media_player.minis
+    entity_id: media_player.minis, media_player.clock
     data:
       message: 'Alarm! Husalarm utløst!.'
   - delay:
@@ -502,7 +499,7 @@ alarmtriggered:
   - service: homeassistant.turn_on
     entity_id: script.lightson
   - service: tts.google_say
-    entity_id: media_player.minis
+    entity_id: media_player.minis,  media_player.clock
     data:
       message: 'Alarm! Husalarm utløst!.'
   - delay:
@@ -883,7 +880,7 @@ doorbell:
         volume_level: 0.5
     - service: media_player.play_media
       data:
-        entity_id: media_player.minis 
+        entity_id: media_player.minis
         #media_content_id: https://www.redringtones.com/wp-content/uploads/2016/08/usa-national-anthem.mp3
         #media_content_id: https://archive.org/download/13BinarySunsetAlternate/01%20The%20Imperial%20March%20%28Darth%20Vader%C2%92%27s%20Theme%29.mp3        
         media_content_id: https://sivert.duckdns.org/local/sounds/cooking_great.mp3
@@ -911,7 +908,7 @@ doorbell:
         seconds: 8
     - service: media_player.play_media
       data:
-        entity_id: media_player.minis 
+        entity_id: media_player.minis
         #media_content_id: https://www.redringtones.com/wp-content/uploads/2016/08/usa-national-anthem.mp3
         #media_content_id: https://archive.org/download/13BinarySunsetAlternate/01%20The%20Imperial%20March%20%28Darth%20Vader%C2%92%27s%20Theme%29.mp3        
         media_content_id: https://sivert.duckdns.org/local/sounds/cooking_great.mp3
