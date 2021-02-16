@@ -58,7 +58,7 @@ temperaturecontrol:
             {% if isHeating %} 
               {% if (priceGaining and isPeak == false) or (temp > 15 and isMinPrice)  %}
                   {%-set temp =  temp + 1 -%}
-              {% elif isMaxPrice or isPeak or (priceFalling and isPeak == true) %}
+              {% elif isMaxPrice or isPeak or (priceFalling) %}
                   {%-set temp =  temp - 1 -%}
               {% endif %}
             {% endif %}
@@ -220,7 +220,7 @@ temperaturecontrol:
           {%-set cheap = states.sensor.pricelevel.state != 'EXPENSIVE' and states.sensor.pricelevel.state != 'VERY_EXPENSIVE' -%}
           {% set priceFallingNextHour = (priceNextHour / priceNow) < 0.85 %}
           {% set priceFallingNextNextHour = (priceNextNextHour / priceNow) < 0.85 %}
-          {% set priceGaining =  states.binary_sensor.pricegaining.state %}
+          {% set priceGaining =  states.binary_sensor.pricegaining.state == 'on' %}
           {{(priceFallingNextHour or priceFallingNextNextHour) and priceGaining == false}} 
   automation:
   - alias: 'GarageHeaterOn'
