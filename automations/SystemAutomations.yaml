@@ -64,7 +64,7 @@
   trigger:
   - platform: numeric_state
     entity_id: sensor.speedtest_download
-    below: 70
+    below: 40
   action:
   - service: notify.me
     data_template:

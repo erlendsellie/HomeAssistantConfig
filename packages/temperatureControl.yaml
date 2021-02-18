@@ -16,6 +16,12 @@ temperaturecontrol:
             {%-set targetTemp = 22 -%}
             {%-set actualtemp = states.climate.stua_heater.attributes.temperature | float -%}
             {{targetTemp - actualtemp}}
+        pricespike:
+          friendly_name: 'Price spike today'
+          value_template: >-
+            {%-set nordpool = states.sensor.nordpool -%}
+            {%-set percentThreshold = ((nordpool.attributes.max / nordpool.attributes.min) - 1) * 100 -%}
+            {{(percentThreshold / 2) / 100}}
         gridprice:
           friendly_name: GridPrice
           unit_of_measurement: "NOK"
@@ -51,12 +57,12 @@ temperaturecontrol:
             {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
             {%-set isMaxPrice = states.binary_sensor.ismaxprice.state == 'on' -%}
             {%-set isPeak = states.binary_sensor.pricerelativycheap.state == 'off' -%}
-            {%-set minPrice = states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.min_price | float -%}
-            {%-set price = states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float -%}
+            {%-set minPrice = states.sensor.nordpool.attributes.min | float -%}
+            {%-set price = states.sensor.nordpool.state | float -%}
             {%-set isMinPrice = minPrice == price -%}
             {%-set temp =  0 -%}
             {% if isHeating %} 
-              {% if (priceGaining and isPeak == false) or (temp > 15 and isMinPrice)  %}
+              {% if (priceGaining and isPeak == false) or (isMinPrice)  %}
                   {%-set temp =  temp + 1 -%}
               {% elif isMaxPrice or isPeak or (priceFalling) %}
                   {%-set temp =  temp - 1 -%}
@@ -189,28 +195,34 @@ temperaturecontrol:
       pricerelativycheap:
         friendly_name: 'price Relativy Cheap'
         value_template: >-
-          {%- set price = states.sensor.electricity_price_sivert_thonstads_vei_6b -%}
+          {%- set price = states.sensor.nordpool -%}
           {{price.state | float < price.attributes.peak | float}}
       ismaxprice:
         friendly_name: 'Is Max price?'
         value_template: >-
-          {%- set price = states.sensor.electricity_price_sivert_thonstads_vei_6b -%}
-          {{price.state | float  == price.attributes.max_price | float}}
+          {%- set price = states.sensor.nordpool -%}
+          {{price.state | float  == price.attributes.max | float}}
       pricegaining:
         friendly_name: 'Price Gaining Next Hour'
         value_template: >-
+          {%-set nordpool = states.sensor.nordpool -%}
+          {%-set percentThreshold = ((nordpool.attributes.max / nordpool.attributes.min) - 1) -%}
+          {% set percentThreshold = (percentThreshold / 2) + 1 %}
           {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
           {%-set hour = time.split(':')[0] | round -%}
           {%-set nordpool = states.sensor.nordpool -%}
           {%-set priceNextHour = nordpool.attributes.today[hour+1] or nordpool.attributes.tomorrow[0] | float -%}
           {%-set priceNextNextHour = nordpool.attributes.today[hour + 2] or nordpool.attributes.tomorrow[0] | float -%}
           {%-set priceNow = nordpool.attributes.today[hour] | float -%}
-          {% set priceGainingNextHour = ((priceNextHour / priceNow)) > 1.15  %}
-          {% set priceGainingNextNextHour = ((priceNextNextHour / priceNow)) > 1.15  %}
+          {% set priceGainingNextHour = ((priceNextHour / priceNow)) > percentThreshold  %}
+          {% set priceGainingNextNextHour = ((priceNextNextHour / priceNow)) > percentThreshold  %}
           {{priceGainingNextHour or (priceNextHour and priceGainingNextNextHour)}}
       pricefalling:
         friendly_name: 'Price Falling Next Hours'
         value_template: >-
+          {%-set nordpool = states.sensor.nordpool -%}
+          {%-set percentThreshold = ((nordpool.attributes.min/ nordpool.attributes.max) - 1) -%}
+          {% set percentThreshold = (percentThreshold / 3) + 1 %}
           {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
           {%-set hour = time.split(':')[0] | round -%}
           {%-set nordpool = states.sensor.nordpool -%}
@@ -218,11 +230,22 @@ temperaturecontrol:
           {%-set priceNextNextHour = nordpool.attributes.today[hour + 2] or nordpool.attributes.tomorrow[0] | float -%}
           {%-set priceNow = nordpool.attributes.today[hour] | float -%}
           {%-set cheap = states.sensor.pricelevel.state != 'EXPENSIVE' and states.sensor.pricelevel.state != 'VERY_EXPENSIVE' -%}
-          {% set priceFallingNextHour = (priceNextHour / priceNow) < 0.85 %}
-          {% set priceFallingNextNextHour = (priceNextNextHour / priceNow) < 0.85 %}
+          {% set priceFallingNextHour = (priceNextHour / priceNow) < percentThreshold %}
+          {% set priceFallingNextNextHour = (priceNextNextHour / priceNow) < percentThreshold %}
           {% set priceGaining =  states.binary_sensor.pricegaining.state == 'on' %}
           {{(priceFallingNextHour or priceFallingNextNextHour) and priceGaining == false}} 
+      #TODO if price is falling next hour, but not nextnext hour because of threshold, keep on if is still lower, to not start warmup before at lowest price possible.
   automation:
+
+  - alias: NotifySpikeToday
+    trigger:
+    - platform: time
+      at: 06:00:00 
+    action:
+    - service: notify.me
+      data:    
+        message: "Price spike today is {{states.sensor.pricespike.state}}"
+
   - alias: 'GarageHeaterOn'
     trigger:
       - platform: state

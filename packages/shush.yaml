@@ -3,7 +3,7 @@ shush:
   - platform: template
     switches:
       tyra_shush:
-        value_template: "{{ is_state('sensor.skylight', 'on') }}"
+        value_template: "{{ states.media_player.tyra.state == 'playing' }}"
         turn_on:
           service: script.turn_on
           data:

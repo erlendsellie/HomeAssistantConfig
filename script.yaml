@@ -148,7 +148,7 @@ restorelivingcolor:
       entity_id: light.kitchen_ceiling_led 
       data_template:
         brightness_pct: '100'
-        color_temp: '215'
+        color_temp: '235'
     - service: light.turn_on
       entity_id: light.ledstrip_kitchen 
       data_template:

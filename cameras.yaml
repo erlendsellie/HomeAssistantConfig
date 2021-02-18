@@ -73,6 +73,15 @@
     name: last_picture
     still_image_url: !secret last_picture_url
 
+  - platform: generic
+    name: doods driveway
+    still_image_url: !secret doods_driveway
+
+  - platform: generic
+    name: doods Tyra
+    still_image_url: !secret doods_tyra
+    
+
 
     ## Driveway
   - platform: generic

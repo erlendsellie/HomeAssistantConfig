@@ -831,12 +831,7 @@
     entity_id: binary_sensor.motion_vindfang
     to: 'off'
     for:
-      minutes: 1
-  - platform: state
-    entity_id: switch.nexa2
-    to: 'on'
-    for:
-      minutes: 30
+      minutes: 3
   # - platform: state
   #   entity_id: binary_sensor.motion_hallway 
   #   to: 'off'
