@@ -26,4 +26,4 @@ testpackage:
         running_cost_vaskemaskin:
           unit_of_measurement: 'running_cost_vaskemaskin'
           value_template: >
-            {{states.input_number.costyesteray.state | int}}
+            {{states.input_number.running_cost_vaskemaskin.state | int}}
