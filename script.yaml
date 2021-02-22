@@ -1222,21 +1222,18 @@ awaymode:
 playsound:
   alias: Play Sound
   sequence:
-  - condition: state
-    entity_id: input_boolean.trymasleep
-    state: 'off'
   - condition: template
     value_template: "{{ states.media_player.living_room_speaker.state != 'playing'}}"
   - service: media_player.volume_set
     data_template:
       entity_id: media_player.hallway_speaker
-      volume_level: "{{0.2 + (extraVolume or 0.0)}}"
+      volume_level: "{{(0.2 + (extraVolume or 0.0) | float) | round(2)}}"
   - service: media_player.volume_set
     data_template:
       entity_id: media_player.living_room_speaker
-      volume_level: "{{0.2 + (extraVolume or 0.0)}}"
+      volume_level: "{{(0.2 + (extraVolume or 0.0) | float) | round(2)}}"
   - service: media_player.play_media
-    data_template:
+    data:
       entity_id: media_player.minis 
       media_content_id: '{{sound}}'
       media_content_type: 'music'

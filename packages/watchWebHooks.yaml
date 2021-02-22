@@ -338,17 +338,24 @@ watchwebhooks:
         entity_id: cover.veranda_curtains
 
 
-  - alias: 'WatchMotion'
+  - alias: 'klokke7'
     trigger:
       platform: webhook
       webhook_id: !secret watchmotion
     action:
-    - service: notify.mobile_app_erlend_app
-      data_template:
-        title: Driveway
-        message: Driveway
-        data:
-          image: https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}
+        - service: notify.mobile_app_erlend_app
+          data_template:
+            message: 'Actions'
+            data:
+              ttl: 0
+              priority: high
+              actions:
+                - action: togglecurtains
+                  title: Toggle Curtains
+                  destructive: false
+                - action: curtainshalfway
+                  title: Curtains halfway
+                  destructive: false
 
       
 
@@ -364,7 +371,7 @@ watchwebhooks:
         entity_id: switch.mower
 
 
-  - alias: 'ctions'
+  - alias: 'actions'
     trigger:
       platform: webhook
       webhook_id: !secret webhook_actions
@@ -378,7 +385,7 @@ watchwebhooks:
               entity_id: input_boolean.easleep
               state: 'on'
           sequence:
-            - service: script.notifycurtains
+            - service: script.notifyblanket
         - conditions:
           - condition: state
             entity_id: input_boolean.easleep
@@ -391,20 +398,32 @@ watchwebhooks:
                   ttl: 0
                   priority: high
                   actions:
-                    - action: togglecurtains
-                      title: Toggle Curtains
-                      destructive: false
-                    - action: curtainshalfway
-                      title: Curtains halfway
+                    - action: notifyblanket
+                      title: Blanket
                       destructive: false                    
-                    - action: trymtoggle
-                      title: Trym Asleep Toggle
-                      destructive: true
-                    - action: tyratoggle
-                      title: Tyra Asleep Toggle
-                      destructive: true
+                    - action: notifykids
+                      title: Kids
+                      destructive: false       
 
 
+
+  - alias: 'notifykids'
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: notifykids
+    action:
+        - service: script.notifykids
+
+  - alias: 'toggleblanket'
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: notifyblanket
+    action:
+        - service: script.notifyblanket
 
   - alias: 'toggleCurtainsNotification'
     trigger:
@@ -457,12 +476,12 @@ watchwebhooks:
         entity_id: input_boolean.tyraasleep
 
   script:
-    notifycurtains:
-      alias: notifycurtains
+    notifyblanket:
+      alias: notifyblanket
       sequence:
         - service: notify.mobile_app_erlend_app
           data_template:
-            title: 'Turn on the blanket heater?'
+            title: 'Blanket is {{states.switch.blanket.state}}'
             message: 'Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom.'
             data:
               ttl: 0
@@ -474,3 +493,21 @@ watchwebhooks:
                 title: 'Yes, 30 minutes'
               - action: blankettvoff
                 title: 'Yes, until TV Off'
+              - action: blanket60min
+                title: 'Yes, 60 minutes'
+    notifykids:
+      alias: notifykids
+      sequence:
+        - service: notify.mobile_app_erlend_app
+          data_template:
+            message: 'Kids'
+            data:
+              ttl: 0
+              priority: high
+              actions:
+                - action: trymtoggle
+                  title: Trym Asleep Toggle
+                  destructive: true
+                - action: tyratoggle
+                  title: Tyra Asleep Toggle
+                  destructive: true

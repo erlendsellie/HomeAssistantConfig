@@ -15,7 +15,7 @@ temperaturecontrol:
           value_template: >-
             {%-set targetTemp = 22 -%}
             {%-set actualtemp = states.climate.stua_heater.attributes.temperature | float -%}
-            {{targetTemp - actualtemp}}
+            {{actualtemp - targetTemp}}
         pricespike:
           friendly_name: 'Price spike today'
           value_template: >-
@@ -84,8 +84,11 @@ temperaturecontrol:
               {%-set minPrice = states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.min_price | float -%}
               {%-set price = states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float -%}
               {%-set isMinPrice = minPrice == price -%}
-              {% if alarm == 'Disarm' %}
-                {%-set temp = hjemmeTemp -%}   
+              {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
+              {%-set hour = time.split(':')[0] | float -%}
+              {% set startdaywarming = states.input_datetime.nighttemp.state.split(':')[0] | float %}
+              {% if alarm == 'Disarm' or (alarm == 'Arm Home' and hour >= startdaywarming and priceGaining) %}
+                {%-set temp = hjemmeTemp -%}
               {% elif alarm == 'Arm Home'%}
                   {%-set temp = nattaTemp -%} 
               {% else %}
@@ -207,7 +210,7 @@ temperaturecontrol:
         value_template: >-
           {%-set nordpool = states.sensor.nordpool -%}
           {%-set percentThreshold = ((nordpool.attributes.max / nordpool.attributes.min) - 1) -%}
-          {% set percentThreshold = (percentThreshold / 2) + 1 %}
+          {% set percentThreshold = (percentThreshold / 3) + 1 %}
           {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
           {%-set hour = time.split(':')[0] | round -%}
           {%-set nordpool = states.sensor.nordpool -%}

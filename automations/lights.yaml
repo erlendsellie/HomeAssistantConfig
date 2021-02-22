@@ -619,6 +619,9 @@
   - platform: state
     entity_id: cover.garage_door
     to: 'on'
+  - platform: state
+    entity_id: binary_sensor.front_door_motion
+    to: 'on'        
   condition:
   # Somewhat before the sun sets.
     - condition: template

@@ -1,6 +1,7 @@
 bathroomlights:
   automation:
   - alias: turnOnBathroomLights
+    mode: restart
     trigger:
     - platform: state
       entity_id: binary_sensor.motionbathroom
@@ -31,10 +32,6 @@ bathroomlights:
       state: 'off'
     - service: light.turn_off
       entity_id: light.bathroom
-    - service: notify.me
-      data_template:
-        title: 'door unlocked'
-        message: 'The door was unlocked by {{states.sensor.unlockedby.state}}. The alarm is {{states.input_select.alarm.state}} and the time is {{ now().hour }}:{{ now().minute }}.'
 
   - alias: turnOffBathroomLights
     trigger:
@@ -44,6 +41,21 @@ bathroomlights:
     action:
     - service: light.turn_off
       entity_id: light.bathroom
+
+  - alias: notifysomethingwrongwithlights
+    trigger:
+    - platform: state
+      entity_id: binary_sensor.door_bathroom 
+      to: 'on'
+    action:
+    - delay:
+        seconds: 30
+    - condition: state
+      entity_id: binary_sensor.motion_bathroom
+      state: 'off'
+    - service: notify.me
+      data_template:
+        message: 'Opened the bathroom door, but motion was never detected. Check up.'
 
   # - alias: turnOnBathroomLights1
   #   trigger:

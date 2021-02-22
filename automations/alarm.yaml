@@ -856,13 +856,19 @@
     - platform: state
       entity_id: lock.ytterdor
       to: 'unlocked'
+      from: 'locked'
   condition:
     - condition: template
       value_template: >-
           {%-set alarmNotJustSet = (((as_timestamp(utcnow()) - as_timestamp(states.sensor.alarm.last_changed)) / 60) | round(0)) > 4 -%}
           {%-set notDisarmedAndGarageClosed = states.input_select.alarm.state != 'Disarm' and states.cover.garage_door.state == 'closed' -%}
-          {{alarmNotJustSet and notDisarmedAndGarageClosed}}
+          {%-set notmotionvindfang = states.binary_sensor.motion_vindfang.state == 'off' -%}
+          {{alarmNotJustSet and notDisarmedAndGarageClosed and notmotionvindfang}}
   action:
+  - delay:
+      seconds: 1
+  - condition: template
+    value_template: "{{states.lock.ytterdor.state == 'unlocked'}}"
   - service: light.turn_on
     entity_id: light.hyperion
     data_template:
@@ -1026,28 +1032,6 @@
   # - service: notify.me
   #   data_template:
   #     message: 'Alarm deaktivert.'
-
-
-- id: døråpnetnårarlarmert
-  alias: Døråpnetnåralarmert
-  condition:
-    condition: or
-    conditions:
-    - condition: state
-      entity_id: input_select.alarm
-      state: 'Arm Away'
-    - condition: state
-      entity_id: input_select.alarm
-      state: 'Arm Home'
-  trigger:
-  - platform: state
-    entity_id: group.Magnetkontakterutenhoved
-    to: 'on'
-  action:
-    service: notify.erlendpush
-    data:
-      title: Innbrudd!
-      message: En av dørene har blitt åpnet mens alarmen er aktivert!
 
 
 - alias: WarningAlarmStillArmed
