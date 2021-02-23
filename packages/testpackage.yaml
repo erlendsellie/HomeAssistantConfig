@@ -8,7 +8,7 @@ testpackage:
       - service: input_number.set_value
         data_template:
           entity_id: input_number.costyesterday
-          value: '{{ sensor.daily_cost_vaskemaskin | float + input_number.running_cost_vaskemaskin | float }}'
+          value: '{{ states.sensor.daily_cost_vaskemaskin.state | float + states.input_number.running_cost_vaskemaskin.state | float }}'
 
 
   input_number:

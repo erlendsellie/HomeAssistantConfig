@@ -636,6 +636,7 @@
       entity_id: input_boolean.washer_emptied
 
 - alias: WasherDoneNotify
+  mode: restart
   trigger:
     platform: state
     entity_id: input_boolean.washer_emptied

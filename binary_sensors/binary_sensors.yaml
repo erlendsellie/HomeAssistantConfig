@@ -186,11 +186,9 @@
       washing:
         friendly_name: 'Washing'
         device_class: power
-        delay_on:
-          seconds: 30
         delay_off:
-          seconds: 120
-        value_template: "{{states.sensor.vaskemaskin_electric_w.state | float > 20 }}"
+          minutes: 5
+        value_template: "{{states.sensor.vaskemaskin_electric_w.state | float > 10 }}"
         icon_template: >-
           {% if is_state("binary_sensor.washing", "on") %}
             mdi:washing-machine
