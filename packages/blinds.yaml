@@ -10,29 +10,58 @@ blinds:
           alias: "Veranda half way"
           sequence:
             - service: cover.set_cover_position
-              entity_id: cover.veranda_curtains
+              entity_id: cover.veranda_door
               data:
                 position: 53
+            - service: cover.close_cover
+              entity_id: cover.veranda_window
 
   automation:
-  # - alias: Close Blinds When TV
-  #   trigger:
-  #     - platform: state
-  #       entity_id: media_player.tv_stua
-  #       to: 'on'
-  #     - platform: state
-  #       entity_id: binary_sensor.veranda
-  #       to: 'off'
-  #   condition:
-  #     - condition: state
-  #       entity_id: binary_sensor.veranda
-  #       state: 'off'
-  #     - condition: state
-  #       entity_id: media_player.tv_stua
-  #       state: 'on'
-  #   action:
-  #   - service: cover.close_cover
-  #     entity_id: cover.veranda_curtains
+  - alias: Open Curtains
+    trigger:
+      - platform: event
+        event_type: deconz_event
+        event_data:
+          id: smart_switch
+          event: 1002
+    action:      
+    - service: cover.toggle 
+      entity_id: cover.veranda_curtains
+
+
+  - alias: stop Curtains
+    trigger:
+      - platform: event
+        event_type: deconz_event
+        event_data:
+          id: smart_switch
+          event: 1004
+    action:      
+    - service: cover.stop 
+      entity_id: cover.veranda_curtains
+
+
+  - alias: Close Blinds When TV
+    trigger:
+      - platform: state
+        entity_id: media_player.tv_stua
+        to: 'on'
+      - platform: state
+        entity_id: binary_sensor.veranda
+        to: 'off'
+    condition:
+      - condition: state
+        entity_id: binary_sensor.veranda
+        state: 'off'
+      - condition: state
+        entity_id: media_player.tv_stua
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.tyraasleepoutside
+        state: 'off'
+    action:
+    - service: cover.close_cover
+      entity_id: cover.veranda_curtains
 
   # - alias: Open Blinds by TV
   #   trigger:

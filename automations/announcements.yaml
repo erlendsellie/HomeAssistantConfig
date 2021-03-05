@@ -138,6 +138,7 @@
 
 
 - alias: PlaySoundMotionDriveway
+  mode: restart
   trigger:
   - platform: state
     entity_id: binary_sensor.motion_driveway
@@ -483,12 +484,12 @@
     - service: notify.me
       data_template:
         variables:
-          message: 'Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.sensor.efoy_moisture.state }}'
+          message: 'Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.efoy_moisture.state }}'
     - service: script.turn_on
       entity_id: script.playmessage
       data_template:
         variables:
-          message: 'Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.sensor.efoy_moisture.state }}'
+          message: 'Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.efoy_moisture.state }}'
 
 
 

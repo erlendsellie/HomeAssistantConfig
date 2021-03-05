@@ -543,15 +543,15 @@ circadian_lighting:
   min_colortemp: 2300
   max_colortemp: 6500
 
-coinbase:
-  api_key: !secret coinbase_client_id
-  api_secret: !secret coinbase_client_secret
-  account_balance_currencies:
-    - BTC
-    - LINK
-  exchange_rate_currencies:
-    - BTC
-    - LINK
+# coinbase:
+#   api_key: !secret coinbase_client_id
+#   api_secret: !secret coinbase_client_secret
+#   account_balance_currencies:
+#     - BTC
+#     - LINK
+#   exchange_rate_currencies:
+#     - BTC
+#     - LINK
 
 
 webostv:
@@ -575,6 +575,7 @@ webostv:
       - XPlay
 
 media_player: !include media_player.yaml
+media_extractor:
 
 rest_command:
   healthcheck:
@@ -796,19 +797,22 @@ binary_sensor: !include_dir_merge_list binary_sensors
 automation: !include_dir_merge_list automations
 sensor: !include_dir_merge_list sensors
 
+google:
+  client_id: !secret google_cal_client_id
+  client_secret: !secret google_cal_client_secret
 
 tts:
-  - platform: marytts
-    base_url: !secret base_url
+  # - platform: marytts
+  #   base_url: !secret base_url
 
   - platform: google_translate
     service_name: google_say
     language: 'no'
     base_url: !secret base_url
 
-  - platform: microsoft
-    api_key: !secret microsofttts
-    base_url: !secret base_url
+  # - platform: microsoft
+  #   api_key: !secret microsofttts
+  #   base_url: !secret base_url
     
 
 script: !include script.yaml

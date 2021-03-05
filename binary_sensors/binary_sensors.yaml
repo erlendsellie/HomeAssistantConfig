@@ -186,6 +186,8 @@
       washing:
         friendly_name: 'Washing'
         device_class: power
+        delay_on:
+          seconds: 20
         delay_off:
           minutes: 5
         value_template: "{{states.sensor.vaskemaskin_electric_w.state | float > 10 }}"

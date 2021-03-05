@@ -97,7 +97,6 @@
 
 
 - alias: TurnOffBlanket
-  id: TurnOffCarHeater
   trigger:
   - platform: state
     entity_id: switch.blanket

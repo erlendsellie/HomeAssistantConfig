@@ -4,18 +4,6 @@
 
 
 
-
-- alias: Open Curtains
-  trigger:
-    - platform: event
-      event_type: deconz_event
-      event_data:
-        id: smart_switch
-        event: 1002
-  action:      
-  - service: cover.toggle 
-    entity_id: cover.veranda_curtains
-
 # - alias: Close Curtains
 #   trigger:
 #     - platform: event

@@ -231,6 +231,7 @@
 
 - id: turnOnHallwayLight
   alias: turnOnHallwayLight
+  mode: restart
   trigger:
   - platform: state
     entity_id: 
@@ -763,6 +764,9 @@
   - platform: state
     entity_id: binary_sensor.motion_toilet
     to: 'on'
+  - platform: state
+    entity_id: binary_sensor.door_toilet
+    to: 'on'
   action:
   - service: light.turn_on
     entity_id: light.toilet
@@ -848,6 +852,7 @@
 
 - id: adjustbrightness
   alias: Living Room Lights - Adjust Brightness
+  mode: restart
   trigger:
     platform: state
     entity_id: input_number.brightness    
@@ -1449,3 +1454,20 @@
 #     entity_id: input_boolean.ammetid
 #   - service: homeassistant.turn_off
 #     entity_id: input_boolean.trymasleep
+- id: '1613686499118'
+  alias: Tvonwhenasleep
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_boolean.easleep
+    to: 'on'
+    from: 'off'
+  condition:
+    - condition: state
+      entity_id: media_player.tv_soverommet
+      state: 'off'
+  action:
+  - service: media_player.turn_on
+    data: {}
+    entity_id: media_player.bedroom
+  mode: single

@@ -59,6 +59,7 @@ zwave_device_config.yaml
 # Ensure these YAML files are ignored, otherwise your secret data/credentials will leak.
 ip_bans.yaml
 secrets.yaml
+google_calendars.yaml
 known_devices.yaml
 arduinologAm43.txt
 backup

@@ -87,7 +87,7 @@ temperaturecontrol:
               {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
               {%-set hour = time.split(':')[0] | float -%}
               {% set startdaywarming = states.input_datetime.nighttemp.state.split(':')[0] | float %}
-              {% if alarm == 'Disarm' or (alarm == 'Arm Home' and hour >= startdaywarming and priceGaining) %}
+                {% if alarm == 'Disarm' or (alarm == 'Arm Home' and (hour >= startdaywarming and priceGaining or hour > startdaywarming)) %}
                 {%-set temp = hjemmeTemp -%}
               {% elif alarm == 'Arm Home'%}
                   {%-set temp = nattaTemp -%} 
@@ -184,9 +184,10 @@ temperaturecontrol:
             {%-set tyraasleep = states.input_boolean.tyraasleep.state == 'on' -%}
             {%-set away = states.input_select.alarm.state == 'Arm Away'%}
             {%-set windowopen = states.binary_sensor.tyra_window.state == 'on' %}
+            {%-set tyraasleepoutside = states.input_boolean.tyrasleepingoutside.state == 'on' %}
             {% if away or windowopen %}
             14
-            {% elif tyraasleep or hour > 17 %}
+            {% elif (tyraasleep and tyraasleepoutside == 'off')  or hour > 17 %}
             18
             {% else %}
             14

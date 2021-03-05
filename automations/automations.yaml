@@ -1,5 +1,6 @@
 - id: '1612620277117'
   alias: Cast to Google Hub
+  mode: restart
   description: ''
   use_blueprint:
     path: kind3r/cast-and-re-cast-a-lovelace-view-to-a-google-hub.yaml
