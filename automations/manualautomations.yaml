@@ -933,10 +933,15 @@
     entity_id: media_player.tv_soverommet
     to: 'on'
     for:
-      minutes: 60      
+      minutes: 60
+  - platform: state
+    entity_id: binary_sensor.ccharging
+    to: 'on'
+    for:
+      minutes: 60            
   condition:
   - condition: state
-    entity_id: input_boolean.casleep
+    entity_id: input_boolean.ccharging
     state: 'on'
   - condition: state
     entity_id: input_boolean.easleep
@@ -960,6 +965,8 @@
   - service: notify.me
     data:
       message: 'TV på soverommet er fortsatt på'
+  - service: homeassistant.turn_on
+    entity_id: script.bedtvoff
 
 - id: erlendnatta70
   alias: Erlend legger seg + 70 min
@@ -1223,10 +1230,15 @@
       entity_id: media_player.bedroom
       to: 'idle'
       for:
-        minutes: 15
+        minutes: 5
     - platform: state
       entity_id: media_player.bedroom
-      to: 'paused'
+      to: 'Idle'
+      for:
+        minutes: 5        
+    - platform: state
+      entity_id: media_player.bedroom
+      to: 'Paused'
       for:
         minutes: 15
   action:

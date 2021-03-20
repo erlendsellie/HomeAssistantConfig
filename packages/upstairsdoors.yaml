@@ -71,7 +71,8 @@ upstairsdoors:
           minutes: 5
         value_template: >-
             {{states.binary_sensor.motionupstairs.state == 'off' and
-            states.binary_sensor.trym_door.state == 'on'}}
+            states.binary_sensor.trym_door.state == 'on' and
+            states.input_boolean.trymasleep.state == 'off'}}
       tyradoorleftopen:
         device_class: opening
         friendly_name: 'Tyra dør ble ikke lukket'

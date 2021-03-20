@@ -172,6 +172,7 @@
         message: 'Alarmen ble deaktivert.'
 
 - alias: UnlockDoor
+  mode: restart
   trigger:
   - platform: state
     entity_id: input_select.alarm
@@ -1196,6 +1197,7 @@
 
 
 - alias: 'Disarm by Input Select'
+  mode: restart
   trigger:
     - platform: state
       entity_id: input_select.alarm
@@ -1238,15 +1240,15 @@
         message: "The freezer may be malfunctioning. The temperature is {{states.sensor.fryser.state}}."
 
 
-- alias: FridgeIsWarm
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.kjoleskap
-      above: 10
-  action:
-    - service: notify.erlendpush
-      data_template:
-        message: "The fridge may be malfunctioning. The temperature is {{states.sensor.kjoleskap.state}}."
+# - alias: FridgeIsWarm
+#   trigger:
+#     - platform: numeric_state
+#       entity_id: sensor.kjoleskap
+#       above: 10
+#   action:
+#     - service: notify.erlendpush
+#       data_template:
+#         message: "The fridge may be malfunctioning. The temperature is {{states.sensor.kjoleskap.state}}."
 
 
 - alias: Savedoorbellvideo

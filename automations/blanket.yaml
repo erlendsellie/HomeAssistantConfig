@@ -61,9 +61,8 @@
       event_data:
         action: blankettvoff
   action:
-    - service: switch.turn_on
-      entity_id: script.blankettvoff
-
+    - service: script.blankettv
+    
 - alias: TurnOnBlanket90
   trigger:
     - platform: event
@@ -73,6 +72,8 @@
   action:
     - service: switch.turn_on
       entity_id: script.blanket90minutes
+
+
 
 - alias: TurnOnBlanket30
   trigger:

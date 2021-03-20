@@ -41,27 +41,29 @@ blinds:
       entity_id: cover.veranda_curtains
 
 
-  - alias: Close Blinds When TV
-    trigger:
-      - platform: state
-        entity_id: media_player.tv_stua
-        to: 'on'
-      - platform: state
-        entity_id: binary_sensor.veranda
-        to: 'off'
-    condition:
-      - condition: state
-        entity_id: binary_sensor.veranda
-        state: 'off'
-      - condition: state
-        entity_id: media_player.tv_stua
-        state: 'on'
-      - condition: state
-        entity_id: input_boolean.tyraasleepoutside
-        state: 'off'
-    action:
-    - service: cover.close_cover
-      entity_id: cover.veranda_curtains
+  # - alias: Close Blinds When TV
+  #   trigger:
+  #     - platform: state
+  #       entity_id: media_player.nvidia_shield
+  #       to: 'playing'
+  #     - platform: state
+  #       entity_id: binary_sensor.veranda
+  #       to: 'off'
+  #   condition:
+  #     - condition: state
+  #       entity_id: binary_sensor.veranda
+  #       state: 'off'
+  #     - condition: state
+  #       entity_id: media_player.nvidia_shield
+  #       state: 'playing'
+  #     - condition: state
+  #       entity_id: input_boolean.tyraasleepoutside
+  #       state: 'off'
+  #     - condition: template
+  #       value_template: "{{ states.binary_sensor.carolinehome.state  == 'off'}}"      
+  #   action:
+  #   - service: cover.close_cover
+  #     entity_id: cover.veranda_curtains
 
   # - alias: Open Blinds by TV
   #   trigger:

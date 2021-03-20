@@ -133,6 +133,16 @@
       event_data:
         id: switch_vindfang
         event: 1002
+    - platform: tag
+      tag_id: garage_vindfang
+    - platform: tag
+      tag_id: garage_outside
+    - platform: tag
+      tag_id: garage_inside      
+    - platform: tag
+      tag_id: passat      
+    - platform: tag
+      tag_id: skoda       
   action:
     - service: cover.toggle
       entity_id: cover.garage_door

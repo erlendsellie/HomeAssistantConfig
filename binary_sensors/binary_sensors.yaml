@@ -79,9 +79,9 @@
         friendly_name: 'Mail Today'
         value_template: "{{states.sensor.mailtoday.state == 'True'}}"
       echarging:
-        value_template: "{{states.sensor.erlend_battery_state.state != 'discharging'}}"
+        value_template: "{{states.binary_sensor.erlend_app_is_charging.state == 'on'}}"
       ccharging:
-        value_template: "{{ states.sensor.caroline_battery_state.state != 'discharging'}}"
+        value_template: "{{states.binary_sensor.caroline_charging.state == 'on'}}"
       tv_on:
         value_template: "{{ states.media_player.tv_stua.state == 'Playing'}}"
       garageanddooropen:
@@ -223,7 +223,7 @@
           minutes: 2
         delay_on:
           minutes: 1
-        value_template: "{{ states('sensor.garage_occupied')|float == 1 }}"
+        value_template: "{{states.sensor.ultrasonic_sensor.state | float < 0.30}}"
         icon_template: >
               {% if (state == 'off')%}
               mdi:car-off

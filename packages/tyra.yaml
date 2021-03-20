@@ -10,18 +10,22 @@ tyra:
       tyrasleepingoutside:
         friendly_name: Tyra Probably sleeping outside
         value_template: >
-          {{((as_timestamp(utcnow()) - as_timestamp(states.automation.turnOnTyraLight.attributes.last_triggered)) > (60*10)) and states.input_boolean.tyraasleep.state == 'on'}}
+          {{((as_timestamp(utcnow()) - as_timestamp(states.automation.turnOnTyraLight.attributes.last_triggered)) > (60*10))}}
 
     
   automation:
     - alias: 'tyrasleepingoutsideOn'
       trigger:
         platform: state
-        entity_id: binary_sensor.tyrasleepingoutside
+        entity_id: input_boolean.tyraasleep
         to: 'on'
+      condition:
+        - condition: state
+          entity_id: binary_sensor.tyrasleepingoutside
+          state: 'on'
       action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.tyrasleepingoutside
+        entity_id: input_boolean.tyraasleepoutside
 
     - alias: 'tyraSoverOff'
       trigger:
@@ -34,11 +38,11 @@ tyra:
       #   state: 'home'   
       action:  
       - service: input_boolean.turn_off
-        entity_id: input_boolean.tyrasleepingoutside
-      - service: input_number.set_value
-        entity_id: input_number.tyraasleeptime
-        data_template:
-            value: "{{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveron.attributes.last_triggered)) / 60) | round(0)}}"
+        entity_id: input_boolean.tyraasleepoutside
+      # - service: input_number.set_value
+      #   entity_id: input_number.tyraasleeptime
+      #   data_template:
+      #       value: "{{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveron.attributes.last_triggered)) / 60) | round(0)}}"
       - service: script.turn_on
         entity_id: script.notifyboth
         data_template:

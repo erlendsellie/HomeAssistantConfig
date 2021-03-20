@@ -16,7 +16,7 @@ alarmclock:
             {%-set nextAlarm = states.sensor.next_alarm.state -%}
             {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm) -%}
             {%-set minutesBefore = 10 -%}
-            {{(nextAlarmAsTimestamp - as_timestamp(utcnow()) < (60*10))}}
+            {{(nextAlarmAsTimestamp - as_timestamp(utcnow()) < (60 * minutesBefore))}}
       condition:
         condition: and
         conditions:
@@ -46,9 +46,9 @@ alarmclock:
           entity_id: binary_sensor.erlendhome
           state: 'on'            
       action:
-        - service: notify.me
-          data:
-            message: 'Vekking av deg startet'
+        # - service: notify.me
+        #   data:
+        #     message: 'Vekking av deg startet'
         - service: script.turn_on
           entity_id: script.wakeup
 
@@ -156,7 +156,8 @@ alarmclock:
         - service: media_player.play_media
           data:
             entity_id: media_player.clock
-            media_content_id: "{{states.sensor.podcast_smartere_paa.state}}"
+            #media_content_id: "{{states.sensor.podcast_smartere_paa.state}}"
+            media_content_id: "https://p4.p4groupaudio.com/P04_MH"
             media_content_type: 'music'
         - service: media_player.volume_set
           data_template:

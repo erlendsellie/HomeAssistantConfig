@@ -117,12 +117,12 @@ temperaturecontrol:
     
             {%-set differenceStr = difference | string %}      
             {%-set decimal = differenceStr.split('.')[1] | int %}
-            {% if decimal < 6 and decimal > 0  %}
+            {% if decimal < 6 and decimal > 0 and difference < 0.6  %}
               {%-set difference = ([([difference + 0.5, 0.5] | min),0] | max) %}
             {% else %}
               {%-set difference = difference | round() %}
             {% endif %}
-            {% if isHeating and baseTemp > 15 and priceCorrection < 1 %} 
+            {% if isHeating and baseTemp > 15 and priceCorrection < 3 %} 
               {%-set temp = temp + ([difference, 0] | max) -%}
             {% endif %}
             {{temp | round() or 22}}
@@ -184,7 +184,7 @@ temperaturecontrol:
             {%-set tyraasleep = states.input_boolean.tyraasleep.state == 'on' -%}
             {%-set away = states.input_select.alarm.state == 'Arm Away'%}
             {%-set windowopen = states.binary_sensor.tyra_window.state == 'on' %}
-            {%-set tyraasleepoutside = states.input_boolean.tyrasleepingoutside.state == 'on' %}
+            {%-set tyraasleepoutside = states.input_boolean.tyraasleepoutside.state == 'on' %}
             {% if away or windowopen %}
             14
             {% elif (tyraasleep and tyraasleepoutside == 'off')  or hour > 17 %}
@@ -211,7 +211,7 @@ temperaturecontrol:
         value_template: >-
           {%-set nordpool = states.sensor.nordpool -%}
           {%-set percentThreshold = ((nordpool.attributes.max / nordpool.attributes.min) - 1) -%}
-          {% set percentThreshold = (percentThreshold / 3) + 1 %}
+          {% set percentThreshold = (percentThreshold / 4) + 1 %}
           {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
           {%-set hour = time.split(':')[0] | round -%}
           {%-set nordpool = states.sensor.nordpool -%}
@@ -226,7 +226,7 @@ temperaturecontrol:
         value_template: >-
           {%-set nordpool = states.sensor.nordpool -%}
           {%-set percentThreshold = ((nordpool.attributes.min/ nordpool.attributes.max) - 1) -%}
-          {% set percentThreshold = (percentThreshold / 3) + 1 %}
+          {% set percentThreshold = (percentThreshold / 4) + 1 %}
           {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
           {%-set hour = time.split(':')[0] | round -%}
           {%-set nordpool = states.sensor.nordpool -%}

@@ -206,7 +206,18 @@
     - service: notify.me
       data_template:
         title: Home Asistant started
-        message: '{{ states.sensor.alarm.state }}'
+        message: '{{ states.input_select.alarm.state }}'
+
+
+- alias: NotifyAlarmState
+  trigger:
+  - platform: state
+    entity_id: input_select.alarm
+  action:
+  - service: notify.me
+    data_template:
+        title: 'Alarm:'
+        message: '{{ states.input_select.alarm.state }}'
 
 - alias: 'Battery Alert'
   trigger:

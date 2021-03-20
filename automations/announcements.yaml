@@ -432,18 +432,18 @@
         title: 'Svetlana was paused.'
         message: 'Why?'
 
-- alias: 'SvetlanaDone'
-  trigger:
-    platform: state
-    entity_id: vacuum.xiaomi_vacuum_cleaner
-    to: 'idle'
-    from: 'cleaning'
-  action:
-  - service: script.turn_on
-    entity_id: script.say
-    data_template:
-      variables:
-        message: 'Svetlana er ferdig med å støvsuge.'
+# - alias: 'SvetlanaDone'
+#   trigger:
+#     platform: state
+#     entity_id: vacuum.xiaomi_vacuum_cleaner
+#     to: 'idle'
+#     from: 'cleaning'
+#   action:
+#   - service: script.turn_on
+#     entity_id: script.say
+#     data_template:
+#       variables:
+#         message: 'Svetlana er ferdig med å støvsuge.'
 
 
 - alias: 'WaterBonsai'
@@ -483,12 +483,11 @@
   action:
     - service: notify.me
       data_template:
-        variables:
+          title: 'Eføy'
           message: 'Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.efoy_moisture.state }}'
     - service: script.turn_on
       entity_id: script.playmessage
       data_template:
-        variables:
           message: 'Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.efoy_moisture.state }}'
 
 
@@ -670,7 +669,7 @@
   - platform: state
     entity_id: 
       - binary_sensor.grind
-      - binary_sensor.door_downstairs
+      - binary_sensor.motion_sokkel
     to: 'on'
   condition:
   - condition: state

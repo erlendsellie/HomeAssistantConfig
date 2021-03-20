@@ -1,0 +1,27 @@
+skisporet:
+  sensor:
+  - platform: command_line
+    command: >-
+      curl "https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11652/1616242687915/34466777/63.36159763799884/10.308523178100588" \
+      -H 'X-Requested-With: XMLHttpRequest' \
+      --data "t%3Azoneid=TmpId_1616242876320" \
+    name: Saupstad sist oppkjort
+    value_template: >-
+      {%set content = value_json._tapestry.content | string %}
+      {{content.split('<th>Oppdatert')[1].split('<td>')[1].split('<')[0]}}
+    scan_interval: 3600
+    command_timeout: 30  
+
+
+  - platform: rest
+    name: Saupstad rest
+    resource: https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11652/1616242687915/34466777/63.36159763799884/10.308523178100588
+    value_template: >-
+      {%set content = value_json._tapestry.content | string %}
+      {{value_json | }}
+    headers:
+      X-Requested-With: XMLHttpRequest
+    payload: 't%3Azoneid=TmpId_1616242876320'
+
+
+#{{content.split('<th>Oppdatert')[1].split('<td>')[1].split('<')[0]}}

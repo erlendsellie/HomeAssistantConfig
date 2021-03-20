@@ -52,6 +52,16 @@
   force_update: true
   unit_of_measurement: USD  
 
+
+- platform: rest
+  name: GME
+  scan_interval: 5
+  json_attributes:
+  resource: https://query2.finance.yahoo.com/v10/finance/quoteSummary/GME?formatted=true&crumb=8ldhetOu7RJ&lang=en-US&region=US&modules=defaultKeyStatistics%2CfinancialData%2CcalendarEvents&corsDomain=finance.yahoo.com
+  value_template: "{{ value_json.quoteSummary.result[0].financialData.currentPrice.raw }}"
+  force_update: true
+  unit_of_measurement: USD
+
 - platform: command_line
   command: >-
     curl 'https://www.posten.no/levering-av-post-2020/_/component/main/1/leftRegion/1?postCode=7072' \
@@ -284,11 +294,12 @@
 #   select: 'span.C\(\$primaryColor\).Fz\(24px\).Fw\(b\)'
 #   #select: '#quote-header-info > div.My\(6px\).Pos\(r\).smartphone_Mt\(6px\) > div > p > span.C\(\$primaryColor\).Fz\(24px\).Fw\(b\)'
 
-# - platform: scrape
-#   name: 'tslascrapeGoogle'
-#   resource: 'https://www.google.com/search?q=tsla&rlz=1C1GGRV_enNO751NO752&oq=tsla&aqs=chrome..69i57j69i60l3j69i65l2j69i60l2.1887j0j7&sourceid=chrome&ie=UTF-8'
-#   select: 'span.C\(\$primaryColorknowledge-finance-wholepage__entity-summary > div > g-card-section > div > g-card-section >div.qFiidc> span'
-
+- platform: scrape
+  name: 'GME Scrape'
+  resource: 'https://finance.yahoo.com/quote/GME/'
+  select: '#quote-header-info > div.My\(6px\).Pos\(r\).smartphone_Mt\(6px\) > div.D\(ib\).Va\(m\).Maw\(65\%\).Ov\(h\) > div > span.Trsdu\(0\.3s\).Fw\(b\).Fz\(36px\)'
+  unit_of_measurement: USD
+  value_template: "{{ value | float }}" 
 
   #Automation changes input based on this, then light follows input?
 - platform: template
@@ -450,10 +461,9 @@
             {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trymsoveron.attributes.last_triggered)) / 60) | round(0)}}
         {% elif states.input_boolean.tryminkindergarden.state == 'on' %}
             {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trym_left_in_kindergarden.attributes.last_triggered)) / 60) | round(0)}}
-          {% endif %}
-      #   {% else %}
-      #     {{((as_timestamp(utcnow()) - as_timestamp([states.automation.trymsoveroff.attributes.last_triggered, states.automation.trym_picked_up_in_kindergarden.attributes.last_triggered] | max)) / 60) | round(0)}}
-      # {% endif %}
+        {% else %}
+            {{((as_timestamp(utcnow()) - as_timestamp([states.automation.trymsoveroff.attributes.last_triggered, states.automation.trym_picked_up_in_kindergarden.attributes.last_triggered] | max)) / 60) | round(0)}}
+        {% endif %}
     trymsleeptimeformatted:
       friendly_name: "Trym Sleep time"
       value_template: >-
@@ -471,11 +481,9 @@
         {% set dummy = states("sensor.time") %}
         {% if states.input_boolean.tyraasleep.state  == 'on'%}
             {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveron.attributes.last_triggered)) / 60) | round(0)}} 
+        {% else %}
+            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveroff.attributes.last_triggered)) / 60) | round(0)}}                
         {% endif %}
-
-    # {% else %}
-    #     {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveroff.attributes.last_triggered)) / 60) | round(0)}}                
-    # {% endif %}
     # trymsleeptime:
     #   friendly_name: "Trym Sleep time"
     #   unit_of_measurement: "minutes"
