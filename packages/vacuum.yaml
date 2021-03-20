@@ -48,7 +48,7 @@ vacuum_xiaomi:
   - alias: VaccumJustEmptiedNot
     trigger:
       - platform: time
-        at: 13:00:00
+        at: '13:00:00'
     condition:
       - condition: state
         entity_id: input_boolean.vacuum_just_emptied

@@ -4,6 +4,7 @@ skisporet:
     command: >-
       curl "https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11652/1616242687915/34466777/63.36159763799884/10.308523178100588" \
       -H 'X-Requested-With: XMLHttpRequest' \
+      -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
       --data "t%3Azoneid=TmpId_1616242876320" \
     name: Saupstad sist oppkjort
     value_template: >-
@@ -18,10 +19,11 @@ skisporet:
     resource: https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11652/1616242687915/34466777/63.36159763799884/10.308523178100588
     value_template: >-
       {%set content = value_json._tapestry.content | string %}
-      {{value_json | string }}
+      {{content.split('<th>Oppdatert')[1].split('<td>')[1].split('<')[0]}}
     headers:
       X-Requested-With: XMLHttpRequest
-    payload: 't%3Azoneid=TmpId_1616242876320'
+      Content-type: application/x-www-form-urlencoded; charset=UTF-8
+    payload: "t%3Azoneid=TmpId_1616242876320"
 
-
+#{%set content = value_json._tapestry.content | string %}
 #{{content.split('<th>Oppdatert')[1].split('<td>')[1].split('<')[0]}}
