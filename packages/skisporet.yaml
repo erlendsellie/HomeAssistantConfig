@@ -14,7 +14,7 @@ skisporet:
 
 
   - platform: rest
-    name: 'Saupstad rest'
+    name: Saupstad
     resource: https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11652/1616242687915/34466777/63.36159763799884/10.308523178100588
     value_template: >-
       {%set content = value_json._tapestry.content | string %}
