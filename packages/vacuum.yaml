@@ -47,11 +47,12 @@ vacuum_xiaomi:
 
   - alias: VaccumJustEmptiedNot
     trigger:
-    - platform: state
-      entity_id: input_boolean.vacuum_just_emptied
-      to: 'on'
-      for:
-        hours: 20
+      platform: time
+      at: 13:00:00
+    condition:
+      - condition: state
+        entity_id: input_boolean.vacuum_just_emptied
+        state: 'on'      
     action:
     - service: homeassistant.turn_off
       entity_id: input_boolean.vacuum_just_emptied
