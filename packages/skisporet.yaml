@@ -1,29 +1,58 @@
 skisporet:
   sensor:
-  - platform: command_line
-    command: >-
-      curl "https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11652/1616242687915/34466777/63.36159763799884/10.308523178100588" \
-      -H 'X-Requested-With: XMLHttpRequest' \
-      -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
-      --data "t%3Azoneid=TmpId_1616242876320" \
-    name: Saupstad sist oppkjort
-    value_template: >-
-      {%set content = value_json._tapestry.content | string %}
-      {{content.split('<th>Oppdatert')[1].split('<td>')[1].split('<')[0]}}
-    scan_interval: 3600
-    command_timeout: 30  
+    - platform: skisporet
+      name: Saupstad
+      url: https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11652/1616242687915/34466777/63.36159763799884/10.308523178100588
+  automation:
 
 
-  - platform: rest
-    name: Saupstad
-    resource: https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11652/1616242687915/34466777/63.36159763799884/10.308523178100588
-    value_template: >-
-      {%set content = value_json._tapestry.content | string %}
-      {{content.split('<th>Oppdatert')[1].split('<td>')[1].split('<')[0]}}
-    headers:
-      X-Requested-With: XMLHttpRequest
-      Content-type: application/x-www-form-urlencoded; charset=UTF-8
-    payload: "t%3Azoneid=TmpId_1616242876320"
 
-#{%set content = value_json._tapestry.content | string %}
-#{{content.split('<th>Oppdatert')[1].split('<td>')[1].split('<')[0]}}
+    - alias: NotifySaupstadSkisporet
+      trigger:
+      - platform: state
+        entity_id: switch.blanket
+      action:
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Saupstad-smistad ble oppkjørt nå.
+              message: Saupstad-smistad ble oppkjørt nå.
+
+#   - platform: command_line
+#     command: >-
+#       curl "https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11652/1616242687915/34466777/63.36159763799884/10.308523178100588" \
+#       -H 'X-Requested-With: XMLHttpRequest' \
+#       -H 'Content-Type: application/x-www-form-urlencoded' \
+#       --data "t%3Azoneid=TmpId_1616242876320" \
+#     name: Saupstad sist oppkjort
+#     value_template: >-
+#       {{value_json}}
+#     scan_interval: 3600
+#     command_timeout: 30  
+
+
+#   - platform: rest
+#     name: Saupstad
+#     resource: https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11652/1616242687915/34466777/63.36159763799884/10.308523178100588
+#     value_template: >-
+#       {{value_json}}
+#     headers:
+#       X-Requested-With: XMLHttpRequest
+#       Content-type: application/x-www-form-urlencoded
+#     payload: 't%3Azoneid=TmpId_1616255212623'
+
+
+
+#   - platform: rest
+#     name: Saupstadjson
+#     resource: https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11652/1616242687915/34466777/63.36159763799884/10.308523178100588
+#     value_template: >-
+#       {{value_json}}
+#     headers:
+#       X-Requested-With: XMLHttpRequest
+#       Content-type: application/x-www-form-urlencoded
+#     payload: '{"t%3Azoneid":"TmpId_1616255212623"}'
+
+# #{%set content = value_json._tapestry.content | string %}
+# #{{content.split('<th>Oppdatert')[1].split('<td>')[1].split('<')[0]}}
