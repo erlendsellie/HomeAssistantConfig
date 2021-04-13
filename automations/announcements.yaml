@@ -37,7 +37,7 @@
   trigger:
   - platform: state
     entity_id:
-        - binary_sensor.veranda
+        #- binary_sensor.veranda
         - binary_sensor.hoveddor
         - binary_sensor.lilleveranda 
         - binary_sensor.door_downstairs 

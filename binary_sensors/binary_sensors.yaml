@@ -105,7 +105,10 @@
               and states.media_player.tv_soverommet == 'on'}}
         delay_on:
           minutes: 10
-
+      eprobablyasleep:
+        friendly_name: 'Erlend Probably Asleep'
+        value_template:  >-
+          {{states.sensor.erlend_app_sleep_confidence.state | int > 90}}
 
 
 

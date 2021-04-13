@@ -252,6 +252,37 @@
 #   - service: homeassistant.turn_on
 #     entity_id: input_boolean.easleep
 
+- alias: 'ErlendAsleepByConfidence'
+  id: 'ErlendAsleepByConfidence'
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.eprobablyasleep
+    to: 'on'
+  # condition:
+  #   condition: and
+  #   conditions:
+  #   - condition: time
+  #     after: '21:00:00'
+  #     before: '06:00:00'
+  action:
+  - service: homeassistant.turn_on
+    entity_id: input_boolean.easleep 
+
+- alias: 'ErlendAwakeByConfidence'
+  id: 'ErlendAwakeByConfidence'
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.eprobablyasleep
+    to: 'off'
+  condition:
+    - condition: time
+      after: '05:00:00'
+      before: '21:00:00'
+  action:
+  - service: homeassistant.turn_off
+    entity_id: input_boolean.easleep
+
+
 - alias: 'ErlendAsleepWebhook'
   trigger:
   - platform: webhook
