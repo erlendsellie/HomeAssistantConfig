@@ -392,6 +392,9 @@ light:
 
 
 
+  - platform: switch
+    name: Garage
+    entity_id: switch.garage_light
 
   - platform: switch
     name: Star

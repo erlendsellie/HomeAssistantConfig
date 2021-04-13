@@ -1,8 +1,39 @@
 skisporet:
   sensor:
     - platform: skisporet
-      name: Saupstad
+      name: Saupstad-Smistad
       url: https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11652/1616242687915/34466777/63.36159763799884/10.308523178100588
+
+    - platform: skisporet
+      name: Kartet
+      url: https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11651/1616320573093/37551208/63.37452498429685/10.282602310180664
+
+    - platform: skisporet
+      name: Langmyra
+      url:  https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/39968/1616320609476/37677733/63.243443901156674/10.388088226318361
+
+    - platform: skisporet
+      name: Saupstad-Granasen
+      url: https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11899/1616395385048/36134208/63.370389635723555/10.330066680908205
+
+  binary_sensor:
+  - platform: template
+    scan_interval: 3600
+    sensors:
+      saupstad_just_prepped:
+        friendly_name: 'Saupstad-Smistad'
+        value_template: >-
+            {%-set state = states.sensor.skisporet_saupstad_smistad.state -%}
+            {%-set stateAsTimestamp = as_timestamp(state) -%}
+            {%-set twoHours = 120 * 60 -%}
+            {{((as_timestamp(utcnow())) - stateAsTimestamp) < twoHours }}
+      saupstad_granasen_just_prepped:
+        friendly_name: 'Saupstad-Granåsen'
+        value_template: >-
+            {%-set state = states.sensor.skisporet_saupstad_granasen.state -%}
+            {%-set stateAsTimestamp = as_timestamp(state) -%}
+            {%-set twoHours = 120 * 60 -%}
+            {{((as_timestamp(utcnow())) - stateAsTimestamp) < twoHours }}
   automation:
 
 
@@ -10,14 +41,18 @@ skisporet:
     - alias: NotifySaupstadSkisporet
       trigger:
       - platform: state
-        entity_id: switch.blanket
+        entity_id: binary_sensor.saupstad_just_prepped
+        to: 'on'
+      - platform: state
+        entity_id: binary_sensor.saupstad_granasen_just_prepped
+        to: 'on'
       action:
         - service: script.turn_on
           entity_id: script.notify
           data_template:
             variables:
-              title: Saupstad-smistad ble oppkjørt nå.
-              message: Saupstad-smistad ble oppkjørt nå.
+              title: "{{trigger.from_state.name}} ble oppkjørt nå."
+              message: "{{trigger.from_state.name}} ble oppkjørt nå."
 
 #   - platform: command_line
 #     command: >-

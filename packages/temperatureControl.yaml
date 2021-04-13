@@ -61,11 +61,16 @@ temperaturecontrol:
             {%-set price = states.sensor.nordpool.state | float -%}
             {%-set isMinPrice = minPrice == price -%}
             {%-set temp =  0 -%}
-            {% if isHeating %} 
-              {% if (priceGaining and isPeak == false) or (isMinPrice)  %}
-                  {%-set temp =  temp + 1 -%}
-              {% elif isMaxPrice or isPeak or (priceFalling) %}
-                  {%-set temp =  temp - 1 -%}
+            {%-set pricedifference = states.sensor.pricespike.state | float %}       
+            {%-set tempcorrection = 1 %}       
+            {% if pricedifference > 1%}
+            {%-set tempcorrection = 2 %}       
+            {% endif %}
+            {% if isHeating and pricedifference > 0.1%} 
+              {% if (priceGaining and isPeak == false) %}
+                  {%-set temp =  temp + tempcorrection -%}
+              {% elif isMaxPrice or isPeak or priceFalling %}
+                  {%-set temp =  temp - tempcorrection -%}
               {% endif %}
             {% endif %}
             {{temp | float}}
@@ -94,7 +99,7 @@ temperaturecontrol:
               {% else %}
                 {%-set temp = [15, borteTemp - (float(states.sensor.distancefromhome.state)/10) | round(0)] | max -%} 
               {% endif %}  
-              {%-set temp = temp | float + states.sensor.pricecorrection.state | float -%}   
+              {%-set temp = temp | float + states.sensor.pricecorrection.state | float -%}                 
               {{temp}}
         tempsenttoheater:
           friendly_name: "Temp Sent To Heater"
@@ -194,8 +199,12 @@ temperaturecontrol:
             {% endif %}        
   binary_sensor:
   - platform: template
-    scan_interval: 10
+    scan_interval: 3600
     sensors:
+      islowprice:
+          friendly_name: 'Is Low Price'
+          value_template: >-
+            {{states.sensor.nordpool.attributes['low price'] == true}}    
       pricerelativycheap:
         friendly_name: 'price Relativy Cheap'
         value_template: >-

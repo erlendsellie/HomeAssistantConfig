@@ -12,9 +12,12 @@ upstairsdoors:
       entity_id: binary_sensor.tyradoorleftopen
       to: 'on'
     condition:
-      condition: state
-      entity_id: person.caroline
-      state: 'home'
+      - condition: state
+        entity_id: person.caroline
+        state: 'home'
+      - condition: numeric_state
+        entity_id: sensor.ute_temperature
+        below: 3        
     action:
       repeat:
         while:

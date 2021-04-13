@@ -150,9 +150,12 @@
   #   # Matches every hour at 5 minutes past whole
   #   minutes: 5
   condition:
-    condition: time
-    after: '19:00:00'
-    before: '05:00:00'
+    - condition: time
+      after: '19:00:00'
+      before: '05:00:00'
+    - condition: state
+      entity_id: lock.ytterdor
+      state: 'unlocked'
   action:    
   - service: homeassistant.turn_on
     entity_id: script.lockdoor  
@@ -780,6 +783,7 @@
         message: Garage closed since it was open when Armed Home.
 
 - alias: RunVacuumAtNight
+  mode: single
   trigger:
   - entity_id: input_select.alarm
     platform: state
@@ -802,7 +806,8 @@
       fan_speed: Silent
   - service: vacuum.start
     entity_id: vacuum.xiaomi_vacuum_cleaner  
-
+  - delay:
+      hours: 5
 
 - alias: updateMailToday
   trigger:

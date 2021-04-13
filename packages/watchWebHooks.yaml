@@ -2,6 +2,7 @@ watchwebhooks:
   automation:
   #Slå av lys
   - alias: 'Watch12'
+    id: 'Watch12'
     trigger:
       platform: webhook
       webhook_id: !secret watch12

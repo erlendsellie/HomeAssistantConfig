@@ -1013,9 +1013,14 @@
       to: 'idle'
       for:
         minutes: 20
-  condition:
-    - condition: template
-      value_template: "{{states.sensor.shieldapp.state != 'no.nrk.tv'}}"
+    - platform: state
+      entity_id: media_player.nvidia_shield
+      to: 'standby'
+      for:
+        minutes: 20
+  # condition:
+  #   - condition: template
+  #     value_template: "{{states.sensor.shieldapp.state != 'no.nrk.tv'}}"
   action:
   - service: notify.me
     data:
@@ -1221,6 +1226,9 @@
 
 - alias: BedroomChromecastNotPlaying
   trigger:
+    - platform: state
+      entity_id: binary_sensor.bed_tv_idle
+      to: 'on'
     - platform: state
       entity_id: media_player.bedroom
       to: 'off'

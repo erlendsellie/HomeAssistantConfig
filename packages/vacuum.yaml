@@ -30,6 +30,8 @@ vacuum_xiaomi:
         state: 'off'      
       - condition: template
         value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+      - condition: time
+        after: '12:00:00'        
     action:
       - service: vacuum.stop
         entity_id: vacuum.xiaomi_vacuum_cleaner
@@ -48,7 +50,7 @@ vacuum_xiaomi:
   - alias: VaccumJustEmptiedNot
     trigger:
       - platform: time
-        at: '13:00:00'
+        at: '12:00:00'
     condition:
       - condition: state
         entity_id: input_boolean.vacuum_just_emptied

@@ -635,12 +635,7 @@
         entity_id: binary_sensor.motion_driveway
         to: 'off'
         for:
-          minutes: 15
-      - platform: state
-        entity_id: light.driveway
-        to: 'on'
-        for:
-          minutes: 60
+          minutes: 5
       - platform: state
         entity_id: light.driveway
         to: 'on'
@@ -650,8 +645,13 @@
         entity_id: light.driveway
         to: 'on'
         for:
+          minutes: 20
+      - platform: state
+        entity_id: light.driveway
+        to: 'on'
+        for:
           minutes: 45                    
-    timeout: '00:30:00'
+    timeout: '01:30:00'
     continue_on_timeout: false
   - condition: state
     entity_id: binary_sensor.motion_driveway

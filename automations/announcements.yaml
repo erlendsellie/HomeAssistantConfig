@@ -913,9 +913,6 @@
     at: '11:00:00'  
   condition:
     - condition: state
-      entity_id: person.erlend
-      state: 'home'
-    - condition: state
       entity_id: binary_sensor.mailtoday
       state: 'on'      
   action:
@@ -930,5 +927,3 @@
     data_template:
       variables:
         message: 'Post leveres i dag'
-  
-    

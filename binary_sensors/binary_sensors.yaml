@@ -96,8 +96,15 @@
       upstairstairs:
         device_class: opening
         value_template: "{{states.binary_sensor.grind_oppe.state == 'on' and states.binary_sensor.trym_home.state == 'on' and states.input_boolean.trymasleep.state == 'on'}}"
-
-
+      bed_tv_idle:
+        friendly_name: 'Bed TV Idle'
+        value_template:  >-
+              {{(states.media_player.bedroom.state == 'idle' or 
+              states.media_player.bedroom.state == 'paused' or 
+              states.media_player.bedroom.state == 'off')
+              and states.media_player.tv_soverommet == 'on'}}
+        delay_on:
+          minutes: 10
 
 
 

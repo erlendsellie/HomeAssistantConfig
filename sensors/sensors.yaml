@@ -62,6 +62,13 @@
   force_update: true
   unit_of_measurement: USD
 
+- platform: scrape
+  name: 'THETA'
+  resource: 'https://coinmarketcap.com/currencies/theta/'
+  select: 'div.priceValue___11gHJ'
+  value_template: "{{value.split('$')[1] | float}}"
+  unit_of_measurement: USD
+
 - platform: command_line
   command: >-
     curl 'https://www.posten.no/levering-av-post-2020/_/component/main/1/leftRegion/1?postCode=7072' \
@@ -294,12 +301,12 @@
 #   select: 'span.C\(\$primaryColor\).Fz\(24px\).Fw\(b\)'
 #   #select: '#quote-header-info > div.My\(6px\).Pos\(r\).smartphone_Mt\(6px\) > div > p > span.C\(\$primaryColor\).Fz\(24px\).Fw\(b\)'
 
-- platform: scrape
-  name: 'GME Scrape'
-  resource: 'https://finance.yahoo.com/quote/GME/'
-  select: '#quote-header-info > div.My\(6px\).Pos\(r\).smartphone_Mt\(6px\) > div.D\(ib\).Va\(m\).Maw\(65\%\).Ov\(h\) > div > span.Trsdu\(0\.3s\).Fw\(b\).Fz\(36px\)'
-  unit_of_measurement: USD
-  value_template: "{{ value | float }}" 
+# - platform: scrape
+#   name: 'GME Scrape'
+#   resource: 'https://finance.yahoo.com/quote/GME/'
+#   select: '#quote-header-info > div.My\(6px\).Pos\(r\).smartphone_Mt\(6px\) > div.D\(ib\).Va\(m\).Maw\(65\%\).Ov\(h\) > div > span.Trsdu\(0\.3s\).Fw\(b\).Fz\(36px\)'
+#   unit_of_measurement: USD
+#   value_template: "{{ value | float }}" 
 
   #Automation changes input based on this, then light follows input?
 - platform: template
@@ -385,9 +392,6 @@
     ebattery:
       unit_of_measurement: "%"
       value_template: "{{ states.device_tracker.life360_erlend_sellie.attributes.battery}}"
-    cbattery:
-      unit_of_measurement: "%"
-      value_template: "{{ states.device_tracker.life360_caroline_winge.attributes.battery}}"
     wear_battery:
       unit_of_measurement: "%"
       friendly_name: "Wear Battery"

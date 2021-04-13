@@ -245,7 +245,7 @@
       - condition: template
         value_template: >-
           {%- set threshold = 30 -%}
-          {%- for item in states.sensor if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int < threshold) or ("battery" in item.name | lower and ((item.state | int < threshold and item.state|int != 0) or item.state | lower == "low" )) -%}
+          {%- for item in states.sensor if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int < threshold) or ("battery" in item.name | lower and ("body" not in item.name) and ((item.state | int < threshold and item.state|int != 0) or item.state | lower == "low" )) -%}
           {%- if loop.first -%}
           {{ true }}
           {%- endif -%}
@@ -276,7 +276,7 @@
           {%- if loop.first -%}
           The following devices have low battery levels:
           {%- endif -%}
-          {%- for item in domain if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int < threshold) or ("battery" in item.name | lower and ((item.state | int < threshold and item.state|int != 0) or item.state | lower == "low" )) -%}
+          {%- for item in domain if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int < threshold) or ("battery" in item.name | lower and ("body" not in item.name) and ((item.state | int < threshold and item.state|int != 0) or item.state | lower == "low" )) -%}
           {%- if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int < threshold) and item.attributes.battery_level != 'unknown' %}
           {{ item.name }} ({{ item.attributes['battery_level'] }}),
           {% endif -%}
