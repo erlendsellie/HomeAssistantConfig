@@ -662,17 +662,15 @@
     entity_id: light.driveway
     
 - alias: TurnOnGarageLight 
+  id: TurnOnGarageLight 
   mode: restart #parallel single queued
   trigger:
   - platform: state
-    entity_id: binary_sensor.motion_driveway
-    to: 'on'
-  - platform: state
     entity_id: cover.garage_door
-    to: 'on'
+    to: 'open'
   - platform: state
     entity_id: binary_sensor.motion_garage
-    to: 'on'        
+    to: 'on'
   action:
   - service: light.turn_on
     entity_id: 
@@ -684,4 +682,4 @@
         for:
           minutes: 5
   - service: light.turn_off
-    entity_id: light.driveway
+    entity_id: light.garage

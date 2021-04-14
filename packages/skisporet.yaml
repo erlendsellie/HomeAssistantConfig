@@ -1,20 +1,25 @@
 skisporet:
+#https://github.com/Olen/home-assistant-skisporet
   sensor:
     - platform: skisporet
       name: Saupstad-Smistad
-      url: https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11652/1616242687915/34466777/63.36159763799884/10.308523178100588
+      track_id: 11652
 
     - platform: skisporet
       name: Kartet
-      url: https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11651/1616320573093/37551208/63.37452498429685/10.282602310180664
+      track_id: 11651
 
     - platform: skisporet
       name: Langmyra
-      url:  https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/39968/1616320609476/37677733/63.243443901156674/10.388088226318361
+      track_id:  39968
 
     - platform: skisporet
       name: Saupstad-Granasen
-      url: https://skisporet.no/trackstatus/trackstatuspopup:StatusWithRouteInTabsHtml/11899/1616395385048/36134208/63.370389635723555/10.330066680908205
+      track_id: 11899
+
+    - platform: skisporet
+      name: Henriksasen
+      track_id: 12015
 
   binary_sensor:
   - platform: template
