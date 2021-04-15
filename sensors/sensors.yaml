@@ -9,7 +9,8 @@
   VAT: True
   # What currency the api fetches the prices in
   # this is only need if you want a sensor in a non local currecy
-  currency: "NOK"
+  #currency: "NOK"
+  currency: "EUR"
   # Helper so you can set your "low" price
   # low_price = hour_price < average * low_price_cutoff
   # What power regions your are interested in.

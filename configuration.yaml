@@ -184,7 +184,7 @@ wake_on_lan:
 
 recorder:
   db_url: !secret db_url
-  purge_keep_days: 10
+  purge_keep_days: 3
   exclude:
     entities:
       # - sensor.real_time_consumption_sivert_thonstads_vei_6b

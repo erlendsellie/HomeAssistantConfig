@@ -39,7 +39,12 @@ vacuum_xiaomi:
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_goto_target
-          params: [25000,32800]  
+          params: [30400,22600]  
+      # - service: vacuum.send_command
+      #   data:
+      #     entity_id: vacuum.xiaomi_vacuum_cleaner
+      #     command: app_goto_target
+      #     params: [25000,32800]  
       - service: homeassistant.turn_on
         entity_id: input_boolean.vacuum_just_emptied
       - service: script.turn_on
