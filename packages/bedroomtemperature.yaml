@@ -1,0 +1,79 @@
+bedroomtemperature:
+  automation:
+    - alias: Trym Temp High at Noon
+      id: trymtemphigh
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.trymtemphigh
+          to: 'on'
+      action:
+      - service: script.turn_on
+        entity_id: script.notifyhome
+        data_template:
+          variables:
+            title: Temperaturen på rommet til Trym er {{states.sensor.trym_temp.state}}
+            message: Vurder å åpne vinduet for å lufte litt
+
+
+    - alias: Tyra Temp High at Noon
+      id: tyratemphigh
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.tyratemphigh
+          to: 'on'
+      action:
+      - service: script.turn_on
+        entity_id: script.notifyhome
+        data_template:
+          variables:
+            title: Temperaturen på rommet til Tyra er {{states.sensor.tyra_temp.state}}
+            message: Vurder å åpne vinduet for å lufte litt
+
+
+    - alias: Bedroom Temp High at Noon
+      id: bedroomtemphigh
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.bedroomtemphigh
+          to: 'on'
+      action:
+      - service: script.turn_on
+        entity_id: script.notifyhome
+        data_template:
+          variables:
+            title: Temperaturen på rommet til Tyra er {{states.sensor.temp_bedroom.state}}
+            message: Vurder å åpne vinduet for å lufte litt
+
+
+
+  binary_sensor:
+    - platform: template
+      scan_interval: 10
+      sensors:
+        trymtemphigh:
+          friendly_name: 'Trym Temp High'
+          value_template: >-
+            {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
+            {%-set hour = time.split(':')[0] | float -%}
+            {%-set home = states.input_select.alarm.state == 'Disarm'%}
+            {%-set windowclosed = states.binary_sensor.trym_window.state == 'off'%}
+            {%-set trymtemp = states.sensor.trym_temp.state | float %}
+            {{home and windowclosed and (hour > 17) and (trymtemp > 20)}}      
+        tyratemphigh:
+          friendly_name: 'Tyra Temp High'
+          value_template: >-
+            {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
+            {%-set hour = time.split(':')[0] | float -%}
+            {%-set home = states.input_select.alarm.state == 'Disarm'%}
+            {%-set windowclosed = states.binary_sensor.tyra_window.state == 'off'%}
+            {%-set tyratemp = states.sensor.tyra_temp.state | float %}
+            {{home and windowclosed and (hour > 17) and (tyratemp > 20)}}
+        bedroomtemphigh:
+          friendly_name: 'Bedroom Temp High'
+          value_template: >-
+            {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
+            {%-set hour = time.split(':')[0] | float -%}
+            {%-set home = states.input_select.alarm.state == 'Disarm'%}
+            {%-set windowclosed = states.binary_sensor.bedroom_window.state == 'off'%}
+            {%-set temp = states.sensor.temp_bedroom.state | float %}
+            {{home and windowclosed and (hour > 17) and (temp > 19)}}            

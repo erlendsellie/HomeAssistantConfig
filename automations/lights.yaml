@@ -608,78 +608,22 @@
 
 
 - alias: TurnOnDriveWayLight 
+  id: turnOnDrivewayLight
   mode: restart #parallel single queued
   trigger:
   - platform: state
-    entity_id: binary_sensor.motion_driveway
-    to: 'on'
-  - platform: state
-    entity_id: binary_sensor.hoveddor
-    to: 'on'
-  - platform: state
-    entity_id: cover.garage_door
-    to: 'on'
-  - platform: state
-    entity_id: binary_sensor.front_door_motion
-    to: 'on'        
-  condition:
-  # Somewhat before the sun sets.
-    - condition: template
-      value_template: "{{ states.sun.sun.attributes.elevation < 0}}"
+    entity_id: binary_sensor.drivewaylightshouldbeon
   action:
-  - service: light.turn_on
+  - service: light.turn_{{trigger.to_state.state}}
     entity_id: 
       - light.driveway
-  - wait_for_trigger:
-      - platform: state
-        entity_id: binary_sensor.motion_driveway
-        to: 'off'
-        for:
-          minutes: 5
-      - platform: state
-        entity_id: light.driveway
-        to: 'on'
-        for:
-          minutes: 30
-      - platform: state
-        entity_id: light.driveway
-        to: 'on'
-        for:
-          minutes: 20
-      - platform: state
-        entity_id: light.driveway
-        to: 'on'
-        for:
-          minutes: 45                    
-    timeout: '01:30:00'
-    continue_on_timeout: false
-  - condition: state
-    entity_id: binary_sensor.motion_driveway
-    state: 'off'
-    for:
-      minutes: 10
-  - service: light.turn_off
-    entity_id: light.driveway
     
 - alias: TurnOnGarageLight 
   id: TurnOnGarageLight 
   mode: restart #parallel single queued
   trigger:
   - platform: state
-    entity_id: cover.garage_door
-    to: 'open'
-  - platform: state
-    entity_id: binary_sensor.motion_garage
-    to: 'on'
+    entity_id: binary_sensor.garagelightshouldbeon
   action:
-  - service: light.turn_on
-    entity_id: 
-      - light.garage
-  - wait_for_trigger:
-      - platform: state
-        entity_id: binary_sensor.motion_garage
-        to: 'off'
-        for:
-          minutes: 5
-  - service: light.turn_off
+  - service: light.turn_{{trigger.to_state.state}}
     entity_id: light.garage

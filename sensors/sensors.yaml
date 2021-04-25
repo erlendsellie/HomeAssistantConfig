@@ -9,8 +9,8 @@
   VAT: True
   # What currency the api fetches the prices in
   # this is only need if you want a sensor in a non local currecy
-  #currency: "NOK"
-  currency: "EUR"
+  currency: "NOK"
+  #currency: "EUR"
   # Helper so you can set your "low" price
   # low_price = hour_price < average * low_price_cutoff
   # What power regions your are interested in.
@@ -392,7 +392,7 @@
         {% endif %}
     ebattery:
       unit_of_measurement: "%"
-      value_template: "{{ states.device_tracker.life360_erlend_sellie.attributes.battery}}"
+      value_template: "{{ states.sensor.oneplus_battery_level.state}}"
     wear_battery:
       unit_of_measurement: "%"
       friendly_name: "Wear Battery"

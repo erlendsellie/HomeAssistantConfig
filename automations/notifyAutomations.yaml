@@ -395,10 +395,10 @@
 - alias: incall
   trigger:
     - platform: state
-      entity_id: sensor.erlend_app_audio_mode
+      entity_id: sensor.oneplus_audio_mode
       to: 'in_communication'
     - platform: state
-      entity_id: sensor.erlend_app_audio_mode
+      entity_id: sensor.oneplus_audio_mode
       to: 'in_call'
   action:
     - choose:
@@ -419,7 +419,7 @@
             color_name: red
         - wait_for_trigger:
           - platform: state
-            entity_id: sensor.erlend_app_audio_mode 
+            entity_id: sensor.oneplus_audio_mode 
             to: 'normal'
           timeout: '02:00:00'
           continue_on_timeout: true
@@ -445,7 +445,7 @@
           entity_id: media_player.nvidia_shield
         - wait_for_trigger:
           - platform: state
-            entity_id: sensor.erlend_app_audio_mode 
+            entity_id: sensor.oneplus_audio_mode 
             to: 'normal'
           timeout: '02:00:00'
           continue_on_timeout: true

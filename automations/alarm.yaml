@@ -38,12 +38,12 @@
     - condition: template
       value_template: "{{ states.cover.garage_door.state  == 'open'}}" #Maybe add garage not occupied?
   action:
-  - service: notify.mobile_app_erlend_app
-    data_template:
-      title: Garage closed since since movement not detected.
-      message: Garage closed since since movement not detected.
-      data:
-        image: 'https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}'
+  # - service: notify.mobile_app_erlend_app
+  #   data_template:
+  #     title: Garage closed since since movement not detected.
+  #     message: Garage closed since since movement not detected.
+  #     data:
+  #       image: 'https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}'
   - service: cover.close_cover
     entity_id: cover.garage_door
   # - service: notify.mobile_app_erlend_app
@@ -152,7 +152,7 @@
   condition:
     - condition: time
       after: '19:00:00'
-      before: '05:00:00'
+      before: '08:00:00'
     - condition: state
       entity_id: lock.ytterdor
       state: 'unlocked'
@@ -305,12 +305,12 @@
         {{ (states.binary_sensor.motion_driveway.state == 'off')
         and 
         ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 1}}
-  - service: notify.mobile_app_erlend_app
-    data_template:
-      title: Garage closed since someone left.
-      message: Garage closed since someone left.
-      data:
-        image: 'https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}'
+  # - service: notify.mobile_app_erlend_app
+  #   data_template:
+  #     title: Garage closed since someone left.
+  #     message: Garage closed since someone left.
+  #     data:
+  #       image: 'https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}'
   - service: cover.close_cover
     entity_id: cover.garage_door
 
@@ -388,7 +388,7 @@
   trigger:
     platform: state
     entity_id:
-      - binary_sensor.smoke_office
+      - binary_sensor.smoke_kontoret
       - binary_sensor.smoke_stua
       - binary_sensor.smoke_stua_2
       - binary_sensor.smoke_loftet
@@ -407,7 +407,7 @@
   trigger:
     platform: state
     entity_id:
-      - binary_sensor.smoke_office
+      - binary_sensor.smoke_kontoret
       - binary_sensor.smoke_stua
       - binary_sensor.smoke_stua_2
       - binary_sensor.smoke_loftet
@@ -422,7 +422,7 @@
   trigger:
     platform: state
     entity_id:
-      - binary_sensor.smoke_office
+      - binary_sensor.smoke_kontoret
       - binary_sensor.smoke_stua
       - binary_sensor.smoke_stua_2
       - binary_sensor.smoke_loftet
@@ -444,7 +444,7 @@
   alias: 3D-Printer on fire
   trigger:
     platform: state
-    entity_id: binary_sensor.smoke_office
+    entity_id: binary_sensor.smoke_kontoret
     to: 'on'
   action:
   - service: switch.turn_off
@@ -590,12 +590,12 @@
   action:
   - service: cover.close_cover
     entity_id: cover.garage_door
-  - service: script.turn_on
-    entity_id: script.notify
-    data_template:
-      variables:
-        title: Garage closed because Armed away.
-        message: Garage closed because Armed away.
+  # - service: script.turn_on
+  #   entity_id: script.notify
+  #   data_template:
+  #     variables:
+  #       title: Garage closed because Armed away.
+  #       message: Garage closed because Armed away.
 
 - id: Turnalarmaway10seconds
   alias: Turn Alarm Away After 10 seconds
@@ -775,12 +775,12 @@
   action:
   - service: cover.close_cover
     entity_id: cover.garage_door
-  - service: script.turn_on
-    entity_id: script.notify
-    data_template:
-      variables:
-        title: Garage closed since it was open when Armed Home.
-        message: Garage closed since it was open when Armed Home.
+  # - service: script.turn_on
+  #   entity_id: script.notify
+  #   data_template:
+  #     variables:
+  #       title: Garage closed since it was open when Armed Home.
+  #       message: Garage closed since it was open when Armed Home.
 
 - alias: RunVacuumAtNight
   mode: single
@@ -911,6 +911,9 @@
       option: "{{states.sensor.alarm.state}}"
   - service: lock.lock
     entity_id: lock.ytterdor
+    data:
+      code: !secret lock_code
+
   - service: notify.me
     data:
       title: 'door unlocked'

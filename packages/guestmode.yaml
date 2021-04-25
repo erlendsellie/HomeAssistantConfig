@@ -12,6 +12,8 @@ guestmode:
       - service: lock.lock
         data:
           entity_id: lock.ytterdor
+          code: !secret lock_code
+
       - entity_id: script.alllightsoff
         service: homeassistant.turn_on
       - entity_id: script.alllightsoff
@@ -35,6 +37,8 @@ guestmode:
       - service: lock.lock
         data:
           entity_id: lock.ytterdor
+          code: !secret lock_code
+
 
 
     - alias: Guestmode Notify Movement

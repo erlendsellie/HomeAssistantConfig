@@ -35,11 +35,8 @@ vacuum_xiaomi:
     action:
       - service: vacuum.stop
         entity_id: vacuum.xiaomi_vacuum_cleaner
-      - service: vacuum.send_command
-        data:
-          entity_id: vacuum.xiaomi_vacuum_cleaner
-          command: app_goto_target
-          params: [30400,22600]  
+      - service: script.turn_on
+        entity_id: script.sendvacuumtokitchen
       # - service: vacuum.send_command
       #   data:
       #     entity_id: vacuum.xiaomi_vacuum_cleaner

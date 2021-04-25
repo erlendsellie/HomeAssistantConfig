@@ -48,7 +48,6 @@ watchwebhooks:
             - condition: state
               entity_id: input_boolean.guestmode
               state: 'off'
-        
           sequence:
           - service: light.turn_on
             entity_id: light.office_light, light.play
@@ -259,8 +258,13 @@ watchwebhooks:
             entity_id: input_boolean.easleep
             state: 'off'
           sequence:
-          - service: media_player.media_play_pause
-            entity_id: media_player.nvidia_shield
+          # - service: media_player.media_play_pause
+          #   entity_id: media_player.nvidia_shield
+            - service: androidtv.adb_command
+              data: 
+                entity_id: media_player.nvidia_shield
+                command: 'CENTER'
+
 
 
   - alias: 'WatchRightBattery'

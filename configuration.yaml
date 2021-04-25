@@ -192,8 +192,8 @@ recorder:
       - sensor.time_date
       - sensor.time_utc  
       - sensor.time
-      - sensor.erlend_app_last_removed_notification
-      - sensor.erlend_app_last_notification
+      - sensor.oneplus_last_removed_notification
+      - sensor.oneplus_last_notification
       #Maria DB Addon Config
       # databases:
       #   - homeassistant

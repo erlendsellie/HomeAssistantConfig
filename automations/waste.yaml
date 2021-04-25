@@ -11,7 +11,7 @@
       - conditions:
           - condition: state
             entity_id: sensor.restavfall
-            state: "Denne uken"
+            state: "I dag"
         sequence:
           - service: script.turn_on
             entity_id: script.say
@@ -35,7 +35,7 @@
       - conditions:
           - condition: state
             entity_id: sensor.papir
-            state: "Denne uken"
+            state: "I dag"
         sequence:
           - service: script.turn_on
             entity_id: script.say
@@ -68,7 +68,7 @@
       - conditions:
           - condition: state
             entity_id: sensor.plastemballasje
-            state: "Denne uken"
+            state: "I dag"
         sequence:
           - service: script.turn_on
             entity_id: script.say

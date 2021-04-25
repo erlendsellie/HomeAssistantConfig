@@ -65,7 +65,7 @@
     smokesensors:
       name: smoke sensors
       entities:
-        - binary_sensor.smoke_office
+        - binary_sensor.smoke_kontoret
         - binary_sensor.smoke_stua
         - binary_sensor.smoke_stua_2
         - binary_sensor.smoke_loftet

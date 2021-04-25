@@ -258,15 +258,26 @@
   - platform: state
     entity_id: binary_sensor.eprobablyasleep
     to: 'on'
-  # condition:
-  #   condition: and
-  #   conditions:
-  #   - condition: time
-  #     after: '21:00:00'
-  #     before: '06:00:00'
+  condition:
+    condition: and
+    conditions:
+    - condition: time
+      after: '21:00:00'
+      before: '06:00:00'
   action:
   - service: homeassistant.turn_on
     entity_id: input_boolean.easleep 
+  - service: script.turn_on
+    entity_id: script.notify
+    data_template:
+      variables:
+        message: You are asleep!
+  # - wait_for_trigger:
+  #     - platform: state
+  #       entity_id: binary_sensor.eprobablyasleep
+  #       to: 'off'
+  #   timeout: '13:00:00'
+  #   continue_on_timeout: false
 
 - alias: 'ErlendAwakeByConfidence'
   id: 'ErlendAwakeByConfidence'
@@ -281,6 +292,11 @@
   action:
   - service: homeassistant.turn_off
     entity_id: input_boolean.easleep
+  - service: script.turn_on
+    entity_id: script.notify
+    data_template:
+      variables:
+        message: You are awake!
 
 
 - alias: 'ErlendAsleepWebhook'

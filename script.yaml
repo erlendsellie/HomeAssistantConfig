@@ -582,12 +582,18 @@ lockdoor:
   sequence:
     - service: lock.lock
       entity_id: lock.ytterdor
+      data:
+        code: !secret lock_code
+
     
 unlockdoor:
   alias: 'Unlock door'
   sequence:
     - service: lock.unlock
       entity_id: lock.ytterdor
+      data:
+        code: !secret lock_code
+
     # - service: alarm_control_panel.alarm_disarm
     #   data:
     #     entity_id: alarm_control_panel.hjemme_alarm
@@ -1527,7 +1533,7 @@ sendvacuumtokitchen:
       data:
         entity_id: vacuum.xiaomi_vacuum_cleaner
         command: app_goto_target
-        params: [25000,32800]  
+        params: [30450,23050]
 
 dockvacuum:
   alias: 'Send Svetlana to Dock'
