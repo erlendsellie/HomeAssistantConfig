@@ -11,23 +11,32 @@ living_room_tags:
           variables:
             message: brikke scannet!
 
-
-      # - service: media_extractor.play_media
-      #   entity_id: media_player.shield
-      #   media_content_type: video
-      #   media_content_id: 'https://www.youtube.com/watch?v=EwhFNvfNVPk&t=117s'
-
+    # - service: media_extractor.play_media
+    #   data:
+    #     entity_id: media_player.shield
+    #     media_content_id: "https://www.youtube.com/watch?v=84AJflQ8YRc"
+    #     media_content_type: video/youtube
 
   - alias: PepppaPigLivingRoom
     trigger:
       platform: tag
       tag_id: peppa_pig
     action:
-    - service: media_extractor.play_media
+    - service: media_player.turn_on
+      data: 
+        entity_id: media_player.nvidia_shield
+    - service: media_player.select_source
+      data: 
+        entity_id: media_player.nvidia_shield
+        source: 'Plex'
+    - delay:
+        seconds: 2
+    - service: media_player.play_media
       data:
-        entity_id: media_player.shield
-        media_content_id: "https://www.youtube.com/watch?v=84AJflQ8YRc"
-        media_content_type: video/youtube
+        media_content_type: playlist
+        media_content_id: '{ "playlist_name": "Peppa Pig", "shuffle": "1" }'
+      target:
+        entity_id: media_player.plex_plex_for_android_tv_shield_android_tv
 
 
   - alias: MusikkTrymLivingRoom
@@ -38,7 +47,11 @@ living_room_tags:
       - service: media_player.select_source
         data:
           source: SHIELD
-          entity_id: media_player.spotify_erlend_sellie    
+          entity_id: media_player.spotify_erlend_sellie
+      - service: media_player.shuffle_set
+        data: 
+          entity_id: media_player.spotify_erlend_sellie
+          shuffle: true
       - service: media_player.play_media
         target:
           entity_id: media_player.spotify_erlend_sellie

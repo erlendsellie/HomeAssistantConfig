@@ -57,6 +57,7 @@ temperaturecontrol:
             {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
             {%-set isMaxPrice = states.binary_sensor.ismaxprice.state == 'on' -%}
             {%-set isPeak = states.binary_sensor.pricerelativycheap.state == 'off' -%}
+            {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
             {%-set minPrice = states.sensor.nordpool.attributes.min | float -%}
             {%-set price = states.sensor.nordpool.state | float -%}
             {%-set isMinPrice = minPrice == price -%}
@@ -64,10 +65,10 @@ temperaturecontrol:
             {%-set pricedifference = states.sensor.pricespike.state | float %}       
             {%-set tempcorrection = 1 %}       
             {% if pricedifference > 1%}
-            {%-set tempcorrection = 2 %}       
+              {%-set tempcorrection = 2 %}       
             {% endif %}
             {% if isHeating and pricedifference > 0.1%} 
-              {% if (priceGaining and isPeak == false) %}
+              {% if (priceGaining and isLowPrice == on) %}
                   {%-set temp =  temp + tempcorrection -%}
               {% elif isMaxPrice or isPeak or priceFalling %}
                   {%-set temp =  temp - tempcorrection -%}

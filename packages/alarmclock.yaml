@@ -153,6 +153,7 @@ alarmclock:
           entity_id: light.bedroomlights
           data:
             brightness_pct: 100
+            transition: 100
         - service: media_player.play_media
           data:
             entity_id: media_player.clock
