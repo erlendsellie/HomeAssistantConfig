@@ -334,6 +334,43 @@
         - delay:
             minutes: 4
 
+- alias: GrindAndDoorOpen
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.hoveddor
+      to: 'on'
+  condition:
+    - condition: state
+      entity_id: binary_sensor.grind
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.tyraasleep
+      state: 'off'
+  action:
+    - service: script.turn_on
+      entity_id: script.notifyhome
+      data_template:
+        variables:
+          title: Grinda og hoveddøra 
+          message: er åpen!
+    - service: media_player.volume_set
+      data_template:
+        entity_id: media_player.minis
+        volume_level: 0.4
+    - service: media_player.play_media
+      data:
+        entity_id: media_player.minis 
+        media_content_id: https://sivert.duckdns.org/local/sounds/BOTW_Fanfare_Item.wav
+        media_content_type: 'music'
+    - delay:
+        seconds: 3      
+    - service: media_player.volume_set
+      data_template:
+        entity_id: media_player.minis
+        volume_level: "{{states.sensor.speakervolume.state}}"
+
+
+
 
 - alias: GrindOppeOpenFor5minutes
   trigger:
@@ -910,7 +947,7 @@
 - alias: MailTodayNotify
   trigger:
   - platform: time
-    at: '11:00:00'  
+    at: '13:00:00'
   condition:
     - condition: state
       entity_id: binary_sensor.mailtoday

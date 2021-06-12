@@ -616,7 +616,8 @@
   - service: vacuum.set_fan_speed
     entity_id: vacuum.xiaomi_vacuum_cleaner
     data:
-      fan_speed: Turbo      
+      fan_speed: Silent
+      #fan_speed: Turbo      
   - service: vacuum.start
     entity_id: vacuum.xiaomi_vacuum_cleaner
 
@@ -746,7 +747,6 @@
     entity_id: light.trym_ball 
     data:
       brightness: 1
-  
   - service: script.turn_on
     entity_id: script.say
     data_template:
@@ -1066,7 +1066,7 @@
   - service: media_player.volume_set
     data_template:
       entity_id: media_player.minis
-      volume_level: "0.5"
+      volume_level: "0.3"
   - service: tts.google_say
     entity_id: media_player.minis
     data_template:

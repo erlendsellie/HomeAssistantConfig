@@ -357,42 +357,10 @@
       message: 'Home Assistant på Byåsen er nede!'
 
 
-# - alias: 'MowingOn'
-#   trigger:
-#     platform: state
-#     entity_id: binary_sensor.robot_mowing
-#     to: 'on'
-#   action:
-#   - service: notify.html5_p30
-#     data_template:
-#       message: 'Gressklipper startet'
 
-# - alias: NotMowing
-#   trigger:
-#     - platform: state
-#       entity_id: binary_sensor.robot_charging
-#       to: 'on'
-#       for:
-#         minutes: 180
-#   condition:
-#     condition: and
-#     conditions:
-#     - condition: time
-#       weekday:
-#       - mon
-#       - tue
-#       - wed
-#       - thu
-#       - fri
-#     - condition: time
-#       after: '10:10:00'
-#       before: '17:00:00'
-#   action:
-#     - service: notify.me
-#       data_template:
-#         message: 'Gressklipperen går ikke som planlagt.'
 
 - alias: incall
+  id: incall
   trigger:
     - platform: state
       entity_id: sensor.oneplus_audio_mode
@@ -410,8 +378,8 @@
             entity_id: binary_sensor.motion_downstairs_office
             state: 'on'
         sequence:
-        - service: switch.turn_off
-          entity_id: switch.circadian_lighting_circadian_stua
+        # - service: switch.turn_off
+        #   entity_id: switch.circadian_lighting_circadian_stua
         - service: light.turn_on
           entity_id: light.peis
           data_template:
@@ -423,13 +391,13 @@
             to: 'normal'
           timeout: '02:00:00'
           continue_on_timeout: true
-        - service: light.turn_on
+        - service: light.turn_off
           entity_id: light.peis
-          data_template:
-            brightness_pct: '100'
-            hs_color: "{{states.switch.circadian_lighting_circadian_stua.attributes.hs_color}}"
-        - service: switch.turn_on
-          entity_id: switch.circadian_lighting_circadian_stua
+          # data_template:
+          #   brightness_pct: '100'
+            #hs_color: "{{states.switch.circadian_lighting_circadian_stua.attributes.hs_color}}"
+        # - service: switch.turn_on
+        #   entity_id: switch.circadian_lighting_circadian_stua
       - conditions:
         - condition: state
           entity_id: media_player.nvidia_shield
@@ -437,9 +405,10 @@
         - condition: state
           entity_id: person.erlend
           state: 'home'
-        - condition: state
-          entity_id: input_boolean.trymasleep
-          state: 'on'
+        - condition: template
+          value_template: >-
+            "{{ states.input_boolean.trymasleep.state == 'on'
+            or states.binary_sensor.trym_home.state == 'off' }}"
         sequence:
         - service: media_player.media_pause
           entity_id: media_player.nvidia_shield

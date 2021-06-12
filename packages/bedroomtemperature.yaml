@@ -11,8 +11,13 @@ bedroomtemperature:
         entity_id: script.notifyhome
         data_template:
           variables:
-            title: Temperaturen på rommet til Trym er {{states.sensor.trym_temp.state}}
+            title: Temperaturen til Trym er {{states.sensor.trym_temp.state}}
             message: Vurder å åpne vinduet for å lufte litt
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "Temperaturen til Trym er {{states.sensor.trym_temp.state}}"
 
 
     - alias: Tyra Temp High at Noon
@@ -26,9 +31,13 @@ bedroomtemperature:
         entity_id: script.notifyhome
         data_template:
           variables:
-            title: Temperaturen på rommet til Tyra er {{states.sensor.tyra_temp.state}}
+            title: "Temperaturen til Tyra er {{states.sensor.tyra_temp.state}}"
             message: Vurder å åpne vinduet for å lufte litt
-
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "Temperaturen til Tyra er {{states.sensor.tyra_temp.state}}"
 
     - alias: Bedroom Temp High at Noon
       id: bedroomtemphigh
@@ -41,8 +50,13 @@ bedroomtemperature:
         entity_id: script.notifyhome
         data_template:
           variables:
-            title: Temperaturen på rommet til Tyra er {{states.sensor.temp_bedroom.state}}
+            title: "Temperaturen på Soverommet er {{states.sensor.temp_bedroom.state}}"
             message: Vurder å åpne vinduet for å lufte litt
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "Temperaturen på Soverommet er {{states.sensor.temp_bedroom.state}}"
 
 
 
@@ -58,7 +72,8 @@ bedroomtemperature:
             {%-set home = states.input_select.alarm.state == 'Disarm'%}
             {%-set windowclosed = states.binary_sensor.trym_window.state == 'off'%}
             {%-set trymtemp = states.sensor.trym_temp.state | float %}
-            {{home and windowclosed and (hour > 17) and (trymtemp > 20)}}      
+            {%-set trymawake = states.input_boolean.trymasleep.state == 'off' %}
+            {{trymawake and home and windowclosed and (hour > 17) and (trymtemp > 22)}}      
         tyratemphigh:
           friendly_name: 'Tyra Temp High'
           value_template: >-
@@ -67,7 +82,8 @@ bedroomtemperature:
             {%-set home = states.input_select.alarm.state == 'Disarm'%}
             {%-set windowclosed = states.binary_sensor.tyra_window.state == 'off'%}
             {%-set tyratemp = states.sensor.tyra_temp.state | float %}
-            {{home and windowclosed and (hour > 17) and (tyratemp > 20)}}
+            {%-set tyraawake = states.input_boolean.tyraawake.state == 'off' %}
+            {{tyraawake and home and windowclosed and (hour > 17) and (tyratemp > 22)}}
         bedroomtemphigh:
           friendly_name: 'Bedroom Temp High'
           value_template: >-
@@ -76,4 +92,4 @@ bedroomtemperature:
             {%-set home = states.input_select.alarm.state == 'Disarm'%}
             {%-set windowclosed = states.binary_sensor.bedroom_window.state == 'off'%}
             {%-set temp = states.sensor.temp_bedroom.state | float %}
-            {{home and windowclosed and (hour > 17) and (temp > 19)}}            
+            {{home and windowclosed and (hour > 19) and (temp > 19)}}            

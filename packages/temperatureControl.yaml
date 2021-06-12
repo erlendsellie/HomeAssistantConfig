@@ -20,8 +20,7 @@ temperaturecontrol:
           friendly_name: 'Price spike today'
           value_template: >-
             {%-set nordpool = states.sensor.nordpool -%}
-            {%-set percentThreshold = ((nordpool.attributes.max / nordpool.attributes.min) - 1) * 100 -%}
-            {{(percentThreshold / 2) / 100}}
+            {{nordpool.attributes.max / nordpool.attributes.min - 1}}
         gridprice:
           friendly_name: GridPrice
           unit_of_measurement: "NOK"
@@ -64,12 +63,14 @@ temperaturecontrol:
             {%-set temp =  0 -%}
             {%-set pricedifference = states.sensor.pricespike.state | float %}       
             {%-set tempcorrection = 1 %}       
-            {% if pricedifference > 1%}
+            {% if pricedifference > 0.8%}
               {%-set tempcorrection = 2 %}       
             {% endif %}
             {% if isHeating and pricedifference > 0.1%} 
-              {% if (priceGaining and isLowPrice == on) %}
+              {% if (isLowPrice and priceGaining) %}
                   {%-set temp =  temp + tempcorrection -%}
+              {% elif (isLowPrice and (priceGaining == false or priceFalling == true)) %}
+                  {%-set temp = temp -%}
               {% elif isMaxPrice or isPeak or priceFalling %}
                   {%-set temp =  temp - tempcorrection -%}
               {% endif %}
@@ -158,11 +159,6 @@ temperaturecontrol:
           friendly_name: Power Price
           unit_of_measurement: "W"
           value_template: "{{states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float * 10000}}"
-        averagepower:
-          friendly_name: "Average Power Usage Today"
-          unit_of_measurement: "W"
-          value_template: "{{ states.sensor.real_time_consumption_sivert_thonstads_vei_6b.attributes.averagePower or 0 | float }}"
-
           #{{(priceNow < priceNextHour) and (states.sensor.pricelevel.state != 'EXPENSIVE')}}
         trymtemp:
           friendly_name: "Trym Temp"
@@ -227,10 +223,13 @@ temperaturecontrol:
           {%-set nordpool = states.sensor.nordpool -%}
           {%-set priceNextHour = nordpool.attributes.today[hour+1] or nordpool.attributes.tomorrow[0] | float -%}
           {%-set priceNextNextHour = nordpool.attributes.today[hour + 2] or nordpool.attributes.tomorrow[0] | float -%}
+          {%-set priceNextNextNextHour = nordpool.attributes.today[hour + 3] or nordpool.attributes.tomorrow[0] | float -%}
+          {%-set priceNextNextNextHour = nordpool.attributes.today[hour + 4] or nordpool.attributes.tomorrow[0] | float -%}
           {%-set priceNow = nordpool.attributes.today[hour] | float -%}
           {% set priceGainingNextHour = ((priceNextHour / priceNow)) > percentThreshold  %}
           {% set priceGainingNextNextHour = ((priceNextNextHour / priceNow)) > percentThreshold  %}
-          {{priceGainingNextHour or (priceNextHour and priceGainingNextNextHour)}}
+          {% set priceGainingNextNextNextHour = ((priceNextNextNextHour / priceNow)) > percentThreshold  %}
+          {{priceGainingNextHour or (priceGainingNextNextHour) or (priceGainingNextNextNextHour)}}
       pricefalling:
         friendly_name: 'Price Falling Next Hours'
         value_template: >-

@@ -855,7 +855,7 @@
   mode: restart
   trigger:
     platform: state
-    entity_id: input_number.brightness    
+    entity_id: input_number.brightness
   action:
   - service: light.turn_on
     data_template:
@@ -930,7 +930,7 @@
   alias: Caroline legger seg + 60 min
   trigger:
   - platform: state
-    entity_id: media_player.tv_soverommet
+    entity_id: binary_sensor.bedtvon
     to: 'on'
     for:
       minutes: 60
@@ -974,7 +974,7 @@
     platform: template
     value_template: >- 
       {{states.input_boolean.easleep.state == 'on' and
-        states.media_player.tv_soverommet == 'on'}}
+        states.binary_sensor.bedtvon == 'on'}}
     for:
       minutes: 60
   action:
@@ -1205,12 +1205,12 @@
   alias: bedroomtvonfor120
   trigger:
   - platform: state
-    entity_id: media_player.tv_soverommet
+    entity_id: binary_sensor.bedtvon
     to: 'on'
     for:
       minutes: 120
   - platform: state
-    entity_id: media_player.tv_soverommet
+    entity_id: binary_sensor.bedtvon
     to: 'on'
     for:
       minutes: 240

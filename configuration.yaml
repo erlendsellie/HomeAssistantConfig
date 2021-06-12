@@ -38,7 +38,7 @@ default_config:
 #   token: !secret githubtoken
 #   theme: true
 
-breaking_changes:
+# breaking_changes:
 
 
 logger:
@@ -187,7 +187,7 @@ recorder:
   purge_keep_days: 3
   exclude:
     entities:
-      # - sensor.real_time_consumption_sivert_thonstads_vei_6b
+      # - sensor.power_sivert_thonstads_vei_6b
       # - sensor.consumptionrounded_mean 
       - sensor.time_date
       - sensor.time_utc  
@@ -261,11 +261,11 @@ weather:
 downloader:
   download_dir: downloads
 
-verisure:
-  username: !secret verisure_username
-  password: !secret verisure_password
-  code_digits: !secret verisure_digits
-  default_lock_code: !secret lock_code
+# verisure:
+#   username: !secret verisure_username
+#   password: !secret verisure_password
+#   code_digits: !secret verisure_digits
+#   default_lock_code: !secret lock_code
 
 
 #   #signal_repetitions: 2
@@ -274,8 +274,10 @@ tellstick:
   port: [50800, 50801]
   #nc core-tellstick 50801
 
-tibber:
-  access_token: !secret tibbertoken
+# tibber:
+#   access_token: !secret tibbertoken
+
+
 # plant:
 #   avocado:
 #     sensors:
@@ -438,6 +440,45 @@ light:
   # - platform: hyperion
   #   host: 192.168.1.144
 
+#https://github.com/basnijholt/adaptive-lighting
+adaptive_lighting:
+- name: "adaptive_stua"
+  lights: 
+      - light.tv
+      - light.bed
+      - light.peis       
+      - light.sofa
+  prefer_rgb_color: false
+  transition: 45
+  initial_transition: 1
+  interval: 90
+  min_brightness: 1
+  max_brightness: 100
+  min_color_temp: 2300
+  max_color_temp: 6500
+  sleep_brightness: 1
+  sleep_color_temp: 1000
+  take_over_control: false
+  detect_non_ha_changes: false
+  only_once: false
+
+- name: "adaptive_kontoret"
+  lights: 
+      - light.play
+  prefer_rgb_color: yes
+  transition: 45
+  initial_transition: 1
+  interval: 90
+  min_brightness: 1
+  max_brightness: 100
+  min_color_temp: 2300
+  max_color_temp: 6500
+  sleep_brightness: 1
+  sleep_color_temp: 1000
+  take_over_control: false
+  detect_non_ha_changes: false
+  only_once: false  
+
 
 switch:
   - platform: rest
@@ -486,22 +527,22 @@ switch:
   #     - light.play
 
 
-  - platform: circadian_lighting
-    name: circadian_kontoret
-    disable_brightness_adjust: true
-    lights_ct:
-      - light.play
+  # - platform: circadian_lighting
+  #   name: circadian_kontoret
+  #   disable_brightness_adjust: true
+  #   lights_ct:
+  #     - light.play
 
 
-  - platform: circadian_lighting
-    name: circadian_stua
-    disable_brightness_adjust: true
-    initial_transition: 4
-    lights_ct:
-      - light.tv
-      - light.bed
-      - light.peis       
-      - light.sofa
+  # - platform: circadian_lighting
+  #   name: circadian_stua
+  #   disable_brightness_adjust: true
+  #   initial_transition: 4
+  #   lights_ct:
+  #     - light.tv
+  #     - light.bed
+  #     - light.peis       
+  #     - light.sofa
       #https://github.com/claytonjn/hass-circadian_lighting/wiki/Advanced-Configuration#switch-configuration-variables
 
 
@@ -537,11 +578,12 @@ switch:
 #     - host: 192.168.1.251
 #       #Chromecast Ultra living
 #     - host: 192.168.1.146
-circadian_lighting:
-  # sunrise_time: '09:30:00'
-  # sunset_time: '19:00:00'
-  min_colortemp: 2300
-  max_colortemp: 6500
+
+# circadian_lighting:
+#   # sunrise_time: '09:30:00'
+#   # sunset_time: '19:00:00'
+#   min_colortemp: 2300
+#   max_colortemp: 6500
 
 # coinbase:
 #   api_key: !secret coinbase_client_id

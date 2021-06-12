@@ -462,7 +462,8 @@ alarmtriggered:
           if states(entity_id) == 'on' -%}
           {% set parts = entity_id.split('.') -%}
           {{ states[parts[0]][parts[1]].name }} er åpen ,
-          {%- endfor %}  - service: vacuum.set_fan_speed
+          {%- endfor %}
+  - service: vacuum.set_fan_speed
     entity_id: vacuum.xiaomi_vacuum_cleaner
     data:
       fan_speed: Turbo      
@@ -1255,9 +1256,9 @@ playsound:
 playmessageenglish:
   alias: Play Message English
   sequence:
-  - condition: state
-    entity_id: input_boolean.trymasleep
-    state: 'off'
+  # - condition: state
+  #   entity_id: input_boolean.trymasleep
+  #   state: 'off'
   - condition: template
     value_template: "{{ states.media_player.living_room_speaker.state != 'playing'}}"
   - condition: template

@@ -102,9 +102,15 @@
               {{(states.media_player.bedroom.state == 'idle' or 
               states.media_player.bedroom.state == 'paused' or 
               states.media_player.bedroom.state == 'off')
-              and states.media_player.tv_soverommet == 'on'}}
+              and states.media_player.tv_soverommet.state == 'on'}}
         delay_on:
           minutes: 10
+      bedtvon:
+        friendly_name: Bedroom TV is on
+        value_template: >-
+            {{states.media_player.tv_soverommet == 'on'}}
+        delay_off: 
+          minutes: 2
       eprobablyasleep:
         friendly_name: 'Erlend Probably Asleep'
         value_template:  >-
@@ -147,66 +153,7 @@
         friendly_name: "Motion Office"
         device_class: motion
         value_template:  "{{ is_state('switch.soverombevegelse', 'on') }}"     
-      robot_charging:
-        device_class: battery_charging
-        value_template: "{{ is_state('binary_sensor.mower_dock', 'off') }}"
-        friendly_name: "Robot Charging"
-      robot_mowing:
-        friendly_name: "Mowing"
-        device_class: moving
-        delay_on:
-          seconds: 2
-        delay_off:   
-          seconds: 10
-        value_template: >-
-              {{
-              true or 
-              (is_state('binary_sensor.robot_charging', 'off')) 
-              and
-              is_state('switch.mower','on')
-              and
-              ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.vibration.last_changed)) < 200)  
-              or
-              (is_state('binary_sensor.vibration', 'on'))}}
-      robot_problem:
-        device_class: problem
-        value_template:  >-
-                {{(is_state('binary_sensor.robot_charging', 'off')) 
-                and
-                (is_state('binary_sensor.robot_mowing', 'off')) 
-                and
-                (is_state('binary_sensor.vibration', 'off'))
-                and
-                is_state('switch.mower','on')
-                }}
-        friendly_name: "Robot Stuck"    
-      robot_should_stop:
-        friendly_name: "Robot Should Stop"    
-        device_class: power
-        value_template: >-
-            {% set verandaOpen = is_state('binary_sensor.veranda_open','on') or is_state('binary_sensor.veranda','on') or is_state('binary_sensor.garage_backdoor','on') or is_state('binary_sensor.door_downstairs','on')%}
-            {% set isDocked = is_state('binary_sensor.robot_charging','on') %}
-            {% set justRained = is_state('binary_sensor.justrained','on')%}
-            {% set isStuck = is_state('binary_sensor.robot_problem','on')%}
-            {% if isStuck or true %}
-                false
-            {% else %}
-              {% if verandaOpen and isDocked == false %}
-                  true
-              {% else %}
-                {% if justRained and isDocked %}
-                  true
-                {% else %}
-                  false
-                {% endif %}
-              {% endif %}
-            {% endif %}      
-      justrained:
-        friendly_name: "Just Rained"
-        device_class: moisture
-        value_template: "{{states.sensor.netatmo_home_rain_last_hour.state | int > 1}}"
-        delay_off:
-          hours: 5
+
       washing:
         friendly_name: 'Washing'
         device_class: power
@@ -245,9 +192,7 @@
         device_class: occupancy
         delay_off:
           minutes: 2
-        delay_on:
-          minutes: 1
-        value_template: "{{states.sensor.ultrasonic_sensor.state | float < 0.50}}"
+        value_template: "{{states.sensor.ultrasonic_sensor.state | float > 1.0}}"
         icon_template: >
               {% if (state == 'off')%}
               mdi:car-off

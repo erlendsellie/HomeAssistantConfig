@@ -46,7 +46,7 @@ living_room_tags:
     action:
       - service: media_player.select_source
         data:
-          source: SHIELD
+          source: 'Musikk Stua'
           entity_id: media_player.spotify_erlend_sellie
       - service: media_player.shuffle_set
         data: 

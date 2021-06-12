@@ -89,3 +89,13 @@ gametimer:
         #   unit_of_measurement: 'Døgngrader'
         #   value_template: >
         #     {{((states.input_number.gametimer2.state | int / 24)) | round(1)}}
+
+
+  binary_sensor:
+  - platform: template
+    scan_interval: 100000
+    sensors:
+      huntingseason:
+        friendly_name: 'Hunting Season'
+        value_template: >
+            {{states.sensor.date_time.state.split('-')[1] | int > 8 or states.sensor.date_time.state.split('-')[1] | int < 3}}

@@ -49,7 +49,11 @@ garminwebhooks:
           - service: input_number.set_value
             data:
               entity_id: input_number.brightness
-              value: "{{[states.input_number.brightness.state | float + 40, 100] | min}}"
+              value: "{{[[states.input_number.brightness.state | float - 1, 100] | min,0] | max}}"
+          - service: input_number.set_value
+            data:
+              entity_id: input_number.brightness
+              value: "{{[states.input_number.brightness.state | float + 20, 100] | min}}"
           - service: light.turn_on
             entity_id: light.peis
         - conditions:
@@ -97,10 +101,14 @@ garminwebhooks:
           - condition: template
             value_template: "{{ states.input_select.garmincontrol.state == 'Lights'}}"
           sequence:
+          # - service: input_number.set_value
+          #   data:
+          #     entity_id: input_number.brightness
+          #     value: "{{[[states.input_number.brightness.state | float + 1, 0] | max,100] | max}}"
           - service: input_number.set_value
             data:
               entity_id: input_number.brightness
-              value: "{{[states.input_number.brightness.state | float - 40, 0] | max}}"
+              value: "{{[states.input_number.brightness.state | float - 20, 0] | max}}"
         - conditions:
           - condition: template
             value_template: "{{ states.input_select.garmincontrol.state == 'KitchenLights'}}"
@@ -122,7 +130,19 @@ garminwebhooks:
           - condition: template
             value_template: "{{ states.input_select.garmincontrol.state == 'Media'}}"
           sequence:
-            - service: script.notifyblanket
+            #- service: script.notifyblanket
+            - choose:
+              - conditions:
+                - condition: template
+                  value_template: >-
+                      "{{ states.switch.mower.state == 'off' and
+                          states.binary_sensor.robot_charging == 'off'}}"
+                sequence:
+                  - service: switch.toggle
+                    entity_id: switch.mower
+              default:
+                - service: switch.toggle
+                  entity_id: switch.mower
 
 
     - alias: 'GarminWebHookOk'

@@ -1,6 +1,6 @@
 #works, but we have tibber, so.
 # - platform: integration
-#   source: sensor.real_time_consumption_sivert_thonstads_vei_6b
+#   source: sensor.power_sivert_thonstads_vei_6b
 #   name: energy_spent
 #   unit_prefix: k
 #   round: 2
@@ -167,8 +167,8 @@
     - NSR:StopPlace:43417
 
 
-- platform: authenticated
-  enable_notification: false
+# - platform: authenticated
+#   enable_notification: false
 
 - platform: time_date
   display_options:
@@ -209,7 +209,7 @@
 
 - platform: filter
   name: "filtered consumption"
-  entity_id: sensor.real_time_consumption_sivert_thonstads_vei_6b
+  entity_id: sensor.power_sivert_thonstads_vei_6b
   filters:
     - filter: throttle
       window_size: 4
@@ -221,7 +221,7 @@
 
 - platform: filter
   name: "filtered consumption extra"
-  entity_id: sensor.real_time_consumption_sivert_thonstads_vei_6b
+  entity_id: sensor.power_sivert_thonstads_vei_6b
   filters:
     - filter: throttle
       window_size: 10
@@ -240,12 +240,12 @@
 
   #do not work when consumption not in logger.
 # - platform: statistics
-#   entity_id: sensor.real_time_consumption_sivert_thonstads_vei_6b
+#   entity_id: sensor.power_sivert_thonstads_vei_6b
 #   name: consumptionRounded
 #   sampling_size: 30
 
 # - platform: statistics
-#   entity_id: sensor.real_time_consumption_sivert_thonstads_vei_6b
+#   entity_id: sensor.power_sivert_thonstads_vei_6b
 #   name: consumptionRoundedMore
 #   sampling_size: 90
 

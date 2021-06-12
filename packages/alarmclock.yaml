@@ -30,9 +30,9 @@ alarmclock:
         - condition: state
           entity_id: input_boolean.easleep
           state: 'on'
-        - condition: state
-          entity_id: input_boolean.casleep
-          state: 'off'
+        # - condition: state
+        #   entity_id: input_boolean.casleep
+        #   state: 'off'
         # - condition: state
         #   entity_id: binary_sensor.ccharging
         #   state: 'off'      
