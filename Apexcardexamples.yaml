@@ -1,0 +1,83 @@
+type: custom:apexcharts-card
+apex_config:
+  yaxis:
+    - show: true
+      decimalsInFloat: 1
+      opposite: false
+    - show: false
+      decimalsInFloat: 0
+      opposite: true
+    - show: false
+      decimalsInFloat: 1
+      opposite: false
+    - show: true
+      decimalsInFloat: 0
+      opposite: true
+      min: 20
+    - show: false
+      decimalsInFloat: 1
+      opposite: false
+    - show: false
+      decimalsInFloat: 1
+      opposite: false
+      graph_span: 24h
+span:
+  start: day
+now:
+  show: true
+  label: now
+header:
+  show: true
+  title: Varmtvannsbereder
+  show_states: true
+  colorize_states: true
+series:
+- entity: sensor.utility_meter_varmtvann_daily
+  curve: stepline
+  extend_to_end: false
+  name: Forbruk
+- entity: sensor.varmtvann_kw_effekt
+  type: area
+  opacity: 0.3
+  stroke_width: 0
+  curve: stepline
+  extend_to_end: false
+  name: Effekt
+- entity: sensor.sonoff_1000cf7ae3_temperature
+  curve: smooth
+  extend_to_end: false
+  name: Temperatur
+- entity: sensor.nordpool
+  name: Strømpris
+  data_generator: |
+    return entity.attributes.raw_today.map((entry) => {
+    return [new Date(entry.start), entry.value + 0.79 ];
+    });
+  curve: stepline
+  show:
+    in_header: before_now
+    legend_value: false
+- entity: binary_sensor.dyreste_3_timer
+  name: Dyreste 3
+  extend_to_end: false
+  transform: 'return x === ''on'' ? 1 : 0;'
+  type: area
+  curve: stepline
+  color: red
+  opacity: 0.3
+  stroke_width: 0
+  show:
+    in_header: false
+    legend_value: false
+- entity: binary_sensor.billigste_3_timer
+  name: Billigste 3
+  extend_to_end: false
+  transform: 'return x === ''on'' ? 1 : 0;'
+  type: area
+  curve: stepline
+  color: green
+  opacity: 0.3
+  stroke_width: 0
+  show:
+    in_header: false
+    legend_value: false

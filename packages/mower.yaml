@@ -44,7 +44,7 @@ mower:
               {%-set hour = time.split(':')[0] | float -%}
               {% if isDocked and (hour > 21)%}
                   false
-              {% elif finishedForTheDay %}
+              {% elif finishedForTheDay and (hour > 23) %}
                   true
               {% else %}
                 {% if verandaOpen and isDocked == false %}
@@ -102,11 +102,12 @@ mower:
         for:
           minutes: 20
       action:
-      - service: script.notifyhome
+      - service: script.turn_on
+        entity_id: script.notifyhome
         data_template:
           variables:
-            title: 'Gressklipper sitter fast'
-            message: 'Gressklipper sitter fast'
+            title: Gressklipper sitter fast
+            message: Gressklipper sitter fast
       - service: script.turn_on
         entity_id: script.say
         data_template:
@@ -148,6 +149,8 @@ mower:
         to: 'off'
       - platform: time
         at: 00:00:00
+      - platform: time
+        at: 06:00:00
       action:
       - service: switch.turn_on
         entity_id: switch.mower

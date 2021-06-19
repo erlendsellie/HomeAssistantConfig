@@ -593,6 +593,8 @@
     - service: homeassistant.turn_on
       entity_id: script.lightson
 
+
+#TODO, make binary sensor that does not update at all times.
 - alias: AdjustUteSpotter
   trigger:
     - platform: state

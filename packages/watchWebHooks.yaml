@@ -376,6 +376,29 @@ watchwebhooks:
         entity_id: switch.mower
 
 
+  - alias: 'WatchCarStartHeating'
+    id: 'watchcarstartheating'
+    trigger:
+      platform: webhook
+      webhook_id: !secret watchcarstartheating
+    # condition:
+    # - condition: template
+    #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
+    action:
+      - service: script.leaf_warmup
+
+  - alias: 'WatchCarStopHeating'
+    id: 'watchcarstopheating'
+    trigger:
+      platform: webhook
+      webhook_id: !secret watchcarstopheating
+    # condition:
+    # - condition: template
+    #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
+    action:
+      - service: script.leaf_stop_warmup
+
+
   - alias: 'actions'
     trigger:
       platform: webhook

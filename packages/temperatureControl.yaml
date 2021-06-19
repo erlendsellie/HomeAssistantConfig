@@ -111,7 +111,7 @@ temperaturecontrol:
             {%-set uteTemp = states.sensor.ute_temperature.state | float or states.sensor.netatmo_home_temperature.state | float  -%}
             {%-set prettyCold = float(uteTemp) < float(states.input_number.coldthreshold.state) -%}
             {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
-            {%-set currentTemp = states.climate.varmepumpe.attributes.current_temperature | float %}
+            {%-set currentTemp = states.climate.varmepumpe.attributes.current_temperature or 20 | float %}
             {%-set priceCorrection =  states.sensor.pricecorrection.state | float %}
             {%-set baseTemp =  states.sensor.baseheat.state | float %}
             {%-set difference = ([baseTemp - currentTemp] | max) | round(1) %}       
@@ -198,6 +198,26 @@ temperaturecontrol:
   - platform: template
     scan_interval: 3600
     sensors:
+      pricecorrection_up:
+        value_template: >-
+            {%-set priceCorrection =  states.sensor.pricecorrection.state | float %}
+            {{priceCorrection > 0}}
+      pricecorrection_down:
+        value_template: >-
+          {%-set priceCorrection =  states.sensor.pricecorrection.state | float %}
+          {{priceCorrection < 0}}
+      dyreste_3_timer:
+        value_template: >-
+          {% set l=state_attr('sensor.nordpool', 'raw_today')|sort(attribute='value') %}
+          {{ (now() >= l[23].start and now() <= l[23].end)
+          or (now() >= l[22].start and now() <= l[22].end)
+          or (now() >= l[21].start and now() <= l[21].end) }}
+      billigste_3_timer:
+        value_template: >-
+          {% set l=state_attr('sensor.nordpool', 'raw_today')|sort(attribute='value') %}
+          {{ (now() >= l[0].start and now() <= l[0].end)
+          or (now() >= l[1].start and now() <= l[1].end)
+          or (now() >= l[2].start and now() <= l[2].end) }}
       islowprice:
           friendly_name: 'Is Low Price'
           value_template: >-

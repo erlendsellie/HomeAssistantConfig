@@ -616,8 +616,7 @@
   - service: vacuum.set_fan_speed
     entity_id: vacuum.xiaomi_vacuum_cleaner
     data:
-      fan_speed: Silent
-      #fan_speed: Turbo      
+      fan_speed: Turbo      
   - service: vacuum.start
     entity_id: vacuum.xiaomi_vacuum_cleaner
 
