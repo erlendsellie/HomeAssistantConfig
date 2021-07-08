@@ -1,0 +1,36 @@
+{
+    "title": "Google WiFi Integration",
+    "config": {
+      "step": {
+        "user": {
+          "description": "Please get a refresh token from https://www.angelod.com/onhubauthtool to configure the integration.",
+          "data": {
+            "refresh_token": "Refresh Token",
+            "add_disabled": "Add all entities as enabled?"
+          }
+        }
+      },
+      "error": {
+        "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+        "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+        "unknown": "[%key:common::config_flow::error::unknown%]"
+      },
+      "abort": {
+        "single_instance_allowed": "[%key:common::config_flow::abort::single_instance_allowed%]"
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "data": {
+            "refresh_token": "Enter the refresh token obtained from https://www.angelod.com/onhubauthtool",
+            "add_disabled": "Add all entities as enabled?",
+            "scan_interval": "Polling Interval (seconds)",
+            "auto_speedtest": "Run speed test automatically?",
+            "speedtest_interval": "Speed test interval (hours).",
+            "speed_units": "Unit of measurement for internet speed."
+          }
+        }
+      }
+    }
+  }

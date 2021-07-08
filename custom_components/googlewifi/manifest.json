@@ -1,0 +1,18 @@
+{
+    "domain": "googlewifi",
+    "name": "Google WiFi",
+    "config_flow": true,
+    "documentation": "https://github.com/djtimca/hagooglewifi",
+    "requirements": [
+      "googlewifi==0.0.17"
+    ],
+    "issue_tracker": "https://github.com/djtimca/hagooglewifi/issues",
+    "ssdp": [],
+    "zeroconf": [],
+    "homekit": {},
+    "dependencies": [],
+    "codeowners": [
+      "@djtimca"
+    ],
+    "version": "0.1.25"
+  }
