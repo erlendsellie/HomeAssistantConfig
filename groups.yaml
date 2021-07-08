@@ -170,7 +170,7 @@
       name: Upstairs
       entities:
       - light.upstairs
-      - light.bathroom
+      - light.bathroom2
 
 
     lights:

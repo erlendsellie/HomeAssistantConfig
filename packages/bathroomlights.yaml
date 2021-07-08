@@ -14,11 +14,11 @@ bathroomlights:
       to: 'on'
     condition:
       - condition: state
-        entity_id: light.bathroom
+        entity_id: light.bathroom2
         state: 'off'
     action:
     - service: light.turn_on
-      entity_id: light.bathroom
+      entity_id: light.bathroom2
       data_template:
         brightness_pct: '{{ states.sensor.brightnessforbathroomlights.state }}'
     - service: light.turn_on
@@ -31,7 +31,7 @@ bathroomlights:
       entity_id: binary_sensor.motion_bathroom
       state: 'off'
     - service: light.turn_off
-      entity_id: light.bathroom
+      entity_id: light.bathroom2
 
   - alias: turnOffBathroomLights
     trigger:
@@ -40,7 +40,7 @@ bathroomlights:
       to: 'off'
     action:
     - service: light.turn_off
-      entity_id: light.bathroom
+      entity_id: light.bathroom2
 
   - alias: notifysomethingwrongwithlights
     trigger:
@@ -64,7 +64,7 @@ bathroomlights:
   #     to: 'on'
   #   action:
   #   - service: light.turn_on
-  #     entity_id: light.bathroom
+  #     entity_id: light.bathroom2
   #   - service: light.turn_on
   #     entity_id: light.upstairs
   #     data_template:
@@ -83,7 +83,7 @@ bathroomlights:
   #     state: 'off'
   #   action:
   #   - service: light.turn_on
-  #     entity_id: light.bathroom
+  #     entity_id: light.bathroom2
   #     data_template:
   #       brightness_pct: '{{ states.sensor.brightnessforbathroomlights.state }}'
   #   - service: light.turn_on
@@ -100,7 +100,7 @@ bathroomlights:
   #     to: 'on'
   #   action:
   #   - service: light.turn_on
-  #     entity_id: light.bathroom
+  #     entity_id: light.bathroom2
   #   - service: light.turn_on
   #     entity_id: light.upstairs
   #     data_template:
@@ -119,7 +119,7 @@ bathroomlights:
   #     state: 'off'
   #   action:
   #   - service: light.turn_on
-  #     entity_id: light.bathroom
+  #     entity_id: light.bathroom2
   #     data_template:
   #       brightness_pct: '{{ states.sensor.brightnessforbathroomlights.state }}'
   #   - service: light.turn_on
@@ -136,11 +136,11 @@ bathroomlights:
   #     to: 'on'
   #   condition:
   #     - condition: state
-  #       entity_id: light.bathroom
+  #       entity_id: light.bathroom2
   #       state: 'off'    
   #   action:
   #   - service: light.turn_on
-  #     entity_id: light.bathroom
+  #     entity_id: light.bathroom2
   #     data_template:
   #       brightness_pct: '{{ states.sensor.brightnessforupstairslights.state }}'
   #   - service: light.turn_on
@@ -155,7 +155,7 @@ bathroomlights:
   #     entity_id: binary_sensor.motion_bathroom
   #     state: 'off'
   #   - service: light.turn_off
-  #     entity_id: light.bathroom
+  #     entity_id: light.bathroom2
 
   # - alias: turnOffBathroomLights
   #   trigger:
@@ -176,14 +176,14 @@ bathroomlights:
   #       minutes: 30
   #   action:
   #   - service: light.turn_off
-  #     entity_id: light.bathroom
+  #     entity_id: light.bathroom2
   #   - service: light.turn_off
-  #     entity_id: light.bathroom
+  #     entity_id: light.bathroom2
 
   # - alias: BathroomLightTurnedOn
   #   trigger:
   #   - platform: state
-  #     entity_id: light.bathroom
+  #     entity_id: light.bathroom2
   #     to: 'on'
   #     for:
   #       seconds: 30

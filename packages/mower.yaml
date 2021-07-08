@@ -29,7 +29,7 @@ mower:
         robot_problem:
           device_class: problem
           value_template:  >-
-                  {{states.sensor.mowed_since_docked.state | float > 1.5}}
+                  {{states.sensor.mowed_since_docked.state | float > 1.8}}
           friendly_name: "Robot Stuck"    
         robot_should_stop:
           friendly_name: "Robot Should Stop"    
@@ -44,7 +44,7 @@ mower:
               {%-set hour = time.split(':')[0] | float -%}
               {% if isDocked and (hour > 21)%}
                   false
-              {% elif finishedForTheDay and (hour > 23) %}
+              {% elif finishedForTheDay and (hour < 23) %}
                   true
               {% else %}
                 {% if verandaOpen and isDocked == false %}
@@ -120,7 +120,7 @@ mower:
       mode: restart
       trigger:
       - platform: time_pattern
-        minutes: "/10" 
+        minutes: "/12" 
       condition:
       - condition: state
         entity_id: switch.mower
@@ -130,6 +130,10 @@ mower:
         entity_id: switch.mower
       - delay:
           seconds: 5
+      # Not optimal, but will try it.
+      - condition: state
+        entity_id: binary_sensor.robot_should_stop
+        state: 'on'
       - service: switch.turn_off
         entity_id: switch.mower
 
@@ -151,9 +155,15 @@ mower:
         at: 00:00:00
       - platform: time
         at: 06:00:00
+      - platform: time
+        at: 02:00:00
       action:
       - service: switch.turn_on
         entity_id: switch.mower
+      - delay:
+          seconds: 1
+      - service: switch.turn_on
+        entity_id: switch.mower        
 
     - alias: 'warnMowing'
       id: 'warnMowing'

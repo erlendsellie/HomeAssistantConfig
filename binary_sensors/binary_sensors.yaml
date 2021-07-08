@@ -192,7 +192,7 @@
         device_class: occupancy
         delay_off:
           minutes: 2
-        value_template: "{{states.sensor.ultrasonic_sensor.state | float > 1.0}}"
+        value_template: "{{(states.sensor.ultrasonic_sensor.state | float < 1.8)}}"
         icon_template: >
               {% if (state == 'off')%}
               mdi:car-off

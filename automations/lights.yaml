@@ -450,9 +450,9 @@
       - condition: state
         entity_id: binary_sensor.ccharging
         state: 'off'
-    - condition: state
-      entity_id: media_player.tv_soverommet
-      state: 'off'
+    - condition: template
+      value_template: "{{ states.media_player.tv_soverommet.state  != 'on'}}"
+
   action:
   - service: light.turn_on
     entity_id: group.bedroomlights

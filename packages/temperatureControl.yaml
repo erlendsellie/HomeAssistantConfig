@@ -88,7 +88,7 @@ temperaturecontrol:
               {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
               {%-set isMaxPrice = states.binary_sensor.ismaxprice.state == 'on' -%}
               {%-set isPeak = states.binary_sensor.pricerelativycheap.state == 'off' -%}
-              {%-set minPrice = states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.min_price | float -%}
+              {%-set minPrice = (states.sensor.nordpool.attributes.min | float) -%}
               {%-set price = states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float -%}
               {%-set isMinPrice = minPrice == price -%}
               {%-set time = (as_timestamp(now())|timestamp_local).split( )[1] -%}
@@ -525,7 +525,7 @@ temperaturecontrol:
     - service: climate.set_temperature
       data_template:
         entity_id: climate.varmepumpe
-        temperature: '{{ float(states.sensor.targettemp.state)}}'
+        temperature: '{{ float(states.sensor.tempsenttoheater.state)}}'
     - service: climate.set_hvac_mode
       data_template:
         entity_id: climate.varmepumpe

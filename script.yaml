@@ -946,8 +946,6 @@ doorbell:
     #   entity_id: media_player.tv_stua
 
 
-
-
     # - service: notify.carolinepush
     #   data:
     #     title: Ding Dong
