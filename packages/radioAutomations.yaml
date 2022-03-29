@@ -1,0 +1,19 @@
+radio:
+  automation:
+    - alias: AdjustGoogleVolume
+      trigger:
+        - platform: state
+          entity_id: input_number.googlevolume, input_select.radio_station, input_select.chromecast_radio
+      action:
+        - service: media_player.volume_set
+          data_template:
+            entity_id: media_player.minis
+            volume_level: "{{ states.input_number.googlevolume.state | float(default=0)/ 100 }}"
+
+    - alias: PlayRadio
+      trigger:
+        - platform: state
+          entity_id: input_select.radio_station
+      action:
+        - service: script.turn_on
+          entity_id: script.playradio

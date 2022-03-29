@@ -1,0 +1,350 @@
+webhooks:
+  automation:
+    - alias: "TurnOnGuestMode"
+      trigger:
+        platform: webhook
+        webhook_id: !secret turnonguestmode
+      action:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.guestmode
+
+    - alias: "GuestLeavingWebhook"
+      trigger:
+        platform: webhook
+        webhook_id: !secret guestsleaving
+      action:
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.guestmode
+
+    #webhook test with json. Just call with body json and key light.
+    - alias: turnonLightWebhook
+      trigger:
+        platform: webhook
+        webhook_id: !secret turnonlightwebhook
+      action:
+        - service: light.turn_on
+          data_template:
+            entity_id: >-
+              {{ trigger.json.light}}
+
+    - alias: playRadio
+      trigger:
+        platform: webhook
+        webhook_id: !secret turnonradio
+      action:
+        - service: media_player.volume_set
+          data_template:
+            entity_id: media_player.minis
+            volume_level: "{{ trigger.json.volume | float(default=0)/ 100 }}"
+        - service: media_player.play_media
+          data_template:
+            entity_id: >-
+              {% if trigger.json.device == "Living Room" %} media_player.living_room_speaker
+              {% elif trigger.json.device == "Living Room TV" %} media_player.living_room
+              {% elif trigger.json.device == "Hallway" %} media_player.hallway_speaker
+              {% elif trigger.json.device == "Bedroom" %} media_player.bedroom
+              {% elif trigger.json.device == "Group" %} media_player.minis
+              {% endif %}
+            media_content_id: >-
+              {% if trigger.json.channel == "P4" %} https://p4.p4groupaudio.com/P04_MH
+              {% elif trigger.json.channel == "mp3" %} http://lyd.nrk.no/nrk_radio_mp3_mp3_h
+              {% elif trigger.json.channel == "P10 Country" %} https://p10.p4groupaudio.com/P10_MH
+              {% elif trigger.json.channel == "P7 Klem" %} https://p7.p4groupaudio.com/P07_MM
+              {% endif %}
+            media_content_type: "audio/mp4"
+
+    - alias: AnnoucementHouse
+      trigger:
+        platform: webhook
+        webhook_id: !secret announcementhouse
+      action:
+        - service: script.turn_on
+          entity_id: script.say
+          data_template:
+            variables:
+              message: "{{ trigger.json.body }}"
+
+    - alias: "Woken up by webhook"
+      trigger:
+        platform: webhook
+        webhook_id: !secret wokenup
+      #condition:
+      #- condition: state
+      #entity_id: input_boolean.casleep
+      #state: 'off'
+      action:
+        - delay:
+            seconds: 600
+        - service: light.turn_on
+          entity_id: light.erlend_bedroom
+          data:
+            brightness_pct: 1
+        - service: light.turn_on
+          entity_id: light.erlend_bedroom
+          data:
+            brightness_pct: 100
+            transition: 600
+
+    - alias: "lightsOnWebhook"
+      trigger:
+        platform: webhook
+        webhook_id: !secret turnonlights
+      action:
+        - service: script.turn_on
+          entity_id: script.lightson
+
+    - alias: "lightsOffWebhook"
+      trigger:
+        platform: webhook
+        webhook_id: !secret turnofflights
+      action:
+        - service: script.turn_on
+          entity_id: script.lightsoff
+
+    - alias: "GarageToggleWebhook"
+      trigger:
+        platform: webhook
+        webhook_id: !secret garagetogglewebhook
+      action:
+        - service: cover.toggle
+          entity_id: cover.garage_door
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: "Garage toggled"
+              message: 'You {% if states.cover.garage_door.state == "open" %} closed {% else %} opened {% endif %}the garage'
+
+    - alias: "notifymegeneric"
+      trigger:
+        platform: webhook
+        webhook_id: !secret notifymegeneric
+      action:
+        service: notify.me
+        data:
+          message: "This is a notification!"
+
+    - alias: "notifymejson"
+      trigger:
+        platform: webhook
+        webhook_id: !secret notifymejson
+        #event_data:
+        #   action: call_service
+      action:
+        service_template: "{{ trigger.event.data.service }}"
+        data_template:
+          message: "{{ trigger.event.data.message }}"
+
+    - alias: "TrymAsleepWebhook"
+      trigger:
+        platform: webhook
+        webhook_id: !secret trymsleeping
+      action:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.trymasleep
+
+    - alias: "TrymAwakeWebhook"
+      trigger:
+        platform: webhook
+        webhook_id: !secret trym_woken
+      action:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.trymawake
+
+    #asleep
+    - alias: "CarolineAwakeWebhook"
+      trigger:
+        - platform: webhook
+          webhook_id: !secret caroline_woken
+        - platform: state
+          entity_id: binary_sensor.ccharging
+          to: "off"
+          # for:
+          #   minutes: 5
+      condition:
+        condition: and
+        conditions:
+          - condition: time
+            after: "05:00:00"
+            before: "20:00:00"
+          - condition: state
+            entity_id: person.caroline
+            state: "home"
+      action:
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.casleep
+
+    - alias: "CarolineAsleepWebhook"
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.ccharging
+          to: "on"
+          # for:
+          #   minutes: 5
+      condition:
+        - condition: time
+          after: "20:00:00"
+          before: "06:00:00"
+        - condition: state
+          entity_id: person.caroline
+          state: "home"
+      action:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.casleep
+
+    - alias: "CarolineAsleepTime"
+      trigger:
+        - platform: time
+          at: "22:00:00"
+      condition:
+        - condition: state
+          entity_id: binary_sensor.ccharging
+          state: "on"
+        - condition: state
+          entity_id: person.caroline
+          state: "home"
+      action:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.casleep
+
+    - alias: "CarolineAsleepWithMotion"
+      trigger:
+        - platform: webhook
+          webhook_id: !secret caroline_sleeping
+      condition:
+        condition: and
+        conditions:
+          - condition: time
+            after: "20:00:00"
+            before: "06:00:00"
+          - condition: state
+            entity_id: binary_sensor.motion_bedroom
+            state: "on"
+          - condition: state
+            entity_id: person.caroline
+            state: "home"
+      action:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.casleep
+
+    # - alias: 'ErlendAsleepWithMotion'
+    #   trigger:
+    #   - platform: webhook
+    #     webhook_id: !secret erlend_sleeping
+    #   condition:
+    #     condition: and
+    #     conditions:
+    #     - condition: time
+    #       after: '21:00:00'
+    #       before: '06:00:00'
+    #     # - condition: state
+    #     #   entity_id: binary_sensor.motion_bedroom
+    #     #   state: 'on'
+    #     - condition: state
+    #       entity_id: person.erlend
+    #       state: 'home'
+    #   action:
+    #   - service: input_boolean.turn_on
+    #     entity_id: input_boolean.easleep
+    - alias: "ErlendAsleepByConfidence"
+      id: "ErlendAsleepByConfidence"
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.eprobablyasleep
+          to: "on"
+      condition:
+        condition: and
+        conditions:
+          - condition: time
+            after: "21:00:00"
+            before: "06:00:00"
+          - condition: state
+            entity_id: media_player.tv_stua
+            state: "off"
+      action:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.easleep
+      # - service: script.turn_on
+      #   entity_id: script.notify
+      #   data_template:
+      #     variables:
+      #       message: You are asleep!
+      # - wait_for_trigger:
+      #     - platform: state
+      #       entity_id: binary_sensor.eprobablyasleep
+      #       to: 'off'
+      #   timeout: '13:00:00'
+      #   continue_on_timeout: false
+
+    # - alias: 'ErlendAwakeByConfidence'
+    #   id: 'ErlendAwakeByConfidence'
+    #   trigger:
+    #   - platform: state
+    #     entity_id: binary_sensor.eprobablyasleep
+    #     to: 'off'
+    #   condition:
+    #     - condition: time
+    #       after: '05:00:00'
+    #       before: '21:00:00'
+    #   action:
+    #   - service: input_boolean.turn_off
+    #     entity_id: input_boolean.easleep
+    #   - service: script.turn_on
+    #     entity_id: script.notify
+    #     data_template:
+    #       variables:
+    #         message: You are awake!
+
+    - alias: "ErlendAsleepWebhook"
+      trigger:
+        - platform: webhook
+          webhook_id: !secret erlend_sleeping
+        - platform: state
+          entity_id: binary_sensor.echarging
+          to: "on"
+          # for:
+          #   minutes: 1
+      condition:
+        condition: and
+        conditions:
+          - condition: time
+            after: "21:00:00"
+            before: "06:00:00"
+          - condition: state
+            entity_id: binary_sensor.motion_downstairs_office
+            state: "off"
+          - condition: state
+            entity_id: person.erlend
+            state: "home"
+      action:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.easleep
+
+    - alias: "ErlendAwakeWebhook"
+      trigger:
+        - platform: webhook
+          webhook_id: !secret erlend_woken
+        - platform: state
+          entity_id: binary_sensor.echarging
+          to: "off"
+          # for:
+          #   minutes: 5
+      condition:
+        - condition: time
+          after: "05:00:00"
+          before: "21:00:00"
+        - condition: state
+          entity_id: person.erlend
+          state: "home"
+      action:
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.easleep
+
+    - alias: "webhookServicecall"
+      trigger:
+        platform: webhook
+        webhook_id: !secret webhookservicecalltest
+      action:
+        - service_template: "{{ trigger.event.data.service }}"
+          data_template:
+            entity_id: "{{ trigger.event.data.entity }}"

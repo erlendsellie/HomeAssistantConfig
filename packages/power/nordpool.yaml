@@ -1,0 +1,104 @@
+nordpool:
+  template:
+    - binary_sensor:
+        - name: "Nordpool Unknown"
+          state: >-
+            {%set nordpool = states.sensor.nordpool.state%}
+            {{
+              nordpool == 'unknown' or
+              nordpool == 'unavailable'
+            }}
+        - name: "Nordpool Tomorrow Not Loaded"
+          state: >-
+            {%set nordpool = states.sensor.nordpool%}
+            {%set tomorrow = nordpool.attributes.tomorrow %}
+            {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
+            {%set valid = nordpool.attributes.tomorrow_valid%}
+            {{valid and tomorrowvalue < 0.01}}
+        - name: "Nordpool Tomorrow Valid "
+          state: >-
+            {%-set nordpool = states.sensor.nordpool -%}
+            {{nordpool.attributes.tomorrow_valid}}
+  automation:
+    - id: reloadNordpool
+      alias: reloadNordpool
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.nordpool_unknown
+          to: "on"
+          for:
+            minutes: 2
+        - platform: state
+          entity_id: binary_sensor.nordpool_tomorrow_not_loaded
+          to: "on"
+      action:
+        - service: homeassistant.reload_config_entry
+          entity_id: sensor.nordpool
+        - delay:
+            seconds: 10
+        # Varsling med sensor-verdi, 10 sekunder etter relasting av integrasjonen.
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Nordpool var utilgjengelig
+              message: Lastet på nytt. Verdi nå er {{states.sensor.nordpool.state}}
+
+    - alias: NotifyPriceTomorrow
+      trigger:
+        # - platform: time
+        #   at: "13:10:00"
+        - platform: state
+          entity_id: binary_sensor.nordpool_tomorrow_valid
+          to: "on"
+          for:
+            minutes: 3
+      condition:
+        - condition: time
+          after: "12:50:00"
+          before: "14:00:00"
+      action:
+        - service: notify.me
+          data:
+            title: >-
+              Tomorrows spotpris is ready
+            message: >-
+              Tomorrows price is {{states.sensor.tomorrow_low_price.state}} / {{states.sensor.tomorrow_max_price.state}}, todays is {{states.sensor.today_low_price.state}} / {{states.sensor.today_max_price.state}}.
+
+    - alias: NotifyPriceTomorrow
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.nordpool_tomorrow_valid
+          to: "on"
+          for:
+            minutes: 10
+      condition:
+        - condition: state
+          entity_id: binary_sensor.should_charge_car_tonight
+          state: "off"
+      action:
+        - service: notify.me
+          data:
+            message: "Tomorrows min price is {{states.sensor.billigste_pris_imorgen_ettermiddag.state}}, {{states.sensor.price_difference_nights.state}} difference from tonight."
+            title: "You should {%if states.binary_sensor.should_charge_car_tonight.state == 'off' %}NOT {%endif%}charge the car tonight."
+  # sensor:
+
+  #   - platform: nordpool
+  #     # Should the prices include vat? Default True
+  #     VAT: True
+  #     # What currency the api fetches the prices in
+  #     # this is only need if you want a sensor in a non local currecy
+  #     currency: "NOK"
+  #     #currency: "EUR"
+  #     # Helper so you can set your "low" price
+  #     # low_price = hour_price < average * low_price_cutoff
+  #     # What power regions your are interested in.
+  #     # Possible values: "DK1", "DK2", "FI", "LT", "LV", "Oslo", "Kr.sand", "Bergen", "Molde", "Tr.heim", "Tromsø", "SE1", "SE2", "SE3","SE4", "SYS", "EE"
+  #     region: "Tr.heim"
+  #     # How many decimals to use in the display of the price
+  #     precision: 4
+  #     # What the price should be displayed in default
+  #     # Possible values: MWh, kWh and Wh
+  #     # default: kWh
+  #     price_type: kWh
+  #     friendly_name: "nordpool"

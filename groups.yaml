@@ -1,0 +1,242 @@
+#################################################################
+## Groups
+#################################################################
+
+people:
+  name: People
+  entities:
+    - person.caroline
+    - person.erlend
+    - device_tracker.stian_wifi
+    - device_tracker.julianne_wifi
+    - device_tracker.marianne_wifi
+    - device_tracker.andrine_wifi
+
+erlend:
+  name: erlend
+  entities:
+    #- device_tracker.life360_erlend_sellie_bt
+    #html5_p30.life360_erlend_sellie
+    #- device_tracker.erlend_wifi
+    - device_tracker.erlend_wifi
+    - device_tracker.life360_erlend_sellie
+  #- device_tracker.erlend_bt
+
+caroline:
+  name: caroline
+  entities:
+    - device_tracker.caroline_wifi
+    #- device_tracker.caroline_bt
+    - device_tracker.life360_caroline_winge
+  # - device_tracker.carolines7
+  #Trying withour owntracks. Will still get tracked in frontend.
+  #- device_tracker.caroline_s7
+  # - device_tracker.caroline_bt
+  # - device_tracker.caroline_livingroom
+  # - device_tracker.caroline_otherroom
+
+CandE:
+  name: Caroline and erlends7
+  entities:
+    - group.erlend
+    - group.caroline
+
+Magnetkontakter:
+  name: Magnetkontakter
+  entities:
+    - binary_sensor.veranda #Verandadør
+    - binary_sensor.hoveddor #Hoveddør
+    - binary_sensor.door_livingroom #Stuedør
+    - binary_sensor.lilleveranda #lilleveranda
+    - binary_sensor.door_downstairs #Dør nede
+    - binary_sensor.door_kitchen #kjøkkendor
+
+innedorsensorer:
+  name: innedorsensorer
+  entities:
+    - binary_sensor.door_livingroom #Stuedør
+    - binary_sensor.door_kitchen #kjøkkendor
+
+smokesensors:
+  name: smoke sensors
+  entities:
+    - binary_sensor.smoke_kontoret
+    - binary_sensor.smoke_stua
+    - binary_sensor.smoke_loftet
+
+living:
+  name: Stuelys
+  entities:
+    - group.notdimmableliving
+    - group.dimmableliving
+    - light.hyperion
+    - light.peis
+    - light.kubbelys
+
+  # - switch.kitchen
+  # #- switch.table
+  # - switch.kjokkenbord
+  # - switch.bed
+  # - light.tv
+  # - light.sofa
+  # - switch.cabinet
+  # - switch.table_lamp
+  # - switch.table_light
+  # - light.nexadim1
+  # - light.hallwaymiddle
+
+notdimmableliving:
+  name: Stua
+  icon: mdi:lightbulb
+  entities:
+    - light.kitchen_ceiling_led
+    - light.kitchen
+    #- switch.table
+    - light.chillsofa
+    - light.cabinet
+    - light.table_lamp
+    - light.kjokkenbord
+    - light.ledstrip_kitchen
+    - light.peis
+  #- switch.table_light
+  # - light.hallwaymiddle
+
+dimmableliving:
+  name: TV-krok
+  icon: mdi:lightbulb
+  entities:
+    light.tvsone
+    # - light.tv
+    # - light.sofa
+    # #- light.peis
+    # - light.chillsofa
+    #- light.star
+
+colorlightsliving:
+  name: TV-krok
+  icon: mdi:lightbulb
+  entities:
+    - light.kitchen_ceiling_led
+    - light.ledstrip_kitchen
+    - light.peis
+  #- light.hyperion
+
+hallwaylights:
+  name: Hallway Lights
+  entities:
+    - light.hallway
+    - light.trapp
+  #- switch.nexa2  #vindfang
+  #- light.sokkel
+
+hallwaylightsforlovelace:
+  name: Hallway Lights
+  icon: mdi:lightbulb
+  entities:
+    - light.hallway
+    - light.trapp
+    - light.sokkel
+    - light.toilet
+    - light.vindfang #vindfang
+  #- sensor.brightnessforlights
+
+andrelys:
+  name: Andre lys
+  entities:
+    #- light.officelight
+    - light.bedroom
+    # - light.gateway_light_7c49eb1c2d6b
+    - light.guestroom
+    - light.toilet
+    - group.bedroomlights
+    - light.trym_roof
+    - light.trym_ball
+    - light.tyra
+    - light.bathroom
+    - light.sokkel
+    - light.vindfang
+    - light.peis
+    - light.play
+    - light.driveway
+    - light.garage
+    - light.garage_bulb
+
+upstairs:
+  name: Upstairs
+  entities:
+    - light.upstairs
+    - light.bathroom
+
+lights:
+  name: Lights
+  entities:
+    - group.living
+    - group.hallwaylights
+    - group.andrelys
+    - group.upstairs
+
+googlehome:
+  name: Google Home
+  entities:
+    - media_player.hallway_speaker
+    - media_player.living_room_speaker
+    #- media_player.living_room_speaker
+    #- media_player.hallway_speaker
+    # - media_player.kitchen_display
+    # - media_player.hyttalere
+
+bedroomlights:
+  name: Bedroom Lights
+  icon: mdi:lightbulb
+  entities:
+    - light.erlend_bedroom
+    - light.caroline_bedroom
+    - light.bedroom
+
+stilletid:
+  name: stilletid
+  entities:
+    - input_boolean.ammetid
+    - input_boolean.tyraasleep
+
+#TODO ADd to these.
+awaysensors:
+  name: Alarm sensors
+  entities:
+    #Magnet:
+    - binary_sensor.hoveddor
+    - binary_sensor.veranda
+    - binary_sensor.door_livingroom
+    - binary_sensor.door_kitchen
+    - binary_sensor.grind
+    - binary_sensor.door_downstairs
+    - binary_sensor.lilleveranda
+    - binary_sensor.trym_door
+    - binary_sensor.trym_window
+    - binary_sensor.door_bathroom
+    #Motion:
+    # - binary_sensor.motion_kitchen #kitchen
+    - binary_sensor.motion_toilet
+    - binary_sensor.motion_sokkel
+    - binary_sensor.motion_hallway
+    #- binary_sensor.motion_vindfang #Vindfang
+    - binary_sensor.motion_bedroom
+    - binary_sensor.motion_downstairs_office
+    - binary_sensor.motion_bedroom
+
+#Rewrite this.
+awaysensorswhenrobotnotrunning:
+  name: Alarm sensors when robot not running
+  entities:
+    - binary_sensor.motion_kitchen #Kitchen
+
+    # Dogs triggering.
+    #- light.trapp3_2
+
+nightsensors:
+  name: Alarm sensors
+  entities:
+    - binary_sensor.veranda
+    - binary_sensor.hoveddor
+    - binary_sensor.lilleveranda
+    - binary_sensor.door_downstairs

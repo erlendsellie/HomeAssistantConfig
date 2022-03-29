@@ -1,0 +1,202 @@
+effectcontrol:
+  input_boolean:
+    limit_power:
+      name: Limit Power
+    limit_heaters:
+      name: Limit Heaters
+  sensor:
+    - platform: template
+      sensors:
+        effekt_denne_timen_trend:
+          friendly_name: Effekttrend inneværende time
+          unit_of_measurement: KW
+          value_template: >-
+            {% set usage = states.sensor.accumulated_consumption_current_hour_sivert_thonstads_vei_6b.state | float(default=0)%}
+            {% set minutes = now().minute %}
+            {% set seconds = now().second %}
+            {%if minutes%}
+              {% set percentOfHour = (minutes / 60) + ((seconds / 60)/ 60) %}
+              {{(usage / percentOfHour) | round (2)}}
+            {%else%}
+              {{usage | round (2)}}
+            {%endif%}
+        effekt_denne_dagen_trend:
+          friendly_name: Effekttrend inneværende dag
+          unit_of_measurement: KW
+          value_template: >-
+            {% set usage = states.sensor.accumulated_consumption_sivert_thonstads_vei_6b.state | float(default=0)%}
+            {% set minutes = now().minute %}
+            {% set hour = now().hour %}
+            {%if minutes%}
+              {% set percentOfHour = ((hour / 24)) + (minutes / 60)/ 24  %}
+              {{(usage / percentOfHour) | round (2)}}
+            {%else%}
+              {{usage | round (2)}}
+            {%endif%}
+
+  binary_sensor:
+    - platform: template
+      sensors:
+        effect_is_high:
+          friendly_name: "Effect Is High"
+          delay_off:
+            minutes: 5
+          value_template: >-
+            {% set effect = states.sensor.effekt_denne_timen_trend.state | float(default=0)%}
+            {% set minutes = now().minute %}
+            {%-set threshold = 9.8 | float(default=0)-%}
+            {{effect > threshold and minutes > 20}}
+
+  automation:
+    - alias: "EffectTurnDownPowerWhenHigh"
+      id: "EffectTurnDownPowerWhenHigh"
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.effect_is_high
+          to: "on"
+        - platform: state
+          entity_id: binary_sensor.effect_is_high
+          to: "on"
+          for:
+            minutes: 15
+        - platform: state
+          entity_id: binary_sensor.effect_is_high
+          to: "on"
+          for:
+            minutes: 30
+      condition:
+        - condition: template
+          value_template: "{{ states.input_boolean.limit_power.state == 'on'}}"
+      action:
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{ states.sensor.garage_status.state == 'charging'}}"
+              sequence:
+                - service: script.pausecharging
+                - wait_for_trigger:
+                    - platform: state
+                      entity_id: binary_sensor.effect_is_high
+                      to: "off"
+                  timeout: "01:00:00"
+                  continue_on_timeout: true
+                - service: script.startcharging
+            - conditions:
+                - condition: template
+                  value_template: "{{ states.input_boolean.limit_heaters.state == 'off' and now().minute > 30}}"
+              sequence:
+                - service: input_boolean.turn_on
+                  entity_id: input_boolean.limit_heaters
+                - service: script.turn_on
+                  entity_id: script.notify
+                  data_template:
+                    variables:
+                      title: Limiting Heaters to avoid extra cost
+                      message: The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.
+            - conditions:
+                - condition: template
+                  value_template: "{{now().minute > 30}}"
+              sequence:
+                - service: script.turn_on
+                  entity_id: script.notify
+                  data_template:
+                    variables:
+                      title: Warning, high power usage.
+                      message: The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.
+          default:
+
+    - alias: "EffectTurnUpPowerWhenLow"
+      id: "EffectTurnUpPowerWhenLow"
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.effect_is_high
+          to: "off"
+        - platform: time_pattern
+          minutes: "/10"
+      condition:
+        - condition: template
+          value_template: "{{ states.binary_sensor.effect_is_high.state == 'off'}}"
+        - condition: template
+          value_template: "{{ states.input_boolean.limit_power.state == 'on'}}"
+      action:
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.limit_heaters
+        - service: script.startcharging
+
+    - alias: limitChargingAtDay
+      id: limitChargingAtDay
+      trigger:
+        - platform: state
+          entity_id: input_select.alarm
+          to: "Disarm"
+      condition:
+        - condition: template
+          value_template: "{{ states.input_boolean.limit_power.state == 'on'}}"
+      action:
+        - service: script.limitchargerto20
+
+    - alias: limitChargingAtNight
+      id: limitChargingAtNight
+      trigger:
+        - platform: state
+          entity_id: input_select.alarm
+          to: "Arm Home"
+      condition:
+        - condition: template
+          value_template: "{{ states.input_boolean.limit_power.state == 'on'}}"
+      action:
+        - service: script.limitchargerto20
+
+  script:
+    limitchargerto10:
+      alias: Limit Charger to 10 A
+      sequence:
+        - service: easee.set_charger_max_limit
+          data:
+            charger_id: "EHRMB4AF"
+            current: 15
+    limitchargerto15:
+      alias: Limit Charger to 15 A
+      sequence:
+        - service: easee.set_charger_max_limit
+          data:
+            charger_id: "EHRMB4AF"
+            current: 15
+
+    limitchargerto20:
+      alias: Limit Charger to 20 A
+      sequence:
+        - service: easee.set_charger_max_limit
+          data:
+            charger_id: "EHRMB4AF"
+            current: 20
+
+    limitchargerto30:
+      alias: Limit Charger to 30 A
+      sequence:
+        - service: easee.set_charger_max_limit
+          data:
+            charger_id: "EHRMB4AF"
+            current: 30
+
+    startcharging:
+      alias: Start Charging
+      sequence:
+        - service: easee.resume
+          data:
+            charger_id: "EHRMB4AF"
+        - service: easee.start
+          data:
+            charger_id: "EHRMB4AF"
+
+    pausecharging:
+      alias: Pause Charging
+      sequence:
+        - service: easee.pause
+          data:
+            charger_id: "EHRMB4AF"
+        - delay:
+            minutes: 5
+        - service: easee.pause
+          data:
+            charger_id: "EHRMB4AF"

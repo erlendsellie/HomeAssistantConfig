@@ -1,0 +1,49 @@
+bathroomlights:
+  template:
+    - binary_sensor:
+        - name: "Should Bathroom Lights Be On"
+          delay_off:
+            minutes: 20
+          state: >-
+            {{
+              states.binary_sensor.motion_bathroom.state == 'on' or
+              states.binary_sensor.door_bathroom.state =='on'
+            }}
+    - sensor:
+        - name: "brightnessforbathroomlights"
+          unit_of_measurement: "%"
+          state: >-
+            {% if states.input_select.alarm.state == 'Arm Home' %} 
+            10
+            {% else %}
+            100
+            {% endif %}
+
+  automation:
+    - id: toggleBathroomLights
+      alias: toggleBathroomLights
+      mode: restart
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.should_bathroom_lights_be_on
+          to: "on"
+      condition:
+        - condition: state
+          entity_id: light.bathroom
+          state: "off"
+      action:
+        - service: light.turn_on
+          entity_id: light.bathroom
+          data_template:
+            brightness_pct: "{{ states.sensor.brightnessforbathroomlights.state }}"
+
+    - id: turnOffBathroomLights
+      alias: turnOffBathroomLights
+      mode: restart
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.should_bathroom_lights_be_on
+          to: "off"
+      action:
+        - service: light.turn_off
+          entity_id: light.bathroom

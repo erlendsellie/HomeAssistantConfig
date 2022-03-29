@@ -1,0 +1,203 @@
+hallwaylights:
+  template:
+    - binary_sensor:
+        - name: "Should Hallway Lights Be On"
+          delay_off:
+            minutes: 5
+          state: >-
+            {{
+              (states.binary_sensor.motion_hallway.state == 'on' or
+              (states.binary_sensor.motion_upstairs.state == 'on' and states.input_select.alarm.state  == 'Disarm') or
+              states.binary_sensor.motion_sokkel.state == 'on' or
+              states.binary_sensor.motion_vindfang.state == 'on' or
+              states.binary_sensor.motion_toilet.state =='on')
+              and
+              states.input_select.alarm.state  == 'Disarm'
+            }}
+        - name: "Should Upstair Lights Be On"
+          delay_off:
+            minutes: 5
+          state: >-
+            {{
+              states.binary_sensor.motion_upstairs.state == 'on' or
+              states.binary_sensor.motion_bathroom.state == 'on' or
+              states.binary_sensor.trym_door.state == 'on' or
+              states.binary_sensor.tyra_door.state == 'on' or
+              states.binary_sensor.door_bathroom.state == 'on' or
+              (states.binary_sensor.motion_hallway.state == 'on' and states.input_select.alarm.state  == 'Disarm') or
+              (states.binary_sensor.motion_sokkel.state == 'on' and states.input_select.alarm.state  == 'Disarm') or
+              (states.binary_sensor.motion_vindfang.state == 'on' and states.input_select.alarm.state  == 'Disarm') or
+              (states.binary_sensor.motion_bedroom.state == 'on' and states.input_select.alarm.state  == 'Disarm') or
+              (states.binary_sensor.trym_motion.state == 'on' and states.input_boolean.trymasleep.state == 'off' and states.input_select.alarm.state  == 'Disarm') or
+              (states.binary_sensor.tyra_motion.state == 'on' and states.input_boolean.tyraasleep.state == 'off' and states.input_select.alarm.state  == 'Disarm')
+            }}
+
+  automation:
+    - id: turnOnUpstairLights
+      alias: turnOnUpstairLights
+      mode: single
+      max_exceeded: silent
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.should_upstair_lights_be_on
+          #to: "on"
+        # - platform: state
+        #   entity_id:
+        #     - binary_sensor.trym_door
+        #     - binary_sensor.tyra_door
+        #     - binary_sensor.door_bathroom
+      action:
+        - service: "light.turn_{{trigger.to_state.state}}"
+          entity_id: light.upstairs
+          #data_template:
+          #   brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
+
+    # - id: turnOffUpstairLights
+    #   alias: turnOffUpstairLights
+    #   trigger:
+    #     - platform: state
+    #       entity_id: binary_sensor.should_upstair_lights_be_on
+    #       to: "off"
+    #   action:
+    #     - service: light.turn_off
+    #       entity_id: light.upstairs
+
+    - id: TurnOnHallwayMiddleLight
+      alias: TurnOnHallwayMiddleLight
+      mode: single
+      max_exceeded: silent
+      trigger:
+        - platform: state
+          entity_id:
+            - binary_sensor.should_hallway_lights_be_on
+            - binary_sensor.door_livingroom
+            - binary_sensor.door_kitchen
+            - binary_sensor.grind
+            - binary_sensor.grind_oppe
+          to: "on"
+      action:
+        - service: light.turn_on
+          entity_id: group.hallwaylights, light.vindfang
+          data_template:
+            brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
+
+    - id: TurnOffHallwayMiddleLight
+      alias: TurnOffHallwayMiddleLight
+      mode: single
+      trigger:
+        - platform: state
+          entity_id:
+            - binary_sensor.should_hallway_lights_be_on
+          to: "off"
+      action:
+        - service: light.turn_off
+          entity_id: group.hallwaylights, light.vindfang
+
+    #Turn on sokkel by motion
+    - id: turnOnSokkelLight
+      alias: turnOnSokkelLight
+      trigger:
+        - platform: state
+          entity_id:
+            - binary_sensor.motion_sokkel
+            - binary_sensor.grind
+            - binary_sensor.door_downstairs
+          to: "on"
+      action:
+        - service: light.turn_on
+          entity_id: light.sokkel
+          data_template:
+            brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
+        # - service: light.turn_on
+        #   entity_id: light.hallway
+        #   data_template:
+        #     brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
+
+    # Turn off sokkel by motion
+    - id: turnOffSokkelLight
+      alias: turnOffSokkelLight
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.motion_sokkel
+          to: "off"
+          for:
+            minutes: 3
+      action:
+        - service: light.turn_off
+          entity_id: light.sokkel
+
+    # - id: turnOnHallwayLight
+    #   alias: turnOnHallwayLight
+    #   mode: restart
+    #   trigger:
+    #     - platform: state
+    #       entity_id:
+    #         - binary_sensor.grind
+    #         - binary_sensor.door_livingroom
+    #         - binary_sensor.door_kitchen
+    #         - binary_sensor.motion_vindfang # vindfang
+    #         - binary_sensor.vindfang_door
+    #         - binary_sensor.door_kitchen
+    #       to: "on"
+    #     - platform: state
+    #       entity_id: binary_sensor.motion_hallway
+    #       to: "on"
+    #   action:
+    #     # TODO Do not turn on group, but each light induvidually and brigthness with * multiplier to account for different bulbs.
+    #     - service: light.turn_on
+    #       entity_id: light.vindfang
+    #     #    data_template:
+    #     #     brightness_pct: '{{ states.sensor.brightnessforlights.state }}'
+    #     - service: light.turn_on
+    #       entity_id: group.hallwaylights
+    #       data_template:
+    #         brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
+    #     - service: light.turn_on
+    #       entity_id: light.upstairs
+    #       data_template:
+    #         brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
+
+    # - id: turnOffHallwayLightWhenMotion
+    #   alias: turnOffHallwayLightWhenMotion
+    #   trigger:
+    #     - platform: state
+    #       entity_id: binary_sensor.motion_hallway
+    #       to: "off"
+    #       for:
+    #         minutes: 2
+    #   condition:
+    #     - condition: state
+    #       entity_id: binary_sensor.motion_toilet
+    #       state: "off"
+    #     - condition: state
+    #       entity_id: binary_sensor.motion_sokkel
+    #       state: "off"
+    #     - condition: state
+    #       entity_id: binary_sensor.motion_vindfang
+    #       state: "off"
+    #   action:
+    #     - service: light.turn_off
+    #       entity_id: light.hallway
+    #     - service: light.turn_off
+    #       entity_id: light.trapp
+    #     - service: script.turn_on
+    #       entity_id: script.turnoffupstairslights
+    #     - service: script.turn_on
+    #       entity_id: script.turnoffvindfanglights
+
+  script:
+    turnoffupstairslights:
+      alias: Turn off upstairs lights
+      sequence:
+        - condition: template
+          value_template: "{{ states.binary_sensor.motion_upstairs.state == 'off'}}"
+        - service: light.turn_off
+          entity_id: light.upstairs
+
+    turnoffhallwaylights:
+      alias: Turn off hallway lights
+      sequence:
+        - condition: template
+          value_template: "{{ states.binary_sensor.motion_hallway.state == 'off'}}"
+        - service: light.turn_off
+          entity_id: light.hallway, light.trapp

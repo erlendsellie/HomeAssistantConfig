@@ -1,0 +1,51 @@
+# imageproccesing:
+#   image_processing:
+#     - platform: doods
+#       url: "http://localhost:8080"
+#       detector: default
+#       source:
+#         - entity_id: camera.driveway_stream
+#       file_out:
+#         - "/config/www/doods/driveway_doods.jpg"  
+#     - platform: doods
+#       url: "http://localhost:8080"
+#       detector: tensorflow
+#       source:
+#         - entity_id: camera.driveway_stream
+#       file_out:
+#         - "/config/www/doods/driveway_doods_tensorflow.jpg"  
+#     - platform: doods
+#       url: "http://localhost:8080"
+#       detector: default
+#       source:
+#         - entity_id: camera.tyra_tapo_hd
+#       file_out:
+#         - "/config/www/doods/tyra_doods.jpg"  
+
+#   binary_sensor:
+#   - platform: template
+#     scan_interval: 10
+#     sensors:
+#       carindriveway:
+#         friendly_name: 'Car in driveway'
+#         value_template: >-
+#           {{states.image_processing.doods_driveway_stream.attributes.matches.car[0].score > 60}}	
+#       tyrainbed:
+#         friendly_name: 'Tyra in bed'
+#         delay_off:
+#           minutes: 5
+#         value_template: >-
+#           {{states.image_processing.doods_tyra_tapo_hd.attributes.summary.person or 0 > 0}}	
+#   camera:
+#   - platform: generic
+#     name: doods driveway
+#     still_image_url: !secret doods_driveway
+
+#   - platform: generic
+#     name: doods driveway tensorflow
+#     still_image_url: !secret doods_driveway
+
+#   - platform: generic
+#     name: doods Tyra
+#     still_image_url: !secret doods_tyra
+    

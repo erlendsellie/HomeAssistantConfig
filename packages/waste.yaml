@@ -1,0 +1,93 @@
+waste:
+  automation:
+    - alias: Søppel denne uken
+      trigger:
+        - platform: time
+          at: "18:00:00"
+      condition:
+        - condition: time
+          weekday:
+            - mon
+      action:
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: sensor.restavfall
+                  state: "I dag"
+              sequence:
+                - service: script.turn_on
+                  entity_id: script.say
+                  data_template:
+                    variables:
+                      message: Restavfall tømmes i morgen
+                - service: script.turn_on
+                  entity_id: script.notifyboth
+                  data_template:
+                    variables:
+                      title: Restavfall
+                      message: tømmes i morgen
+                - delay:
+                    hours: 14
+                - service: script.turn_on
+                  entity_id: script.notifyboth
+                  data_template:
+                    variables:
+                      title: Restavfall
+                      message: tømmes i dag
+            - conditions:
+                - condition: state
+                  entity_id: sensor.papir
+                  state: "I dag"
+              sequence:
+                - service: script.turn_on
+                  entity_id: script.say
+                  data_template:
+                    variables:
+                      title: Papir
+                      message: Papir tømmes i morgen
+                - delay:
+                    hours: 14
+                - service: script.turn_on
+                  entity_id: script.notifyboth
+                  data_template:
+                    variables:
+                      title: Papir
+                      message: tømmes i dag
+                - service: script.turn_on
+                  entity_id: script.notifyboth
+                  data_template:
+                    variables:
+                      title: Papir
+                      message: tømmes i morgen
+                - delay:
+                    hours: 14
+                - service: script.turn_on
+                  entity_id: script.notifyboth
+                  data_template:
+                    variables:
+                      title: Papir
+                      message: tømmes i dag
+            - conditions:
+                - condition: state
+                  entity_id: sensor.plastemballasje
+                  state: "I dag"
+              sequence:
+                - service: script.turn_on
+                  entity_id: script.say
+                  data_template:
+                    variables:
+                      message: Plastemballasje tømmes i morgen
+                - service: script.turn_on
+                  entity_id: script.notifyboth
+                  data_template:
+                    variables:
+                      title: Plastemballasje
+                      message: tømmes i morgen
+                - delay:
+                    hours: 14
+                - service: script.turn_on
+                  entity_id: script.notifyboth
+                  data_template:
+                    variables:
+                      title: Plastemballasje
+                      message: tømmes i dag

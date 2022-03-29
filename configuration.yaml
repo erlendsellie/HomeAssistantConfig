@@ -1,0 +1,688 @@
+homeassistant:
+  packages: !include_dir_merge_named packages
+
+  name: !secret ha_name
+  customize: !include customize.yaml
+  customize_glob: !include customize_glob.yaml
+  customize_domain:
+    light:
+      assumed_state: false
+    group:
+      assumed_state: false
+  external_url: !secret base_url
+  internal_url: !secret internal_url
+
+  latitude: !secret latitude
+  longitude: !secret longitude
+  elevation: 140
+  unit_system: metric
+  time_zone: Europe/Oslo
+  currency: NOK
+  #whitelist_external_dirs:
+  # - /tmp
+  # - /config/www
+  # auth_providers:
+  #   - type: trusted_networks
+  #     trusted_networks:
+  #       - 172.16.0.0/12
+  #       - 192.168.0.0/24
+
+#        - 127.0.0.1
+
+system_health:
+default_config:
+
+logger:
+  default: warning
+  logs:
+    homeassistant.components.nissan_leaf: debug
+    pycarwings2: debug
+    #homeassistant.components.websocket_api: debug
+    #homeassistant.components: warning
+    #homeassistant.components.switch.broadlink: info
+    homeassistant.components.verisure: info
+    homeassistant.components.camera.generic: warning
+    #homeassistant.components.mqtt: notset
+    #homeassistant.components.ffmpeg: debug
+    #tibber: notset
+    custom_components.hacs.storage: info
+    custom_components.hacs: info
+    #homeassistant.components.http: warning
+    #homeassistant.components.automation: info
+    #homeassistant.components.script: info
+    #homeassistant.components.device_tracker.nmap_tracker: debug
+    #homeassistant.components.stream: fatal
+    #homeassistant.components.tibber: debug
+    libav: fatal
+    aiohttp: fatal
+    homeassistant.components.websocket_api.http.connection: fatal
+    #custom_components.pyscript: info
+    #homeassistant.components.influxdb: debug
+    #homeassistant.components.upnp: error
+    #remove this later.
+    homeassistant.components.stream.worker: fatal
+    #homeassistant.components.recorder: fatal
+    homeassistant.components.generic.camera: fatal
+
+    homeassistant.helpers.template: error
+zone:
+  - name: Home
+    latitude: !secret latitude
+    longitude: !secret longitude
+    radius: 30
+    icon: mdi:home
+
+  - name: CloseBy
+    latitude: !secret latitude
+    longitude: !secret longitude
+    radius: 600
+    icon: mdi:home
+
+  - name: Work
+    latitude: !secret latitudeWork
+    longitude: !secret longitudeWork
+    radius: 100
+    icon: mdi:language-php
+
+  - name: Sykehuset
+    latitude: !secret latitudeSykehuset
+    longitude: !secret longitudeSykehuset
+    radius: 200
+    icon: mdi:hospital-building
+
+  - name: Ekra
+    latitude: !secret latitudeEkra
+    longitude: !secret longitudeEkra
+    radius: 300
+    icon: mdi:dog-side
+
+  - name: Dalgard
+    latitude: !secret latitudeDalgard
+    longitude: !secret longitudeDalgard
+    radius: 50
+    icon: mdi:home
+
+  - name: Ugla
+    latitude: !secret latitudeUgla
+    longitude: !secret longitudeUgla
+    radius: 50
+    icon: mdi:home
+
+  - name: kindergarden
+    latitude: !secret latitudeBarnehage
+    longitude: !secret longitudeBarnehage
+    radius: 50
+    icon: mdi:ferry
+
+map:
+
+frontend:
+  themes: !include_dir_merge_named themes/
+
+config:
+cloud:
+
+http:
+  #removed because nginx
+  ssl_certificate: /ssl/fullchain.pem
+  ssl_key: /ssl/privkey.pem
+
+  # use_x_forwarded_for: true
+  # trusted_proxies:
+  #   - 172.30.33.0/24
+
+discovery:
+
+wake_on_lan:
+
+recorder:
+  db_url: !secret db_url
+  purge_keep_days: 10
+  exclude:
+    entities:
+      # - sensor.power_sivert_thonstads_vei_6b
+      # - sensor.consumptionrounded_mean
+      - sensor.time_date
+      - sensor.time_utc
+      - sensor.time
+      - sensor.oneplus_last_removed_notification
+      - sensor.oneplus_last_notification
+      #Maria DB Addon Config
+      # databases:
+      #   - homeassistant
+      # logins:
+      #   - username: hass
+      #     host: '%'
+      #     password: Secret
+      # rights:
+      #   - username: hass
+      #     host: '%'
+      #     database: homeassistant
+      #     grant: ALL PRIVILEGES ON
+
+# influxdb:
+#   host: a0d7b954-influxdb
+#   port: 8086
+#   database: homeassistant
+#   username: homeassistant
+#   password: !secret influx
+#   ssl: false
+#   verify_ssl: false
+#   max_retries: 3
+#   default_measurement: state
+
+logbook:
+  include:
+    domains:
+      - climate
+      - scene
+      - sun
+      - alarm_control_panel
+      - lock
+      - automation
+      - input_select
+      - light
+      - switch
+      - script
+      - device_tracker
+    entities:
+      - lock.ytterdor
+      - input_select.alarm
+      - light.play
+      - sensor.alarm
+  exclude:
+    domains:
+      - sensor
+# pyscript:
+#   allow_all_imports: true
+
+sun:
+
+weather: []
+
+downloader:
+  download_dir: downloads
+
+#   #signal_repetitions: 2
+tellstick:
+  host: core-tellstick
+  port: [50800, 50801]
+  #nc core-tellstick 50801
+
+octoprint:
+  host: 192.168.1.88
+  api_key: !secret octoprint
+
+# mqtt:
+#   discovery: true
+#   discovery_prefix: homeassistant
+#   broker: core-mosquitto
+#mqtt:
+#broker: core-mosquitto
+#discovery: true
+#mqtt:
+#broker: 192.168.1.75
+#password: !secret mqtt_password
+#client_id: hassio-mqtt
+#discovery: true
+#discovery_prefix: homeassistant
+
+xiaomi_aqara:
+  discovery_retry: 5
+  gateways:
+    - key: !secret aqara_key
+
+spotify:
+  client_id: !secret spotify_client_id
+  client_secret: !secret spotify_client_secret
+
+light:
+  - platform: tellstick
+
+  - platform: group
+    name: office_lights
+    entities:
+      - light.office_light
+      - light.play
+
+  # - platform: group
+  #   name: tvsone
+  #   entities:
+  #     - light.sofa
+  #     - light.tv
+  #     - light.chillsofa
+  #     - light.peis
+
+  - platform: group
+    name: kitchensone
+    entities:
+      - light.kitchen
+      - light.kitchen_ceiling_led
+      - light.cabinet
+      - light.table_lamp
+      - light.kjokkenbord
+      - light.ledstrip_kitchen
+
+  - platform: switch
+    name: Garage
+    entity_id: switch.garage_light
+
+  # - platform: switch
+  #   name: Star
+  #   entity_id: switch.bench
+
+  # - platform: switch
+  #   name: Kitchen
+  #   entity_id: switch.kitchen
+
+  - platform: switch
+    name: Cabinet
+    entity_id: switch.cabinet
+
+  # - platform: switch
+  #   name: Table Lamp
+  #   entity_id: switch.table_lamp
+
+  - platform: switch
+    name: Vindfang
+    entity_id: switch.vindfang
+
+  # - platform: switch
+  #   name: Vindfang
+  #   entity_id: switch.nexa2
+
+  - platform: switch
+    name: Office Light
+    entity_id: switch.officelight
+
+  # - platform: switch
+  #   name: Bedroom
+  #   entity_id: switch.bedroomlight
+
+  # - platform: switch
+  #   name: Guestroom
+  #   entity_id: switch.guestroom
+
+  # - platform: hyperion
+  #   host: 192.168.1.144
+
+#https://github.com/basnijholt/adaptive-lighting
+
+# adaptive_lighting:
+#   - name: "adaptive_stua"
+#     lights:
+#       - light.tv
+#       - light.chillsofa
+#       - light.peis
+#       - light.sofa
+#       - light.kjokkenbord
+#     prefer_rgb_color: false
+#     transition: 45
+#     initial_transition: 1
+#     interval: 90
+#     min_brightness: 1
+#     max_brightness: 100
+#     min_color_temp: 2300
+#     max_color_temp: 6500
+#     sleep_brightness: 1
+#     sleep_color_temp: 1000
+#     take_over_control: false
+#     detect_non_ha_changes: false
+#     only_once: false
+
+# - name: "adaptive_kontoret"
+#   lights:
+#     - light.play
+#   prefer_rgb_color: yes
+#   transition: 45
+#   initial_transition: 1
+#   interval: 90
+#   min_brightness: 1
+#   max_brightness: 100
+#   min_color_temp: 2300
+#   max_color_temp: 6500
+#   sleep_brightness: 1
+#   sleep_color_temp: 1000
+#   take_over_control: false
+#   detect_non_ha_changes: false
+#   only_once: false
+
+switch:
+  - platform: rest
+    resource: http://192.168.1.88/api/printer/tool
+    name: "preheatPrinterTool"
+    body_on: '{"command": "target","targets": {"tool0": 210}}'
+    body_off: '{"command": "target","targets": {"tool0": 0}}'
+    is_on_template: "{{ float(states.sensor.octoprint_target_tool0_temp.state) > 40}}"
+    headers:
+      Content-Type: application/json
+      X-Api-Key: !secret octoprint
+
+  - platform: rest
+    resource: http://192.168.1.88/api/printer/bed
+    name: "preheatPrinterBed"
+    body_on: '{"command": "target","target": 60}'
+    body_off: '{"command": "target","target": 0}'
+    is_on_template: "{{ float(states.sensor.octoprint_target_bed_temp.state) > 40}}"
+    headers:
+      Content-Type: application/json
+      X-Api-Key: !secret octoprint
+
+  - platform: mqtt
+    name: "fan_bathroom"
+    state_topic: "stat/SONOFF-2/POWER"
+    command_topic: "cmnd/SONOFF-2/POWER"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    retain: true
+
+  - platform: tellstick
+
+webostv:
+  name: TV Stua
+  host: 192.168.1.165
+  #mac: 14:C9:13:2C:44:1F
+  turn_on_action:
+    service: wake_on_lan.send_magic_packet
+    data:
+      mac: "14:C9:13:2C:44:1F"
+  customize:
+    sources:
+      - Amazon Prime Video
+      - CHROME50
+      - Game Console
+      - HDMI2
+      - NRK TV
+      - Netflix
+      - TV 2 Sumo
+      - Viaplay
+      - XPlay
+
+media_player: !include media_player.yaml
+media_extractor:
+
+rest_command:
+  healthcheck:
+    url: "https://hc-ping.com/53f9779a-db7b-4497-9d95-5b729ce7bd77"
+
+shell_command:
+  restart_container: docker restart homeassistant
+  pb_send_image: "perl sendpicture.pl"
+  pb_send_image2: "perl sendpicture2.pl"
+  test: "touch /tmp/hass-shell-command-test"
+  backup_configuration: cp -a /home/homeassistant/.homeassistant/configuration.yaml "/mnt/my_ftp/backup/configuration.yaml-$(date +"%m%d%Y-%H%M")"
+  backup_groups: cp -a /home/homeassistant/.homeassistant/groups.yaml "/mnt/my_ftp/backup/groups.yaml-$(date +"%m%d%Y-%H%M")"
+  backup_automations: cp -a /home/homeassistant/.homeassistant/automations.yaml "/mnt/my_ftp/backup/automations.yaml-$(date +"%m%d%Y-%H%M")"
+  backup_known_devices: cp -a /home/homeassistant/.homeassistant/known_devices.yaml "/mnt/my_ftp/backup/known_devices.yaml-$(date +"%m%d%Y-%H%M")"
+  backup_script: cp -a /home/homeassistant/.homeassistant/script.yaml "/mnt/my_ftp/backup/script.yaml-$(date +"%m%d%Y-%H%M")"
+  backup_media_player: cp -a /home/homeassistant/.homeassistant/media_player.yaml "/mnt/my_ftp/backup/media_player.yaml-$(date +"%m%d%Y-%H%M")"
+  backup_secrets: cp -a /home/homeassistant/.homeassistant/secrets.yaml "/mnt/my_ftp/backup/secrets.yaml-$(date +"%m%d%Y-%H%M")"
+  backup_notify: cp -a /home/homeassistant/.homeassistant/notify.yaml "/mnt/my_ftp/backup/notify.yaml-$(date +"%m%d%Y-%H%M")"
+  backup_climate: cp -a /home/homeassistant/.homeassistant/climate.yaml "/mnt/my_ftp/backup/climate.yaml-$(date +"%m%d%Y-%H%M")"
+  backup_cameras: cp -a /home/homeassistant/.homeassistant/cameras.yaml "/mnt/my_ftp/backup/cameras.yaml-$(date +"%m%d%Y-%H%M")"
+
+input_select:
+  light_profile:
+    name: "Light Profile:"
+    options:
+      - relax
+      #- concentrate
+      - energize
+      - reading
+  radio_station:
+    name: "Select Radio Station:"
+    options:
+      - P4
+      - mp3
+      - P10 Country
+      - P7 Klem
+  chromecast_radio:
+    name: "Select Speakers:"
+    options:
+      - Living Room
+      - Living Room TV
+      - Hallway
+      - Group
+      - Bedroom
+      - Speakers
+    initial: Living Room
+    icon: mdi:speaker-wireless
+  operationmode:
+    name: Operation Mode
+    options:
+      - heat
+      - cool
+      - heat_cool
+      - fan
+      - "off"
+    icon: mdi:air-conditioner
+  fanmode:
+    name: Fan Mode
+    options:
+      - Auto
+      - Quiet
+      - Powerful
+    icon: mdi:fan
+  alarm:
+    initial: Disarm
+    name: Alarm
+    options:
+      - Disarm
+      - Arm Away
+      - Arm Home
+
+input_number:
+  googlevolume:
+    name: Google Home Volume
+    min: 0
+    max: 100
+    step: 1
+    mode: slider
+  brightness:
+    name: Brightness
+    min: 0
+    max: 100
+    step: 1
+    mode: slider
+
+  extradegrees:
+    name: Extra Degrees to heat when cold
+    min: 0
+    max: 10
+    step: 1
+
+  coldthreshold:
+    name: Threshold for extra degrees
+    min: -20
+    max: 10
+    step: 1
+
+  trymasleeptime:
+    name: Trym Asleep time.
+    min: 0
+    max: 99999
+
+proximity:
+  homeerlend:
+    devices:
+      - person.erlend
+    tolerance: 10
+  homecaroline:
+    devices:
+      - person.caroline
+    tolerance: 10
+
+device_tracker: []
+
+input_boolean:
+  cleandustbin:
+    name: Clean DustBin
+  easleep:
+    name: Erlend sover
+    icon: mdi:sleep
+  casleep:
+    name: Caroline sover
+    icon: mdi:sleep
+  alarmclock:
+    name: Alarm Clock
+    icon: mdi:alarm-bell
+  motiondriveway:
+    name: Motion Driveway
+    icon: mdi:eye
+  expensiveelectricity:
+    name: Electricity is expensive
+    icon: mdi:flash
+  carheatermounted:
+    name: Car Heater is mounted
+    icon: mdi:car
+  warmupmorning:
+    name: warmupmorning
+    initial: off
+  trymasleep:
+    name: Trym is asleep
+    icon: mhdi:baby-buggy
+  tyraasleep:
+    name: Tyra is asleep
+    icon: mhdi:baby-buggy
+  tryminkindergarden:
+    name: Trym is in kindergarden
+    icon: mdi:ferry
+  tyrainkindergarden:
+    name: Tyra is in kindergarden
+    icon: mdi:ferry
+  guestmode:
+    name: Guest Mode - Will not arm house
+    icon: mdi:account-group
+  tabletennis:
+    name: Playing Table Tennis
+  testbutton:
+    name: Testbutton
+  doorbelljustrang:
+    name: Doorbell just rang
+  runvacuum:
+    name: Vacuum tonight
+
+var: # !include_dir_merge_list variables
+  x:
+    friendly_name: "X"
+    initial_value: 0
+    icon: mdi:bug
+
+binary_sensor: !include_dir_merge_list binary_sensors
+#automation: !include_dir_merge_list automations
+automation: !include automations.yaml
+sensor: !include_dir_merge_list sensors
+
+#google_calendar: integration:
+# google:
+#   client_id: !secret google_cal_client_id
+#   client_secret: !secret google_cal_client_secret
+
+tts:
+  - platform: google_translate
+    service_name: google_say
+    language: "no"
+    base_url: !secret base_url
+
+script: !include script.yaml
+
+ffmpeg:
+  ffmpeg_bin: /usr/bin/ffmpeg
+
+camera: !include cameras.yaml
+stream:
+
+telegram_bot:
+  - platform: polling
+    api_key: !secret telegram_bot
+    allowed_chat_ids:
+      - !secret telegram_chatid
+
+twilio:
+  account_sid: !secret twilio_sid
+  auth_token: !secret twilio_auth_token
+
+notify: !include notify.yaml
+climate: !include climate.yaml
+group: !include groups.yaml
+
+# smartir:
+
+# browser_mod:
+#   prefix: "browser_"
+#   devices:
+#     de19dd99-fd6892f6:
+#       name: "erlendPhone"
+#     ad36a65f-9b5fc91d:
+#       name: "work"
+
+browser:
+
+panel_iframe:
+  tautulli:
+    title: Tautulli
+    icon: mdi:filmstrip
+    url: !secret tautulliurl
+  gmail:
+    title: Gmail
+    icon: mdi:email
+    url: https://www.gmail.com
+  pitvask:
+    title: Pitvask
+    icon: mdi:car-wash
+    url: https://pitvask.no/index.php?side=dashbord
+
+cover:
+  - platform: template
+    covers:
+      garage_door:
+        friendly_name: "Garage Door"
+        value_template: "{{is_state('binary_sensor.garage', 'on')}}"
+        open_cover:
+          service: script.open_garage_door
+        close_cover:
+          service: script.close_garage_door
+        stop_cover:
+          service: script.close_garage_door
+        icon_template: >-
+          {% if is_state('binary_sensor.garage', 'on')%}
+            mdi:garage-open
+          {% elif is_state('binary_sensor.garage_occupied', 'on') %}
+            mdi:car
+          {% else %}
+            mdi:garage
+          {% endif %}
+
+  - platform: mqtt
+    name: "veranda_door"
+    device_class: "shade"
+    command_topic: "am43/027e259e8621/set"
+    position_topic: "am43/027e259e8621/position"
+    set_position_topic: "am43/027e259e8621/set_position"
+    availability_topic: "am43/027e259e8621/available"
+    position_open: 2
+    position_closed: 99
+
+  - platform: mqtt
+    name: "veranda_window"
+    device_class: "shade"
+    command_topic: "am43/02feff09d6d0/set"
+    position_topic: "am43/02feff09d6d0/position"
+    set_position_topic: "am43/02feff09d6d0/set_position"
+    availability_topic: "am43/02feff09d6d0/available"
+    position_open: 2
+    position_closed: 99
+
+alarm_control_panel:
+  - platform: manual
+    name: Home Alarm
+    code: !secret alarm_code
+    arming_time: 10 #30
+    delay_time: 30 #20
+    trigger_time: 240 #4
+    # disarmed:
+    #   trigger_time: 0
+    # armed_home:
+    #   pending_time: 0
+    #   delay_time: 0

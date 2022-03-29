@@ -1,0 +1,157 @@
+blanket:
+  automation:
+    - alias: AskToTurnOnBlanket
+      id: AskToTurnOnBlanket
+      trigger:
+        - platform: time
+          at: "21:30:00"
+      condition:
+        condition: and
+        conditions:
+          - condition: numeric_state
+            entity_id: sensor.ute_temperature
+            below: 3
+          - condition: state
+            entity_id: binary_sensor.erlendhome
+            state: "on"
+      action:
+        - service: notify.mobile_app_erlend_app
+          data_template:
+            title: "Turn on the blanket heater?"
+            message: "Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom."
+            data:
+              actions:
+                - action: blanket30min
+                  title: "Yes, 30 minutes"
+                - action: blanket60min
+                  title: "Yes, 60 minutes"
+                - action: blankettvoff
+                  title: "Yes, until TV Off"
+
+    - alias: AskToTurnOnBlanketCaroline
+      trigger:
+        - platform: time
+          at: "21:02:00"
+      condition:
+        condition: and
+        conditions:
+          - condition: numeric_state
+            entity_id: sensor.ute_temperature
+            below: 3
+          - condition: state
+            entity_id: binary_sensor.carolinehome
+            state: "on"
+      action:
+        - service: notify.mobile_app_caroline
+          data_template:
+            title: "Turn on the blanket heater?"
+            message: "Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom."
+            data:
+              actions:
+                - action: blanket30min
+                  title: "Yes, 30 minutes"
+                - action: blanket60min
+                  title: "Yes, 60 minutes"
+                - action: blankettvoff
+                  title: "Yes, until TV Off"
+
+    - alias: TurnOnBlanketTV
+      trigger:
+        - platform: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: blankettvoff
+        - platform: webhook
+          webhook_id: !secret blankettiltvoff
+      action:
+        - service: script.blankettv
+
+    - alias: TurnOnBlanket90
+      trigger:
+        - platform: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: blanket90min
+      action:
+        - service: switch.turn_on
+          entity_id: script.blanket90minutes
+
+    - alias: TurnOnBlanket30
+      trigger:
+        - platform: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: blanket30min
+        - platform: webhook
+          webhook_id: !secret blanket30min
+      action:
+        - service: script.turn_on
+          entity_id: script.blanket30minutes
+
+    - alias: TurnOnBlanket60
+      trigger:
+        - platform: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: blanket60min
+        - platform: webhook
+          webhook_id: !secret blanket60min
+      action:
+        - service: script.turn_on
+          entity_id: script.blanket60minutes
+
+    - alias: TurnOffBlanket
+      trigger:
+        - platform: state
+          entity_id: switch.blanket
+          to: "on"
+          for:
+            minutes: 140
+        - platform: state
+          entity_id: input_boolean.easleep
+          to: "on"
+          for:
+            hours: 1
+        - platform: state
+          entity_id: input_boolean.casleep
+          to: "on"
+          for:
+            minutes: 90
+        - platform: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: blanketoff
+        - platform: webhook
+          webhook_id: !secret blanketoff
+      action:
+        - service: switch.turn_off
+          entity_id: switch.blanket
+
+    - alias: TurnOnBlanketWhenCarolineWakes
+      trigger:
+        - platform: state
+          entity_id: input_boolean.casleep
+          to: "off"
+      condition:
+        condition: and
+        conditions:
+          - condition: numeric_state
+            entity_id: sensor.ute_temperature
+            below: 8
+          - condition: state
+            entity_id: binary_sensor.erlendhome
+            state: "on"
+          - condition: state
+            entity_id: input_boolean.easleep
+            state: "on"
+      action:
+        - service: switch.turn_on
+          entity_id: switch.blanket
+        - wait_for_trigger:
+            - platform: state
+              entity_id: input_boolean.easleep
+              to: "off"
+          timeout: "01:00:00"
+          continue_on_timeout: true
+        - service: switch.turn_off
+          entity_id: switch.blanket

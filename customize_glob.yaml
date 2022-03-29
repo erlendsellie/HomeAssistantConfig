@@ -1,0 +1,33 @@
+# switch.*:
+#   custom_ui_state_card: state-card-custom-ui
+switch.nexa*:
+      templates:
+        icon_color: >
+          if (state === 'on') return 'rgb(255, 0, 0)';      
+switch.bench:
+      templates:
+        icon_color: >
+          if (state === 'on') return 'rgb(255, 0, 0)';
+switch.kitchen_heater:
+      templates:
+        icon_color: >
+          if (state === 'on') return 'rgb(255, 0, 0)';  
+lock.ytterdor:
+      friendly_name: 'Lock'
+input_select.alarm:
+      templates:
+        icon_color: >
+          if (state === 'Disarm') return 'rgb(135, 255, 135)'; 
+          if (state === 'Arm Home') return 'rgb(255, 209, 84)';  
+          if (state === 'Arm Away') return 'rgb(255, 130, 130)';  
+
+
+#whyNoWork?
+# group.*:
+#   custom_ui_state_card: state-card-custom-ui
+#   templates:
+#     icon_color: >
+#       if (state === 'on') return 'rgb(181, 142, 49)';  
+#     icon: >
+#       if (state === 'on') return 'mdi:lightbulb';
+#       return 'mdi: lightbulb-off';          

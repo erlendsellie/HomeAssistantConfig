@@ -1,0 +1,106 @@
+guestmode:
+  automation:
+    - alias: guestmode_turnOffLightsAndHeating
+      trigger:
+        - platform: time
+          at: '23:59:00'
+      condition:
+        - condition: state
+          entity_id: input_boolean.guestmode
+          state: 'on'        
+      action:  
+      - service: lock.lock
+        data:
+          entity_id: lock.ytterdor
+          code: !secret lock_code
+
+      - entity_id: script.alllightsoff
+        service: script.turn_on
+      - entity_id: script.alllightsoff
+        service: script.turn_on
+      - service: switch.turn_off
+        entity_id: switch.nexa3  #Fan Heater
+
+    - id: guestmode_lockdoors
+      alias: guestmode_lockdoors
+      trigger:
+      - platform: state
+        entity_id: binary_sensor.hoveddor
+        to: 'off'
+        for:
+          minutes: 30    
+      condition:
+        - condition: state
+          entity_id: input_boolean.guestmode
+          state: 'on'        
+      action:    
+      - service: lock.lock
+        data:
+          entity_id: lock.ytterdor
+          code: !secret lock_code
+
+
+
+    - alias: Guestmode Notify Movement
+      trigger:
+        - platform: state
+          entity_id: 
+            - binary_sensor.motion_bedroom
+            - binary_sensor.motion_downstairs_office
+            - cover.garage_door
+          to: 'on'
+          from: 'off'
+      condition:
+        condition: and
+        conditions:
+        - condition: state
+          entity_id: binary_sensor.erlendhome
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.guestmode
+          state: 'on'
+      action:
+      - service: notify.me
+        data_template:
+          message: "Motion detected in {{ trigger.from_state.name }}."
+
+    - alias: GuestmodeChangedNotify
+      mode: restart
+      trigger:
+        - platform: state
+          entity_id: input_boolean.guestmode
+        - platform: state
+          entity_id: sensor.alarm
+      condition:
+        - condition: state
+          entity_id: input_boolean.guestmode
+          state: 'on'
+      action:  
+        - service: notify.mobile_app_erlend_app
+          data_template:
+            title: 'Guest mode is activated'
+            message: 'Guestmode is activated'
+            data:
+              ttl: 0
+              priority: high
+              actions:
+                - action: toggleguestmode
+                  title: Turn off
+                  destructive: false
+        - wait_for_trigger:
+          - platform: event
+            event_type: mobile_app_notification_action
+            event_data:
+              action: toggleguestmode
+          timeout: '00:30:00'      
+          continue_on_timeout: false
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.guestmode
+
+  binary_sensor:
+  - platform: template
+    scan_interval: 10
+    sensors:
+      guestmode_activated:
+        value_template: >
+            {{states.input_boolean.guestmode.state == 'on' and states.sensor.alarm.state != 'Disarm' }}

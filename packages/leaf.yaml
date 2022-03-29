@@ -1,0 +1,323 @@
+# leaf:
+
+#   # nissan_leaf_custom:
+#   #   username: !secret nissan_username
+#   #   password: !secret nissan_password
+#   #   region: NE
+#   #   update_interval: '00:30'
+  
+#   nissan_leaf_custom:
+#     username: !secret nissan_username
+#     password: !secret nissan_password
+#     region: NE
+#     update_interval: '10:00'
+
+#   switch:
+#     - platform: template
+#       switches:
+#         leaf_heating:
+#             friendly_name: "Leaf AC"
+#             value_template: "{{ is_state('switch.leaf_climate_control', 'on') }}"
+#             turn_on:
+#                 service: script.leaf_warmup
+#             turn_off:
+#                 service: script.leaf_stop_warmup
+#             icon_template: mdi:laptop
+
+#   binary_sensor:
+#     - platform: template
+#       sensors:
+#         leaf_in_garage:
+#           value_template: >-
+#             {% set distance = states.sensor.ultrasonic_sensor.state | float(default=0)%}
+#             {{distance < 0.5 and distance > 0.43}}
+#           delay_off:
+#             minutes: 2 
+#           icon_template: >
+#                 {% if (state == 'on')%}
+#                   mdi:garage
+#                 {% else %}
+#                   mdi:pine-tree
+#                 {% endif %}
+#         leaf_update_in_progress:
+#           value_template: >-
+#             {{states.sensor.leaf_charge.attributes.update_in_progress}}
+#         car_plugged_in:
+#           value_template: >-
+#             {{ states.sensor.garage_status.state != 'disconnected' }}
+
+#   sensor:
+#     - platform: template
+#       sensors:
+#         leaf_updated:
+#           value_template: >-
+#               {{ states.sensor.leaf_charge.attributes.updated_on | regex_replace(find=' ', replace='T', ignorecase=False)}}
+#         leaf_updated_formatted:
+#           value_template: >-
+#             {% set secondsSince = as_timestamp(utcnow()) - as_timestamp(states.sensor.leaf_charge.attributes.updated_on)%}
+#             {{ ((secondsSince | int(default=0)) / 60) | round(0)}} minutes ago
+
+#     - platform: filter
+#       name: "Leaf Charge Filtered"
+#       entity_id: sensor.leaf_charge
+#       filters:
+#         - filter: range
+#           lower_bound: 1
+#           upper_bound: 100
+#         - filter: outlier
+#           window_size: 1
+#           radius: 10.0
+
+#     - platform: filter
+#       name: "Leaf Range Filtered"
+#       entity_id: sensor.leaf_range
+#       filters:
+#         - filter: range
+#           lower_bound: 1
+#           upper_bound: 200
+#         - filter: outlier
+#           window_size: 1
+#           radius: 10.0
+
+#     - platform: filter
+#       name: "Leaf Range AC Filtered"
+#       entity_id: sensor.leaf_range_ac
+#       filters:
+#         - filter: range
+#           lower_bound: 1
+#           upper_bound: 200
+#         - filter: outlier
+#           window_size: 1
+#           radius: 10.0
+
+#   script:
+#     leaf_update:
+#       alias: 'Update Leaf'
+#       sequence:
+#         - condition: state
+#           entity_id: binary_sensor.leaf_update_in_progress
+#           state: 'off'
+#         - service: nissan_leaf_custom.update
+#           data: 
+#             vin: JN1FAAZE0U0015369
+#         - delay:
+#             seconds: 15          
+#         - service: nissan_leaf_custom.update
+#           data: 
+#             vin: JN1FAAZE0U0015369          
+
+
+#     leaf_warmup:
+#       alias: 'Warmup Leaf'
+#       sequence:
+#         - service: script.turn_on
+#           entity_id: script.notify
+#           data_template:
+#             variables:
+#               title: Startet oppvarming av Leaf.
+#               message: Batteriet er på {{states.sensor.leaf_charge.state}} ({{states.sensor.leaf_updated.state}}))
+#         - service: switch.turn_on
+#           entity_id: switch.leaf_climate_control
+#         - delay:
+#             seconds: 10
+#         - service: switch.turn_on
+#           entity_id: switch.leaf_climate_control
+#         - delay:
+#             seconds: 10
+#         - service: script.leaf_update
+#         - delay:
+#             minutes: 40
+#         - service: script.leaf_stop_warmup
+
+#     leaf_stop_warmup:
+#       alias: 'Stop Warmup Leaf'
+#       sequence:
+#         - service: script.leaf_turn_off_heating_switch
+#         - delay:
+#             seconds: 10
+#         - service: script.leaf_turn_off_heating_switch
+#         - service: script.leaf_update
+#         - delay:
+#             seconds: 10
+#         - service: script.turn_on
+#           entity_id: script.notify
+#           data_template:
+#             variables:
+#               title: Stoppet oppvarming av Leaf.
+#               message: Batteriet er på {{states.sensor.leaf_charge.state}} ({{states.sensor.leaf_updated.state}}))
+  
+#     leaf_turn_off_heating_switch:
+#       alias: 'Turn off heating switch leaf'
+#       sequence:
+#         - service: switch.turn_off
+#           entity_id: switch.leaf_climate_control
+
+#     leaf_warmup_if_charging:
+#       alias: 'Warmup Leaf'
+#       sequence:
+#         - condition: state
+#           entity_id: binary_sensor.car_plugged_in
+#           state: 'on'
+#         - service: script.leaf_warmup
+
+#   automation:
+
+#   # Ask to turn on heater before 7?
+#   # Remember to charge the car before night?
+#   # Tell when low charge.
+      
+#     - alias: LeafLowCharge
+#       id: LeafLowCharge
+#       trigger:
+#         - platform: numeric_state
+#           entity_id: sensor.leaf_charge_filtered
+#           below: 20
+#       action:
+#         - service: notify.erlendpush
+#           data_template:
+#             message: "Leaf is at {{states.sensor.leaf_charge_filtered.state}}% battery. Turning off heating if not plugged in."
+#         - condition: state
+#           entity_id: binary_sensor.car_plugged_in
+#           state: 'off'
+#         - service: script.leaf_stop_warmup
+
+      
+#     - alias: LeafLowChargeAfter21
+#       id: LeafLowChargeAfter21
+#       trigger:
+#       - platform: time
+#         at: '21:00:00'
+#       condition:
+#       - condition: template
+#         value_template: >-
+#           {{(states.sensor.leaf_charge_filtered.state | int(default=0) < 70) and 
+#           states.binary_sensor.car_plugged_in.state == 'off'}}
+#       action:
+#       - service: script.turn_on
+#         entity_id: script.notifyhome
+#         data_template:
+#           variables:
+#             title: Leaf er ikke koblet til lader
+#             message: Batteriet er på {{states.sensor.leaf_charge_filtered.state}}%. 
+            
+#     - alias: AskToTurnOnLeaf
+#       id: AskToTurnOnLeaf
+#       trigger:
+#       - platform: time
+#         at: '06:40:00'  
+#       condition:
+#         condition: and
+#         conditions:
+#         - condition: time
+#           weekday:
+#           - mon
+#           - tue
+#           - wed
+#           - thu
+#           - sun
+#         - condition: state
+#           entity_id: binary_sensor.erlendhome
+#           state: 'on'
+#       action:
+#         - service: notify.mobile_app_erlend_app
+#           data_template:
+#             title: "Start heating the car?"
+#             message: >-
+#               Its {{states.sensor.ute_temperature.state}} degrees outside.
+#               The car is {{states.sensor.garage_status.state}}.
+#             data:
+#               ttl: 0
+#               priority: high
+#               actions:
+#                 - action: turnonleaf
+#                   title: "Yes"
+
+
+#     - alias: AskToTurnOnLeafWork
+#       id: AskToTurnOnLeafWork
+#       trigger:
+#       - platform: time
+#         at: '14:50:00'  
+#       - platform: time
+#         at: '15:50:00'  
+#       condition:
+#       - condition: state
+#         entity_id: person.erlend
+#         state: 'Work'
+#       action:
+#         - service: notify.mobile_app_erlend_app
+#           data_template:
+#             title: "Start heating the car?"
+#             message: >-
+#               Its {{states.sensor.ute_temperature.state}} degrees outside.
+#             data:
+#               ttl: 0
+#               priority: high
+#               actions:
+#                 - action: turnonleaf
+#                   title: "Yes"
+
+
+#     - alias: TurnOnLeafByNotification
+#       trigger:
+#         - platform: event
+#           event_type: mobile_app_notification_action
+#           event_data:
+#             action: turnonleaf
+#       action:
+#           - service: script.leaf_warmup
+
+#     - alias: updateLeafWhenGarageOpensAndClosesOrEvery20Minutes
+#       id: updateLeafWhenGarageOpensAndClosesOrEvery20Minutes
+#       trigger:
+#         - platform: state
+#           entity_id: cover.garage_door
+#           to: 'on'
+#           for:
+#             minutes: 2
+#         - platform: state
+#           entity_id: cover.garage_door
+#           to: 'off'
+#           for:
+#             minutes: 2
+#         - platform: time_pattern
+#           minutes: "/20"
+#       action:
+#         - service: script.leaf_update
+
+#     - alias: 'UpdateCarByWebhook'
+#       id: 'UpdateCarByWebhook'
+#       trigger:
+#         platform: webhook
+#         webhook_id: !secret updatecarwebhook
+#       # condition:
+#       # - condition: template
+#       #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
+#       action:
+#         - service: script.leaf_update
+
+
+#     - alias: 'StartLeafHeaterByWebhook'
+#       id: 'StartLeafHeaterByWebhook'
+#       trigger:
+#         platform: webhook
+#         webhook_id: !secret leaf_start_warmup
+#       # condition:
+#       # - condition: template
+#       #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
+#       action:
+#         - service: script.leaf_warmup
+#         - service: script.leaf_update
+
+
+#     - alias: 'StopLeafHeaterByWebhook'
+#       id: 'StopLeafHeaterByWebhook'
+#       trigger:
+#         platform: webhook
+#         webhook_id: !secret leaf_stop_warmup
+#       # condition:
+#       # - condition: template
+#       #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
+#       action:
+#         - service: script.leaf_stop_warmup
+#         - service: script.leaf_update

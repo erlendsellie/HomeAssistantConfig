@@ -1,0 +1,377 @@
+tesla:
+  automation:
+    - alias: "upgradeInsurance"
+      id: "upgradeInsurance"
+      trigger:
+        - platform: numeric_state
+          entity_id: sensor.modely_mileage_sensor
+          above: 12000
+        - platform: numeric_state
+          entity_id: sensor.modely_mileage_sensor
+          above: 12500
+      action:
+        - service: script.turn_on
+          entity_id: script.notifyhome
+          data_template:
+            variables:
+              title: Kilometer på Sleipner holder på å gå over forsikring.
+              message: Oppgrader forsikring!
+
+    - alias: CarLowChargeAfter21
+      id: CarLowChargeAfter21
+      trigger:
+        - platform: time
+          at: "21:00:00"
+      condition:
+        - condition: template
+          value_template: >-
+            {{(states.sensor.modely.state | int(default=0) < 40) and 
+            states.binary_sensor.modely_charger_sensor.state == 'off'}}
+        - condition: state
+          entity_id: device_tracker.modely_location_tracker
+          state: "home"
+      action:
+        - service: script.turn_on
+          entity_id: script.notifyhome
+          data_template:
+            variables:
+              title: Sleipner er ikke koblet til lader
+              message: Batteriet er på {{states.sensor.modely.state}}%.
+
+    # - alias: 'unlockChargerWhenGarageIsOpened'
+    #   id: 'unlockChargerWhenGarageIsOpened'
+    #   trigger:
+    #     - platform: state
+    #       entity_id: cover.garage_door
+    #       to: 'on'
+    #     - platform: state
+    #       entity_id: binary_sensor.hoveddor
+    #       to: 'on'
+    #   condition:
+    #     - condition: state
+    #       entity_id: device_tracker.modely_location_tracker
+    #       state: 'home'
+    #     - condition: state
+    #       entity_id: binary_sensor.modely_charger_sensor
+    #       state: 'on'
+    #   action:
+    #     - service: lock.unlock
+    #       entity_id: lock.modely_charger_door_lock
+
+    - alias: "DisableChargerWhenNotHomeAndNotPluggedIn"
+      id: "DisableChargerWhenNotHomeAndNotPluggedIn"
+      trigger:
+        - platform: state
+          entity_id: input_select.alarm
+          to: "Arm Away"
+      condition:
+        - condition: template
+          value_template: "{{states.sensor.garage_status.state == 'disconnected'}}"
+      action:
+        - service: switch.turn_off
+          entity_id: switch.garage_is_enabled
+
+    - alias: "EnableChargerWhenHome"
+      id: "EnableChargerWhenHome"
+      trigger:
+        - platform: state
+          entity_id: input_select.alarm
+          to: "Disarm"
+        - platform: state
+          entity_id: input_select.alarm
+          to: "Arm Home"
+      action:
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: >-
+                    {{ 
+                      states.binary_sensor.should_charge_car_tonight.state == 'off' and
+                      states.sensor.modely.state | int(default=0) > 30
+                      and states.device_tracker.modely_location_tracker.state == 'home'
+                    }}
+              sequence:
+                - service: script.turn_on
+                  entity_id: script.notify
+                  data_template:
+                    variables:
+                      title: Will not charge car tonight.
+                      message: Will not charge car tonight.
+          default:
+            - service: switch.turn_on
+              entity_id: switch.garage_is_enabled
+
+    - alias: "defrostTeslaWhenHome"
+      id: "defrostTeslaWhenHome"
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.easleep
+          to: "off"
+      condition:
+        - condition: state
+          entity_id: device_tracker.modely_location_tracker
+          state: "home"
+        - condition: time
+          weekday:
+            - mon
+            - tue
+            - wed
+            - thu
+            - fri
+        - condition: numeric_state
+          entity_id: sensor.ute_temperature
+          below: 6
+        - condition: template
+          value_template: >-
+            {{ states.binary_sensor.modely_charger_sensor.state == 'on' or states.sensor.modely.state | int(default=0) > 30 }}
+      action:
+        - delay:
+            minutes: 10
+        - service: script.defrostcar
+        - delay:
+            minutes: 1
+        - service: script.defrostcar
+        - delay:
+            minutes: 1
+        - condition: template
+          value_template: >-
+            {{ states.climate.modely.state == 'off'}}
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Error
+              message: Defrosting car failed.
+
+    - alias: AskToTurnOnSleipnerWork
+      id: AskToTurnOnSleipnerWork
+      trigger:
+        # - platform: time
+        #   at: '14:50:00'
+        - platform: time
+          at: "15:50:00"
+      condition:
+        - condition: state
+          entity_id: person.erlend
+          state: "Work"
+        - condition: state
+          entity_id: device_tracker.modely_location_tracker
+          state: "Park Work"
+      action:
+        - service: notify.mobile_app_erlend_app
+          data_template:
+            title: "Start heating Sleipner?"
+            message: >-
+              Its {{states.sensor.modely_temperature_sensor_inside.state}} degrees in the car.
+            data:
+              ttl: 0
+              priority: high
+              actions:
+                - action: preheatsleipner
+                  title: "Yes"
+
+    - alias: preheatSleipnerByNotification
+      trigger:
+        - platform: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: preheatsleipner
+      action:
+        - service: script.climatecar
+
+    - alias: "openTrunk"
+      id: "openTrunk"
+      trigger:
+        platform: webhook
+        webhook_id: !secret tesla_open_trunk
+      action:
+        - service: lock.unlock
+          entity_id: lock.modely_trunk_lock
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Unlocking trunk
+              message: Unlocking trunk
+
+    - alias: "lockTrunk"
+      id: "lockTrunk"
+      trigger:
+        platform: webhook
+        webhook_id: !secret tesla_lock_trunk
+      action:
+        - service: lock.lock
+          entity_id: lock.modely_trunk_lock
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Locking trunk
+              message: Locking trunk
+
+    - alias: "unlockCharger"
+      id: "unlockCharger"
+      trigger:
+        platform: webhook
+        webhook_id: !secret tesla_open_charger
+      action:
+        - service: lock.unlock
+          entity_id: lock.modely_charger_door_lock
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Opening Charger
+              message: Opening Charger
+
+    - alias: "openFrunk"
+      id: "openFrunk"
+      trigger:
+        - platform: webhook
+          webhook_id: !secret tesla_open_frunk
+        - platform: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: frunk_sleipner
+      action:
+        - service: lock.unlock
+          entity_id: lock.modely_frunk_lock
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Opening frunk
+              message: Opening frunk
+
+    - alias: "openFrunkCaroline"
+      id: "openFrunkCaroline"
+      trigger:
+        platform: webhook
+        webhook_id: !secret tesla_open_frunk_caroline
+      action:
+        - service: lock.unlock
+          entity_id: lock.modely_frunk_lock
+        - service: script.turn_on
+          entity_id: script.notifycaroline
+          data_template:
+            variables:
+              title: Åpner frunk
+              message: Åpner frunk
+
+    - alias: "lockFrunk"
+      id: "lockFrunk"
+      trigger:
+        platform: webhook
+        webhook_id: !secret tesla_lock_frunk
+      action:
+        - service: lock.lock
+          entity_id: lock.modely_frunk_lock
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Locking frunk
+              message: Locking frunk
+
+    - alias: "22Degrees"
+      id: "22Degrees"
+      trigger:
+        platform: webhook
+        webhook_id: !secret tesla_22_degrees
+      action:
+        - service: script.climatecar
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Heating Sleipner
+              message: To 22 degrees.
+
+    - alias: "tesla_defrost"
+      id: "tesla_defrost"
+      trigger:
+        - platform: webhook
+          webhook_id: !secret tesla_defrost
+        - platform: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: defrost_sleipner
+      action:
+        - service: script.defrostcar
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Defrosting Sleipner
+              message: "its {{states.sensor.modely_temperature_sensor_inside.state}} in the car."
+
+    - alias: "Update Available For Tesla"
+      id: "Update Available For Tesla"
+      trigger:
+        platform: state
+        entity_id: binary_sensor.modely_update_available_sensor
+        to: "on"
+      action:
+        - service: notify.me
+          data:
+            title: "Update for Tesla is available."
+            message: |
+              Update for Tesla is Available.
+  script:
+    defrostcar:
+      alias: "Defost Sleipner"
+      sequence:
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Defrosting car
+              message: Defrosting car
+        - service: climate.set_preset_mode
+          data:
+            preset_mode: defrost
+          target:
+            entity_id: climate.modely
+
+    cooldowncar:
+      alias: "Cool Down Sleipner"
+      sequence:
+        - service: climate.turn_on
+          target:
+            entity_id: climate.modely
+        - service: climate.set_temperature
+          data:
+            temperature: 16
+          target:
+            entity_id: climate.modely
+
+    heatcar:
+      alias: "Heat Sleipner"
+      sequence:
+        - service: climate.turn_on
+          target:
+            entity_id: climate.modely
+        - service: climate.set_temperature
+          data:
+            temperature: 26
+          target:
+            entity_id: climate.modely
+
+    climatecar:
+      alias: "Set Sleipner to 22 degrees"
+      sequence:
+        - service: climate.turn_on
+          target:
+            entity_id: climate.modely
+      # - service: climate.set_temperature
+      #   data:
+      #     temperature: 22
+      #   target:
+      #     entity_id: climate.modely
+
+    turnoffaccar:
+      alias: "Turn off AC"
+      sequence:
+        - service: climate.turn_off
+          target:
+            entity_id: climate.modely

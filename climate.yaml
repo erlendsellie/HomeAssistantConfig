@@ -1,0 +1,46 @@
+# - platform: generic_thermostat
+#   name: Varmepumpe Generic
+#   heater: climate.varmepumpe
+#   target_sensor: sensor.stua_temperature
+#   min_temp: 15
+#   max_temp: 30
+#   ac_mode: false
+#   cold_tolerance: 0.3
+#   hot_tolerance: 0.3
+#   min_cycle_duration:
+#     seconds: 5
+#   initial_hvac_mode: "heat"
+#   precision: 0.5
+
+- platform: sensibo
+  api_key: !secret sensibo_api_key
+
+# - platform: smartir
+#   name: Varmepumpe
+#   device_code: 1023
+#   unique_id: living_ac
+#   controller_data: remote.broadlink_remote
+#   temperature_sensor: sensor.stua_temperature
+#   humidity_sensor: sensor.stua_humidity
+
+- platform: generic_thermostat
+  name: Garage Heater
+  heater: switch.garage_heater
+  target_sensor: sensor.garage_temperature
+  min_temp: 0
+  max_temp: 14
+  precision: 0.5
+  hot_tolerance: 0.2
+  keep_alive:
+    minutes: 30
+
+- platform: generic_thermostat
+  name: Office Heater
+  heater: switch.office_heater
+  target_sensor: sensor.office_temp_temperature
+  precision: 0.5
+  min_temp: 14
+  max_temp: 26
+  hot_tolerance: 0.2
+  keep_alive:
+    minutes: 30

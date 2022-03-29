@@ -1,0 +1,145 @@
+power_usage:
+  sensor:
+    - platform: template
+      sensors:
+        power_without_easee:
+          friendly_name: Power Without Easee
+          unit_of_measurement: W
+          value_template: >-
+            {% set main = states.sensor.power_sivert_thonstads_vei_6b.state | float(default=0)%}
+            {{max(0,main
+            - (states.sensor.garage_power.state | float(default=0)* 1000) 
+            )
+            }}
+        power_other:
+          friendly_name: Power other
+          unit_of_measurement: W
+          value_template: >-
+            {% set main = states('sensor.power_sivert_thonstads_vei_6b') | float(default=0)%}
+            {{max(0,main
+            - (states('sensor.garage_power') | float(default=0)* 1000) 
+            - (states('sensor.varmtvannsbereder_electric_consumption_w') | float(default=0)) 
+            - (states('sensor.sokkel_electric_consumption_w_2') | float(default=0)) 
+            - (states('sensor.bathroom_electric_consumption_w_3') | float(default=0)) 
+            - (states('sensor.vindfang_electric_consumption_w') | float(default=0)) 
+            - (states('sensor.office_heater_w') | float(default=0)) 
+            - (states('sensor.toilet_heater_w') | float(default=0)) 
+            - (states('sensor.trym_heater_w') | float(default=0)) 
+            - (states('sensor.tyra_heater_w') | float(default=0)) 
+            - (states('sensor.varmepumpe_w') | float(default=0)) 
+            - (states('sensor.vaskemaskin_electric_w') | float(default=0)) 
+            - (states('sensor.torketrommel_electric_w') | float(default=0)) 
+            )}}
+        easee_w:
+          friendly_name: Easee Watt
+          unit_of_measurement: W
+          value_template: >-
+            {{states.sensor.garage_power.state | float(default=0)* 1000}}
+        office_heater_w:
+          friendly_name: Office Heater W
+          unit_of_measurement: W
+          value_template: >-
+            {% set on = states.switch.office_heater.state == 'on'%}
+            {%if on%}
+              2000
+            {%else%}
+              0
+            {%endif%}
+        toilet_heater_w:
+          friendly_name: Toilet Heater W
+          unit_of_measurement: W
+          value_template: >-
+            {% set on = states.switch.toilet_heater.state == 'on'%}
+            {%if on%}
+              500
+            {%else%}
+              0
+            {%endif%}
+        tyra_heater_w:
+          friendly_name: Trym Heater W
+          unit_of_measurement: W
+          value_template: >-
+            {% set on = states.climate.tyra_heater.attributes.hvac_action == 'heating' %}
+            {%if on%}
+              1000
+            {%else%}
+              0
+            {%endif%}
+        trym_heater_w:
+          friendly_name: Trym Heater W
+          unit_of_measurement: W
+          value_template: >-
+            {% set on = states.climate.trym.attributes.hvac_action == 'heating' %}
+            {%if on%}
+              900
+            {%else%}
+              0
+            {%endif%}
+        # varmepumpe_voltage:
+        #   value_template: >-
+        #     {{ states.switch.varmepumpe.attributes.voltage }}
+        #   unit_of_measurement: "V"
+        # varmepumpe_m_ampere:
+        #   value_template: >-
+        #     {{ states.switch.varmepumpe.attributes.current }}
+        #   unit_of_measurement: "mA"
+        # varmepumpe_w_wrong:
+        #   value_template: >-
+        #     {{ states.switch.varmepumpe.attributes.current_consumption }}
+        #   unit_of_measurement: "W"
+        # varmepumpe_w:
+        #   value_template: >-
+        #     {{ (states.switch.varmepumpe.attributes.current * states.switch.varmepumpe.attributes.voltage / 1000) | round(0)  }}
+        #   unit_of_measurement: "W"
+
+    - platform: filter
+      name: "power other filtered"
+      entity_id: sensor.power_other
+      filters:
+        - filter: throttle
+          window_size: 4
+        - filter: outlier
+          window_size: 4
+          radius: 2.0
+        - filter: lowpass
+          time_constant: 10
+
+    - platform: integration
+      source: sensor.office_heater_w
+      name: Office Heater Kwh
+      unit_prefix: k
+      round: 2
+      method: left
+
+    - platform: integration
+      source: sensor.toilet_heater_w
+      name: Toilet Heater Kwh
+      unit_prefix: k
+      round: 2
+      method: left
+
+    - platform: integration
+      source: sensor.torketrommel_electric_w
+      name: Torketrommel Kwh
+      unit_prefix: k
+      round: 2
+
+    - platform: integration
+      source: sensor.vaskemaskin_electric_w
+      name: Vaskemaskin Kwh
+      unit_prefix: k
+      round: 2
+
+    - platform: integration
+      source: sensor.varmepumpe_w
+      name: Varmepumpe Kwh
+      unit_prefix: k
+      round: 2
+
+  binary_sensor:
+    - platform: template
+      sensors:
+        vvb_heating:
+          friendly_name: VVB Heating
+          value_template: >-
+            {{states.sensor.varmtvannsbereder_electric_consumption_w.state | int > 0}}

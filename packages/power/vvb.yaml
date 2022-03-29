@@ -1,0 +1,100 @@
+vvb:
+  template:
+    - sensor:
+        #Todo, a sensor to handle when bottom hits 19 or so, after a shower. Max-sensor will maybe work? Or max of bottom + average?
+        - name: "VVB Average"
+          unit_of_measurement: "°C"
+          state: >-
+            {%set bottom = states('sensor.vvb_bottom') | float%}
+            {%set top = states('sensor.vvb_top') | float%}
+            {{average(top,bottom)}}
+        - name: "VVB Average2"
+          unit_of_measurement: "°C"
+          state: >-
+            {%set bottom = states('sensor.vvb_bottom') | float%}
+            {%set avg = states('sensor.vvb_average') | float%}
+            {{average(bottom,avg)}}
+        - name: "VVB Min"
+          unit_of_measurement: "°C"
+          state: >-
+            {%set bottom = states('sensor.vvb_bottom') | float%}
+            {%set top = states('sensor.vvb_top') | float%}
+            {{min(top,bottom)}}
+        - name: "VVB Max"
+          unit_of_measurement: "°C"
+          state: >-
+            {%set bottom = states('sensor.vvb_bottom') | float%}
+            {%set top = states('sensor.vvb_top') | float%}
+            {{max(top,bottom)}}
+    - binary_sensor:
+        - name: "vvb_on"
+          state: >-
+            {%-set notUsingSpot = states.binary_sensor.usingspot.state == 'off' -%}
+            {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
+            {%-set billigste_8_timer = states.binary_sensor.billigste_8_timer.state == 'on' -%}
+            {%-set shouldNotBother = states.binary_sensor.pricedifferenceissmall.state == 'on' -%}
+            {%set pricelevel = states('sensor.pricelevel')%}
+            {%set isCheap = pricelevel ==  'CHEAP' or pricelevel == 'VERY_CHEAP'%}
+            {% if shouldNotBother %}
+              {{true}}
+            {% else %}
+              {{notUsingSpot or isLowPrice or billigste_8_timer or isCheap}}
+            {% endif %}
+
+  #Set to on always at some hours at night, to ensure hot water at morning?
+  # or when car charges = start heater?
+
+  sensor:
+    - platform: history_stats
+      name: VVB today
+      entity_id: switch.varmtvannsbereder
+      state: "on"
+      type: time
+      start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+      end: "{{ now() }}"
+
+    - platform: statistics
+      name: VVB Top Statistics
+      entity_id: sensor.vvb_top
+      max_age:
+        days: 7
+
+    - platform: statistics
+      name: VVB bottom Statistics
+      entity_id: sensor.vvb_bottom
+      max_age:
+        days: 7
+
+  automation:
+    - id: VVBToggle
+      alias: VVBToggle
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.vvb_on
+        - platform: time_pattern
+          minutes: 5 #Every hour, 5 minutes over.
+      action:
+        - service: climate.set_temperature
+          data:
+            temperature: >-
+              {%if states('binary_sensor.vvb_on') == 'on'%}
+                  80
+              {%else%}
+                  40
+              {%endif%}
+          target:
+            entity_id: climate.varmtvannsbereder
+        - alias: "Toggle VVB"
+          service: >-
+            climate.turn_on
+          target:
+            entity_id: climate.varmtvannsbereder
+  climate:
+    - platform: generic_thermostat
+      name: Varmtvannsbereder
+      heater: switch.varmtvannsbereder
+      target_sensor: sensor.vvb_average
+      min_temp: 40
+      max_temp: 80
+      precision: 1
+      hot_tolerance: 0.2

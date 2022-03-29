@@ -1,0 +1,72 @@
+vacuum_xiaomi:
+  input_boolean:
+    vacuum_just_emptied:
+      name: Vacuum just emptied
+
+  automation:
+  - alias: 'cleandustbin'
+    trigger:
+      platform: webhook
+      webhook_id: !secret cleanthedustbin
+    action:
+    - service: input_boolean.turn_on
+      entity_id: input_boolean.cleandustbin
+
+  - alias: SendToKitchen
+    trigger:
+    - platform: state
+      entity_id: binary_sensor.motion_kitchen
+      to: 'on'
+    condition:
+      condition: and
+      conditions:
+      - condition: time
+        weekday:
+        - mon
+        - thu
+        - sat
+      - condition: state
+        entity_id: input_boolean.vacuum_just_emptied
+        state: 'off'      
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+      - condition: template
+        value_template: "{{ states.media_player.shield.state  != 'playing'}}"
+      - condition: time
+        after: '12:00:00'        
+    action:
+      - service: vacuum.stop
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+      - service: script.turn_on
+        entity_id: script.sendvacuumtokitchen
+      # - service: vacuum.send_command
+      #   data:
+      #     entity_id: vacuum.xiaomi_vacuum_cleaner
+      #     command: app_goto_target
+      #     params: [25000,32800]  
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.vacuum_just_emptied
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+            message: 'Tøm Svetlana.'
+
+  - alias: VaccumJustEmptiedNot
+    trigger:
+      - platform: time
+        at: '12:00:00'
+    condition:
+      - condition: state
+        entity_id: input_boolean.vacuum_just_emptied
+        state: 'on'      
+    action:
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.vacuum_just_emptied
+
+  sensor:
+    - platform: template
+      sensors:
+        vacuum_battery:
+          friendly_name: 'Vacuum Battery'
+          unit_of_measurement: "%"
+          value_template: "{{states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level}}"

@@ -1,0 +1,17 @@
+carwash:
+  automation:
+    - id: CarAtStarWash
+      alias: CarAtStarWash
+      trigger:
+        - platform: zone
+          entity_id: device_tracker.modely_location_tracker
+          zone: zone.starwash
+          # Event is either enter or leave
+          event: enter
+      action:
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Sleipner vaskes!
+              message: Sleipner vaskes!

@@ -1,0 +1,36 @@
+- platform: webostv
+  host: 192.168.1.165
+  name: tv_stua
+  filename: webostv.conf
+
+- name: erlendpush
+  platform: pushbullet
+  api_key: !secret erlend_push
+
+- name: carolinepush
+  platform: pushbullet
+  api_key: !secret caroline_push 
+
+- platform: telegram
+  name: me
+  chat_id: !secret telegram_chatid
+
+
+- platform: html5
+  name: html5
+  vapid_pub_key: !secret vapid_pub_key
+  vapid_prv_key: !secret vapid_prv_key
+  vapid_email: !secret vapid_email
+
+- name: twilio
+  platform: twilio_sms
+  from_number: !secret twilio_number
+
+- name: Google Assistant
+  platform: rest
+  resource: http://192.168.1.75:5001/broadcast_message
+
+# - platform: nfandroidtv
+#   name: Shield Gentle
+#   host: 192.168.1.26
+#   duration: 8

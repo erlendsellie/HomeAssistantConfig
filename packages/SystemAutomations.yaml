@@ -1,0 +1,328 @@
+system:
+  automation:
+    # - alias: "Update Available Notifications"
+    #   trigger:
+    #     platform: state
+    #     entity_id: binary_sensor.updater
+    #   action:
+    #     - service: notify.me
+    #       data:
+    #         title: "Update for Home Assistant is available."
+    #         message: |
+    #           Version **{{ trigger.to_state.attributes.newest_version }}**:
+
+    #           - [GitHub](https://github.com/home-assistant/core/releases/tag/{{ trigger.to_state.attributes.newest_version }})
+    #           - [home-assistant.io]({{ trigger.to_state.attributes.release_notes }})
+    #     - service: persistent_notification.create
+    #       data:
+    #         title: New version of Home Assistant is available
+    #         message: |
+    #           Version **{{ trigger.to_state.attributes.newest_version }}**:
+
+    #           - [GitHub](https://github.com/home-assistant/core/releases/tag/{{ trigger.to_state.attributes.newest_version }})
+    #           - [home-assistant.io]({{ trigger.to_state.attributes.release_notes }})
+
+    # - alias: "System - Set Custom Theme at Startup"
+    #   trigger:
+    #     platform: homeassistant
+    #     event: start
+    #   action:
+    #     service: frontend.set_theme
+    #     data:
+    #       name: ios-dark-mode-copy
+    #       mode: dark
+
+    - alias: Restart Home Assistant When High Memory
+      trigger:
+        - platform: time
+          at: "03:20:00"
+      condition:
+        - condition: numeric_state
+          entity_id: sensor.memory_use_percent
+          above: 90
+      action:
+        - service: notify.me
+          data_template:
+            message: "Restarted Home Assistant due to high Memory Usage at {{states.sensor.memory_use_percent.state}}"
+        - service: homeassistant.restart
+
+    - alias: NotifyLowDiskSpace
+      trigger:
+        - platform: numeric_state
+          entity_id: sensor.disk_use_percent
+          above: 90
+      action:
+        - service: notify.me
+          data_template:
+            message: "Disk usage of Ubuntu VM is at {{states.sensor.disk_use_percent.state}}"
+
+    - alias: NotifySlowNetwork
+      trigger:
+        - platform: numeric_state
+          entity_id: sensor.speedtest_download
+          below: 40
+      action:
+        - service: notify.me
+          data_template:
+            message: "The last Speedtest had a download speed of {{states.sensor.speedtest_download.state}}"
+
+    - alias: NotifyDoorBellLow
+      trigger:
+        - platform: state
+          entity_id: person.erlend
+          to: "home"
+      condition:
+        - condition: numeric_state
+          entity_id: sensor.front_door_battery
+          below: 20
+      action:
+        - service: notify.me
+          data_template:
+            message: "The Door bell battery is getting low: {{states.sensor.front_door_battery.state}}"
+
+    - alias: NotifyImportantDevicesDown
+      trigger:
+        - platform: state
+          entity_id:
+            - sensor.accumulated_consumption_current_hour_sivert_thonstads_vei_6b
+            - sensor.modely
+            - sensor.stua_temperature
+            - climate.varmepumpe
+            - switch.varmepumpe
+            - climate.sokkel
+            - sensor.netatmo_home_temperature
+            - vacuum.xiaomi_vacuum_cleaner
+            - switch.garage_esp32
+            - binary_sensor.vindfang_door
+            - sensor.nordpool
+            - media_player.shield
+            - lock.ytterdor
+            - switch.garage_esp32
+            - device_tracker.oneplus
+            - device_tracker.caroline_app
+            - sensor.nordpool
+            - sensor.stua_temperature
+            - binary_sensor.front_door_ding
+          to: "unavailable"
+          for:
+            minutes: 5
+      action:
+        - service: notify.me
+          data_template:
+            title: Important device unavailable
+            message: "{{trigger.from_state.name}} is unavailable"
+
+    - alias: "Turn On Living Room TV with WakeOnLan"
+      trigger:
+        - platform: webostv.turn_on
+          entity_id: media_player.tv_stua
+      action:
+        - service: wake_on_lan.send_magic_packet
+          data:
+            mac: "14:C9:13:2C:44:1F"
+
+    - alias: NotifyGoogleWifiDown
+      mode: single
+      trigger:
+        - platform: template
+          value_template: "{{states.binary_sensor.google_wifi_connected.state != 'on' and states.binary_sensor.google_wifi_connected.state != 'off'}}"
+          for:
+            minutes: 5
+      action:
+        - service: notify.me
+          data_template:
+            message: "Google Wifi seems to be down. Try https://1q4u4bxleoi6poeenew920ecy5g1z4te.ui.nabu.casa"
+        - wait_for_trigger:
+            - platform: template
+              value_template: "{{states.binary_sensor.google_wifi_connected.state == 'on' or states.binary_sensor.google_wifi_connected.state == 'off'}}"
+          timeout: "10:00:00"
+          continue_on_timeout: false
+        - service: notify.me
+          data_template:
+            message: "Google Wifi is up again"
+
+    - alias: NotifyZWaveDown
+      mode: single
+      trigger:
+        - platform: template
+          value_template: "{{states.light.hallway.state != 'on' and states.light.hallway.state != 'off'}}"
+          for:
+            minutes: 15
+      action:
+        - service: notify.me
+          data_template:
+            message: "The Z-wave network seems to be down, restarting"
+        - delay:
+            minutes: 2
+        - service: hassio.addon_restart
+          data:
+            addon: addon_core_zwave_js
+        - wait_for_trigger:
+            - platform: template
+              value_template: "{{states.light.hallway.state == 'on' or states.light.hallway.state == 'off'}}"
+              for:
+                minutes: 2
+          timeout: "03:00:00"
+          continue_on_timeout: false
+        - service: notify.me
+          data_template:
+            message: "The Z-wave network is up again"
+        - delay:
+            minutes: 20
+
+    - alias: NotifyZigbeeDown
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.water_kitchen
+          to: "unavailable"
+          for:
+            minutes: 2
+      action:
+        - service: notify.me
+          data_template:
+            message: "The Zigbee network seems to be down"
+        - wait_for_trigger:
+            - platform: state
+              entity_id: binary_sensor.water_kitchen
+              to: "on"
+              for:
+                minutes: 2
+            - platform: state
+              entity_id: binary_sensor.water_kitchen
+              to: "off"
+              for:
+                minutes: 2
+          timeout: "03:00:00"
+          continue_on_timeout: false
+        - service: notify.me
+          data_template:
+            message: "The Zigbee network is up again"
+
+    - alias: NotifyMqttDown
+      trigger:
+        - platform: time
+          at: "02:00:00"
+      action:
+        - service: switch.turn_on
+          entity_id: switch.fan_bathroom
+        - delay:
+            seconds: 10
+        - condition: template
+          value_template: "{{states.switch.fan_bathroom.state == 'off'}}"
+        - service: notify.me
+          data_template:
+            message: "The MQTT network seems to be down"
+
+    - alias: NotifyMqttDownreset
+      trigger:
+        - platform: time
+          at: "02:00:40"
+      action:
+        - service: switch.turn_off
+          entity_id: switch.fan_bathroom
+
+    - alias: health check every 3 mins
+      trigger:
+        platform: time_pattern
+        minutes: /5
+      action:
+        - service: rest_command.healthcheck
+
+    - alias: Restart slave HA
+      trigger:
+        - platform: homeassistant
+          event: start
+      action:
+        - service: notify.me
+          data_template:
+            title: Home Asistant started
+            message: "{{ states.input_select.alarm.state }}"
+
+    - alias: NotifyAlarmState
+      trigger:
+        - platform: state
+          entity_id: input_select.alarm
+      action:
+        - service: notify.me
+          data_template:
+            title: "Alarm:"
+            message: "{{ states.input_select.alarm.state }}"
+
+    - alias: NotifyVVBOffLong
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.vvb_on
+          to: "off"
+          for:
+            hours: 13
+      action:
+        - service: notify.me
+          data_template:
+            title: "Alarm:"
+            message: "VVB har vært avslått i 13 timer nå, sjekk temp."
+
+    - alias: "Battery Alert"
+      trigger:
+        - platform: time
+          at: "19:15:00"
+      condition:
+        condition: or
+        conditions:
+          - condition: template
+            value_template: >-
+              {%- set threshold = 30 -%}
+              {%- for item in states.light if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
+              {%- if loop.first -%}
+              {{ true }}
+              {%- endif -%}
+              {%- endfor -%}
+          - condition: template
+            value_template: >-
+              {%- set threshold = 30 -%}
+              {%- for item in states.switch if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
+              {%- if loop.first -%}
+              {{ true }}
+              {%- endif -%}
+              {%- endfor -%}
+          - condition: template
+            value_template: >-
+              {%- set threshold = 30 -%}
+              {%- for item in states.sensor if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ("Body" not in item.name) and ("Leaf" not in item.name) and ("Battery Temperature" not in item.name) and ("Browser" | lower not in (item.name | lower)) and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
+              {%- if loop.first -%}
+              {{ true }}
+              {%- endif -%}
+              {%- endfor -%}
+          - condition: template
+            value_template: >-
+              {%- set threshold = 30 -%}
+              {%- for item in states.zwave if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
+              {%- if loop.first -%}
+              {{ true }}
+              {%- endif -%}
+              {%- endfor -%}
+          - condition: template
+            value_template: >-
+              {%- set threshold = 30 -%}
+              {%- for item in states.lock if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
+              {%- if loop.first -%}
+              {{ true }}
+              {%- endif -%}
+              {%- endfor -%}
+      action:
+        - service: notify.me
+          data_template:
+            message: >-
+              {%- set threshold = 30 -%}
+              {%- set domains = [states.light, states.switch, states.sensor, states.zwave, states.lock ] -%}
+              {%- for domain in domains -%}
+              {%- if loop.first -%}
+              The following devices have low battery levels:
+              {%- endif -%}
+              {%- for item in domain if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ("Body" not in item.name) and ("Browser" not in item.name) and ("Battery Temperature" not in item.name) and ("Leaf" not in item.name) and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
+              {%- if (item.attributes.battery_level is defined and ("Browser" | lower not in (item.name | lower)) and item.attributes['battery_level'] | int(default=0) < threshold) and item.attributes.battery_level != 'unknown' %}          {{ item.name }} ({{ item.attributes['battery_level'] }}),
+              {% endif -%}
+              {%- if "battery" in item.name | lower and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low") -%}
+              {{ item.name }} ({{ item.state }}),
+              {% endif -%}
+              {%- endfor -%}
+              {%- endfor -%}

@@ -1,0 +1,69 @@
+###################
+
+# - platform: smartir
+#   name: TV Stua Ir
+#   unique_id: tv_stua_ir
+#   device_code: 1040
+#   controller_data: 192.168.1.239
+#   power_sensor: binary_sensor.tv_on
+
+# platform: universal
+# name: Stua Universal
+# children:
+#   - media_player.living_room
+# commands:
+#   turn_on:
+#      service: media_player.turn_on
+#      data:
+#        entity_id: media_player.tv_stua_ir
+#    turn_off:
+#      service: media_player.turn_on
+#      data:
+#        entity_id: media_player.tv_stua_ir
+#    volume_up:
+#      service: media_player.volume_up
+#      data:
+#        entity_id: media_player.tv_stua
+#    volume_down:
+#      service: media_player.volume_up
+#      data:
+#        entity_id: media_player.tv_stua
+#    volume_mute:
+#      service: media_player.volume_mute
+#      data:
+#        entity_id: media_player.tv_stua
+#  select_source:
+#      service: media_player.select_source
+#      data_template:
+#        entity_id: media_player.receiver
+#        source: '{{ source }}'
+#  volume_set:
+#    service: media_player.volume_set
+#    data_template:
+#      entity_id: media_player.receiver
+#      volume_level: '{{ volume_level }}'
+
+# attributes:
+#   state: switch.living_room_tv
+#   is_volume_muted: switch.living_room_mute
+#   volume_level: media_player.receiver|volume_level
+#   source: media_player.receiver|source
+#   source_list: media_player.receiver|source_list
+
+# - platform: spotify
+#   client_id: c8029867c28f4ac5b1845f73c9ed7c6d
+#   client_secret: 075e592bf23d46369a9c2b9f0ef4dfca
+
+# - platform: samsungtv
+#   host: 192.168.1.215
+#   mac: E4:E0:C5:2B:C8:15
+#   name: TV soverommet
+
+# - platform: androidtv
+#   host: 192.168.1.40
+#   name: "NVidia Shield"
+#   adb_server_ip: 127.0.0.1
+#   adb_server_port: 5037
+#treg!
+# - platform: pioneer
+#   host: 192.168.1.105

@@ -1,0 +1,219 @@
+sensor.office_heater_kwh:
+  last_reset: '1970-01-01T00:00:00+00:00'
+  state_class: 'total_increasing'
+  device_class: energy
+  unit_of_measurement: kWh  
+sensor.toilet_heater_kwh:
+  last_reset: '1970-01-01T00:00:00+00:00'
+  state_class: 'total_increasing'
+  device_class: energy
+  unit_of_measurement: kWh
+sensor.torketrommel_kwh:
+  last_reset: '1970-01-01T00:00:00+00:00'
+  state_class: 'total_increasing'
+  device_class: energy
+  unit_of_measurement: kWh
+sensor.vaskemaskin_kwh:
+  last_reset: '1970-01-01T00:00:00+00:00'
+  state_class: 'total_increasing'
+  device_class: energy
+  unit_of_measurement: kWh
+sensor.varmepumpe_kwh:
+  last_reset: '1970-01-01T00:00:00+00:00'
+  state_class: 'total_increasing'
+  device_class: energy
+  unit_of_measurement: kWh
+
+
+
+
+
+
+
+
+
+
+
+
+
+person.erlend:
+  entity_picture: /local/CVbilde.jpg
+sensor.erlend:
+  entity_picture: /local/CVbilde.jpg
+person.caroline:
+  entity_picture: /local/caroline.png
+sensor.caroline:
+  entity_picture: /local/caroline.png
+cover.veranda_curtains:
+  device_class: shade
+sensor.trym_temp:
+  templates:
+    icon_color: "if (float(state) > 22) return 'rgb(255, 0, 0)';   if (float(state)\
+      \ < 19) return 'rgb(66, 176, 245)';  \n"
+sensor.temp_bedroom:
+  templates:
+    icon_color: "if (float(state) > 22) return 'rgb(255, 0, 0)';   if (float(state)\
+      \ < 19) return 'rgb(66, 176, 245)';  \n"
+sensor.bathroom_temperature:
+  templates:
+    icon_color: "if (float(state) > 25) return 'rgb(255, 0, 0)';   if (float(state)\
+      \ < 22) return 'rgb(66, 176, 245)';  \n"
+  friendly_name: Bathroom
+  icon: mdi:water
+group.all_scripts:
+  hidden: false
+group.all_switches:
+  hidden: false
+group.all_locks:
+  hidden: false
+group.all_lights:
+  hidden: false
+group.all_devices:
+  hidden: false
+group.all_automations:
+  hidden: false
+light.nexadim1:
+  friendly_name: Kjøkkenbord
+switch.carheater:
+  friendly_name: Car Heater
+  icon: mdi:car-connected
+switch.nexa2:
+  friendly_name: Vindfang
+switch.nexa3:
+  friendly_name: Fan Heater
+  icon: mdi:fan
+device_tracker.erlends7:
+  friendly_name: Erlend
+device_tracker.carolines7:
+  friendly_name: Caroline
+sensor.stua_temperature:
+  friendly_name: Stua
+  icon: mdi:thermometer
+  templates:
+    icon_color: "if (float(state) > 23) return 'rgb(255, 0, 0)';   if (float(state)\
+      \ < 19) return 'rgb(66, 176, 245)';  \n"
+sensor.stua_humidity:
+  friendly_name: Luftfuktighet
+sensor.ute_temperature:
+  friendly_name: Ute
+  icon: mdi:thermometer
+sensor.ute_humidity:
+  friendly_name: Ute - Luftfuktighet
+  icon: mdi:water-percent
+sensor.gaming_rom_temperature:
+  friendly_name: Vindfang
+  icon: mdi:thermometer
+sensor.gaming_rom_humidity:
+  friendly_name: Vindfang - luftfuktighet
+  icon: mdi:water-percent
+sensor.bathroom_humidity:
+  friendly_name: Bathroom - Humidity
+  icon: mdi:water
+sensor.targettemp:
+  icon: mdi:air-conditioner
+script.startroomba:
+  icon: mdi:robot
+  friendly_name: Start Roomba
+script.heat:
+  icon: mdi:radiator
+  friendly_name: Heat
+script.cool:
+  icon: mdi:fan
+  friendly_name: Cool
+script.heatpumpoff:
+  icon: mdi:fan-off
+  friendly_name: Heat pump off
+script.lockdoor:
+  icon: mdi:lock
+  friendly_name: Lock Door
+script.unlockdoor:
+  icon: mdi:lock-open
+  friendly_name: Unlock Door
+input_boolean.easleep:
+  icon: mdi:sleep
+input_boolean.casleep:
+  icon: mdi:sleep
+input_boolean.arm_home:
+  icon: mdi:bell-sleep
+  friendly_name: Arm Home
+input_boolean.arm_away:
+  icon: mdi:bell-plus
+  friendly_name: Arm Away
+input_boolean.disarm:
+  icon: mdi:bell-off
+  friendly_name: Disarm
+input_boolean.cool:
+  icon: mdi:air-conditioner
+  friendly_name: Air Conditioning
+input_number.temperature:
+  icon: mdi:air-conditioner
+input_number.hjemmetemp:
+  icon: mdi:air-conditioner
+input_number.borte:
+  icon: mdi:air-conditioner
+input_number.brightness:
+  icon: mdi:lamp
+input_select.alarm:
+  friendly_name: Alarm
+  icon: mdi:security
+group.Magnetkontakter:
+  icon: mdi:magnet-on
+group.caroline:
+  entity_picture: /local/caroline.png
+group.erlend:
+  entity_picture: /local/CVbilde.jpg
+group.people:
+  icon: mdi:home
+  templates:
+    icon: 'if (state === ''home'') return ''mdi:home''; return ''mdi:nature-people'';
+
+      '
+    icon_color: 'if (state === ''home'') return ''rgb(251, 210, 41)''; return ''rgb(54,
+      95, 140)'';
+
+      '
+switch.fan_bathroom:
+  icon: mdi:fan
+  friendly_name: Bathroom Fan
+  templates:
+    icon: 'if (state === ''on'') return ''mdi:fan''; return ''mdi:fan-off'';
+
+      '
+    icon_color: 'if (state === ''on'') return ''rgb(255, 0, 0)'';
+
+      '
+group.hallwaylights:
+  templates:
+    icon_color: "if (state === 'on') return 'rgb(255, 255, 0)';  \n"
+group.andrelys:
+  templates:
+    icon_color: "if (state === 'on') return 'rgb(255, 255, 0)';  \n"
+light.star:
+  icon: mdi:star
+switch.kitchen_heater:
+  friendly_name: Kitchen Heater
+  icon: mdi:radiator
+  templates:
+    icon_color: "if (state === 'on') return 'rgb(255, 0, 0)'; \n"
+switch.officelight:
+  icon: mdi:lightbulb
+vacuum.xiaomi_vacuum_cleaner:
+  friendly_name: Svetlana
+sensor.restavfall:
+  entity_picture: /local/trash/rest.svg
+sensor.papir:
+  entity_picture: /local/trash/papir.svg
+sensor.plastemballasje:
+  entity_picture: /local/trash/plast.svg
+input_boolean.trymasleep:
+  entity_picture: https://sivert.duckdns.org/local/trym.png
+input_boolean.tyraasleep:
+  entity_picture: https://sivert.duckdns.org/local/tyra.jpg
+binary_sensor.xps:
+  icon: mdi:keyboard-outline
+sensor.leaf_updated:
+  device_class: timestamp
+device_tracker.tesla_model_y_location_tracker:
+  icon: mdi:car-electric
+device_tracker.modely_location_tracker:
+  icon: mdi:car-electric
