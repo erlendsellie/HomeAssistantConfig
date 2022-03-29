@@ -83,8 +83,8 @@ With help from the Garmin Tasker app on the Garmin Connect IQ Store, i can with 
 
 ## Screenshots: 
 
-![Home](screenshotHome.png)
-![Security](screenshotSecurity.png)
-![Printer](screenshotPrinter.png)
-![Power](screenshotpower.png)
-![Stocks](screenshotStocks.png)
+![Home](screenshots/screenshotHome.png)
+![Security](screenshots/screenshotSecurity.png)
+![Power](screenshots/screenshotPower.png)
+![Printer](screenshots/screenshotPrinter.png)
+![Stocks](screenshots/screenshotStocks.png)
