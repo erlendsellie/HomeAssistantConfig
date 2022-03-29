@@ -14,6 +14,11 @@
 If price is peaking, the temperature around the house is decreased by one degree celcius. If the price is gaining the next hour, increase the temperature by one degree.
 This helps with lowering the power consumption in the most expensive hours.
 
+Water boiler is controlled by Aotec Heavy Duty, and two temperature sensors with ESPHome to create a climate entity. If the power is cheap, set it to 40 degrees, else, set it to 80.
+
+#### Car Control
+Control the car like preheating, trunk, frunk, location, battery and such with nofifications, watch(webhooks from tasker) and HA UI without having to fish the phone out from the pocket.
+
 #### Automatic alarm
 The alarm is armed whenever we leave the house or go to sleep, based on device trackers and sleeping sensors, boiled down to a template alarm sensor.
 
@@ -30,23 +35,34 @@ This is used for:
 - Notify us if no one has picked them up from kindergarden before it closes.
 
 
-#### Smart watch control
-Selfmade watchface with tasker integration that triggers some webhooks and actionable notifications in Home Assistant that does the following:
-- Dim the lights in some occupied rooms to desired light level.
-- Toggle the garage
-- Toggle the curtains
-- Turn on/off the bed blanket heater
+#### Smart watch control with Garmin Tasker
+With help from the Garmin Tasker app on the Garmin Connect IQ Store, i can with a press or two (or three or four):
+- Adjust the brigthness on different light groups in different rooms to my liking
+- Toggle TV Power,  either the Bedroom TV or the Living Room TV, based on my 'state'
+- Pause the same TV, or skip ads on YouTube
+- Control the Volume on the same TV
+- Toggle covers like the garage door or blinds
+- Turn on the heated blanket in the bed, either for 30 minutes, or turn it on, and leave it on until the TV in the bedroom turns off.
+- Control the climate in the car, open the frunk, trunk and charge port.
 
 #### Other:
-- Stock price notifications using FinnHub.io API
 - Mail delivery days notifications.
 - Waste collection notifications
 - Game timer. After hunting, game birds are supposed to hang for 40 'daydegrees'. This package appendes the temperature for each hour, and notifies me when the bird is ready for the freezer.
+- Stock price notifications using FinnHub.io API
+
 
 ## Specs
 
 - Aqara motion sensors and magnet sensors
 - IKEA Trådfri / Hue / Namron lights, switches and bulbs
+- Mill Panel Heaters
+- heatit z-trm3 thermostats
+- Aoetec Heavy Duty for Water Boiler
+- Sensibo IR-blaster for heat pump
+- Easee EV Charger for smart charging and power management
+- Tesla Model Y for presence and car climate control
+- Garmin Fenix 6 as a remote for the entire home with Garmin Tasker app
 - Aqara and 433mhz temperature and humidity sensors
 - Xiaomi water leakage sensors and smoke detectors.
 - A-OK Curtain controllers from AliExpress, controlled with ESP32.

@@ -1,4 +1,143 @@
 type: custom:apexcharts-card
+header:
+  title: Forbruk, Priskorreksjon og pris
+  show: true
+now:
+  show: true
+graph_span: 2d
+span:
+  start: day
+  offset: '-24h'
+apex_config:
+  chart:
+    height: 600
+  yaxis:
+    - show: false
+      decimalsInFloat: 0
+      floating: false
+      forceNiceScale: false
+      extend_to_end: true
+    - show: true
+      decimalsInFloat: 0
+      floating: false
+      forceNiceScale: false
+      extend_to_end: true
+    - show: false
+      decimalsInFloat: 0
+      extend_to_end: false
+      max: 1
+      min: 0
+    - show: false
+      floating: false
+      extend_to_end: false
+      max: 1
+      min: 0
+    - show: false
+      floating: false
+      extend_to_end: false
+      max: 1
+      min: 0
+    - seriesName: Power
+      min: 0
+      opposite: true
+      decimalsInFloat: 0
+      show: true
+      unit_of_measurement: W
+    - seriesName: Power
+      min: 0
+      opposite: true
+      decimalsInFloat: 0
+      show: false
+      unit_of_measurement: W
+series:
+  - entity: sensor.nordpool
+    extend_to_end: true
+    name: Price
+    curve: smooth
+    color: tomato
+    stroke_width: 1
+    show:
+      legend_value: false
+    data_generator: |
+      let today =  entity.attributes.raw_today.map((entry) => {
+        return [new Date(entry.start), (entry.value) * 100];
+      });
+      return today;
+  - entity: sensor.nordpool
+    extend_to_end: false
+    name: Price
+    transform: return x * 100;
+    curve: smooth
+    color: tomato
+    stroke_width: 1
+    show:
+      legend_value: false
+  - entity: binary_sensor.pricecorrection_up
+    name: Opp
+    extend_to_end: true
+    transform: 'return x === ''on'' ? 1 + (Math.random() * 0.001): 0;'
+    type: area
+    curve: stepline
+    color: '#00360e'
+    opacity: 1
+    show:
+      in_header: false
+      legend_value: false
+  - entity: binary_sensor.pricecorrection_down
+    name: Ned
+    extend_to_end: true
+    transform: 'return x === ''on'' ? (1 + (Math.random() * 0.001)) : 0;'
+    type: area
+    curve: stepline
+    color: '#4f0500'
+    opacity: 1
+    show:
+      in_header: false
+      legend_value: false
+  - entity: binary_sensor.vvb_on
+    name: VVB på
+    extend_to_end: true
+    transform: 'return x === ''on'' ? (0.5 + (Math.random() * 0.001)) : 0;'
+    type: area
+    curve: stepline
+    color: '#5c5000'
+    opacity: 1
+    show:
+      in_header: false
+      legend_value: false
+  - entity: sensor.filtered_consumption
+    extend_to_end: false
+    type: column
+    stroke_width: 6
+    opacity: 0.6
+    name: Watt
+    color: '#009900'
+    curve: smooth
+    unit: W
+    group_by:
+      duration: 1hour
+      func: avg
+  - entity: sensor.filtered_consumption
+    extend_to_end: false
+    type: area
+    name: Watt
+    opacity: 1
+    stroke_width: 1
+    color: '#0E476C25'
+    curve: smooth
+    unit: W
+    group_by:
+      duration: 5min
+      func: avg
+
+
+
+
+
+
+
+
+type: custom:apexcharts-card
 apex_config:
   yaxis:
     - show: true
