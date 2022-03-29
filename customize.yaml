@@ -120,9 +120,7 @@ script.heat:
 script.cool:
   icon: mdi:fan
   friendly_name: Cool
-script.heatpumpoff:
-  icon: mdi:fan-off
-  friendly_name: Heat pump off
+
 script.lockdoor:
   icon: mdi:lock
   friendly_name: Lock Door

@@ -1171,25 +1171,7 @@ alarm:
             code: !secret alarm_code
             entity_id: alarm_control_panel.home_alarm
 
-    - alias: FreezerIsWarm
-      trigger:
-        - platform: numeric_state
-          entity_id: sensor.fryser
-          above: -18
-      action:
-        - service: notify.erlendpush
-          data_template:
-            message: "The freezer may be malfunctioning. The temperature is {{states.sensor.fryser.state}}."
-    # - alias: FridgeIsWarm
-    #   trigger:
-    #     - platform: numeric_state
-    #       entity_id: sensor.kjoleskap
-    #       above: 10
-    #   action:
-    #     - service: notify.erlendpush
-    #       data_template:
-    #         message: "The fridge may be malfunctioning. The temperature is {{states.sensor.kjoleskap.state}}."
-
+    #Takes a lot of space. Must send the video, and then delete it or something?
     # - alias: Savedoorbellvideo
     #   trigger:
     #     - platform: state
@@ -1200,3 +1182,176 @@ alarm:
     #       url: "{{ state_attr('camera.front_door', 'video_url') }}"
     #       subdir: "{{state_attr('camera.front_door', 'friendly_name')}}"
     #       filename: "{{now().day}}-{{now().month}}-{{now().year}} {{now().hour}}:{{now().minute}}.mp4"
+
+  script:
+    alarmtriggered:
+      alias: Alarm Triggered
+      sequence:
+        - service: notify.erlendpush
+          data_template:
+            title: Alarm!
+            message: >-
+              Alarmen er utløst! 
+              {%- for entity_id in states.group.awaysensors.attributes.entity_id 
+              if states(entity_id) == 'on' -%}
+              {% set parts = entity_id.split('.') -%}
+              {{ states[parts[0]][parts[1]].name }} er åpen ,
+              {%- endfor %}
+        - service: notify.carolinepush
+          data_template:
+            title: Alarm!
+            message: >-
+              Alarmen er utløst! 
+              {%- for entity_id in states.group.awaysensors.attributes.entity_id 
+              if states(entity_id) == 'on' -%}
+              {% set parts = entity_id.split('.') -%}
+              {{ states[parts[0]][parts[1]].name }} er åpen ,
+              {%- endfor %}
+        - service: vacuum.set_fan_speed
+          entity_id: vacuum.xiaomi_vacuum_cleaner
+          data:
+            fan_speed: Turbo
+        - service: vacuum.start
+          entity_id: vacuum.xiaomi_vacuum_cleaner
+        - service: xiaomi_aqara.play_ringtone
+          data:
+            gw_mac: 7C:49:EB:1C:2D:6B
+            ringtone_id: 1
+            ringtone_vol: 100
+        - service: script.turn_on
+          entity_id: script.blink_lights_danger
+        - service: light.turn_on
+          entity_id: light.gateway_light_7c49eb1c2d6b
+          data:
+            color_name: red
+        - service: media_player.volume_set
+          data_template:
+            entity_id: media_player.living_room_speaker
+            volume_level: 1
+        - service: tts.google_say
+          entity_id: media_player.minis, media_player.clock
+          data:
+            message: "Alarm! Husalarm utløst!."
+        - delay:
+            seconds: 4
+        - service: script.turn_on
+          entity_id: script.lightsoff
+        - service: tts.google_say
+          entity_id: media_player.minis, media_player.clock
+          data:
+            message: "Alarm! Husalarm utløst!."
+        - delay:
+            seconds: 4
+        - service: script.turn_on
+          entity_id: script.lightson
+        - service: tts.google_say
+          entity_id: media_player.minis,  media_player.clock
+          data:
+            message: "Alarm! Husalarm utløst!."
+        - delay:
+            seconds: 4
+        - service: script.turn_on
+          entity_id: script.lightsoff
+        - service: tts.google_say
+          entity_id: media_player.minis
+          data:
+            message: "Alarm! Husalarm utløst!."
+        - service: xiaomi_aqara.play_ringtone
+          data:
+            gw_mac: 7C:49:EB:1C:2D:6B
+            ringtone_id: 1
+            ringtone_vol: 100
+        - delay:
+            seconds: 15
+        - service: script.turn_on
+          entity_id: script.lightson
+        - service: media_player.volume_set
+          data_template:
+            entity_id: media_player.living_room_speaker
+            volume_level: 0.5
+        - service: logbook.log
+          data_template:
+            name: House Alarm
+            message: triggered
+        - service: xiaomi_aqara.play_ringtone
+          data:
+            gw_mac: 7C:49:EB:1C:2D:6B
+            ringtone_id: 1
+            ringtone_vol: 100
+        - delay:
+            seconds: 15
+        - service: script.turn_on
+          entity_id: script.lightsoff
+        - service: xiaomi_aqara.play_ringtone
+          data:
+            gw_mac: 7C:49:EB:1C:2D:6B
+            ringtone_id: 1
+            ringtone_vol: 100
+        - delay:
+            seconds: 15
+        - service: script.turn_on
+          entity_id: script.lightson
+        - service: xiaomi_aqara.play_ringtone
+          data:
+            gw_mac: 7C:49:EB:1C:2D:6B
+            ringtone_id: 1
+            ringtone_vol: 100
+        - delay:
+            seconds: 15
+        - service: script.turn_on
+          entity_id: script.lightsoff
+        - service: xiaomi_aqara.play_ringtone
+          data:
+            gw_mac: 7C:49:EB:1C:2D:6B
+            ringtone_id: 1
+            ringtone_vol: 100
+        - service: light.turn_off
+          entity_id: light.gateway_light_7c49eb1c2d6b
+
+    alarmdone:
+      alias: "alarm done"
+      sequence:
+        - service: light.turn_off
+          entity_id: light.gateway_light_7c49eb1c2d6b
+        - service: xiaomi_aqara.stop_ringtone
+          data:
+            gw_mac: 7C:49:EB:1C:2D:6B
+        - service: xiaomi_aqara.stop_ringtone
+          data:
+            gw_mac: 7C:49:EB:1C:2D:6B
+
+    lockdoor:
+      alias: "Lock door"
+      sequence:
+        - condition: template
+          value_template: "{{ states.lock.ytterdor.state != 'locked' }}"
+        - service: lock.lock
+          entity_id: lock.ytterdor
+          data:
+            code: !secret lock_code
+
+    unlockdoor:
+      alias: "Unlock door"
+      sequence:
+        - service: lock.unlock
+          entity_id: lock.ytterdor
+          data:
+            code: !secret lock_code
+
+    sendvideodriveway:
+      alias: Send Video Test
+      sequence:
+        - service: camera.record
+          data:
+            entity_id: camera.driveway_stream
+            filename: "/config/www/snapshot.mp4"
+            duration: 5
+        - delay:
+            seconds: 15
+        - service: notify.me
+          data:
+            title: "Test video"
+            message: "Test video."
+            data:
+              video:
+                file: /config/www/snapshot.mp4

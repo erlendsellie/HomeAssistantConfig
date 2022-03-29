@@ -101,3 +101,22 @@
         - service: switch.turn_off
           entity_id: switch.3d_printer_failsafe
           #Add smoketriggered script if this does not happen randomly.
+
+  script:
+    prepareprinter:
+      alias: "Prepare printer"
+      sequence:
+        - service: switch.turn_on
+          entity_id:
+            - switch.3d_printer_failsafe
+            - switch.preheatprintertool
+            - switch.preheatprinterbed
+
+    stopprinter:
+      alias: "Stop Printer"
+      sequence:
+        - service: switch.turn_off
+          entity_id:
+            - switch.3d_printer_failsafe
+            - switch.preheatprintertool
+            - switch.preheatprinterbed

@@ -1,0 +1,102 @@
+doorbell:
+  automation:
+  script:
+    doorbell:
+      alias: Doorbell
+      mode: restart
+      sequence:
+        - service: switch.turn_off
+          entity_id: switch.doorbutton
+        # - service: light.turn_on
+        #   entity_id: light.gateway_light_7c49eb1c2d6b
+        #   data:
+        #     color_name: green
+        - service: script.turn_on
+          entity_id: script.blink_lights_doorbell
+        # - service: notify.mobile_app_erlend_app
+        #   data_template:
+        #     title: Doorbell
+        #     message: Doorbell
+        #     data:
+        #       image: https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}
+        # - service: camera.play_stream
+        #   entity_id: camera.driveway_stream
+        #   data:
+        #     media_player: media_player.living_room
+        # - service: camera.play_stream
+        #   entity_id: camera.driveway_stream
+        #   data:
+        #     media_player: media_player.kitchen_display
+        - service: media_player.volume_set
+          data:
+            entity_id: media_player.living_room_speaker
+            volume_level: 0.5
+        - service: media_player.play_media
+          data:
+            entity_id: media_player.minis
+            #media_content_id: https://www.redringtones.com/wp-content/uploads/2016/08/usa-national-anthem.mp3
+            #media_content_id: https://archive.org/download/13BinarySunsetAlternate/01%20The%20Imperial%20March%20%28Darth%20Vader%C2%92%27s%20Theme%29.mp3
+            media_content_id: https://sivert.duckdns.org/local/sounds/cooking_great.mp3
+            #media_content_id: https://sivert.duckdns.org/local/sounds/ringeklokkeCaroline.mp4
+            media_content_type: "music"
+        # - service: camera.snapshot
+        #   data:
+        #     entity_id: camera.driveway
+        #     filename: "/tmp/snapshot.jpg"
+        # - service: notify.erlendpush
+        #   data:
+        #     title: Ding Dong
+        #     message: Noen ringte på døra
+        #     data:
+        #       file: /tmp/snapshot.jpg
+        # - service: notify.carolinepush
+        #   data:
+        #     title: Ding Dong
+        #     message: Noen ringte på døra
+        #     data:
+        #       file: /tmp/snapshot.jpg
+        # - service: script.turn_on
+        #   entity_id: script.sendvideodriveway
+        - delay:
+            seconds: 8
+        - service: media_player.play_media
+          data:
+            entity_id: media_player.minis
+            #media_content_id: https://www.redringtones.com/wp-content/uploads/2016/08/usa-national-anthem.mp3
+            #media_content_id: https://archive.org/download/13BinarySunsetAlternate/01%20The%20Imperial%20March%20%28Darth%20Vader%C2%92%27s%20Theme%29.mp3
+            media_content_id: https://sivert.duckdns.org/local/sounds/cooking_great.mp3
+            #media_content_id: https://sivert.duckdns.org/local/sounds/ringeklokkeCaroline.mp4
+            media_content_type: "music"
+        - delay:
+            seconds: 15
+        - service: media_player.media_stop
+          data:
+            entity_id: media_player.minis
+        - delay:
+            seconds: 5
+        - service: media_player.volume_set
+          data_template:
+            entity_id: media_player.living_room_speaker
+            volume_level: "{{states.sensor.speakervolume.state}}"
+        - service: logbook.log
+          data:
+            name: Doorbell
+            message: rang
+        - service: light.turn_off
+          entity_id: light.gateway_light_7c49eb1c2d6b
+          #This is stupid. Make not stupid.
+        # - condition: template
+        #   value_template: "{{ states.media_player.living_room.state != 'Playing'}}"
+        # - service: media_player.turn_off
+        #   entity_id: media_player.tv_stua
+
+        # - service: notify.carolinepush
+        #   data:
+        #     title: Ding Dong
+        #     message: Noen ringte på døra
+        #     data:
+        #       file: /tmp/snapshot.jpg
+        # - service: tts.google_say
+        #   entity_id: media_player.pi
+        #   data:
+        #     message: 'Ding dong! Someone is at the door'

@@ -152,8 +152,8 @@ system:
         - service: notify.me
           data_template:
             message: "The Z-wave network seems to be down, restarting"
-        - delay:
-            minutes: 2
+        # - delay:
+        #     minutes: 2
         - service: hassio.addon_restart
           data:
             addon: addon_core_zwave_js
@@ -326,3 +326,81 @@ system:
               {% endif -%}
               {%- endfor -%}
               {%- endfor -%}
+
+  script:
+    backup:
+      alias: Backup HA Configuration Files
+      sequence:
+        - service: shell_command.backup_configuration
+        - service: shell_command.backup_groups
+        - service: shell_command.backup_automations
+        - service: shell_command.backup_known_devices
+        - service: shell_command.backup_script
+        - service: shell_command.backup_media_player
+        - service: shell_command.backup_notify
+        - service: shell_command.backup_climate
+        - service: shell_command.backup_secrets
+        - service: shell_command.backup_cameras
+
+    restart:
+      alias: "Restart"
+      sequence:
+        - service: homeassistant.restart
+
+    reloadstuff:
+      alias: "Reload Stuff"
+      variables:
+        washer_emptied: input_boolean.turn_on
+      sequence:
+        - variables:
+            washer_emptied: >-
+              {% if states.input_boolean.washer_emptied.state == 'on' %}
+              input_boolean.turn_on
+              {% else %}
+              input_boolean.turn_off
+              {% endif %}
+        - service: template.reload
+        - service: homeassistant.reload_core_config
+        - service: zone.reload
+        - service: automation.reload
+        - service: script.reload
+        - delay:
+            seconds: 30
+        - service: "{{ washer_emptied }}"
+          entity_id: input_boolean.washer_emptied
+
+    reload:
+      alias: "Reload HA"
+      sequence:
+        - service: homeassistant.reload_core_config
+
+    requestlocation:
+      alias: Request Location
+      mode: restart
+      sequence:
+        - service: notify.mobile_app_caroline
+          data:
+            message: "request_location_update"
+        - service: notify.mobile_app_erlend_app
+          data:
+            message: "request_location_update"
+
+    testtabilde:
+      alias: testtabilde
+      sequence:
+        - service: shell_command.pb_send_image
+
+    restarthacontainer:
+      alias: Restart Ha Container
+      sequence:
+        - service: shell_command.restart_container
+
+    php_lights_off:
+      alias: PHP Lights off
+      sequence:
+        - service: shell_command.lights_off_php
+
+    php_lights_on:
+      alias: PHP Lights on
+      sequence:
+        - service: shell_command.lights_on_php

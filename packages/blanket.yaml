@@ -155,3 +155,67 @@ blanket:
           continue_on_timeout: true
         - service: switch.turn_off
           entity_id: switch.blanket
+  script:
+    blankettv:
+      alias: "Blanket til TV Off"
+      sequence:
+        - service: switch.turn_on
+          entity_id: switch.blanket
+        - wait_for_trigger:
+            - platform: state
+              entity_id: media_player.tv_soverommet
+              to: "on"
+              for:
+                minutes: 5
+          timeout: "01:00:00"
+          continue_on_timeout: true
+        - wait_for_trigger:
+            - platform: state
+              entity_id: media_player.tv_soverommet
+              to: "off"
+              for:
+                minutes: 2
+          timeout: "02:00:00"
+          continue_on_timeout: true
+        - service: switch.turn_off
+          entity_id: switch.blanket
+
+    blanket30minutes:
+      alias: "Blanket 30 minutes"
+      sequence:
+        - service: switch.turn_on
+          entity_id: switch.blanket
+        - delay:
+            minutes: 30
+        - service: switch.turn_off
+          entity_id: switch.blanket
+
+    blanket60minutes:
+      alias: "Blanket 60 minutes"
+      sequence:
+        - service: switch.turn_on
+          entity_id: switch.blanket
+        - delay:
+            minutes: 60
+        - service: switch.turn_off
+          entity_id: switch.blanket
+
+    blanket90minutes:
+      alias: "Blanket 90 minutes"
+      sequence:
+        - service: switch.turn_on
+          entity_id: switch.blanket
+        - delay:
+            minutes: 90
+        - service: switch.turn_off
+          entity_id: switch.blanket
+
+    blanket15minutes:
+      alias: "Blanket 15 minutes"
+      sequence:
+        - service: switch.turn_on
+          entity_id: switch.blanket
+        - delay:
+            minutes: 15
+        - service: switch.turn_off
+          entity_id: switch.blanket

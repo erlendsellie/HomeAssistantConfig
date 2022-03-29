@@ -1155,6 +1155,18 @@ temperaturecontrol:
             entity_id: climate.stua_heater
             hvac_mode: "heat"
 
+    turnoffheaters:
+      alias: Turn Off Heaters
+      sequence:
+        #Millsmart
+      # - service: climate.turn_off
+      #   data_template:
+      #     entity_id: climate.stua_heater
+      # - service: switch.turn_off
+      #   entity_id: switch.kitchen_heater
+      #   #toilet
+      # - service: switch.turn_off
+      #   entity_id: switch.bench
   input_number:
     sokkeltemp:
       name: Sokkel Temperatur

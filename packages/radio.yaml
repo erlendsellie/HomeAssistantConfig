@@ -1,0 +1,83 @@
+radio:
+  automation:
+    - alias: AdjustGoogleVolume
+      trigger:
+        - platform: state
+          entity_id: input_number.googlevolume, input_select.radio_station, input_select.chromecast_radio
+      action:
+        - service: media_player.volume_set
+          data_template:
+            entity_id: media_player.minis
+            volume_level: "{{ states.input_number.googlevolume.state | float(default=0)/ 100 }}"
+
+    - alias: PlayRadio
+      trigger:
+        - platform: state
+          entity_id: input_select.radio_station
+      action:
+        - service: script.turn_on
+          entity_id: script.playradio
+  script:
+    stopradio:
+      alias: Stop Radio on Chromecast
+      sequence:
+        - service: media_player.media_stop
+          data:
+            entity_id:
+              - media_player.minis
+              - media_player.living_room
+              - media_player.bedroom
+
+    playradio:
+      alias: Play Radio on Chromecast
+      sequence:
+        - service: media_player.volume_set
+          data_template:
+            entity_id: media_player.hyttalere
+            volume_level: "{{ states.input_number.googlevolume.state | float(default=0)/ 100 }}"
+        - service: media_player.play_media
+          data_template:
+            entity_id: >-
+              {% if is_state("input_select.chromecast_radio", "Living Room") %} media_player.living_room_speaker
+              {% elif is_state("input_select.chromecast_radio", "Living Room TV") %} media_player.living_room
+              {% elif is_state("input_select.chromecast_radio", "Hallway") %} media_player.hallway_speaker
+              {% elif is_state("input_select.chromecast_radio", "Bedroom") %} media_player.bedroom
+              {% elif is_state("input_select.chromecast_radio", "Speakers") %} media_player.hyttalere
+              {% elif is_state("input_select.chromecast_radio", "Group") %} media_player.minis
+              {% endif %}
+            media_content_id: >-
+              {% if is_state("input_select.radio_station", "P4") %} https://p4.p4groupaudio.com/P04_MH
+              {% elif is_state("input_select.radio_station", "mp3") %} http://lyd.nrk.no/nrk_radio_mp3_mp3_h
+              {% elif is_state("input_select.radio_station", "P10 Country") %} https://p10.p4groupaudio.com/P10_MH
+              {% elif is_state("input_select.radio_station", "P7 Klem") %} https://p7.p4groupaudio.com/P07_MM
+              {% endif %}
+            media_content_type: "audio/mp4"
+
+    #unused
+    playradioremote:
+      alias: Play Radio on Chromecast With Remote
+      sequence:
+        - service: media_player.volume_set
+          data_template:
+            entity_id: media_player.hyttalere
+            volume_level: "{{ states.input_number.googlevolume.state | float(default=0)/ 100 }}"
+        - service: media_player.play_media
+          data_template:
+            entity_id: media_player.living_room_speaker
+            media_content_id: >-
+              {% if is_state("input_select.radio_station", "P4") %} https://p4.p4groupaudio.com/P04_MH
+              {% elif is_state("input_select.radio_station", "mp3") %} http://lyd.nrk.no/nrk_radio_mp3_mp3_h
+              {% elif is_state("input_select.radio_station", "P10 Country") %} https://p10.p4groupaudio.com/P10_MH
+              {% elif is_state("input_select.radio_station", "P7 Klem") %} https://p7.p4groupaudio.com/P07_MM
+              {% endif %}
+            media_content_type: "audio/mp4"
+
+    #unused
+    playspotify:
+      alias: Pause Music
+      sequence:
+        - service: media_player.play_media
+          entity_id: media_player.musikkstua
+          data:
+            media_content_id: spotify:fs92:spotify:playlist:3DJdPc1IElBST1DfjCrxsP
+            media_content_type: music

@@ -42,14 +42,6 @@ iftt:
             entity_id: input_number.brightness
             value: "{{ trigger.json.value | float(default=0)}}"
 
-    # - alias: 'IFTTTurnOnTV'
-    #   trigger:
-    #     platform: webhook
-    #     webhook_id: !secret ifttturnontv
-    #   action:
-    #   - service: script.turn_on
-    #     entity_id: script.turnontv
-
     - alias: "IFTTTurnOffTV"
       trigger:
         platform: webhook

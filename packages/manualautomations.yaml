@@ -397,50 +397,6 @@ manualautomations:
         - service: script.turn_on
           entity_id: script.lightson
 
-    # - id: closeGarageWhenSomeoneLeaves
-    #   alias: Close Garage When Someone Leaves
-    #   trigger:
-    #   - platform: state
-    #     entity_id: device_tracker.erlend_wifi, device_tracker.life360_erlend_sellie
-    #     to: 'not_home'
-    #     for:
-    #       minutes: 10
-    #   - platform: state
-    #     entity_id: device_tracker.erlend_wifi, device_tracker.life360_erlend_sellie
-    #     to: 'not_home'
-    #     for:
-    #       minutes: 3
-    #   - platform: state
-    #     entity_id: device_tracker.erlend_wifi, device_tracker.life360_erlend_sellie
-    #     to: 'not_home'
-    #   - platform: state
-    #     entity_id: group.caroline
-    #     to: 'not_home'
-    #     for:
-    #       minutes: 10
-    #   - platform: state
-    #     entity_id: group.caroline
-    #     to: 'not_home'
-    #     for:
-    #       minutes: 3
-    #   - platform: state
-    #     entity_id: group.caroline
-    #     to: 'not_home'
-    #   # condition:
-    #   #   condition: state
-    #   #   entity_id: binary_sensor.motiondriveway
-    #   #   state: 'off'
-    #   condition:
-    #     condition: state
-    #     entity_id: cover.garage_door
-    #     state: 'open'
-    #   action:
-    #   - service: cover.close_cover
-    #     entity_id: cover.garage_door
-    #   - service: notify.html5_p30
-    #     data:
-    #       message: "The garage was closed since it was left open."
-
     ########################################
     ########                        ########
     ########         Heating         ########
@@ -1242,35 +1198,6 @@ manualautomations:
         - service: script.turn_on
           entity_id: script.bedtvoff
 
-    - id: nattaerlend
-      alias: Natta Erlend
-      trigger:
-        platform: state
-        entity_id: input_boolean.easleep
-        to: "on"
-      condition:
-        condition: or
-        conditions:
-          - condition: state
-            entity_id: input_boolean.casleep
-            state: "on"
-          - condition: state
-            entity_id: group.caroline
-            state: not_home
-      action:
-        service: script.turn_on
-        entity_id: script.easleep
-
-    - id: våkenerlend
-      alias: Våken Erlend
-      trigger:
-        - platform: state
-          entity_id: input_boolean.easleep
-          to: "off"
-      action:
-        service: script.turn_on
-        entity_id: script.eawake
-
     - alias: OfficeCasleep
       trigger:
         - platform: state
@@ -1293,16 +1220,6 @@ manualautomations:
       #     seconds: 10
       # - service: light.turn_off
       #   entity_id: light.gateway_light_7c49eb1c2d6b
-
-    - id: våkencaroline
-      alias: Våken Caroline
-      trigger:
-        platform: state
-        entity_id: input_boolean.casleep
-        to: "off"
-      action:
-        service: script.turn_on
-        entity_id: script.cawake
 
     ########################################
     ########                        ########
@@ -1431,3 +1348,12 @@ manualautomations:
           data: {}
           entity_id: media_player.bedroom
       mode: single
+
+  script:
+    bedtvoff:
+      alias: "Bedroom TV off"
+      sequence:
+        - service: media_player.turn_off
+          entity_id: media_player.tv_soverommet
+        - service: media_player.turn_off
+          entity_id: media_player.bedroom

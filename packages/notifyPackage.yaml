@@ -419,3 +419,98 @@ notifypackage:
             variables:
               title: "Lunchtime!"
               message: "Lunchtime!"
+  script:
+    notifyboth:
+      alias: Simple Notification To Both
+      sequence:
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: "{{title}}"
+              message: "{{message}}"
+        - service: script.turn_on
+          entity_id: script.notifycaroline
+          data_template:
+            variables:
+              title: "{{title}}"
+              message: "{{message}}"
+
+    notifyhome:
+      alias: Simple Notification To Both
+      sequence:
+        - service: script.turn_on
+          entity_id: script.notifymehome
+          data_template:
+            variables:
+              title: "{{title}}"
+              message: "{{message}}"
+        - service: script.turn_on
+          entity_id: script.notifycarolinehome
+          data_template:
+            variables:
+              title: "{{title}}"
+              message: "{{message}}"
+
+    notifymehome:
+      alias: Simple Notification If Home
+      sequence:
+        - condition: state
+          entity_id: person.erlend
+          state: "home"
+        - service: notify.mobile_app_erlend_app
+          data_template:
+            title: "{{title}}"
+            message: "{{message}}"
+            data:
+              ttl: 0
+              priority: high
+
+    notifycarolinehome:
+      alias: Simple Notification to Caroline If Home
+      sequence:
+        - condition: state
+          entity_id: person.caroline
+          state: "home"
+        - service: notify.mobile_app_caroline
+          data_template:
+            title: "{{title}}"
+            message: "{{message}}"
+            data:
+              ttl: 0
+              priority: high
+
+    notify:
+      alias: Simple Notification
+      sequence:
+        - service: notify.mobile_app_erlend_app
+          data_template:
+            title: "{{title}}"
+            message: "{{message}}"
+            data:
+              ttl: 0
+              priority: high
+
+    notifycaroline:
+      alias: Simple Notification to Caroline
+      sequence:
+        - service: notify.mobile_app_caroline
+          data_template:
+            title: "{{title}}"
+            message: "{{message}}"
+            data:
+              ttl: 0
+              priority: high
+
+    notifymotionshield:
+      alias: Notify When Motion Outside On Shield
+      sequence:
+        - condition: template
+          value_template: "{{states.media_player.shield.state != 'off'}}"
+        # - service: notify.shield_gentle
+        #   data_template:
+        #     message: 'Motion Outside'
+        #     title: 'Motion Outside'
+        #     data:
+        #       file:
+        #         url: https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}

@@ -135,10 +135,7 @@
     # cheaperpower:
     #   friendly_name: "Power is kinda cheap"
     #   value_template: "{{ states('sensor.electricity_price_sivert_thonstads_vei_6b.state')| float(default=0) < states('sensor.electricity_price_sivert_thonstads_vei_6b.attributes.avg_price')| float(default=0) }}"
-    motiondriveway:
-      friendly_name: "Motion Detected In Driveway"
-      device_class: motion
-      value_template: "{{ is_state('input_boolean.motiondriveway', 'on') }}"
+
     motion_driveway_or_garage:
       friendly_name: "Motion Driveway or Garage"
       device_class: motion
