@@ -88,3 +88,9 @@ With help from the Garmin Tasker app on the Garmin Connect IQ Store, i can with 
 ![Power](screenshots/screenshotPower.png)
 ![Printer](screenshots/screenshotPrinter.png)
 ![Stocks](screenshots/screenshotStocks.png)
+
+
+## Stats as of April 2022
+- +/- 15000 lines of YAML
+- 392 automations
+- 154 scripts
