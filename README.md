@@ -1,4 +1,4 @@
-# Erlends Home Assistant Configuration
+# Erlends Home Assistant Configuration V2
 
 ### The config is due for a cleanup, with lots off commented out code.
 ### Some files are pretty old and could be organized a lot better with packages.
