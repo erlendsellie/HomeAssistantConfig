@@ -240,8 +240,6 @@ temperaturecontrol:
               {%-set tempcorrection = 3 %}
             {% elif pricedifference > 0.8 or isMaxPrice or isMinPrice %}
               {%-set tempcorrection = 2 %}
-            {% elif pricedifference < 0.7%}
-              {%-set tempcorrection = 0 %}
             {% endif %}
             {% if isHeating and pricedifference > 0.1%} 
               {% if ((isLowPrice and priceGaining) or (tempDownToLong) or catchUp == 'on') %}

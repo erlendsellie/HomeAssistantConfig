@@ -39,13 +39,12 @@ raspbee_gateway_config_*
 report*.json
 sendpicture*.pl
 stiantest.js
-appdeamon
 custom_components
 zigbee2mqtt
 variables
 deconz
 broadlink_climate_codes
-appdeamon
+appdaemon
 
 
 
