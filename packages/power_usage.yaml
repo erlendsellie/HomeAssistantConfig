@@ -136,6 +136,48 @@ power_usage:
       unit_prefix: k
       round: 2
 
+      #filtered powersensors:
+
+    - platform: filter
+      name: "Vindfang Electric Consumption KWH"
+      entity_id: sensor.vindfang_electric_consumption_kwh_raw
+      filters:
+        - filter: outlier
+          window_size: 4
+          radius: 2.0
+        - filter: lowpass
+          time_constant: 10
+
+    - platform: filter
+      name: "Varmtvannsbereder KWH"
+      entity_id: sensor.varmtvannsbereder_kwh_raw
+      filters:
+        - filter: outlier
+          window_size: 4
+          radius: 2.0
+        - filter: lowpass
+          time_constant: 10
+
+    - platform: filter
+      name: "Sokkel Electric Consumption KWH 2"
+      entity_id: sensor.sokkel_electric_consumption_kwh_2_raw
+      filters:
+        - filter: outlier
+          window_size: 4
+          radius: 2.0
+        - filter: lowpass
+          time_constant: 10
+
+    - platform: filter
+      name: "Bathroom Electric Consumption KWH"
+      entity_id: sensor.bathroom_electric_consumption_kwh
+      filters:
+        - filter: outlier
+          window_size: 4
+          radius: 2.0
+        - filter: lowpass
+          time_constant: 10
+
   binary_sensor:
     - platform: template
       sensors:
