@@ -1,3 +1,7 @@
+#LesMeg:
+# Fjern alle kall til script.notify, eller bytt om til egen notify service call,
+# om du vil ha varsling med status.
+
 tibber:
   template:
     - binary_sensor:
