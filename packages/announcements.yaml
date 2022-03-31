@@ -681,6 +681,7 @@ announcements:
                 variables:
                   title: Vaskemaskinen er ferdig
                   message: Vaskemaskinen er ferdig
+                  channel: "washing"
             - delay:
                 minutes: 40
 

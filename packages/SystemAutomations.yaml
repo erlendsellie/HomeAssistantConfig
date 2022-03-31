@@ -261,6 +261,17 @@ system:
             title: "Alarm:"
             message: "VVB har vært avslått i 13 timer nå, sjekk temp."
 
+    - alias: "Dismiss login failed notification"
+      trigger:
+        - platform: state
+          entity_id: persistent_notification.http_login
+          to: "notifying"
+      action:
+        - delay: "00:00:01"
+        - service: persistent_notification.dismiss
+          data:
+            notification_id: http-login
+
     - alias: "Battery Alert"
       trigger:
         - platform: time

@@ -436,21 +436,44 @@ notifypackage:
               title: "{{title}}"
               message: "{{message}}"
 
+    remove_channel:
+      alias: Remove Channel
+      sequence:
+        - service: notify.mobile_app_erlend_app
+          data:
+            message: "remove_channel"
+            data:
+              channel: "{{channel}}"
+        - service: notify.mobile_app_caroline
+          data:
+            message: "remove_channel"
+            data:
+              channel: "{{channel}}"
+
     notifyhome:
       alias: Simple Notification To Both
       sequence:
+        - service: script.turn_on
+          entity_id: script.remove_channel
+          data_template:
+            variables:
+              channel: "{{channel}}"
+        - delay:
+            seconds: 1
         - service: script.turn_on
           entity_id: script.notifymehome
           data_template:
             variables:
               title: "{{title}}"
               message: "{{message}}"
+              channel: "{{channel}}"
         - service: script.turn_on
           entity_id: script.notifycarolinehome
           data_template:
             variables:
               title: "{{title}}"
               message: "{{message}}"
+              channel: "{{channel}}"
 
     notifymehome:
       alias: Simple Notification If Home
@@ -463,6 +486,7 @@ notifypackage:
             title: "{{title}}"
             message: "{{message}}"
             data:
+              channel: '"{{channel}}"'
               ttl: 0
               priority: high
 
@@ -478,7 +502,23 @@ notifypackage:
             message: "{{message}}"
             data:
               ttl: 0
+              channel: '"{{channel}}"'
               priority: high
+
+    notify_tts_max_if_home:
+      alias: notify_tts_max_if_home
+      sequence:
+        - condition: state
+          entity_id: person.erlend
+          state: "home"
+        - service: notify.mobile_app_erlend_app
+          data:
+            title: "{{message}}"
+            message: TTS
+            data:
+              ttl: 0
+              priority: high
+              channel: alarm_stream_max
 
     notify:
       alias: Simple Notification
@@ -490,6 +530,7 @@ notifypackage:
             data:
               ttl: 0
               priority: high
+              channel: '"{{channel}}"'
 
     notifycaroline:
       alias: Simple Notification to Caroline
@@ -501,6 +542,7 @@ notifypackage:
             data:
               ttl: 0
               priority: high
+              channel: '"{{channel}}"'
 
     notifymotionshield:
       alias: Notify When Motion Outside On Shield
