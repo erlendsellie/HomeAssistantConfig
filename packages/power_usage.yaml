@@ -139,7 +139,7 @@ power_usage:
       #filtered powersensors:
 
     - platform: filter
-      name: "Vindfang Electric Consumption KWH"
+      name: "Vindfang Consumed kWh"
       entity_id: sensor.vindfang_electric_consumption_kwh_raw
       filters:
         - filter: outlier
@@ -149,7 +149,7 @@ power_usage:
           time_constant: 10
 
     - platform: filter
-      name: "Varmtvannsbereder KWH"
+      name: "Varmtvannsbereder Consumed kWh"
       entity_id: sensor.varmtvannsbereder_kwh_raw
       filters:
         - filter: outlier
@@ -159,8 +159,8 @@ power_usage:
           time_constant: 10
 
     - platform: filter
-      name: "Sokkel Electric Consumption KWH 2"
-      entity_id: sensor.sokkel_electric_consumption_kwh_2_raw
+      name: "Sokkel Consumed kWh"
+      entity_id: sensor.sokkel_electric_consumption_kwh_raw
       filters:
         - filter: outlier
           window_size: 4
@@ -169,7 +169,7 @@ power_usage:
           time_constant: 10
 
     - platform: filter
-      name: "Bathroom Electric Consumption KWH"
+      name: "Bathroom Consumption kWh"
       entity_id: sensor.bathroom_electric_consumption_kwh
       filters:
         - filter: outlier

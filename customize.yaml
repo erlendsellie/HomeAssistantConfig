@@ -1,40 +1,54 @@
-sensor.office_heater_kwh:
-  last_reset: '1970-01-01T00:00:00+00:00'
-  state_class: 'total_increasing'
+# sensor.vindfang_electric_consumption_kwh:
+#   friendly_name: Vindfang kWh
+# sensor.varmtvannsbereder_kwh:
+#   friendly_name: Varmtvannsbereder kWh
+# sensor.bathroom_electric_consumption_kwh:
+#   friendly_name: Bathroom kWh
+sensor.varmtvannsbereder_consumed_kwh:
+  last_reset: "1970-01-01T00:00:00+00:00"
+  state_class: "total_increasing"
   device_class: energy
-  unit_of_measurement: kWh  
+  unit_of_measurement: kWh
+sensor.bathroom_consumption_kwh:
+  last_reset: "1970-01-01T00:00:00+00:00"
+  state_class: "total_increasing"
+  device_class: energy
+  unit_of_measurement: kWh
+sensor.vindfang_consumed_kwh:
+  last_reset: "1970-01-01T00:00:00+00:00"
+  state_class: "total_increasing"
+  device_class: energy
+  unit_of_measurement: kWh
+sensor.sokkel_consumed_kwh:
+  last_reset: "1970-01-01T00:00:00+00:00"
+  state_class: "total_increasing"
+  device_class: energy
+  unit_of_measurement: kWh
+sensor.office_heater_kwh:
+  last_reset: "1970-01-01T00:00:00+00:00"
+  state_class: "total_increasing"
+  device_class: energy
+  unit_of_measurement: kWh
 sensor.toilet_heater_kwh:
-  last_reset: '1970-01-01T00:00:00+00:00'
-  state_class: 'total_increasing'
+  last_reset: "1970-01-01T00:00:00+00:00"
+  state_class: "total_increasing"
   device_class: energy
   unit_of_measurement: kWh
 sensor.torketrommel_kwh:
-  last_reset: '1970-01-01T00:00:00+00:00'
-  state_class: 'total_increasing'
+  last_reset: "1970-01-01T00:00:00+00:00"
+  state_class: "total_increasing"
   device_class: energy
   unit_of_measurement: kWh
 sensor.vaskemaskin_kwh:
-  last_reset: '1970-01-01T00:00:00+00:00'
-  state_class: 'total_increasing'
+  last_reset: "1970-01-01T00:00:00+00:00"
+  state_class: "total_increasing"
   device_class: energy
   unit_of_measurement: kWh
 sensor.varmepumpe_kwh:
-  last_reset: '1970-01-01T00:00:00+00:00'
-  state_class: 'total_increasing'
+  last_reset: "1970-01-01T00:00:00+00:00"
+  state_class: "total_increasing"
   device_class: energy
   unit_of_measurement: kWh
-
-
-
-
-
-
-
-
-
-
-
-
 
 person.erlend:
   entity_picture: /local/CVbilde.jpg
@@ -48,15 +62,18 @@ cover.veranda_curtains:
   device_class: shade
 sensor.trym_temp:
   templates:
-    icon_color: "if (float(state) > 22) return 'rgb(255, 0, 0)';   if (float(state)\
+    icon_color:
+      "if (float(state) > 22) return 'rgb(255, 0, 0)';   if (float(state)\
       \ < 19) return 'rgb(66, 176, 245)';  \n"
 sensor.temp_bedroom:
   templates:
-    icon_color: "if (float(state) > 22) return 'rgb(255, 0, 0)';   if (float(state)\
+    icon_color:
+      "if (float(state) > 22) return 'rgb(255, 0, 0)';   if (float(state)\
       \ < 19) return 'rgb(66, 176, 245)';  \n"
 sensor.bathroom_temperature:
   templates:
-    icon_color: "if (float(state) > 25) return 'rgb(255, 0, 0)';   if (float(state)\
+    icon_color:
+      "if (float(state) > 25) return 'rgb(255, 0, 0)';   if (float(state)\
       \ < 22) return 'rgb(66, 176, 245)';  \n"
   friendly_name: Bathroom
   icon: mdi:water
@@ -90,7 +107,8 @@ sensor.stua_temperature:
   friendly_name: Stua
   icon: mdi:thermometer
   templates:
-    icon_color: "if (float(state) > 23) return 'rgb(255, 0, 0)';   if (float(state)\
+    icon_color:
+      "if (float(state) > 23) return 'rgb(255, 0, 0)';   if (float(state)\
       \ < 19) return 'rgb(66, 176, 245)';  \n"
 sensor.stua_humidity:
   friendly_name: Luftfuktighet
@@ -163,23 +181,24 @@ group.erlend:
 group.people:
   icon: mdi:home
   templates:
-    icon: 'if (state === ''home'') return ''mdi:home''; return ''mdi:nature-people'';
+    icon: "if (state === 'home') return 'mdi:home'; return 'mdi:nature-people';
 
-      '
-    icon_color: 'if (state === ''home'') return ''rgb(251, 210, 41)''; return ''rgb(54,
-      95, 140)'';
+      "
+    icon_color:
+      "if (state === 'home') return 'rgb(251, 210, 41)'; return 'rgb(54,
+      95, 140)';
 
-      '
+      "
 switch.fan_bathroom:
   icon: mdi:fan
   friendly_name: Bathroom Fan
   templates:
-    icon: 'if (state === ''on'') return ''mdi:fan''; return ''mdi:fan-off'';
+    icon: "if (state === 'on') return 'mdi:fan'; return 'mdi:fan-off';
 
-      '
-    icon_color: 'if (state === ''on'') return ''rgb(255, 0, 0)'';
+      "
+    icon_color: "if (state === 'on') return 'rgb(255, 0, 0)';
 
-      '
+      "
 group.hallwaylights:
   templates:
     icon_color: "if (state === 'on') return 'rgb(255, 255, 0)';  \n"

@@ -34,4 +34,4 @@ tibber:
           data_template:
             variables:
               title: Tibber var utilgjengelig
-              message: Lastet på nytt. Verdi nå er {{states.sensor.power_sivert_thonstads_vei_6b.state}}
+              message: Lastet på nytt. Sist endret for {{relative_time(states.sensor.power_sivert_thonstads_vei_6b.last_changed)}} siden
