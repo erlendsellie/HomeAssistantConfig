@@ -16,6 +16,9 @@ tibber:
               | float
               > 10
             }}
+
+  #TODO Fiks varsling for å varsle riktig når sensor blir tilgjengelig igjen,
+  # om den feiler ved første relasting.
   automation:
     - id: reloadTibber
       alias: reloadTibber
@@ -24,31 +27,40 @@ tibber:
           entity_id: binary_sensor.tibber_unavailable
           to: "on"
       action:
-        repeat:
-          while:
-            - condition: state
-              entity_id: binary_sensor.tibber_unavailable
-              state: "on"
-          sequence:
-            - service: homeassistant.reload_config_entry
-              entity_id: sensor.power_sivert_thonstads_vei_6b
-            - delay:
-                seconds: 10
-            # Varsling med sensor-verdi, 10 sekunder etter relasting av integrasjonen.
-            - service: script.turn_on
-              entity_id: script.notify
-              data_template:
-                variables:
-                  title: Tibber var utilgjengelig
-                  message: >-
-                    Forsøkte å laste på nytt.
-                    {%if states('binary_sensor.tibber_unavailable') == 'on'%}
-                    Tibber er fortsatt utilgjengelig, prøver på nytt om 2 minutter.
-                    {%else%}
-                    Tibber er tilgjengelig igjen!
-                    {%endif%}
-                    Sist endret for {{relative_time(states.sensor.power_sivert_thonstads_vei_6b.last_changed)}} siden
-            - delay:
-                minutes: 2
+        - repeat:
+            while:
+              - condition: state
+                entity_id: binary_sensor.tibber_unavailable
+                state: "on"
+            sequence:
+              - service: homeassistant.reload_config_entry
+                entity_id: sensor.power_sivert_thonstads_vei_6b
+              - delay:
+                  seconds: 10
+              # Varsling med sensor-verdi, 10 sekunder etter relasting av integrasjonen.
+              - condition: state
+                entity_id: binary_sensor.tibber_unavailable
+                state: "on"
+              - service: script.turn_on
+                entity_id: script.notify
+                data_template:
+                  variables:
+                    title: Tibber var utilgjengelig
+                    message: >-
+                      Tibber er fortsatt utilgjengelig, prøver på nytt om 2 minutter.
+                      Sist endret for {{relative_time(states.sensor.power_sivert_thonstads_vei_6b.last_changed)}} siden
+              - delay:
+                  minutes: 2
+        - condition: state
+          entity_id: binary_sensor.tibber_unavailable
+          state: "off"
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Tibber var utilgjengelig
+              message: >-
+                Er tilgjengelig nå
+                Sist endret for {{relative_time(states.sensor.power_sivert_thonstads_vei_6b.last_changed)}} siden
 
-  tibber_custom:
+#  tibber_custom:
