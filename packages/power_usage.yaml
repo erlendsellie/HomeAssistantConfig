@@ -170,7 +170,7 @@ power_usage:
 
     - platform: filter
       name: "Bathroom Consumption kWh"
-      entity_id: sensor.bathroom_electric_consumption_kwh
+      entity_id: sensor.bathroom_electric_consumption_kwh_raw
       filters:
         - filter: outlier
           window_size: 4

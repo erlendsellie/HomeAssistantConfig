@@ -32,21 +32,21 @@ tibber:
           to: "on"
       action:
         - repeat:
-            while: "{{is_state('binary_sensor.tibber_unavailable','on') and repeat.index < 4 }}" #Do it 3 times.
+            while: "{{is_state('binary_sensor.tibber_unavailable','on') and repeat.index < 5 }}" #Do it 4 times.
             sequence:
               - service: homeassistant.reload_config_entry
                 entity_id: sensor.power_sivert_thonstads_vei_6b
               - delay:
                   seconds: 10
               #Varsling med sensor-verdi, 10 sekunder etter relasting av integrasjonen.
-              - condition: "{{is_state('binary_sensor.tibber_unavailable','on')  and repeat.index < 3}}"
+              - condition: "{{is_state('binary_sensor.tibber_unavailable','on')  and repeat.index < 4}}"
               - service: script.notify
                 data:
                   title: Tibber var utilgjengelig, relastet integrasjonen.
                   message: >-
                     Tibber er fortsatt utilgjengelig, prøver på nytt om {{1 * repeat.index}} minutter.
                     Sist endret for {{relative_time(states.sensor.power_sivert_thonstads_vei_6b.last_changed)}} siden
-              - condition: "{{is_state('binary_sensor.tibber_unavailable','on')  and repeat.index < 3}}"
+              - condition: "{{is_state('binary_sensor.tibber_unavailable','on')  and repeat.index < 4}}"
               - delay:
                   minutes: "{{ repeat.index }}"
         #Varsling med sensor-verdi etter loop.
