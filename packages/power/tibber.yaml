@@ -48,7 +48,7 @@ tibber:
                     Sist endret for {{relative_time(states.sensor.power_sivert_thonstads_vei_6b.last_changed)}} siden
               - condition: "{{is_state('binary_sensor.tibber_unavailable','on')  and repeat.index < 3}}"
               - delay:
-                  minutes: "{{ 1 * repeat.index }}"
+                  minutes: "{{ repeat.index }}"
         #Varsling med sensor-verdi etter loop.
         - service: script.notify
           data:
