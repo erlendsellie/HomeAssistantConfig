@@ -11,7 +11,7 @@ tibber:
         # bruk da en annen sensor, for eksempel 'kostnad i dag' eller 'gjennomsnitt i dag', som rapporterer data ofte fra Tibber.
         - name: "Tibber Unavailable"
           delay_on:
-            minutes: 2
+            seconds: 20
           state: >-
             {{
               as_timestamp(now())
