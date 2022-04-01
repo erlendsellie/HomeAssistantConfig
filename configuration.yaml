@@ -209,9 +209,10 @@ tellstick:
   port: [50800, 50801]
   #nc core-tellstick 50801
 
-octoprint:
-  host: 192.168.1.88
-  api_key: !secret octoprint
+#todo, add when fixing octoprint
+# octoprint:
+#   host: 192.168.1.88
+#   api_key: !secret octoprint
 
 # mqtt:
 #   discovery: true
