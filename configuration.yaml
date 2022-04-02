@@ -1,7 +1,6 @@
 homeassistant:
   packages: !include_dir_merge_named packages
 
-  name: !secret ha_name
   customize: !include customize.yaml
   customize_glob: !include customize_glob.yaml
   customize_domain:
@@ -12,12 +11,14 @@ homeassistant:
   external_url: !secret base_url
   internal_url: !secret internal_url
 
+  name: !secret ha_name
   latitude: !secret latitude
   longitude: !secret longitude
   elevation: 140
   unit_system: metric
   time_zone: Europe/Oslo
   currency: NOK
+
   #whitelist_external_dirs:
   # - /tmp
   # - /config/www
@@ -63,8 +64,8 @@ logger:
     homeassistant.components.stream.worker: fatal
     #homeassistant.components.recorder: fatal
     homeassistant.components.generic.camera: fatal
+    homeassistant.helpers.template: warning
 
-    homeassistant.helpers.template: error
 zone:
   - name: Home
     latitude: !secret latitude
@@ -120,10 +121,10 @@ frontend:
   themes: !include_dir_merge_named themes/
 
 config:
+
 cloud:
 
 http:
-  #removed because nginx
   ssl_certificate: /ssl/fullchain.pem
   ssl_key: /ssl/privkey.pem
 
@@ -198,7 +199,7 @@ logbook:
 
 sun:
 
-weather: []
+# weather: []
 
 downloader:
   download_dir: downloads
@@ -228,10 +229,10 @@ tellstick:
 #discovery: true
 #discovery_prefix: homeassistant
 
-xiaomi_aqara:
-  discovery_retry: 5
-  gateways:
-    - key: !secret aqara_key
+# xiaomi_aqara:
+#   discovery_retry: 5
+#   gateways:
+#     - key: !secret aqara_key
 
 spotify:
   client_id: !secret spotify_client_id
@@ -409,19 +410,19 @@ rest_command:
 
 shell_command:
   restart_container: docker restart homeassistant
-  pb_send_image: "perl sendpicture.pl"
-  pb_send_image2: "perl sendpicture2.pl"
-  test: "touch /tmp/hass-shell-command-test"
-  backup_configuration: cp -a /home/homeassistant/.homeassistant/configuration.yaml "/mnt/my_ftp/backup/configuration.yaml-$(date +"%m%d%Y-%H%M")"
-  backup_groups: cp -a /home/homeassistant/.homeassistant/groups.yaml "/mnt/my_ftp/backup/groups.yaml-$(date +"%m%d%Y-%H%M")"
-  backup_automations: cp -a /home/homeassistant/.homeassistant/automations.yaml "/mnt/my_ftp/backup/automations.yaml-$(date +"%m%d%Y-%H%M")"
-  backup_known_devices: cp -a /home/homeassistant/.homeassistant/known_devices.yaml "/mnt/my_ftp/backup/known_devices.yaml-$(date +"%m%d%Y-%H%M")"
-  backup_script: cp -a /home/homeassistant/.homeassistant/script.yaml "/mnt/my_ftp/backup/script.yaml-$(date +"%m%d%Y-%H%M")"
-  backup_media_player: cp -a /home/homeassistant/.homeassistant/media_player.yaml "/mnt/my_ftp/backup/media_player.yaml-$(date +"%m%d%Y-%H%M")"
-  backup_secrets: cp -a /home/homeassistant/.homeassistant/secrets.yaml "/mnt/my_ftp/backup/secrets.yaml-$(date +"%m%d%Y-%H%M")"
-  backup_notify: cp -a /home/homeassistant/.homeassistant/notify.yaml "/mnt/my_ftp/backup/notify.yaml-$(date +"%m%d%Y-%H%M")"
-  backup_climate: cp -a /home/homeassistant/.homeassistant/climate.yaml "/mnt/my_ftp/backup/climate.yaml-$(date +"%m%d%Y-%H%M")"
-  backup_cameras: cp -a /home/homeassistant/.homeassistant/cameras.yaml "/mnt/my_ftp/backup/cameras.yaml-$(date +"%m%d%Y-%H%M")"
+  # pb_send_image: "perl sendpicture.pl"
+  # pb_send_image2: "perl sendpicture2.pl"
+  # test: "touch /tmp/hass-shell-command-test"
+  # backup_configuration: cp -a /home/homeassistant/.homeassistant/configuration.yaml "/mnt/my_ftp/backup/configuration.yaml-$(date +"%m%d%Y-%H%M")"
+  # backup_groups: cp -a /home/homeassistant/.homeassistant/groups.yaml "/mnt/my_ftp/backup/groups.yaml-$(date +"%m%d%Y-%H%M")"
+  # backup_automations: cp -a /home/homeassistant/.homeassistant/automations.yaml "/mnt/my_ftp/backup/automations.yaml-$(date +"%m%d%Y-%H%M")"
+  # backup_known_devices: cp -a /home/homeassistant/.homeassistant/known_devices.yaml "/mnt/my_ftp/backup/known_devices.yaml-$(date +"%m%d%Y-%H%M")"
+  # backup_script: cp -a /home/homeassistant/.homeassistant/script.yaml "/mnt/my_ftp/backup/script.yaml-$(date +"%m%d%Y-%H%M")"
+  # backup_media_player: cp -a /home/homeassistant/.homeassistant/media_player.yaml "/mnt/my_ftp/backup/media_player.yaml-$(date +"%m%d%Y-%H%M")"
+  # backup_secrets: cp -a /home/homeassistant/.homeassistant/secrets.yaml "/mnt/my_ftp/backup/secrets.yaml-$(date +"%m%d%Y-%H%M")"
+  # backup_notify: cp -a /home/homeassistant/.homeassistant/notify.yaml "/mnt/my_ftp/backup/notify.yaml-$(date +"%m%d%Y-%H%M")"
+  # backup_climate: cp -a /home/homeassistant/.homeassistant/climate.yaml "/mnt/my_ftp/backup/climate.yaml-$(date +"%m%d%Y-%H%M")"
+  # backup_cameras: cp -a /home/homeassistant/.homeassistant/cameras.yaml "/mnt/my_ftp/backup/cameras.yaml-$(date +"%m%d%Y-%H%M")"
 
 input_select:
   light_profile:
@@ -514,7 +515,7 @@ proximity:
       - person.caroline
     tolerance: 10
 
-device_tracker: []
+#device_tracker: []
 
 input_boolean:
   cleandustbin:
@@ -528,7 +529,6 @@ input_boolean:
   alarmclock:
     name: Alarm Clock
     icon: mdi:alarm-bell
-
   expensiveelectricity:
     name: Electricity is expensive
     icon: mdi:flash
@@ -562,11 +562,11 @@ input_boolean:
   runvacuum:
     name: Vacuum tonight
 
-var: # !include_dir_merge_list variables
-  x:
-    friendly_name: "X"
-    initial_value: 0
-    icon: mdi:bug
+# var: # !include_dir_merge_list variables
+#   x:
+#     friendly_name: "X"
+#     initial_value: 0
+#     icon: mdi:bug
 
 binary_sensor: !include_dir_merge_list binary_sensors
 #automation: !include_dir_merge_list automations
@@ -590,6 +590,7 @@ ffmpeg:
   ffmpeg_bin: /usr/bin/ffmpeg
 
 camera: !include cameras.yaml
+
 stream:
 
 telegram_bot:
@@ -598,9 +599,9 @@ telegram_bot:
     allowed_chat_ids:
       - !secret telegram_chatid
 
-twilio:
-  account_sid: !secret twilio_sid
-  auth_token: !secret twilio_auth_token
+# twilio:
+#   account_sid: !secret twilio_sid
+#   auth_token: !secret twilio_auth_token
 
 notify: !include notify.yaml
 climate: !include climate.yaml
@@ -616,44 +617,10 @@ group: !include groups.yaml
 #     ad36a65f-9b5fc91d:
 #       name: "work"
 
-browser:
+#browser:
 
 panel_iframe:
   tautulli:
     title: Tautulli
     icon: mdi:filmstrip
     url: !secret tautulliurl
-
-cover:
-  - platform: mqtt
-    name: "veranda_door"
-    device_class: "shade"
-    command_topic: "am43/027e259e8621/set"
-    position_topic: "am43/027e259e8621/position"
-    set_position_topic: "am43/027e259e8621/set_position"
-    availability_topic: "am43/027e259e8621/available"
-    position_open: 2
-    position_closed: 99
-
-  - platform: mqtt
-    name: "veranda_window"
-    device_class: "shade"
-    command_topic: "am43/02feff09d6d0/set"
-    position_topic: "am43/02feff09d6d0/position"
-    set_position_topic: "am43/02feff09d6d0/set_position"
-    availability_topic: "am43/02feff09d6d0/available"
-    position_open: 2
-    position_closed: 99
-
-alarm_control_panel:
-  - platform: manual
-    name: Home Alarm
-    code: !secret alarm_code
-    arming_time: 10 #30
-    delay_time: 30 #20
-    trigger_time: 240 #4
-    # disarmed:
-    #   trigger_time: 0
-    # armed_home:
-    #   pending_time: 0
-    #   delay_time: 0

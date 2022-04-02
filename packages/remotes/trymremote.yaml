@@ -2,7 +2,7 @@ puck_trym_action:
   automation:
     - alias: puck_trym_action
       id: puck_trym_action
-      mode: queued
+      mode: restart
       trigger:
         - platform: state
           entity_id: sensor.puck_trym_action

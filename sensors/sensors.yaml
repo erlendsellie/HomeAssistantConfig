@@ -604,21 +604,21 @@
     #   {% endif %}
     # {% endif %}
 
-- platform: mqtt
-  name: "Table light energy"
-  state_topic: "tele/SONOFF-1/ENERGY"
-  value_template: "{{ value_json.Today }}"
-  unit_of_measurement: "kWh"
-- platform: mqtt
-  name: "Table light power"
-  state_topic: "tele/SONOFF-1/ENERGY"
-  value_template: "{{ value_json.Power }}"
-  unit_of_measurement: "W"
-- platform: mqtt
-  name: "Table light voltage"
-  state_topic: "tele/SONOFF-1/ENERGY"
-  value_template: "{{ value_json.Voltage }}"
-  unit_of_measurement: "V"
+# - platform: mqtt
+#   name: "Table light energy"
+#   state_topic: "tele/SONOFF-1/ENERGY"
+#   value_template: "{{ value_json.Today }}"
+#   unit_of_measurement: "kWh"
+# - platform: mqtt
+#   name: "Table light power"
+#   state_topic: "tele/SONOFF-1/ENERGY"
+#   value_template: "{{ value_json.Power }}"
+#   unit_of_measurement: "W"
+# - platform: mqtt
+#   name: "Table light voltage"
+#   state_topic: "tele/SONOFF-1/ENERGY"
+#   value_template: "{{ value_json.Voltage }}"
+#   unit_of_measurement: "V"
 
 - platform: mqtt
   name: "Fan Bathroom energy"

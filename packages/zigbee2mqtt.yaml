@@ -1,17 +1,5 @@
 zigbee2mqtt:
   template:
-    - sensor:
-        - name: "Z2M unavailable devices"
-          state: >-
-            {%-for item in states.sensor if (item.attributes.linkquality is defined)-%}
-            {%set name = item.attributes.friendly_name%}
-            {%-if item.attributes.linkquality | float(default=0) < 1
-            and 'Smoke' not in name
-            and 'Cube' not in name
-            and 'Water' not in name-%}
-              {{-item.attributes.friendly_name-}} , 
-            {%endif%}
-            {%- endfor -%}
     - binary_sensor:
         - name: "Z2M Devices Unavailable"
           delay_off:
@@ -41,4 +29,13 @@ zigbee2mqtt:
         - service: notify.me
           data_template:
             message: >-
-              Zigbee Device unavailable?: {{states.sensor.z2m_unavailable_devices.state}}
+              Zigbee Device unavailable?:  
+              {%-for item in states.sensor if (item.attributes.linkquality is defined)-%}
+              {%set name = item.attributes.friendly_name%}
+              {%-if item.attributes.linkquality | float(default=0) < 1
+              and 'Smoke' not in name
+              and 'Cube' not in name
+              and 'Water' not in name-%}
+                {{-item.attributes.friendly_name-}} , 
+              {%endif%}
+              {%- endfor -%}

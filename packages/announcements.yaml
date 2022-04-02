@@ -41,6 +41,7 @@ announcements:
             - binary_sensor.lilleveranda
             - binary_sensor.door_downstairs
           to: "on"
+          from: "off"
       condition:
         - condition: state
           entity_id: group.stilletid
@@ -80,6 +81,7 @@ announcements:
             - binary_sensor.lilleveranda
             - binary_sensor.door_downstairs
           to: "off"
+          from: "on"
       condition:
         - condition: state
           entity_id: group.stilletid

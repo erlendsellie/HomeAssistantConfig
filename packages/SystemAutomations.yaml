@@ -339,19 +339,19 @@ system:
               {%- endfor -%}
 
   script:
-    backup:
-      alias: Backup HA Configuration Files
-      sequence:
-        - service: shell_command.backup_configuration
-        - service: shell_command.backup_groups
-        - service: shell_command.backup_automations
-        - service: shell_command.backup_known_devices
-        - service: shell_command.backup_script
-        - service: shell_command.backup_media_player
-        - service: shell_command.backup_notify
-        - service: shell_command.backup_climate
-        - service: shell_command.backup_secrets
-        - service: shell_command.backup_cameras
+    # backup:
+    #   alias: Backup HA Configuration Files
+    #   sequence:
+    #     - service: shell_command.backup_configuration
+    #     - service: shell_command.backup_groups
+    #     - service: shell_command.backup_automations
+    #     - service: shell_command.backup_known_devices
+    #     - service: shell_command.backup_script
+    #     - service: shell_command.backup_media_player
+    #     - service: shell_command.backup_notify
+    #     - service: shell_command.backup_climate
+    #     - service: shell_command.backup_secrets
+    #     - service: shell_command.backup_cameras
 
     restart:
       alias: "Restart"
@@ -396,22 +396,22 @@ system:
           data:
             message: "request_location_update"
 
-    testtabilde:
-      alias: testtabilde
-      sequence:
-        - service: shell_command.pb_send_image
+    # testtabilde:
+    #   alias: testtabilde
+    #   sequence:
+    #     - service: shell_command.pb_send_image
 
     restarthacontainer:
       alias: Restart Ha Container
       sequence:
         - service: shell_command.restart_container
 
-    php_lights_off:
-      alias: PHP Lights off
-      sequence:
-        - service: shell_command.lights_off_php
+    # php_lights_off:
+    #   alias: PHP Lights off
+    #   sequence:
+    #     - service: shell_command.lights_off_php
 
-    php_lights_on:
-      alias: PHP Lights on
-      sequence:
-        - service: shell_command.lights_on_php
+    # php_lights_on:
+    #   alias: PHP Lights on
+    #   sequence:
+    #     - service: shell_command.lights_on_php
