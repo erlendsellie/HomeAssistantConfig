@@ -545,10 +545,6 @@
       unit_of_measurement: "°C"
       value_template: "{{ states.input_number.temperature.state | float(default=0)}}"
 
-    shieldapp:
-      friendly_name: "Shield App"
-      value_template: '{{ states.media_player.shield.attributes.app_name or "off"}}'
-
     tvsource:
       friendly_name: "TV Source"
       value_template: '{{ states.media_player.tv_stua.attributes.source or "off"}}'

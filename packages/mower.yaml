@@ -125,10 +125,7 @@ mower:
       trigger:
         - platform: time_pattern
           minutes: "/12"
-      condition:
-        - condition: state
-          entity_id: switch.mower
-          state: "off"
+      condition: "{{is_state('switch.mower','off')}}"
       action:
         - service: switch.turn_on
           entity_id: switch.mower

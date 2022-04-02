@@ -1,61 +1,59 @@
 gametimer:
-  automation:      
+  automation:
     - alias: GameTimerCheckTemp
       trigger:
         - platform: time_pattern
           minutes: 5 #Every hour, 5 minutes over.
       condition:
-      - condition: state
-        entity_id: input_boolean.gametimer
-        state: 'on'
-      action:        
-      - service: input_number.set_value
-        data_template:
-          entity_id: input_number.gametimer1
-          value: '{{ states.input_number.gametimer1.state | int(default=0) + states.sensor.gametemp.state | int(default=0) }}'
+        - condition: state
+          entity_id: input_boolean.gametimer
+          state: "on"
+      action:
+        - service: input_number.set_value
+          data_template:
+            entity_id: input_number.gametimer1
+            value: "{{ states.input_number.gametimer1.state | int(default=0) + states.sensor.gametemp.state | int(default=0) }}"
       # - service: input_number.set_value
       #   data_template:
       #     entity_id: input_number.gametimer2
-      #     value: '{{ states.input_number.gametimer2.state | int(default=0) + states.sensor.ute_temperature.state | int(default=0) }}'          
+      #     value: '{{ states.input_number.gametimer2.state | int(default=0) + states.sensor.ute_temperature.state | int(default=0) }}'
 
     - alias: GameTimerNotify1
       trigger:
         - platform: state
           entity_id: input_number.gametimer1
       condition:
-      - condition: numeric_state
-        entity_id: input_number.gametimer1
-        above: 960
+        - condition: numeric_state
+          entity_id: input_number.gametimer1
+          above: 960
       action:
-      - service: notify.me
-        data_template:
-          message: "Mørningstimer1 er ferdig! Nåværende døgngrader er {{((states.input_number.gametimer1.state | int(default=0) / 24)) | round(1)}}" 
-
+        - service: notify.me
+          data_template:
+            message: "Mørningstimer1 er ferdig! Nåværende døgngrader er {{((states.input_number.gametimer1.state | int(default=0) / 24)) | round(1)}}"
 
     - alias: GarageCold
       trigger:
         - platform: numeric_state
-          entity_id: sensor.stua_temperature2
+          entity_id: sensor.gametemp
           below: 0
       condition:
-      - condition: state
-        entity_id: input_boolean.gametimer
-        state: 'on'
+        - condition: state
+          entity_id: input_boolean.gametimer
+          state: "on"
       action:
-      - service: notify.me
-        data_template:
-          message: "Mørningstemperaturen er under null grader, mens vilt henger til mørning. Temp nå: {{states.sensor.gametemp.state}}"
-
+        - service: notify.me
+          data_template:
+            message: "Mørningstemperaturen er under null grader, mens vilt henger til mørning. Temp nå: {{states.sensor.gametemp.state}}"
 
   script:
     resetgametimer1:
       sequence:
-      - service: input_number.set_value
-        data_template:
-          entity_id: input_number.gametimer1
-          value: 0
-      - service: input_boolean.turn_on
-        entity_id: input_boolean.gametimer
+        - service: input_number.set_value
+          data_template:
+            entity_id: input_number.gametimer1
+            value: 0
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.gametimer
 
   input_number:
     gametimer1:
@@ -64,7 +62,7 @@ gametimer:
       max: 3000
       step: 0.1
       mode: box
-      unit_of_measurement: '°C'
+      unit_of_measurement: "°C"
     # gametimer2:
     #   name: Mørningstimer 2
     #   min: -0
@@ -73,20 +71,19 @@ gametimer:
     #   mode: box
     #   unit_of_measurement: '°C'
 
-
   input_boolean:
     gametimer:
-      name: 'Mørningstimer'
+      name: "Mørningstimer"
 
   sensor:
     - platform: template
       sensors:
         dogngrader1:
-          unit_of_measurement: 'Døgngrader'
+          unit_of_measurement: "Døgngrader"
           value_template: >
             {{((states.input_number.gametimer1.state | int(default=0) / 24)) | round(1)}}
         gametemp:
-          unit_of_measurement: 'C'
+          unit_of_measurement: "C"
           value_template: >
             {% if is_state("input_select.gametemp", "Sleipner Utside") %} {{states.sensor.modely_temperature_sensor_inside.state | float}}
             {% elif is_state("input_select.gametemp", "Sleipner Innside") %} {{states.sensor.modely_temperature_sensor_outside.state | float}}
@@ -99,19 +96,18 @@ gametimer:
         #   value_template: >
         #     {{((states.input_number.gametimer2.state | int(default=0) / 24)) | round(1)}}
 
-
   binary_sensor:
-  - platform: template
-    scan_interval: 100000
-    sensors:
-      huntingseason:
-        friendly_name: 'Hunting Season'
-        value_template: >
+    - platform: template
+      scan_interval: 100000
+      sensors:
+        huntingseason:
+          friendly_name: "Hunting Season"
+          value_template: >
             {{states.sensor.date_time.state.split('-')[1] | int(default=0) > 8 or states.sensor.date_time.state.split('-')[1] | int(default=0) < 3}}
 
   input_select:
     gametemp:
-      name: 'Mørningssted:'
+      name: "Mørningssted:"
       options:
         - Sleipner Utside
         - Sleipner Innside
