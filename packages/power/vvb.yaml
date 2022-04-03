@@ -1,5 +1,19 @@
 vvb:
   template:
+    - binary_sensor:
+        - name: "vvb_on"
+          state: >-
+            {%-set notUsingSpot = states.binary_sensor.usingspot.state == 'off' -%}
+            {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
+            {%-set billigste_8_timer = states.binary_sensor.billigste_8_timer.state == 'on' -%}
+            {%-set shouldNotBother = states.binary_sensor.pricedifferenceissmall.state == 'on' -%}
+            {%set pricelevel = states('sensor.pricelevel')%}
+            {%set isCheap = pricelevel ==  'CHEAP' or pricelevel == 'VERY_CHEAP'%}
+            {% if shouldNotBother %}
+              {{true}}
+            {% else %}
+              {{notUsingSpot or isLowPrice or billigste_8_timer or isCheap}}
+            {% endif %}
     - sensor:
         #Todo, a sensor to handle when bottom hits 19 or so, after a shower. Max-sensor will maybe work? Or max of bottom + average?
         - name: "VVB Average"
@@ -26,20 +40,6 @@ vvb:
             {%set bottom = states('sensor.vvb_bottom') | float%}
             {%set top = states('sensor.vvb_top') | float%}
             {{max(top,bottom)}}
-    - binary_sensor:
-        - name: "vvb_on"
-          state: >-
-            {%-set notUsingSpot = states.binary_sensor.usingspot.state == 'off' -%}
-            {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
-            {%-set billigste_8_timer = states.binary_sensor.billigste_8_timer.state == 'on' -%}
-            {%-set shouldNotBother = states.binary_sensor.pricedifferenceissmall.state == 'on' -%}
-            {%set pricelevel = states('sensor.pricelevel')%}
-            {%set isCheap = pricelevel ==  'CHEAP' or pricelevel == 'VERY_CHEAP'%}
-            {% if shouldNotBother %}
-              {{true}}
-            {% else %}
-              {{notUsingSpot or isLowPrice or billigste_8_timer or isCheap}}
-            {% endif %}
 
   #Set to on always at some hours at night, to ensure hot water at morning?
   # or when car charges = start heater?
@@ -71,6 +71,7 @@ vvb:
       trigger:
         - platform: state
           entity_id: binary_sensor.vvb_on
+          # To avoid bugs during restarts, or other, trigger every hour, to avoid cold showers.
         - platform: time_pattern
           minutes: 5 #Every hour, 5 minutes over.
       action:
@@ -89,6 +90,24 @@ vvb:
             climate.turn_on
           target:
             entity_id: climate.varmtvannsbereder
+
+    - id: ToggleHeavyDutyToFixPowerReading
+      alias: ToggleHeavyDutyToFixPowerReading
+      trigger:
+        - platform: time_pattern
+          minutes: "/30"
+      action:
+        - service: >-
+            switch.turn_{{iif(states('binary_sensor.vvb_on'),'on','off')}}
+          target:
+            entity_id: switch.varmtvannsbereder
+        - delay:
+            seconds: 10
+        - service: >-
+            switch.turn_{{states('binary_sensor.vvb_on')}}
+          target:
+            entity_id: switch.varmtvannsbereder
+
   climate:
     - platform: generic_thermostat
       name: Varmtvannsbereder

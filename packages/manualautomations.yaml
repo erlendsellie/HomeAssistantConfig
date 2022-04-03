@@ -842,8 +842,8 @@ manualautomations:
     - id: BathroomFanWhenVVBOn
       alias: BathroomFanWhenVVBOn
       trigger:
-        - platform: template
-          value_template: "{{ (states.sensor.varmtvannsbereder.state | int(default=70) - states.climate.varmtvannsbereder.attributes.temperature | int(default=70)) > 10 }}"
+        # - platform: template
+        #   value_template: "{{ (states.sensor.varmtvannsbereder.state | int(default=70) - states.climate.varmtvannsbereder.attributes.temperature | int(default=70)) > 10 }}"
         - platform: state
           entity_id: binary_sensor.vvb_heating
           to: "on"

@@ -61,7 +61,7 @@ logger:
     #homeassistant.components.influxdb: debug
     #homeassistant.components.upnp: error
     #remove this later.
-    homeassistant.components.stream.worker: fatal
+    homeassistant.components.stream: fatal
     #homeassistant.components.recorder: fatal
     homeassistant.components.generic.camera: fatal
     homeassistant.helpers.template: warning

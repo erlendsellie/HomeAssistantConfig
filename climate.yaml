@@ -23,16 +23,16 @@
 #   temperature_sensor: sensor.stua_temperature
 #   humidity_sensor: sensor.stua_humidity
 
-- platform: generic_thermostat
-  name: Garage Heater
-  heater: switch.garage_heater
-  target_sensor: sensor.garage_temperature
-  min_temp: 0
-  max_temp: 14
-  precision: 0.5
-  hot_tolerance: 0.2
-  keep_alive:
-    minutes: 30
+# - platform: generic_thermostat
+#   name: Garage Heater
+#   heater: switch.garage_heater
+#   target_sensor: sensor.garage_temperature
+#   min_temp: 0
+#   max_temp: 14
+#   precision: 0.5
+#   hot_tolerance: 0.2
+#   keep_alive:
+#     minutes: 30
 
 - platform: generic_thermostat
   name: Office Heater
