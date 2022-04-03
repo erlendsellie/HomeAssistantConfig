@@ -2,6 +2,10 @@ vvb:
   template:
     - binary_sensor:
         - name: "vvb_on"
+          delay_on:
+            minutes: 3
+          delay_off:
+            seconds: 10
           state: >-
             {%-set notUsingSpot = states.binary_sensor.usingspot.state == 'off' -%}
             {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
@@ -95,14 +99,18 @@ vvb:
       alias: ToggleHeavyDutyToFixPowerReading
       trigger:
         - platform: time_pattern
-          minutes: "/30"
+          minutes: "/5"
+      condition:
+        - condition: state
+          entity_id: binary_sensor.vvb_on
+          state: "on"
       action:
         - service: >-
             switch.turn_{{iif(states('binary_sensor.vvb_on'),'on','off')}}
           target:
             entity_id: switch.varmtvannsbereder
         - delay:
-            seconds: 10
+            seconds: 3
         - service: >-
             switch.turn_{{states('binary_sensor.vvb_on')}}
           target:
