@@ -99,7 +99,7 @@ vvb:
       alias: ToggleHeavyDutyToFixPowerReading
       trigger:
         - platform: time_pattern
-          minutes: "/5"
+          minutes: "/15"
       condition:
         - condition: state
           entity_id: switch.varmtvannsbereder

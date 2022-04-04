@@ -1,0 +1,89 @@
+blueprint:
+  name: Nordpool - Reload Integration
+  description: Reload Nordpool Integration When the API fails to fetch new data,
+    or the sensor becomes unavailable or unknown.
+  domain: automation
+  input:
+    entity:
+      name: Nordpool Sensor
+      description: Your Nordpool Sensor
+      selector:
+        entity:
+          integration: nordpool
+          domain: sensor
+    notify:
+      name: Notify
+      description:
+        Notify with a Persistent Notification in Home Assistant whenever
+        the Nordpool integration is reloaded.
+      selector:
+        boolean:
+  source_url: https://github.com/erlendsellie/HomeAssistantConfig/blob/master/blueprints/automation/erlendsellie/nordpool_reload.yaml
+mode: single
+max_exceeded: silent
+trigger_variables:
+  entity: !input entity
+trigger:
+  - #Tomorrows Prices not Loaded after 1400
+    platform: template
+    value_template: >-
+      {%set nordpool = states[entity]%}
+      {%set tomorrow = nordpool.attributes.tomorrow %}
+      {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
+      {%set shouldBeValid = (now().hour > 13) and (now().minute > 0)%}
+      {{shouldBeValid and tomorrowvalue < 0.01}}
+    for:
+      minutes: 1
+  - #Tomorrows Prices not Loaded after 1345
+    platform: template
+    value_template: >-
+      {%set nordpool = states[entity]%}
+      {%set tomorrow = nordpool.attributes.tomorrow %}
+      {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
+      {%set shouldBeValid = (now().hour > 12) and (now().minute > 45)%}
+      {{shouldBeValid and tomorrowvalue < 0.01}}
+    for:
+      minutes: 1
+  - #Tomorrows Prices not Loaded after 1330
+    platform: template
+    value_template: >-
+      {%set nordpool = states[entity]%}
+      {%set tomorrow = nordpool.attributes.tomorrow %}
+      {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
+      {%set shouldBeValid = (now().hour > 12) and (now().minute > 30)%}
+      {{shouldBeValid and tomorrowvalue < 0.01}}
+    for:
+      minutes: 1
+  - #Tomorrows Prices not Loaded after 1315
+    platform: template
+    value_template: >-
+      {%set nordpool = states[entity]%}
+      {%set tomorrow = nordpool.attributes.tomorrow %}
+      {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
+      {%set shouldBeValid = (now().hour > 12) and (now().minute > 15)%}
+      {{shouldBeValid and tomorrowvalue < 0.01}}
+    for:
+      minutes: 1
+  - #State is Unavailable or Unknown
+    platform: template
+    value_template: >-
+      {%set nordpool = states.sensor.nordpool.state%}
+      {{
+        nordpool == 'unknown' or
+        nordpool == 'unavailable'
+      }}
+    for:
+      minutes: 1
+action:
+  - variables:
+      entity: !input entity
+      notify: !input notify
+  - service: homeassistant.reload_config_entry
+    entity_id: !input "entity"
+  - condition: "{{ notify == true }}"
+  - delay:
+      seconds: 10
+  - service: persistent_notification.create
+    data:
+      title: Nordpool var utilgjengelig, relastet integrasjonen
+      message: Sist endret nå for {{relative_time(states[entity].last_changed)}} siden
