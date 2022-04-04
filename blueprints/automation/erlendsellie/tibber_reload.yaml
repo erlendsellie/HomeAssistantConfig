@@ -21,6 +21,7 @@ blueprint:
       description:
         Notify with a Persistent Notification in Home Assistant whenever
         Tibber freezes and we reload the integration.
+      default: false
       selector:
         boolean:
   source_url: https://github.com/erlendsellie/HomeAssistantConfig/blob/master/blueprints/automation/erlendsellie/tibber_reload.yaml
