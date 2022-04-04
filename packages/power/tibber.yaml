@@ -1,8 +1,7 @@
-#LesMeg:
-# Fjern alle kall til script.notify, eller bytt om til egen notify service call,
-# om du vil ha varsling med status.
-
 tibber:
+  #LesMeg:
+  # Fjern alle kall til script.notify, eller bytt om til egen notify service call,
+  # om du vil ha varsling med status.
   template:
     - binary_sensor:
         # Sensor som trigger automasjon om Tibber fryser.

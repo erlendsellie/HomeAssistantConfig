@@ -102,19 +102,15 @@ vvb:
           minutes: "/5"
       condition:
         - condition: state
-          entity_id: binary_sensor.vvb_on
+          entity_id: switch.varmtvannsbereder
           state: "on"
       action:
-        - service: >-
-            switch.turn_{{iif(states('binary_sensor.vvb_on'),'on','off')}}
-          target:
-            entity_id: switch.varmtvannsbereder
+        - service: switch.turn_off
+          entity_id: switch.varmtvannsbereder
         - delay:
             seconds: 3
-        - service: >-
-            switch.turn_{{states('binary_sensor.vvb_on')}}
-          target:
-            entity_id: switch.varmtvannsbereder
+        - service: switch.turn_on
+          entity_id: switch.varmtvannsbereder
 
   climate:
     - platform: generic_thermostat

@@ -1,8 +1,8 @@
 blueprint:
   name: deCONZ - IKEA five button remote
-  description: 'Control anything using IKEA five button remote
+  description: "Control anything using IKEA five button remote
 
-    '
+    "
   domain: automation
   input:
     remote:
@@ -88,47 +88,47 @@ blueprint:
 mode: restart
 max_exceeded: silent
 trigger:
-- platform: event
-  event_type: deconz_event
-  event_data:
-    device_id: !input 'remote'
+  - platform: event
+    event_type: deconz_event
+    event_data:
+      device_id: !input "remote"
 action:
-- variables:
-    event: '{{ trigger.event.data.event }}'
-- choose:
-  - conditions:
-    - '{{ event == 1002 }}'
-    sequence: !input 'button_on_off_short'
-  - conditions:
-    - '{{ event == 1001 }}'
-    sequence: !input 'button_on_off_long'
-  - conditions:
-    - '{{ event == 2003 }}'
-    sequence: !input 'button_brightness_up_long_release'
-  - conditions:
-    - '{{ event == 2002 }}'
-    sequence: !input 'button_brightness_up_short'
-  - conditions:
-    - '{{ event == 2001 }}'
-    sequence: !input 'button_brightness_up_long'
-  - conditions:
-    - '{{ event == 3003 }}'
-    sequence: !input 'button_brightness_down_long_release'
-  - conditions:
-    - '{{ event == 3002 }}'
-    sequence: !input 'button_brightness_down_short'
-  - conditions:
-    - '{{ event == 3001 }}'
-    sequence: !input 'button_brightness_down_long'
-  - conditions:
-    - '{{ event == 4002 }}'
-    sequence: !input 'button_left_short'
-  - conditions:
-    - '{{ event == 4001 }}'
-    sequence: !input 'button_left_long'
-  - conditions:
-    - '{{ event == 5002 }}'
-    sequence: !input 'button_right_short'
-  - conditions:
-    - '{{ event == 5001 }}'
-    sequence: !input 'button_right_long'
+  - variables:
+      event: "{{ trigger.event.data.event }}"
+  - choose:
+      - conditions:
+          - "{{ event == 1002 }}"
+        sequence: !input "button_on_off_short"
+      - conditions:
+          - "{{ event == 1001 }}"
+        sequence: !input "button_on_off_long"
+      - conditions:
+          - "{{ event == 2003 }}"
+        sequence: !input "button_brightness_up_long_release"
+      - conditions:
+          - "{{ event == 2002 }}"
+        sequence: !input "button_brightness_up_short"
+      - conditions:
+          - "{{ event == 2001 }}"
+        sequence: !input "button_brightness_up_long"
+      - conditions:
+          - "{{ event == 3003 }}"
+        sequence: !input "button_brightness_down_long_release"
+      - conditions:
+          - "{{ event == 3002 }}"
+        sequence: !input "button_brightness_down_short"
+      - conditions:
+          - "{{ event == 3001 }}"
+        sequence: !input "button_brightness_down_long"
+      - conditions:
+          - "{{ event == 4002 }}"
+        sequence: !input "button_left_short"
+      - conditions:
+          - "{{ event == 4001 }}"
+        sequence: !input "button_left_long"
+      - conditions:
+          - "{{ event == 5002 }}"
+        sequence: !input "button_right_short"
+      - conditions:
+          - "{{ event == 5001 }}"
+        sequence: !input "button_right_long"

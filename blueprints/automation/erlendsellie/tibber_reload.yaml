@@ -1,0 +1,49 @@
+blueprint:
+  name: Tibber - Reload Integration
+  description: "Reload Tibber Integration When the API freezes.
+    Will reload 30 seconds and 2 minutes after freeze is detected."
+
+  domain: automation
+  input:
+    entity:
+      name: Tibber Entity
+      description: >-
+        Entity to base the automation upon.
+        Typically the Tibber Pulse Power sensor, 
+        but for if you have solar, the average consuption sensor is better to use.
+      selector:
+        entity:
+          integration: tibber
+    notify:
+      name: Notify
+      description: >-
+        Notify with a Persistent Notification in Home Assistant
+        whenever Tibber freezes and we reload the integration.
+      selector:
+        boolean:
+
+mode: restart
+max_exceeded: silent
+trigger:
+  - platform: state
+    entity_id: !input "entity"
+    for:
+      seconds: 30
+  - platform: state
+    entity_id: !input "entity"
+    for:
+      minutes: 2
+action:
+  - variables:
+      entity: !input "entity"
+      notify: !input "notify"
+  - service: homeassistant.reload_config_entry
+    entity_id: !input "entity"
+  - condition: "{{ notify == true }}"
+  - delay:
+      seconds: 10
+  - service: persistent_notification.create
+    data:
+      title: Tibber var utilgjengelig, relastet integrasjonen
+      message: >-
+        Sist endret for {{relative_time(states[entity].last_changed)}} siden

@@ -1,0 +1,22 @@
+#simplified package, should work more out of the box.
+tibber_simple:
+  automation:
+    - id: reloadTibberSimple
+      alias: reloadTibberSimple
+      trigger:
+        - platform: state
+          entity_id: sensor.power_sivert_thonstads_vei_6b
+          for:
+            seconds: 30
+        - platform: state
+          entity_id: sensor.power_sivert_thonstads_vei_6b
+          for:
+            minutes: 2
+      action:
+        - service: homeassistant.reload_config_entry
+          entity_id: sensor.power_sivert_thonstads_vei_6b
+        - service: persistent_notification.create
+          data:
+            title: Tibber var utilgjengelig, relastet integrasjonen
+            message: >-
+              Sist endret for {{relative_time(states.sensor.power_sivert_thonstads_vei_6b.last_changed)}} siden
