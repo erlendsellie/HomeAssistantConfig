@@ -29,7 +29,7 @@ trigger:
     platform: template
     value_template: >-
       {%set nordpool = states[entity]%}
-      {%set tomorrow = nordpool.attributes.tomorrow %}
+      {%set tomorrow = nordpool.attributes.tomorrow or [] %}
       {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
       {%set shouldBeValid = (now().hour > 13) and (now().minute > 0)%}
       {{shouldBeValid and tomorrowvalue < 0.01}}
@@ -39,7 +39,7 @@ trigger:
     platform: template
     value_template: >-
       {%set nordpool = states[entity]%}
-      {%set tomorrow = nordpool.attributes.tomorrow %}
+      {%set tomorrow = nordpool.attributes.tomorrow or [] %}
       {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
       {%set shouldBeValid = (now().hour > 12) and (now().minute > 45)%}
       {{shouldBeValid and tomorrowvalue < 0.01}}
@@ -49,7 +49,7 @@ trigger:
     platform: template
     value_template: >-
       {%set nordpool = states[entity]%}
-      {%set tomorrow = nordpool.attributes.tomorrow %}
+      {%set tomorrow = nordpool.attributes.tomorrow or [] %}
       {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
       {%set shouldBeValid = (now().hour > 12) and (now().minute > 30)%}
       {{shouldBeValid and tomorrowvalue < 0.01}}
@@ -59,7 +59,7 @@ trigger:
     platform: template
     value_template: >-
       {%set nordpool = states[entity]%}
-      {%set tomorrow = nordpool.attributes.tomorrow %}
+      {%set tomorrow = nordpool.attributes.tomorrow or [] %}
       {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
       {%set shouldBeValid = (now().hour > 12) and (now().minute > 15)%}
       {{shouldBeValid and tomorrowvalue < 0.01}}
