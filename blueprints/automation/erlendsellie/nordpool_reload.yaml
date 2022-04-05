@@ -68,7 +68,7 @@ trigger:
   - #State is Unavailable or Unknown
     platform: template
     value_template: >-
-      {%set nordpool = states.sensor.nordpool.state%}
+      {%set nordpool = states[entity]%}
       {{
         nordpool == 'unknown' or
         nordpool == 'unavailable'

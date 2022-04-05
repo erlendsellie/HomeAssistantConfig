@@ -27,21 +27,32 @@ blueprint:
   source_url: https://github.com/erlendsellie/HomeAssistantConfig/blob/master/blueprints/automation/erlendsellie/tibber_reload.yaml
 mode: restart
 max_exceeded: silent
+trigger_variables:
+  entity: !input entity
 trigger:
   - platform: state
-    entity_id: !input "entity"
+    entity_id: !input entity
     for:
       seconds: 30
   - platform: state
-    entity_id: !input "entity"
+    entity_id: !input entity
     for:
       minutes: 2
+  - platform: template
+    value_template: >-
+      {%set tibber = states[entity]%}
+      {{
+        tibber == 'unknown' or
+        tibber == 'unavailable'
+      }}
+    for:
+      seconds: 20
 action:
   - variables:
-      entity: !input "entity"
-      notify: !input "notify"
+      entity: !input entity
+      notify: !input notify
   - service: homeassistant.reload_config_entry
-    entity_id: !input "entity"
+    entity_id: !input entity
   - condition: "{{ notify == true }}"
   - delay:
       seconds: 10
