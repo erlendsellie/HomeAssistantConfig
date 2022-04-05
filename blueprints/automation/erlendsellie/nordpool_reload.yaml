@@ -29,8 +29,12 @@ trigger:
     platform: template
     value_template: >-
       {%set nordpool = states[entity]%}
-      {%set tomorrow = nordpool.attributes.tomorrow or [0,0,0] %}
-      {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
+      {%if nordpool.attributes.tomorrow is defined %}
+        {%set tomorrow = nordpool.attributes.tomorrow %}
+        {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
+      {%else%}
+        {%set tomorrowvalue = 0 %}
+      {%endif%}      
       {%set shouldBeValid = (now().hour > 13) and (now().minute > 0)%}
       {{shouldBeValid and tomorrowvalue < 0.01}}
     for:
@@ -39,8 +43,12 @@ trigger:
     platform: template
     value_template: >-
       {%set nordpool = states[entity]%}
-      {%set tomorrow = nordpool.attributes.tomorrow or [0,0,0] %}
-      {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
+      {%if nordpool.attributes.tomorrow is defined %}
+        {%set tomorrow = nordpool.attributes.tomorrow %}
+        {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
+      {%else%}
+        {%set tomorrowvalue = 0 %}
+      {%endif%}      
       {%set shouldBeValid = (now().hour > 12) and (now().minute > 45)%}
       {{shouldBeValid and tomorrowvalue < 0.01}}
     for:
@@ -49,18 +57,27 @@ trigger:
     platform: template
     value_template: >-
       {%set nordpool = states[entity]%}
-      {%set tomorrow = nordpool.attributes.tomorrow or [0,0,0] %}
-      {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
+      {%if nordpool.attributes.tomorrow is defined %}
+        {%set tomorrow = nordpool.attributes.tomorrow %}
+        {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
+      {%else%}
+        {%set tomorrowvalue = 0 %}
+      {%endif%}      
       {%set shouldBeValid = (now().hour > 12) and (now().minute > 30)%}
       {{shouldBeValid and tomorrowvalue < 0.01}}
+
     for:
       minutes: 1
   - #Tomorrows Prices not Loaded after 1315
     platform: template
     value_template: >-
       {%set nordpool = states[entity]%}
-      {%set tomorrow = nordpool.attributes.tomorrow or [0,0,0] %}
-      {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
+      {%if nordpool.attributes.tomorrow is defined %}
+        {%set tomorrow = nordpool.attributes.tomorrow %}
+        {%set tomorrowvalue = tomorrow[1] or 0 | float(default=0) %}
+      {%else%}
+        {%set tomorrowvalue = 0 %}
+      {%endif%}      
       {%set shouldBeValid = (now().hour > 12) and (now().minute > 15)%}
       {{shouldBeValid and tomorrowvalue < 0.01}}
     for:
