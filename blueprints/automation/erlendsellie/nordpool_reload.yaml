@@ -104,4 +104,4 @@ action:
   - service: persistent_notification.create
     data:
       title: Nordpool var utilgjengelig, relastet integrasjonen
-      message: Sist endret nå for {{relative_time(states[entity].last_changed)}} siden
+      message: State nå er {{states(entity)}}

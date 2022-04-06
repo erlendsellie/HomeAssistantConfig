@@ -12,9 +12,12 @@ vvb:
             {%-set billigste_8_timer = states.binary_sensor.billigste_8_timer.state == 'on' -%}
             {%-set shouldNotBother = states.binary_sensor.pricedifferenceissmall.state == 'on' -%}
             {%set pricelevel = states('sensor.pricelevel')%}
+            {%set pricecorrectionDown = states('sensor.pricecorrection') | int  < 0%}
             {%set isCheap = pricelevel ==  'CHEAP' or pricelevel == 'VERY_CHEAP'%}
             {% if shouldNotBother %}
               {{true}}
+            {%elif pricecorrectionDown%}
+              {{false}}
             {% else %}
               {{notUsingSpot or isLowPrice or billigste_8_timer or isCheap}}
             {% endif %}

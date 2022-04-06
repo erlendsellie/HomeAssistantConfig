@@ -82,7 +82,6 @@ nordpool:
             message: "Tomorrows min price is {{states.sensor.billigste_pris_imorgen_ettermiddag.state}}, {{states.sensor.price_difference_nights.state}} difference from tonight."
             title: "You should {%if states.binary_sensor.should_charge_car_tonight.state == 'off' %}NOT {%endif%}charge the car tonight."
   # sensor:
-
   #   - platform: nordpool
   #     # Should the prices include vat? Default True
   #     VAT: True

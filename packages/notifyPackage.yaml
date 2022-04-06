@@ -453,13 +453,13 @@ notifypackage:
     notifyhome:
       alias: Simple Notification To Both
       sequence:
-        - service: script.turn_on
-          entity_id: script.remove_channel
-          data_template:
-            variables:
-              channel: "{{channel}}"
-        - delay:
-            seconds: 1
+        # - service: script.turn_on
+        #   entity_id: script.remove_channel
+        #   data_template:
+        #     variables:
+        #       channel: "{{channel or title}}"
+        # - delay:
+        #     seconds: 1
         - service: script.turn_on
           entity_id: script.notifymehome
           data_template:
