@@ -285,7 +285,7 @@ tesla:
           data_template:
             variables:
               title: Heating Sleipner
-              message: To 22 degrees.
+              message: Climating Car
 
     - alias: "tesla_defrost"
       id: "tesla_defrost"
@@ -358,7 +358,7 @@ tesla:
             entity_id: climate.modely
 
     climatecar:
-      alias: "Set Sleipner to 22 degrees"
+      alias: "Climate Car"
       sequence:
         - service: climate.turn_on
           target:

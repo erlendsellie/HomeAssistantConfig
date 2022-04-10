@@ -423,9 +423,6 @@ temperaturecontrol:
           value_template: >-
             {%-set pricedifference = states.sensor.pricespike.state | float(default=0)%}       
             {{pricedifference < 0.10}}
-        usingspot:
-          value_template: >-
-            {{true}}
         pricecorrection_up:
           delay_off:
             minutes: 2

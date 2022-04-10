@@ -392,9 +392,9 @@ webostv:
   customize:
     sources:
       - Amazon Prime Video
-      - CHROME50
+      - CHROME
       - Game Console
-      - HDMI2
+      #- HDMI2
       - NRK TV
       - Netflix
       - TV 2 Sumo

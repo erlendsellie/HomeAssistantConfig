@@ -59,4 +59,10 @@ action:
   - service: persistent_notification.create
     data:
       title: Tibber var utilgjengelig, relastet integrasjonen
-      message: Sist endret nå for {{relative_time(states[entity].last_changed)}} siden
+      message: >-
+        {% if (as_timestamp(utcnow()) - as_timestamp(states[entity].last_changed)) < 30%}
+        Tibber er tilgjengelig igjen -
+        {%else%}
+        TIBBER ER FREMDELES UTILGJENGELIG -
+        {%endif%}
+        Sist endret nå for {{relative_time(states[entity].last_changed)}} siden.
