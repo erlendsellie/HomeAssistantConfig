@@ -64,7 +64,7 @@ action:
     data:
       title: Tibber var utilgjengelig, relastet integrasjonen
       message: >-
-        {% if (as_timestamp(utcnow()) - as_timestamp(states[entity].last_changed)) < 30%}
+        {% if (as_timestamp(utcnow()) - as_timestamp(states[entity].last_changed)) < 10%}
         Tibber er tilgjengelig igjen -
         {%else%}
         TIBBER ER FREMDELES UTILGJENGELIG -
