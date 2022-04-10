@@ -38,6 +38,10 @@ trigger:
     entity_id: !input entity
     for:
       minutes: 2
+  - platform: state
+    entity_id: !input entity
+    for:
+      minutes: 10
   - platform: template
     value_template: >-
       {%set tibber = states[entity]%}
