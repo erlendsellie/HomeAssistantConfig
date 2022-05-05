@@ -614,7 +614,7 @@ announcements:
         for:
           minutes: 60
       action:
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data_template:
             title: "Garage has been open for 60 minutes"
             message: "Close it?"

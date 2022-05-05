@@ -178,6 +178,26 @@ power_usage:
         - filter: lowpass
           time_constant: 10
 
+    - platform: filter
+      name: "Vaskemaskin Electric Consumed kWh"
+      entity_id: sensor.vaskemaskin_electric_consumed_kwh_raw
+      filters:
+        - filter: outlier
+          window_size: 4
+          radius: 2.0
+        - filter: lowpass
+          time_constant: 10
+
+    - platform: filter
+      name: "Torketrommel Electric Consumed kWh"
+      entity_id: sensor.torketrommel_electric_consumed_kwh_raw
+      filters:
+        - filter: outlier
+          window_size: 4
+          radius: 2.0
+        - filter: lowpass
+          time_constant: 10
+
   binary_sensor:
     - platform: template
       sensors:

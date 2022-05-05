@@ -14,7 +14,7 @@ alarmclock:
       trigger:
         platform: template
         value_template: >-
-          {%-set nextAlarm = states.sensor.next_alarm.state -%}
+          {%-set nextAlarm = states.sensor.oneplus_next_alarm.state -%}
           {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
           {%-set minutesBefore = 10 -%}
           {{(nextAlarmAsTimestamp - as_timestamp(utcnow()) < (60 * minutesBefore))}}

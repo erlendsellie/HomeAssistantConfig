@@ -4,7 +4,7 @@ irlights:
       alias: turnoffirlightswhenbright
       trigger:
         - platform: numeric_state
-          entity_id: sensor.illuminance_livingroom
+          entity_id: sensor.illuminance_living
           above: 20
           # for:
           #   minutes: 5

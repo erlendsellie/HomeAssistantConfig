@@ -440,7 +440,7 @@ manualautomations:
             entity_id: binary_sensor.erlendhome
             state: "on"
       action:
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data_template:
             title: "Is the Car Heater Mounted?"
             message: "Its {{states.sensor.ute_temperature.state}} degrees outside."
@@ -1019,7 +1019,7 @@ manualautomations:
             entity_id: input_boolean.easleep
             state: "off"
       action:
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data_template:
             title: "Castet til Soverommet."
             message: " Var det feil?"

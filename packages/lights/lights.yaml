@@ -488,7 +488,7 @@ lights:
       condition:
         # Somewhat before the sun sets.
         - condition: template
-          value_template: "{{ states.sensor.illuminance_livingroom.state | float(default=0)< 40}}"
+          value_template: "{{ states.sensor.illuminance_living.state | float(default=0)< 40}}"
       action:
         - service: script.turn_on
           entity_id: script.lightson
@@ -819,8 +819,6 @@ lights:
           value_template: "{{ states.binary_sensor.motion_vindfang.state == 'off'}}"
         - service: light.turn_off
           entity_id: light.vindfang
-
-
 
     blinkliving:
       alias: Blink Lights in livingroom

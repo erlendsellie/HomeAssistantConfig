@@ -16,10 +16,12 @@ vvb:
             {%set isCheap = pricelevel ==  'CHEAP' or pricelevel == 'VERY_CHEAP'%}
             {% if shouldNotBother %}
               {{true}}
+            {% elif notUsingSpot %}
+              {{true}}              
             {%elif pricecorrectionDown%}
               {{false}}
             {% else %}
-              {{notUsingSpot or isLowPrice or billigste_8_timer or isCheap}}
+              {{isLowPrice or billigste_8_timer or isCheap}}
             {% endif %}
     - sensor:
         #Todo, a sensor to handle when bottom hits 19 or so, after a shower. Max-sensor will maybe work? Or max of bottom + average?
@@ -88,7 +90,7 @@ vvb:
               {%if states('binary_sensor.vvb_on') == 'on'%}
                   80
               {%else%}
-                  40
+                  30
               {%endif%}
           target:
             entity_id: climate.varmtvannsbereder

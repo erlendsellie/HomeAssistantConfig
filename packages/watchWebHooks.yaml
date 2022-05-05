@@ -338,7 +338,7 @@ watchwebhooks:
         platform: webhook
         webhook_id: !secret watchmotion
       action:
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data_template:
             message: "Sleipner"
             data:
@@ -352,7 +352,7 @@ watchwebhooks:
                   title: Frunk
                   destructive: true
 
-        # - service: notify.mobile_app_erlend_app
+        # - service: notify.mobile_app_oneplus
         #   data_template:
         #     message: "Actions"
         #     data:
@@ -419,7 +419,7 @@ watchwebhooks:
                   entity_id: input_boolean.easleep
                   state: "off"
               sequence:
-                - service: notify.mobile_app_erlend_app
+                - service: notify.mobile_app_oneplus
                   data_template:
                     message: "Actions"
                     data:
@@ -516,7 +516,7 @@ watchwebhooks:
     notifyblanket:
       alias: notifyblanket
       sequence:
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data_template:
             title: "Blanket is {{states.switch.blanket.state}}"
             message: "Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom."
@@ -556,7 +556,7 @@ watchwebhooks:
     notifykids:
       alias: notifykids
       sequence:
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data_template:
             message: "Kids"
             data:
@@ -573,7 +573,7 @@ watchwebhooks:
     notifytesla:
       alias: notifytesla
       sequence:
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data_template:
             message: "Sleipner"
             data:

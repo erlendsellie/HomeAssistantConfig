@@ -1,4 +1,22 @@
 tesla:
+  template:
+    - sensor:
+        - name: "ModelY Target Soc"
+          unit_of_measurement: "%"
+          state: >-
+            {{states.sensor.sleipner_charging_state_data_sensor.attributes.charge_limit_soc}}
+        - name: "ModelY Percent To Charge"
+          unit_of_measurement: "%"
+          state: >-
+            {{states('sensor.modely_target_soc') | float - states('sensor.modely') | float}}
+        - name: "ModelY kWh To Charge"
+          unit_of_measurement: "kWh"
+          state: >-
+            {{(75 * (states('sensor.modely_percent_to_charge') | float / 100))| round(2)}}
+        - name: "ModelY Minutes To Charge"
+          unit_of_measurement: "minutes"
+          state: >-
+            {{((states('sensor.modely_kwh_to_charge') | float / 11) * 60) | round(0)}}
   automation:
     - alias: "upgradeInsurance"
       id: "upgradeInsurance"
@@ -158,7 +176,7 @@ tesla:
           entity_id: device_tracker.modely_location_tracker
           state: "Park Work"
       action:
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data_template:
             title: "Start heating Sleipner?"
             message: >-

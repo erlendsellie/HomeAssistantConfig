@@ -68,7 +68,7 @@ notifypackage:
         for:
           minutes: 90
       action:
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data_template:
             title: "Garage has been open for 90 minutes"
             message: "Close it?"
@@ -242,7 +242,7 @@ notifypackage:
     #     - condition: template # More than 5 minutes since last time. Does not work correctly?
     #       value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.automation.trymmotion.attributes.last_triggered)) / 60) | round(0)) > 5)}}"
     #   action:
-    #   - service: notify.mobile_app_erlend_app
+    #   - service: notify.mobile_app_oneplus
     #     data_template:
     #       title: Did Trym wake up?
     #       message: Did trym wake up?
@@ -439,7 +439,7 @@ notifypackage:
     remove_channel:
       alias: Remove Channel
       sequence:
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data:
             message: "remove_channel"
             data:
@@ -481,7 +481,7 @@ notifypackage:
         - condition: state
           entity_id: person.erlend
           state: "home"
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data_template:
             title: "{{title}}"
             message: "{{message}}"
@@ -511,7 +511,7 @@ notifypackage:
         - condition: state
           entity_id: person.erlend
           state: "home"
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data:
             title: "{{message}}"
             message: TTS
@@ -523,7 +523,7 @@ notifypackage:
     notify:
       alias: Simple Notification
       sequence:
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data_template:
             title: "{{title}}"
             message: "{{message}}"

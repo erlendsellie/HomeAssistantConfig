@@ -43,7 +43,7 @@ tyra:
     #     - condition: time
     #       after: '18:45:00'
     #   action:
-    #   - service: notify.mobile_app_erlend_app
+    #   - service: notify.mobile_app_oneplus
     #     data_template:
     #       title: 'Slå på'
     #       message: 'Tyra sover?'

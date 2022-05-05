@@ -13,7 +13,7 @@ doorbell:
         #     color_name: green
         - service: script.turn_on
           entity_id: script.blink_lights_doorbell
-        # - service: notify.mobile_app_erlend_app
+        # - service: notify.mobile_app_oneplus
         #   data_template:
         #     title: Doorbell
         #     message: Doorbell

@@ -6,6 +6,8 @@
 !.gitignore
 !*.md
 
+!custom_components/priceanalyzer
+
 # Ignore folders.
 .storage
 .cloud

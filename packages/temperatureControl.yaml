@@ -209,6 +209,11 @@ temperaturecontrol:
             {% endif %}        
             {{temp}}
         pricecorrection:
+          friendly_name: "Price Analyzer"
+          unit_of_measurement: "°C"
+          value_template: >-
+            {{states.sensor.priceanalyzer.state}}
+        pricecorrection_old:
           friendly_name: "Price Correction"
           unit_of_measurement: "°C"
           value_template: >-
@@ -635,6 +640,26 @@ temperaturecontrol:
     #       data_template:
     #         entity_id: climate.garage_heater
     #         temperature: '{{ [states.input_number.garagetemp.state | float(default=0)+ [((states.sensor.pricecorrection.state | float(default=0) * 5)), 1] | max, 0] | min }}'
+
+    - id: adjustsokkeltemp
+      alias: Climate Sokkel - Adjust temp
+      mode: restart
+      trigger:
+        - platform: homeassistant
+          event: start
+        - platform: state
+          entity_id:
+            - sensor.sokkeltemp
+            - sensor.priceanalyzer
+      action:
+        - service: climate.set_temperature
+          data_template:
+            entity_id: climate.sokkel
+            temperature: >-
+              {%-set baseTemp = states.input_number.sokkeltemp.state | float(default=0)%}
+              {%-set priceanalyzer = states.sensor.priceanalyzer.state | float(default=0)%}
+              {{baseTemp + priceanalyzer}}
+
     - id: adjustothertemp
       alias: Climate Other - Adjust temp
       mode: restart
@@ -643,14 +668,9 @@ temperaturecontrol:
           event: start
         - platform: state
           entity_id:
-            - sensor.sokkeltemp
             - sensor.bathroomtemp
             - sensor.vindfangtemp
       action:
-        - service: climate.set_temperature
-          data_template:
-            entity_id: climate.sokkel
-            temperature: "{{ states.sensor.sokkeltemp.state | int(default=0) }}"
         - service: climate.set_temperature
           data_template:
             entity_id: climate.bathroom
@@ -659,6 +679,15 @@ temperaturecontrol:
           data_template:
             entity_id: climate.vindfang
             temperature: "{{ states.sensor.vindfangtemp.state | int(default=0) }}"
+
+    # - id: turnOffEaseeWhenHighPrice
+    #   alias: turnOffEaseeWhenHighPrice
+    #   trigger:
+    #     - platform: state
+    #       entity_id: sensor.pricecorrection
+    #   action:
+    #     - service: "switch.turn_{{iif(states('sensor.pricecorrection') | float < 0,'off','on')}}"
+    #       entity_id: switch.garage_is_enabled
 
     - id: adjusttemp
       alias: Climate Stua - Adjust temp
@@ -794,7 +823,8 @@ temperaturecontrol:
           entity_id: binary_sensor.motion_downstairs_office
       action:
         - service: >
-            {% if states('binary_sensor.motionoffice') == 'on' %}
+            {% if states('binary_sensor.motionoffice') == 'on'
+              and states('sensor.pricecorrection') | float > -1 %}
               climate.turn_on
             {% else %}
               climate.turn_off
@@ -1167,21 +1197,21 @@ temperaturecontrol:
   input_number:
     sokkeltemp:
       name: Sokkel Temperatur
-      min: 15
+      min: 10
       max: 30
       step: 1
       mode: slider
 
     vindfangtemp:
       name: Vindfang Temperatur
-      min: 15
+      min: 10
       max: 30
       step: 1
       mode: slider
 
     bathroomtemp:
       name: Bathroom Temperatur
-      min: 15
+      min: 10
       max: 30
       step: 1
       mode: slider
@@ -1189,7 +1219,7 @@ temperaturecontrol:
     hjemmetemp:
       name: Hjemmetemperatur
       ##initial: 22
-      min: 15
+      min: 12
       max: 30
       step: 1
       mode: slider
@@ -1197,7 +1227,7 @@ temperaturecontrol:
     bortetemp:
       name: Bortetemperatur
       ##initial: 20
-      min: 15
+      min: 12
       max: 30
       step: 1
       mode: slider
@@ -1205,7 +1235,7 @@ temperaturecontrol:
     nattatemp:
       name: Nattatemperatur
       ##initial: 20
-      min: 15
+      min: 12
       max: 30
       step: 1
       mode: slider
@@ -1213,7 +1243,7 @@ temperaturecontrol:
     temperature:
       name: Temperature
       ##initial: 22
-      min: 16
+      min: 12
       max: 30
       step: 1
 

@@ -392,7 +392,7 @@ system:
         - service: notify.mobile_app_caroline
           data:
             message: "request_location_update"
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data:
             message: "request_location_update"
 

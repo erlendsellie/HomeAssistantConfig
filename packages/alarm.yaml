@@ -51,7 +51,7 @@ alarm:
         - condition: template
           value_template: "{{ states.cover.garage_door.state  == 'open'}}" #Maybe add garage not occupied?
       action:
-        # - service: notify.mobile_app_erlend_app
+        # - service: notify.mobile_app_oneplus
         #   data_template:
         #     title: Garage closed since since movement not detected.
         #     message: Garage closed since since movement not detected.
@@ -59,7 +59,7 @@ alarm:
         #       image: 'https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}'
         - service: cover.close_cover
           entity_id: cover.garage_door
-      # - service: notify.mobile_app_erlend_app
+      # - service: notify.mobile_app_oneplus
       #   data_template:
       #     title: 'Garage left open?'
       #     message: 'Close it?'
@@ -94,7 +94,7 @@ alarm:
             data:
               photo:
                 url: !secret outdoorcamerastream
-        # - service: notify.mobile_app_erlend_app
+        # - service: notify.mobile_app_oneplus
         #   data_template:
         #     title: Motion
         #     message: Motion
@@ -136,7 +136,7 @@ alarm:
           data:
             entity_id: camera.driveway
             filename: "/config/www/snapshot2.jpg"
-      # - service: notify.mobile_app_erlend_app
+      # - service: notify.mobile_app_oneplus
       #   data_template:
       #     title: Motion
       #     message: Motion
@@ -319,7 +319,7 @@ alarm:
             {{ (states.binary_sensor.motion_driveway.state == 'off')
             and 
             ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 1}}
-        # - service: notify.mobile_app_erlend_app
+        # - service: notify.mobile_app_oneplus
         #   data_template:
         #     title: Garage closed since someone left.
         #     message: Garage closed since someone left.
@@ -1034,6 +1034,7 @@ alarm:
     ####
 
     - alias: "Trigger Alarm but not when robot running"
+      id: triggerarmhomenotrobot
       trigger:
         - platform: state
           # Alarm Sensors include every motion and door sensor. Hallway, toilet, vindfang, main door and veranda.
@@ -1056,6 +1057,7 @@ alarm:
     #This will sound the alarm when the alarm is Armed Away.
     # Also need one for arm home
     - alias: "Trigger alarm while armed away"
+      id: triggerarmaway
       trigger:
         - platform: state
           entity_id:
@@ -1098,6 +1100,7 @@ alarm:
       #     message: "Alarm triggered by {{trigger.entity_id}}"
 
     - alias: "Trigger alarm while armed home"
+      id: triggerarmhome
       trigger:
         - platform: state
           # Alarm Sensors include every motion and door sensor. Hallway, toilet, vindfang, main door and veranda.

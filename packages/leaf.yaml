@@ -5,7 +5,7 @@
 #   #   password: !secret nissan_password
 #   #   region: NE
 #   #   update_interval: '00:30'
-  
+
 #   nissan_leaf_custom:
 #     username: !secret nissan_username
 #     password: !secret nissan_password
@@ -32,7 +32,7 @@
 #             {% set distance = states.sensor.ultrasonic_sensor.state | float(default=0)%}
 #             {{distance < 0.5 and distance > 0.43}}
 #           delay_off:
-#             minutes: 2 
+#             minutes: 2
 #           icon_template: >
 #                 {% if (state == 'on')%}
 #                   mdi:garage
@@ -98,14 +98,13 @@
 #           entity_id: binary_sensor.leaf_update_in_progress
 #           state: 'off'
 #         - service: nissan_leaf_custom.update
-#           data: 
+#           data:
 #             vin: JN1FAAZE0U0015369
 #         - delay:
-#             seconds: 15          
+#             seconds: 15
 #         - service: nissan_leaf_custom.update
-#           data: 
-#             vin: JN1FAAZE0U0015369          
-
+#           data:
+#             vin: JN1FAAZE0U0015369
 
 #     leaf_warmup:
 #       alias: 'Warmup Leaf'
@@ -145,7 +144,7 @@
 #             variables:
 #               title: Stoppet oppvarming av Leaf.
 #               message: Batteriet er på {{states.sensor.leaf_charge.state}} ({{states.sensor.leaf_updated.state}}))
-  
+
 #     leaf_turn_off_heating_switch:
 #       alias: 'Turn off heating switch leaf'
 #       sequence:
@@ -165,7 +164,7 @@
 #   # Ask to turn on heater before 7?
 #   # Remember to charge the car before night?
 #   # Tell when low charge.
-      
+
 #     - alias: LeafLowCharge
 #       id: LeafLowCharge
 #       trigger:
@@ -181,7 +180,6 @@
 #           state: 'off'
 #         - service: script.leaf_stop_warmup
 
-      
 #     - alias: LeafLowChargeAfter21
 #       id: LeafLowChargeAfter21
 #       trigger:
@@ -190,7 +188,7 @@
 #       condition:
 #       - condition: template
 #         value_template: >-
-#           {{(states.sensor.leaf_charge_filtered.state | int(default=0) < 70) and 
+#           {{(states.sensor.leaf_charge_filtered.state | int(default=0) < 70) and
 #           states.binary_sensor.car_plugged_in.state == 'off'}}
 #       action:
 #       - service: script.turn_on
@@ -198,13 +196,13 @@
 #         data_template:
 #           variables:
 #             title: Leaf er ikke koblet til lader
-#             message: Batteriet er på {{states.sensor.leaf_charge_filtered.state}}%. 
-            
+#             message: Batteriet er på {{states.sensor.leaf_charge_filtered.state}}%.
+
 #     - alias: AskToTurnOnLeaf
 #       id: AskToTurnOnLeaf
 #       trigger:
 #       - platform: time
-#         at: '06:40:00'  
+#         at: '06:40:00'
 #       condition:
 #         condition: and
 #         conditions:
@@ -219,7 +217,7 @@
 #           entity_id: binary_sensor.erlendhome
 #           state: 'on'
 #       action:
-#         - service: notify.mobile_app_erlend_app
+#         - service: notify.mobile_app_oneplus
 #           data_template:
 #             title: "Start heating the car?"
 #             message: >-
@@ -232,20 +230,19 @@
 #                 - action: turnonleaf
 #                   title: "Yes"
 
-
 #     - alias: AskToTurnOnLeafWork
 #       id: AskToTurnOnLeafWork
 #       trigger:
 #       - platform: time
-#         at: '14:50:00'  
+#         at: '14:50:00'
 #       - platform: time
-#         at: '15:50:00'  
+#         at: '15:50:00'
 #       condition:
 #       - condition: state
 #         entity_id: person.erlend
 #         state: 'Work'
 #       action:
-#         - service: notify.mobile_app_erlend_app
+#         - service: notify.mobile_app_oneplus
 #           data_template:
 #             title: "Start heating the car?"
 #             message: >-
@@ -256,7 +253,6 @@
 #               actions:
 #                 - action: turnonleaf
 #                   title: "Yes"
-
 
 #     - alias: TurnOnLeafByNotification
 #       trigger:
@@ -296,7 +292,6 @@
 #       action:
 #         - service: script.leaf_update
 
-
 #     - alias: 'StartLeafHeaterByWebhook'
 #       id: 'StartLeafHeaterByWebhook'
 #       trigger:
@@ -308,7 +303,6 @@
 #       action:
 #         - service: script.leaf_warmup
 #         - service: script.leaf_update
-
 
 #     - alias: 'StopLeafHeaterByWebhook'
 #       id: 'StopLeafHeaterByWebhook'

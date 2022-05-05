@@ -54,6 +54,8 @@ logger:
     #homeassistant.components.device_tracker.nmap_tracker: debug
     #homeassistant.components.stream: fatal
     #homeassistant.components.tibber: debug
+    homeassistant.components.priceanalyzer: debug
+    custom_components.priceanalyzer: debug
     libav: fatal
     aiohttp: fatal
     homeassistant.components.websocket_api.http.connection: fatal

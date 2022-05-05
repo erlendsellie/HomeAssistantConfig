@@ -27,12 +27,12 @@ medication:
             entity_id: input_boolean.easleep
             state: "off"
       action:
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data:
             message: "remove_channel"
             data:
               channel: "medication"
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data_template:
             title: "Ta Medisin"
             message: "Ta Medisin"
@@ -83,7 +83,7 @@ medication:
           entity_id: input_boolean.takemeds
         # - condition: template
         #   value_template: "{{ states.person.erlend.state != 'home' }}"
-        - service: notify.mobile_app_erlend_app
+        - service: notify.mobile_app_oneplus
           data_template:
             title: "Ta Medisin"
             message: "Ta Medisin"
