@@ -136,6 +136,12 @@ power_usage:
       unit_prefix: k
       round: 2
 
+    - platform: integration
+      source: sensor.power_other_filtered
+      name: Power Other Kwh
+      unit_prefix: k
+      round: 2
+
       #filtered powersensors:
 
     - platform: filter

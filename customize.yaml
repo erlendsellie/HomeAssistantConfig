@@ -65,6 +65,11 @@ sensor.varmepumpe_kwh:
   state_class: "total_increasing"
   device_class: energy
   unit_of_measurement: kWh
+sensor.power_other_kwh:
+  last_reset: "1970-01-01T00:00:00+00:00"
+  state_class: "total_increasing"
+  device_class: energy
+  unit_of_measurement: kWh
 
 person.erlend:
   entity_picture: /local/CVbilde.jpg

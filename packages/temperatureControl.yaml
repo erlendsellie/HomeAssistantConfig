@@ -212,7 +212,14 @@ temperaturecontrol:
           friendly_name: "Price Analyzer"
           unit_of_measurement: "°C"
           value_template: >-
-            {{states.sensor.priceanalyzer.state}}
+            {%set analyzer = states.sensor.priceanalyzer%}
+            {%set current_hour = analyzer.attributes.current_hour%}
+            {%set temp = analyzer.state | float %}
+            {%if current_hour.price_next_hour > 2.00 or current_hour.value > 2.00%} {{temp * 4}} 
+            {%elif current_hour.price_next_hour > 1.00 or current_hour.value > 1.00%} {{temp * 3}} 
+            {%elif current_hour.is_max%} {{temp * 2}}
+            {%else%} {{temp}}
+            {%endif%}
         pricecorrection_old:
           friendly_name: "Price Correction"
           unit_of_measurement: "°C"
@@ -232,13 +239,13 @@ temperaturecontrol:
             {%-set pricecorrectiondownnexthour = states.binary_sensor.pricecorrectiondownnexthour.state -%}
             {%-set isMinPrice = minPrice == price -%}
             {%-set pricedifference = states.sensor.pricespike.state | float(default=0)%}       
-            {%-set tempcorrection = 1 %}       
             {%-set tempDownToLong = states.binary_sensor.pricecorrection_down_for_3_hours.state == 'on' -%}
             {%-set tempDownToLong = false -%}
             {%-set tempDown = isMaxPrice or ((isPeak or priceFalling) and tempDownToLong == False) -%}
             {%-set catchUp = states.binary_sensor.afterpricereduction.state -%}
             {%-set catchUp = 'off' -%}
             {%-set temp =  0 -%}
+            {%-set tempcorrection = 1 %}
             {% if ((price * 100) > 200) or ((nextPrice * 100) > 200) %}
               {%-set tempcorrection = 4 %}
             {% elif ((price * 100) > 100) or ((nextPrice * 100) > 100) %}
@@ -819,8 +826,8 @@ temperaturecontrol:
       trigger:
         - platform: state
           entity_id: binary_sensor.motionoffice
-        - platform: state
-          entity_id: binary_sensor.motion_downstairs_office
+        # - platform: state
+        #   entity_id: binary_sensor.motion_downstairs_office
       action:
         - service: >
             {% if states('binary_sensor.motionoffice') == 'on'

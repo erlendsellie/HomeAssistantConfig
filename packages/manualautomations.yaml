@@ -361,23 +361,6 @@ manualautomations:
             format: hls
             media_player: media_player.chromecast9350
 
-    - id: varsleOmÅpenDørNårDetBlirLåst
-      alias: varsleOmÅpenDørNårDetBlirLåst
-      trigger:
-        - platform: template
-          value_template: "{{states.input_select.alarm.state != 'Disarm'}}"
-      condition:
-        condition: state
-        entity_id: group.nightsensors
-        state: "on"
-      action:
-        - service: script.turn_on
-          entity_id: script.notifyBoth
-          data_template:
-            variables:
-              title: Døren ble låst, uten at alle dørene er lukket!
-              message: Sjekk status på dører.
-
     - id: Turnlightsonwhendisarm
       alias: Turn lights on when disarm
       trigger:

@@ -86,4 +86,4 @@ bedroomtemperature:
             {%-set home = states.input_select.alarm.state == 'Disarm'%}
             {%-set windowclosed = states.binary_sensor.bedroom_window.state == 'off'%}
             {%-set temp = states.sensor.temp_bedroom.state | float(default=0)%}
-            {{home and windowclosed and (hour > 19) and (temp > 19)}}
+            {{home and windowclosed and (hour > 19) and (temp > 22)}}

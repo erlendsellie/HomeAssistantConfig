@@ -159,7 +159,7 @@ alarmclock:
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.clock
-            volume_level: "0.5"
+            volume_level: "0.35"
         # - service: media_player.play_media
         #   entity_id: media_player.clock
         #   data:

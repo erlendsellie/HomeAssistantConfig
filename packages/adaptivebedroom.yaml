@@ -1,0 +1,13 @@
+adaptivebedroom:
+  automation:
+    - alias: adaptivebedroomsleeping
+      id: adaptivebedroomsleeping
+      trigger:
+        platform: template
+        value_template: >-
+          {%set easleep = states('input_boolean.easleep') == true%}
+          {%set casleep = states('input_boolean.casleep') == true%}
+          {{easleep or casleep}}
+      action:
+        - service: "switch.turn_{{trigger.to_state.state}}"
+          entity_id: switch.adaptive_lighting_sleep_mode_bedroom

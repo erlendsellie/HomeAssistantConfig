@@ -8,15 +8,18 @@ vvb:
             seconds: 10
           state: >-
             {%-set notUsingSpot = states.binary_sensor.usingspot.state == 'off' -%}
+            {%-set pause = states.input_boolean.vvb_on.state == 'on' -%}
             {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
             {%-set billigste_8_timer = states.binary_sensor.billigste_8_timer.state == 'on' -%}
             {%-set shouldNotBother = states.binary_sensor.pricedifferenceissmall.state == 'on' -%}
             {%set pricelevel = states('sensor.pricelevel')%}
             {%set pricecorrectionDown = states('sensor.pricecorrection') | int  < 0%}
             {%set isCheap = pricelevel ==  'CHEAP' or pricelevel == 'VERY_CHEAP'%}
-            {% if shouldNotBother %}
+            {% if pause%}
               {{true}}
-            {% elif notUsingSpot %}
+            {% elif shouldNotBother %}
+              {{true}}
+            {% elif notUsingSpot%}
               {{true}}              
             {%elif pricecorrectionDown%}
               {{false}}
@@ -74,7 +77,25 @@ vvb:
       max_age:
         days: 7
 
+  input_boolean:
+    vvb_on:
+      name: VVB on for rest of today
+
   automation:
+    - id: ResetPauseVVBcontrolfortoday
+      alias: ResetPauseVVBcontrolfortoday
+      trigger:
+        - platform: time
+          at: "00:00:00"
+      condition:
+        - condition: state
+          entity_id: input_boolean.vvb_on
+          state: "on"
+      action:
+        - service: input_boolean.turn_off
+          target:
+            entity_id: input_boolean.vvb_on
+
     - id: VVBToggle
       alias: VVBToggle
       trigger:

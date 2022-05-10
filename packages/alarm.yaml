@@ -1198,6 +1198,28 @@ alarm:
     #       url: "{{ state_attr('camera.front_door', 'video_url') }}"
     #       subdir: "{{state_attr('camera.front_door', 'friendly_name')}}"
     #       filename: "{{now().day}}-{{now().month}}-{{now().year}} {{now().hour}}:{{now().minute}}.mp4"
+    - id: varsleOmÅpenDørNårDetBlirLåst
+      alias: varsleOmÅpenDørNårDetBlirLåst
+      trigger:
+        - platform: template
+          value_template: "{{states.input_select.alarm.state != 'Disarm'}}"
+      condition:
+        condition: state
+        entity_id: group.nightsensors
+        state: "on"
+      action:
+        - service: script.turn_on
+          entity_id: script.notifyboth
+          data_template:
+            variables:
+              title: Ytterdører er åpne!
+              message: >-
+                {% for entity_id in states.group.nightsensors.attributes.entity_id %}
+                {%set state = states[entity_id] %}
+                  {% if state.state == 'on' %}
+                    - {{state.attributes.friendly_name}} \n
+                  {% endif %}
+                {% endfor %}
 
   script:
     alarmtriggered:
@@ -1205,24 +1227,28 @@ alarm:
       sequence:
         - service: notify.erlendpush
           data_template:
-            title: Alarm!
+            title: Alarmen er utløst!
             message: >-
-              Alarmen er utløst! 
-              {%- for entity_id in states.group.awaysensors.attributes.entity_id 
-              if states(entity_id) == 'on' -%}
-              {% set parts = entity_id.split('.') -%}
-              {{ states[parts[0]][parts[1]].name }} er åpen ,
-              {%- endfor %}
+              Utløste sensorer:
+
+              {%for entity_id in states.group.awaysensors.attributes.entity_id%}
+              {%- set state = states[entity_id]%}
+              {%-if state.state == 'on'%}
+              - {{state.attributes.friendly_name}}
+              {%- endif -%}
+              {%endfor %}
         - service: notify.carolinepush
           data_template:
-            title: Alarm!
+            title: Alarmen er utløst!
             message: >-
-              Alarmen er utløst! 
-              {%- for entity_id in states.group.awaysensors.attributes.entity_id 
-              if states(entity_id) == 'on' -%}
-              {% set parts = entity_id.split('.') -%}
-              {{ states[parts[0]][parts[1]].name }} er åpen ,
-              {%- endfor %}
+              Utløste sensorer:
+
+              {%for entity_id in states.group.awaysensors.attributes.entity_id%}
+              {%- set state = states[entity_id]%}
+              {%-if state.state == 'on'%}
+              - {{state.attributes.friendly_name}}
+              {%- endif -%}
+              {%endfor %}
         - service: vacuum.set_fan_speed
           entity_id: vacuum.xiaomi_vacuum_cleaner
           data:

@@ -206,6 +206,7 @@ awaysensors:
     #Magnet:
     - binary_sensor.hoveddor
     - binary_sensor.veranda
+    - binary_sensor.veranda_open
     - binary_sensor.door_livingroom
     - binary_sensor.door_kitchen
     - binary_sensor.grind
@@ -237,6 +238,7 @@ nightsensors:
   name: Alarm sensors
   entities:
     - binary_sensor.veranda
+    - binary_sensor.veranda_open
     - binary_sensor.hoveddor
     - binary_sensor.lilleveranda
     - binary_sensor.door_downstairs
