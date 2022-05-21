@@ -1,0 +1,63 @@
+blueprint:
+  name: Reload Integration
+  description: Reload Integration when the sensor freezes.
+    Will reload 1 hour after last sensor update
+  domain: automation
+  input:
+    entity:
+      name: Entity
+      description: Entity to base the automation upon.
+      selector:
+        entity:
+          integration: tibber
+          domain: sensor
+          device_class: power
+    notify:
+      name: Notify
+      description:
+        Notify with a Persistent Notification in Home Assistant whenever
+        Tibber freezes and we reload the integration.
+      default: false
+      selector:
+        boolean:
+  source_url: https://github.com/erlendsellie/HomeAssistantConfig/blob/master/blueprints/automation/erlendsellie/reload_integration.yaml
+mode: restart
+max_exceeded: silent
+trigger_variables:
+  entity: !input entity
+trigger:
+  - platform: state
+    entity_id: !input entity
+    for:
+      hours: 1
+  - platform: template
+    value_template: >-
+      {%set state = states[entity]%}
+      {{
+        state == 'unknown' or
+        state == 'unavailable'
+      }}
+    for:
+      seconds: 20
+action:
+  - variables:
+      entity: !input entity
+      notify: !input notify
+  - service: homeassistant.reload_config_entry
+    entity_id: !input entity
+  - condition: "{{ notify == true }}"
+  - delay:
+      seconds: 10
+  - service: persistent_notification.create
+    data:
+      title: >-
+        {%set state = states[entity]%}
+        {{state.attributes.friendly_name}} var utilgjengelig, relastet integrasjonen
+      message: >-
+        {%set state = states[entity]%}
+        {% if (as_timestamp(utcnow()) - as_timestamp(states[entity].last_changed)) < 10%}
+        {{state.attributes.friendly_name}} er tilgjengelig igjen -
+        {%else%}
+        {{state.attributes.friendly_name}} ER FREMDELES UTILGJENGELIG -
+        {%endif%}
+        Sist endret nå for {{relative_time(states[entity].last_changed)}} siden.
