@@ -9,9 +9,6 @@ blueprint:
       description: Entity to base the automation upon.
       selector:
         entity:
-          integration: tibber
-          domain: sensor
-          device_class: power
     notify:
       name: Notify
       description:
