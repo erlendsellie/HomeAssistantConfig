@@ -13,7 +13,7 @@ waste:
             - conditions:
                 - condition: state
                   entity_id: sensor.restavfall
-                  state: "I dag"
+                  state: "I morgen"
               sequence:
                 - service: script.turn_on
                   entity_id: script.say
@@ -37,7 +37,7 @@ waste:
             - conditions:
                 - condition: state
                   entity_id: sensor.papir
-                  state: "I dag"
+                  state: "I morgen"
               sequence:
                 - service: script.turn_on
                   entity_id: script.say
@@ -70,7 +70,7 @@ waste:
             - conditions:
                 - condition: state
                   entity_id: sensor.plastemballasje
-                  state: "I dag"
+                  state: "I morgen"
               sequence:
                 - service: script.turn_on
                   entity_id: script.say

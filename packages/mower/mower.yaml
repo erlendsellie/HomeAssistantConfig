@@ -19,7 +19,8 @@ mower:
           device_class: moving
           value_template: >-
             {% set verandaOpen = is_state('binary_sensor.veranda_open','on') or is_state('binary_sensor.veranda','on') or is_state('binary_sensor.garage_backdoor','on') or is_state('binary_sensor.door_downstairs','on')%}
-            {% if verandaOpen%}
+            {% set isMowing = is_state('binary_sensor.robot_is_mowing','on')%}
+            {% if verandaOpen and isMowing%}
               true
             {%else%}
               false
@@ -62,6 +63,10 @@ mower:
         - platform: state
           entity_id: sensor.esteban_status_friendly
           to: "Error"
+      condition:
+        - condition: state
+          entity_id: sensor.esteban_status_friendly
+          state: "Error"
       action:
         - service: script.turn_on
           entity_id: script.notifyhome

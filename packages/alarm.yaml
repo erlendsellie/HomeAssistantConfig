@@ -294,6 +294,7 @@ alarm:
               file: /tmp/snapshot.jpg
 
     - alias: Close Garage When someone leaves
+      id: CloseGarageWhensomeoneleaves
       trigger:
         - platform: state
           entity_id: binary_sensor.erlendhome

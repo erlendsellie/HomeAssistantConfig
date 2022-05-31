@@ -481,6 +481,7 @@ lights:
     #     - switch.table_lamp
 
     - alias: TurnOnLightsWhenWeGetHome
+      id: TurnOnLightsWhenWeGetHome
       trigger:
         - platform: state
           entity_id: input_select.alarm
@@ -494,6 +495,7 @@ lights:
           entity_id: script.lightson
 
     - alias: AdjustUteSpotter
+      id: AdjustUteSpotter
       trigger:
         - platform: state
           entity_id: binary_sensor.sun_above_horizon

@@ -42,6 +42,9 @@ action:
   - variables:
       sensor: !input sensor
       number: !input number
+      climate: !input climate
+  - condition: template
+    value_template: "{{ states(climate) == 'heat'}}"
   - service: climate.set_temperature
     data_template:
       entity_id: !input climate

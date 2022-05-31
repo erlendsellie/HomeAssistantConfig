@@ -45,7 +45,13 @@ robonect:
           turn_on:
             - service: rest_command.esteban_clear_error
             - delay:
-                seconds: 3
+                seconds: 2
+            - service: mqtt.publish
+              data:
+                payload_template: start
+                topic: robonect/control
+            - delay:
+                seconds: 2
             - service: mqtt.publish
               data:
                 payload_template: start
@@ -171,12 +177,11 @@ robonect:
         - error.error_code
       resource: http://192.168.1.33/json?cmd=status
       value_template: >-
-        {% set error =iif('error_message' in value_json,value_json.error_message, '') %}
+        {% set error = iif('error' in value_json,value_json.error, {'error_message': ''}) %}
         {% set message = error.error_message %}
-        {% set message = '' %}
         {% set message = message.replace('Esteban is', '')%}
         {% set message = message.replace('Esteban has', '')%}
-        {% set message = message or ''%}
+        {% set message = message or 'Clear'%}
         {{message}}
       force_update: true
       authentication: basic
