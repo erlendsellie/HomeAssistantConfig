@@ -798,9 +798,11 @@ announcements:
           #   minutes: 2
           #This probably needs to be erlend to away from work for 2 minutes
       condition:
-        condition: time
-        after: "14:00:00"
-        before: "18:00:00"
+        - condition: time
+          after: "14:00:00"
+          before: "18:00:00"
+        - condition: template
+          value_template: "{{  states.person.erlend.state == 'away' }}"
       action:
         # - wait_for_trigger:
         #   - platform: state
@@ -810,11 +812,11 @@ announcements:
         #   continue_on_timeout: false
         - service: homeassistant.update_entity
           entity_id: sensor.erlend_to_home, proximity.homeerlend
-        - wait_for_trigger:
-            - platform: template
-              value_template: "{{states.sensor.erlenddirection.state == 'towards'}}"
-          timeout: "00:10:00"
-          continue_on_timeout: false
+        # - wait_for_trigger:
+        #     - platform: template
+        #       value_template: "{{states.sensor.erlenddirection.state == 'towards'}}"
+        #   timeout: "00:10:00"
+        #   continue_on_timeout: false
         - service: script.turn_on
           entity_id: script.warmupcominghome
         - service: script.turn_on
@@ -832,7 +834,7 @@ announcements:
         - service: notify.me
           data:
             title: >-
-              Left work at {{now()}}.
+              Left work at {{now().hour}}:{{now().minute}}.
         - delay:
             minutes: 8
         - condition: state
@@ -851,10 +853,10 @@ announcements:
           entity_id: person.erlend
           zone: zone.ugla
           event: leave #or enter
-        - platform: zone
-          entity_id: person.erlend
-          zone: zone.work
-          event: leave #or enter
+        # - platform: zone
+        #   entity_id: person.erlend
+        #   zone: zone.work
+        #   event: leave #or enter
         - platform: zone
           entity_id: person.erlend
           zone: zone.dalgard

@@ -173,10 +173,10 @@ tyra:
             brightness_pct: "1"
             entity_id:
               - light.tyra_1
-        - service: light.turn_on
-          entity_id: light.upstairs
-          data_template:
-            brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
+        # - service: light.turn_on
+        #   entity_id: light.upstairs
+        #   data_template:
+        #     brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
     # #delay and then turn off?
 
     - alias: TyraTemp

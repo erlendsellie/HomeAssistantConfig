@@ -31,7 +31,7 @@ vacuum_xiaomi:
           - condition: template
             value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
           - condition: template
-            value_template: "{{ states.media_player.shield.state  != 'playing'}}"
+            value_template: "{{ states.media_player.google_tv.state  != 'playing'}}"
           - condition: time
             after: "12:00:00"
       action:

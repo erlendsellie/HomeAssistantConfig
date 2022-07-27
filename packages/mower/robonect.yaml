@@ -50,12 +50,12 @@ robonect:
               data:
                 payload_template: start
                 topic: robonect/control
-            - delay:
-                seconds: 2
-            - service: mqtt.publish
-              data:
-                payload_template: start
-                topic: robonect/control
+            # - delay:
+            #     seconds: 2
+            # - service: mqtt.publish
+            #   data:
+            #     payload_template: start
+            #     topic: robonect/control
           turn_off:
             - service: mqtt.publish
               data:
@@ -74,7 +74,11 @@ robonect:
 
   rest_command:
     esteban_clear_error:
-      url: "http://192.168.1.33/status?reset="
+      #url: "http://192.168.1.36/status?reset="
+      url: "http://192.168.1.36/json?cmd=error&reset"
+      username: !secret robonect_username
+      password: !secret robonect_password
+      method: get
 
   automation:
     - id: "esteban_mode"
@@ -90,6 +94,8 @@ robonect:
 
     - id: "update_esteban_mode"
       alias: update_esteban_mode
+      mode: single
+      max_exceeded: silent
       trigger:
         - platform: state
           entity_id: sensor.esteban_mode
@@ -98,6 +104,8 @@ robonect:
           data:
             entity_id: input_select.esteban_mode
             option: "{{ trigger.to_state.state }}"
+        - delay:
+            minutes: 1
 
     # - id: "esteban_command_mode"
     #   alias: esteban Command Control
@@ -154,8 +162,8 @@ robonect:
   sensor:
     - platform: history_stats
       name: Mowed today
-      entity_id: sensor.esteban_status_friendly
-      state: "Mowing"
+      entity_id: binary_sensor.robot_is_mowing
+      state: "on"
       type: time
       start: "{{ now().replace(hour=0, minute=0, second=0) }}"
       end: "{{ now() }}"
@@ -175,7 +183,7 @@ robonect:
       scan_interval: 20
       json_attributes:
         - error.error_code
-      resource: http://192.168.1.33/json?cmd=status
+      resource: http://192.168.1.36/json?cmd=status
       value_template: >-
         {% set error = iif('error' in value_json,value_json.error, {'error_message': ''}) %}
         {% set message = error.error_message %}
@@ -192,7 +200,7 @@ robonect:
       name: Esteban Mode
       scan_interval: 20
       json_attributes:
-      resource: http://192.168.1.33/json?cmd=status
+      resource: http://192.168.1.36/json?cmd=status
       value_template: >-
         {%set mode = value_json.status.mode%}
         {%if mode == 0 %}
@@ -212,7 +220,7 @@ robonect:
       password: !secret robonect_password
 
     # - platform: scrape
-    #   resource: https://192.168.1.33
+    #   resource: https://192.168.1.36
     #   authentication: basic
     #   username: !secret robonect_username
     #   password: !secret robonect_password

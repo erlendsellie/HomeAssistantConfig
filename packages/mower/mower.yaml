@@ -16,11 +16,11 @@ mower:
         #   friendly_name: "Robot Stuck"
         robot_should_stop:
           friendly_name: "Robot Should Stop"
-          device_class: moving
+          #device_class: moving
           value_template: >-
             {% set verandaOpen = is_state('binary_sensor.veranda_open','on') or is_state('binary_sensor.veranda','on') or is_state('binary_sensor.garage_backdoor','on') or is_state('binary_sensor.door_downstairs','on')%}
             {% set isMowing = is_state('binary_sensor.robot_is_mowing','on')%}
-            {% if verandaOpen and isMowing%}
+            {% if verandaOpen%}
               true
             {%else%}
               false
@@ -36,7 +36,8 @@ mower:
           friendly_name: "Robot is mowing"
           device_class: power
           value_template: >-
-            {{is_state('sensor.esteban_status_friendly', 'Mowing')}}
+            {{is_state('sensor.esteban_status_friendly', 'Mowing')
+              and states('sensor.esteban_stopped') == 'false'}}
           # value_template: >-
           #   {{states.binary_sensor.mower_dock.state == 'on' and states.switch.mower.state == 'on' and states.binary_sensor.robot_problem.state == 'off'}}
         # justrained:
@@ -69,7 +70,13 @@ mower:
           state: "Error"
       action:
         - service: script.turn_on
-          entity_id: script.notifyhome
+          entity_id: script.notifycarolinehome
+          data_template:
+            variables:
+              title: Gressklipper sitter fast
+              message: Gressklipper sitter fast
+        - service: script.turn_on
+          entity_id: script.notify
           data_template:
             variables:
               title: Gressklipper sitter fast

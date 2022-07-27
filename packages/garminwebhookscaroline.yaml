@@ -82,7 +82,7 @@ garminwebhookscaroline:
                           entity_id: media_player.bedroom
                     - conditions:
                         - condition: template
-                          value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.shield.state != 'paused' and states.media_player.shield.state != 'playing'))}}"
+                          value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.google_tv.state != 'paused' and states.media_player.google_tv.state != 'playing'))}}"
                       sequence:
                         - service: media_player.media_play_pause
                           entity_id: media_player.musikkstua
@@ -92,7 +92,7 @@ garminwebhookscaroline:
                           state: "off"
                       sequence:
                         - service: media_player.media_play_pause
-                          entity_id: media_player.shield
+                          entity_id: media_player.google_tv
             - conditions:
                 - condition: template
                   value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
@@ -212,7 +212,7 @@ garminwebhookscaroline:
                           state: "off"
                       sequence:
                         # - service: media_player.toggle
-                        #   entity_id: media_player.shield
+                        #   entity_id: media_player.google_tv
                         - service: media_player.toggle
                           entity_id: media_player.tv_stua
                     - conditions:

@@ -62,7 +62,7 @@ blinds:
     # - alias: Close Blinds When TV
     #   trigger:
     #     - platform: state
-    #       entity_id: media_player.shield
+    #       entity_id: media_player.google_tv
     #       to: 'playing'
     #     - platform: state
     #       entity_id: binary_sensor.veranda
@@ -72,7 +72,7 @@ blinds:
     #       entity_id: binary_sensor.veranda
     #       state: 'off'
     #     - condition: state
-    #       entity_id: media_player.shield
+    #       entity_id: media_player.google_tv
     #       state: 'playing'
     #     - condition: template
     #       value_template: "{{ states.binary_sensor.carolinehome.state  == 'off'}}"

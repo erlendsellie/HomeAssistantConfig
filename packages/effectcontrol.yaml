@@ -4,6 +4,20 @@ effectcontrol:
       name: Limit Power
     limit_heaters:
       name: Limit Heaters
+    limit_water_heater:
+      name: Limit Water Heater
+    charging_was_paused:
+      name: Charging Was Paused
+
+  input_number:
+    effektledd:
+      name: Effektledd
+      min: 0
+      max: 20
+      step: 0.1
+      mode: box
+      unit_of_measurement: "KWh"
+
   sensor:
     - platform: template
       sensors:
@@ -44,9 +58,19 @@ effectcontrol:
           value_template: >-
             {% set effect = states.sensor.effekt_denne_timen_trend.state | float(default=0)%}
             {% set minutes = now().minute %}
-            {%-set threshold = 9.8 | float(default=0)-%}
+            {% set effektledd = states('input_number.effektledd') | float(default=9.8) %}
+            {%-set threshold = effektledd | float(default=0)-%}
             {{effect > threshold and minutes > 20}}
-
+        effect_is_really_high:
+          friendly_name: "Effect Is Really High"
+          delay_off:
+            minutes: 5
+          value_template: >-
+            {% set effect = states.sensor.effekt_denne_timen_trend.state | float(default=0)%}
+            {% set minutes = now().minute %}
+            {% set effektledd = states('input_number.effektledd') | float(default=9.8) %}
+            {%-set threshold = effektledd | float(default=0) + 2 -%}
+            {{effect > threshold and minutes > 20}}
   automation:
     - alias: "EffectTurnDownPowerWhenHigh"
       id: "EffectTurnDownPowerWhenHigh"
@@ -64,15 +88,27 @@ effectcontrol:
           to: "on"
           for:
             minutes: 30
+        - platform: state
+          entity_id: binary_sensor.effect_is_high
+          to: "on"
+          for:
+            minutes: 35
+        - platform: state
+          entity_id: binary_sensor.effect_is_really_high
+          to: "on"
       condition:
         - condition: template
           value_template: "{{ states.input_boolean.limit_power.state == 'on'}}"
+        - condition: template
+          value_template: "{{ states.binary_sensor.effect_is_high.state == 'on'}}"
       action:
         - choose:
             - conditions:
                 - condition: template
                   value_template: "{{ states.sensor.garage_status.state == 'charging'}}"
               sequence:
+                - service: input_boolean.turn_on
+                  entity_id: input_boolean.charging_was_paused
                 - service: script.pausecharging
                 - wait_for_trigger:
                     - platform: state
@@ -80,7 +116,14 @@ effectcontrol:
                       to: "off"
                   timeout: "01:00:00"
                   continue_on_timeout: true
-                - service: script.startcharging
+                - service: script.resumecharging
+            #if VVB is drawing power, limit to  lower temp.
+            - conditions:
+                - condition: template
+                  value_template: "{{ states.input_boolean.limit_water_heater.state == 'off' and now().minute > 30 and states.sensor.varmtvannsbereder_electric_consumption_w.state | float(default=0) > 10}}"
+              sequence:
+                - service: input_boolean.turn_on
+                  entity_id: input_boolean.limit_water_heater
             - conditions:
                 - condition: template
                   value_template: "{{ states.input_boolean.limit_heaters.state == 'off' and now().minute > 30}}"
@@ -121,31 +164,33 @@ effectcontrol:
       action:
         - service: input_boolean.turn_off
           entity_id: input_boolean.limit_heaters
-        - service: script.startcharging
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.limit_water_heater
+        - service: script.resumecharging
 
-    - alias: limitChargingAtDay
-      id: limitChargingAtDay
-      trigger:
-        - platform: state
-          entity_id: input_select.alarm
-          to: "Disarm"
-      condition:
-        - condition: template
-          value_template: "{{ states.input_boolean.limit_power.state == 'on'}}"
-      action:
-        - service: script.limitchargerto20
+    # - alias: limitChargingAtDay
+    #   id: limitChargingAtDay
+    #   trigger:
+    #     - platform: state
+    #       entity_id: input_select.alarm
+    #       to: "Disarm"
+    #   condition:
+    #     - condition: template
+    #       value_template: "{{ states.input_boolean.limit_power.state == 'on'}}"
+    #   action:
+    #     - service: script.limitchargerto20
 
-    - alias: limitChargingAtNight
-      id: limitChargingAtNight
-      trigger:
-        - platform: state
-          entity_id: input_select.alarm
-          to: "Arm Home"
-      condition:
-        - condition: template
-          value_template: "{{ states.input_boolean.limit_power.state == 'on'}}"
-      action:
-        - service: script.limitchargerto20
+    # - alias: limitChargingAtNight
+    #   id: limitChargingAtNight
+    #   trigger:
+    #     - platform: state
+    #       entity_id: input_select.alarm
+    #       to: "Arm Home"
+    #   condition:
+    #     - condition: template
+    #       value_template: "{{ states.input_boolean.limit_power.state == 'on'}}"
+    #   action:
+    #     - service: script.limitchargerto20
 
   script:
     limitchargerto10:
@@ -179,13 +224,14 @@ effectcontrol:
             charger_id: "EHRMB4AF"
             current: 30
 
-    startcharging:
+    resumecharging:
       alias: Start Charging
       sequence:
+        - condition: template
+          value_template: "{{ states.input_boolean.charging_was_paused.state == 'on'}}"
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.charging_was_paused
         - service: easee.resume
-          data:
-            charger_id: "EHRMB4AF"
-        - service: easee.start
           data:
             charger_id: "EHRMB4AF"
 
@@ -196,7 +242,30 @@ effectcontrol:
           data:
             charger_id: "EHRMB4AF"
         - delay:
-            minutes: 5
+            seconds: 30
+        - condition: template
+          value_template: "{{ states.sensor.garage_status.state == 'charging'}}"
         - service: easee.pause
           data:
             charger_id: "EHRMB4AF"
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Warning, Easee could not be paused for some reason.
+              message: The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.
+#template for priceanalyzer to compensate for differnce in gridprice for day and night.
+# {%set hour = now().hour%}
+# {%if hour > 21 or hour < 6%}
+# -0.03935
+# {%else%}
+# 0.03935
+# {%endif%}
+
+# value_template: >-
+# {%set hour = now().hour%}
+# {%if hour > 21 or hour < 6%}
+#   {{ 0.01 }}
+# {%else%}
+#   {{0.0787 + 0.01 }}
+# {% endif %}

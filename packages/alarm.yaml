@@ -292,6 +292,12 @@ alarm:
             message: "The door was locked since no one opened it. Garage is {{states.cover.garage_door.state}}"
             data:
               file: /tmp/snapshot.jpg
+        - condition: template
+          value_template: "{{states.input_boolean.guestmode.state == 'off' and states.sensor.alarm.state != 'Disarm' }}"
+        - service: input_select.select_option
+          data_template:
+            entity_id: input_select.alarm
+            option: "{{ states.sensor.alarm.state }}"
 
     - alias: Close Garage When someone leaves
       id: CloseGarageWhensomeoneleaves
@@ -335,6 +341,25 @@ alarm:
           entity_id: binary_sensor.erlendhome
           to: "on"
           from: "off"
+      condition:
+        - condition: state
+          entity_id: binary_sensor.garage_occupied
+          state: "off"
+        - condition: state
+          entity_id: cover.garage_door
+          state: "closed"
+      action:
+        - service: cover.open_cover
+          entity_id: cover.garage_door
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Garage opened because Erlend came home.
+              message: Garage opened because Erlend came home.
+
+    - alias: Open Garage and unlock when Caroline home
+      trigger:
         - platform: state
           entity_id: binary_sensor.carolienhome
           to: "on"
@@ -353,8 +378,10 @@ alarm:
           entity_id: script.notify
           data_template:
             variables:
-              title: Garage opened because someone came home.
-              message: Garage opened because someone came home.
+              title: Garage opened because Caroline came home.
+              message: Garage opened because Caroline came home.
+
+              #trigger leave sykehuset, wait 20 minutes, then wait for trigger carolinehome to open garage?
 
     - id: waterLeakage
       alias: waterLeakage
@@ -877,7 +904,7 @@ alarm:
                 url: !secret outdoorcamerastream
         - condition: state
           entity_id: input_boolean.guestmode
-          state: "on"
+          state: "off"
         - service: input_select.select_option
           data_template:
             entity_id: input_select.alarm

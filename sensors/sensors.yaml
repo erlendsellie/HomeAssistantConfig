@@ -253,11 +253,13 @@
 - platform: statistics
   name: BathroomHumidity
   entity_id: sensor.bathroom_humidity
+  state_characteristic: change
   max_age:
     days: 7
 
 - platform: statistics
   name: TSLAStatistics
+  state_characteristic: change
   entity_id: sensor.tsla
   max_age:
     days: 7

@@ -382,7 +382,7 @@ notifypackage:
               #   entity_id: switch.circadian_lighting_circadian_stua
             - conditions:
                 - condition: state
-                  entity_id: media_player.shield
+                  entity_id: media_player.google_tv
                   state: "playing"
                 - condition: state
                   entity_id: person.erlend
@@ -393,7 +393,7 @@ notifypackage:
                     or states.binary_sensor.trym_home.state == 'off' }}
               sequence:
                 - service: media_player.media_pause
-                  entity_id: media_player.shield
+                  entity_id: media_player.google_tv
                 - wait_for_trigger:
                     - platform: state
                       entity_id: sensor.oneplus_audio_mode
@@ -401,9 +401,9 @@ notifypackage:
                   timeout: "02:00:00"
                   continue_on_timeout: false
                 - condition: template
-                  value_template: "{{ states.media_player.shield.state != 'playing'}}"
+                  value_template: "{{ states.media_player.google_tv.state != 'playing'}}"
                 - service: media_player.media_play
-                  entity_id: media_player.shield
+                  entity_id: media_player.google_tv
 
     - alias: lunchtime
       trigger:
@@ -520,6 +520,18 @@ notifypackage:
               priority: high
               channel: alarm_stream_max
 
+    notify_tts_max:
+      alias: notify_tts_max_if_home
+      sequence:
+        - service: notify.mobile_app_oneplus
+          data:
+            title: "{{message}}"
+            message: TTS
+            data:
+              ttl: 0
+              priority: high
+              channel: alarm_stream_max
+
     notify:
       alias: Simple Notification
       sequence:
@@ -548,7 +560,7 @@ notifypackage:
       alias: Notify When Motion Outside On Shield
       sequence:
         - condition: template
-          value_template: "{{states.media_player.shield.state != 'off'}}"
+          value_template: "{{states.media_player.google_tv.state != 'off'}}"
         # - service: notify.shield_gentle
         #   data_template:
         #     message: 'Motion Outside'

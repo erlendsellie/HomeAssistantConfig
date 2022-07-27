@@ -68,6 +68,8 @@ logger:
     homeassistant.components.generic.camera: fatal
     homeassistant.helpers.template: error #warning
 
+upnp:
+
 zone:
   - name: Home
     latitude: !secret latitude
@@ -236,9 +238,9 @@ tellstick:
 #   gateways:
 #     - key: !secret aqara_key
 
-spotify:
-  client_id: !secret spotify_client_id
-  client_secret: !secret spotify_client_secret
+# spotify:
+#   client_id: !secret spotify_client_id
+#   client_secret: !secret spotify_client_secret
 
 light:
   - platform: tellstick
@@ -383,25 +385,25 @@ switch:
 
   - platform: tellstick
 
-webostv:
-  name: TV Stua
-  host: 192.168.1.165
-  #mac: 14:C9:13:2C:44:1F
-  turn_on_action:
-    service: wake_on_lan.send_magic_packet
-    data:
-      mac: "14:C9:13:2C:44:1F"
-  customize:
-    sources:
-      - Amazon Prime Video
-      - CHROME
-      - Game Console
-      #- HDMI2
-      - NRK TV
-      - Netflix
-      - TV 2 Sumo
-      - Viaplay
-      - XPlay
+# webostv:
+#   name: TV Stua
+#   host: 192.168.1.165
+#   #mac: 14:C9:13:2C:44:1F
+#   turn_on_action:
+#     service: wake_on_lan.send_magic_packet
+#     data:
+#       mac: "14:C9:13:2C:44:1F"
+#   customize:
+#     sources:
+#       - Amazon Prime Video
+#       - CHROME
+#       - Game Console
+#       #- HDMI2
+#       - NRK TV
+#       - Netflix
+#       - TV 2 Sumo
+#       - Viaplay
+#       - XPlay
 
 media_player: !include media_player.yaml
 media_extractor:
@@ -584,7 +586,7 @@ tts:
   - platform: google_translate
     service_name: google_say
     language: "no"
-    base_url: !secret base_url
+    #base_url: !secret base_url
 
 script: !include script.yaml
 

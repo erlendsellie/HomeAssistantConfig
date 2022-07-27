@@ -95,7 +95,7 @@ system:
             - switch.garage_esp32
             - binary_sensor.vindfang_door
             - sensor.nordpool
-            - media_player.shield
+            - media_player.google_tv
             - lock.ytterdor
             - switch.garage_esp32
             - device_tracker.oneplus
@@ -103,6 +103,8 @@ system:
             - sensor.nordpool
             - sensor.stua_temperature
             - binary_sensor.front_door_ding
+            - light.trym_ball
+            - switch.varmtvannsbereder
           to: "unavailable"
           for:
             minutes: 5
@@ -250,9 +252,9 @@ system:
 
     - alias: NotifyVVBOffLong
       trigger:
-        - platform: state
-          entity_id: binary_sensor.vvb_on
-          to: "off"
+        - platform: numeric_state
+          entity_id: sensor.vvb_temp
+          below: 40
           for:
             hours: 13
       action:

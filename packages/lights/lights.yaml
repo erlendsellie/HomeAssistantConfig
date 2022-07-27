@@ -212,10 +212,10 @@ lights:
             brightness_pct: "100"
             entity_id:
               - light.trym_ball
-        - service: light.turn_on
-          entity_id: light.upstairs
-          data_template:
-            brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
+        # - service: light.turn_on
+        #   entity_id: light.upstairs
+        #   data_template:
+        #     brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
     # #delay and then turn off?
     # - alias: notifyPlayLights
     #   trigger:
@@ -506,7 +506,9 @@ lights:
             {% else %}
               light.turn_on
             {% endif %}
-          entity_id: light.utespotter
+          entity_id:
+            - light.utespotter
+            - light.lily
 
     - alias: TurnOnDriveWayLight
       id: turnOnDrivewayLight

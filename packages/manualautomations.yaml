@@ -909,7 +909,7 @@ manualautomations:
     - alias: TvLightsWhenTVOff
       trigger:
         - platform: state
-          entity_id: media_player.shield
+          entity_id: media_player.google_tv
           to: "Off"
           for:
             seconds: 4

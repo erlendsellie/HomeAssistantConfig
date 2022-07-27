@@ -293,7 +293,7 @@ temperaturecontrol:
               {%-set temp = borteTemp -%}
             {% endif %}
             {% if temp > 15 %}
-              {%-set temp = temp | float(default=0)+ states.sensor.pricecorrection.state | float(default=0) -%}                 
+              {%-set temp = temp | float(default=0) + states.sensor.pricecorrection.state | float(default=0) -%}                 
             {% endif %}
             {% if limit %}
               {%-set temp = temp - 4 -%}                 
@@ -360,6 +360,9 @@ temperaturecontrol:
             {% endif %}
             {% if isHeating and baseTemp > 15 and priceCorrection < 3 %} 
               {%-set temp = temp + ([difference, 0] | max) -%}
+            {% endif %}
+            {% if isHeating == false %} 
+              {%-set temp = temp - priceCorrection -%}
             {% endif %}
             {{temp | round() or 22}}
         fanmode:

@@ -23,17 +23,14 @@ tesla:
       trigger:
         - platform: numeric_state
           entity_id: sensor.modely_mileage_sensor
-          above: 12000
-        - platform: numeric_state
-          entity_id: sensor.modely_mileage_sensor
-          above: 12500
+          above: 20000
       action:
         - service: script.turn_on
-          entity_id: script.notifyhome
+          entity_id: script.notify
           data_template:
             variables:
               title: Kilometer på Sleipner holder på å gå over forsikring.
-              message: Oppgrader forsikring!
+              message: "Kilometerstand: {{states.sensor.modely_mileage_sensor.state}}"
 
     - alias: CarLowChargeAfter21
       id: CarLowChargeAfter21

@@ -4,8 +4,8 @@
 #
 dark_mint:
   accent-color: "#BA5E49"
-  dark-primary-color: "var(--accent-color)"
   card-background-color: "var(--primary-background-color)"
+  dark-primary-color: "var(--accent-color)"
   disabled-text-color: "#7F848E"
   divider-color: "rgba(0, 0, 0, .12)"
   google-blue-500: "#4285f4"

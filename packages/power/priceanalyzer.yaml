@@ -1,0 +1,16 @@
+priceanalyzer:
+  automation:
+    - id: reloadPowerStuff
+      alias: reloadPowerStuff
+      trigger:
+        - platform: time
+          at: "13:00:00"
+      action:
+        - service: homeassistant.reload_config_entry
+          entity_id: sensor.priceanalyzer
+        # - service: homeassistant.reload_config_entry
+        #   entity_id: sensor.priceanalyzer_se2
+        # - service: homeassistant.reload_config_entry
+        #   entity_id: sensor.priceanalyzer_oslo
+        - service: homeassistant.reload_config_entry
+          entity_id: sensor.nordpool

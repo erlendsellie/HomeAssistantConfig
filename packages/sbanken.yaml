@@ -1,0 +1,11 @@
+sbanken:
+  template:
+    - sensor:
+        - name: "Rammelån balance"
+          unit_of_measurement: NOK
+          device_class: monetary
+          state: >-
+            {{ states.sensor.rammelan.attributes.balance }}
+        - name: Rammelån Last transaction
+          state: >-
+            {{states.sensor.rammelan.attributes.transactions[0]}}

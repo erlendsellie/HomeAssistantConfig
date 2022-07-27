@@ -21,9 +21,10 @@ pass:
           delay_off:
             minutes: 5
             # 1 måned = 2592000 sekunder.
+            # 1 uke = 604800 sekunder.
           state: >-
             {%- set next_available = states.sensor.next_available_passport_appointment.state -%}
-            {{(as_timestamp(next_available) - as_timestamp(now())) < 2592000}}
+            {{(as_timestamp(next_available) - as_timestamp(now())) < 1209600}}
   automation:
     - id: passportappointmentavailable
       alias: passportappointmentavailable
