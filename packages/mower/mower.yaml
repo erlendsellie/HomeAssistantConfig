@@ -124,7 +124,7 @@ mower:
       trigger:
         - platform: state
           entity_id: binary_sensor.mowed_enough
-          to: "Not"
+          to: "off"
       action:
         - service: input_select.select_option
           data:

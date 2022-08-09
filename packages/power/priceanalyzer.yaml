@@ -8,9 +8,9 @@ priceanalyzer:
       action:
         - service: homeassistant.reload_config_entry
           entity_id: sensor.priceanalyzer
-        # - service: homeassistant.reload_config_entry
-        #   entity_id: sensor.priceanalyzer_se2
-        # - service: homeassistant.reload_config_entry
-        #   entity_id: sensor.priceanalyzer_oslo
+        - service: homeassistant.reload_config_entry
+          entity_id: sensor.priceanalyzer_se2
+        - service: homeassistant.reload_config_entry
+          entity_id: sensor.priceanalyzer_kr_sand
         - service: homeassistant.reload_config_entry
           entity_id: sensor.nordpool

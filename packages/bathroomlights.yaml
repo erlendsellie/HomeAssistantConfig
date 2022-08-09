@@ -6,8 +6,7 @@ bathroomlights:
             minutes: 20
           state: >-
             {{
-              states.binary_sensor.motion_bathroom.state == 'on' or
-              states.binary_sensor.door_bathroom.state =='on'
+              states.binary_sensor.motion_bathroom.state == 'on'
             }}
     - sensor:
         - name: "brightnessforbathroomlights"
@@ -27,6 +26,8 @@ bathroomlights:
         - platform: state
           entity_id: binary_sensor.should_bathroom_lights_be_on
           to: "on"
+        - platform: state
+          entity_id: binary_sensor.door_bathroom
       condition:
         - condition: state
           entity_id: light.bathroom

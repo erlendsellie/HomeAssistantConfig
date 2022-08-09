@@ -47,7 +47,7 @@ vvb:
             {% elif shouldNotBother or notUsingSpot or pause%}
               {%set temp = 70%}
             {% elif current_hour.is_five_most_expensive%}
-              {%set temp = 30%}
+              {%set temp = 40%}
             {% elif is_ten_cheapest%}
               {%set temp = 70%}
             {% elif isLowPrice or isCheap %}

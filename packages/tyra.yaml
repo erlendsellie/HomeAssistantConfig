@@ -158,9 +158,14 @@ tyra:
           to: "on"
           # for:
           #   seconds: 10
+        - platform: state
+          entity_id: input_select.alarm
+          to: "Arm Home"
+          for:
+            minutes: 30
       condition:
         - condition: template
-          value_template: "{{ states.input_select.alarm.state == 'Disarm' }}"
+          value_template: "{{ states.input_select.alarm.state != 'Arm Away' }}"
       action:
         - service: light.turn_off
           data_template:

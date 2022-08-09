@@ -157,6 +157,11 @@ lights:
         - platform: state
           entity_id: input_boolean.trymasleep
           to: "on"
+        - platform: state
+          entity_id: input_select.alarm
+          to: "Arm Home"
+          for:
+            minutes: 10
       action:
         - service: light.turn_on
           entity_id: light.trym_roof

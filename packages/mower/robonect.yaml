@@ -41,7 +41,7 @@ robonect:
     - platform: template
       switches:
         esteban_switch:
-          #value_template: "{{ is_state('sensor.esteban_stopped', 'off') }}"
+          value_template: "{{ is_state('sensor.esteban_stopped', 'false') }}"
           turn_on:
             - service: rest_command.esteban_clear_error
             - delay:
@@ -87,6 +87,12 @@ robonect:
         - platform: state
           entity_id: input_select.esteban_mode
       action:
+        - service: mqtt.publish
+          data:
+            payload_template: "{{ trigger.to_state.state }}"
+            topic: robonect/control/mode
+        - delay:
+            seconds: 5
         - service: mqtt.publish
           data:
             payload_template: "{{ trigger.to_state.state }}"

@@ -282,6 +282,7 @@ manualautomations:
         - platform: state
           entity_id: binary_sensor.front_door_ding
           to: "on"
+          from: "off"
         - platform: state
           entity_id: switch.doorbutton
           to: "on"
@@ -1178,21 +1179,21 @@ manualautomations:
         - service: input_boolean.turn_on
           entity_id: input_boolean.trymasleep
 
-    - alias: "TurnOnTrymAsleepByLight"
+    - alias: "TurnOnTyraAsleepByLight"
       trigger:
         - platform: state
-          entity_id: light.trym_roof
+          entity_id: light.tyra
           to: "off"
       condition:
         - condition: time
           after: "11:30:00"
           before: "12:45:00"
         - condition: state
-          entity_id: binary_sensor.trym_motion
+          entity_id: binary_sensor.tyra_motion
           state: "on"
       action:
         - service: input_boolean.turn_on
-          entity_id: input_boolean.trymasleep
+          entity_id: input_boolean.tyraasleep
 
     - alias: "TurnOffTrymAsleepByDoor"
       trigger:

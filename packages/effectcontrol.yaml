@@ -60,7 +60,7 @@ effectcontrol:
             {% set minutes = now().minute %}
             {% set effektledd = states('input_number.effektledd') | float(default=9.8) %}
             {%-set threshold = effektledd | float(default=0)-%}
-            {{effect > threshold and minutes > 20}}
+            {{effect > threshold and minutes > 10}}
         effect_is_really_high:
           friendly_name: "Effect Is Really High"
           delay_off:
@@ -96,6 +96,8 @@ effectcontrol:
         - platform: state
           entity_id: binary_sensor.effect_is_really_high
           to: "on"
+        - platform: time_pattern
+          minutes: "/10"
       condition:
         - condition: template
           value_template: "{{ states.input_boolean.limit_power.state == 'on'}}"
@@ -168,6 +170,19 @@ effectcontrol:
           entity_id: input_boolean.limit_water_heater
         - service: script.resumecharging
 
+    - alias: chargerWasNotPaused
+      id: chargertwasnotpaused
+      trigger:
+        - platform: template
+          value_template: >-
+            {{
+              states.sensor.garage_status.state == 'charging'
+              and
+              states.input_boolean.charging_was_paused.state == 'on'
+            }}
+      action:
+        - service: script.pausecharging
+
     # - alias: limitChargingAtDay
     #   id: limitChargingAtDay
     #   trigger:
@@ -199,7 +214,16 @@ effectcontrol:
         - service: easee.set_charger_max_limit
           data:
             charger_id: "EHRMB4AF"
-            current: 15
+            current: 10
+
+    limitchargerto13:
+      alias: Limit Charger to 13 A
+      sequence:
+        - service: easee.set_charger_max_limit
+          data:
+            charger_id: "EHRMB4AF"
+            current: 13
+
     limitchargerto15:
       alias: Limit Charger to 15 A
       sequence:
