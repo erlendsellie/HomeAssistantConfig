@@ -1,165 +1,163 @@
 iotlinkstasjoar:
-    automation:
-    - alias: TurnOnDesktop
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motionoffice
-          to: 'on'
-      action:
-      - service: switch.turn_on
-        entity_id: switch.stasjonar
+  automation:
+    # - alias: TurnOnDesktop
+    #   trigger:
+    #     - platform: state
+    #       entity_id: binary_sensor.motionoffice
+    #       to: 'on'
+    #   action:
+    #   - service: switch.turn_on
+    #     entity_id: switch.stasjonar
 
     - alias: TurnOffDesktop
       trigger:
         - platform: state
           entity_id: binary_sensor.motionoffice
-          to: 'off'
+          to: "off"
           for:
             minutes: 15 #20, if considering the delay_off.
       action:
-      - service: switch.turn_off
-        entity_id: switch.stasjonar
+        - service: switch.turn_off
+          entity_id: switch.stasjonar
 
-    binary_sensor:
-      - platform: mqtt
-        name: "Stasjonar - Connected"
-        state_topic: "iotlink/workgroup/desktop-4h2cphq/lwt"
-        value_template: "{{ value }}"
-        payload_on: "ON"
-        payload_off: "OFF"
-        device_class: "connectivity"
-        qos: 1
+  binary_sensor:
+    - platform: mqtt
+      name: "Stasjonar - Connected"
+      state_topic: "iotlink/workgroup/desktop-4h2cphq/lwt"
+      value_template: "{{ value }}"
+      payload_on: "ON"
+      payload_off: "OFF"
+      device_class: "connectivity"
+      qos: 1
 
-    switch:
+  switch:
     - platform: template
       switches:
         stasjonar:
-            friendly_name: "Stasjonær"
-            value_template: "{{ is_state('binary_sensor.stasjonar_connected', 'on') }}"
-            turn_on:
-                service: script.stasjonar_wake
-            turn_off:
-                service: script.stasjonar_suspend
-            icon_template: mdi:laptop
-    script:
-        stasjonar_wake:
-            # To enable see https://www.home-assistant.io/components/wake_on_lan/
-            alias: "Stasjonær - Wake"
-            sequence:
-            - service: wake_on_lan.send_magic_packet
-              data:
-                mac: "08:60:6E:69:19:53"
-        
-        stasjonar_shutdown:
-            alias: "Stasjonær - Shutdown"
-            sequence:
-            - service: mqtt.publish
-              data:
-                topic: "iotlink/workgroup/desktop-4h2cphq/commands/shutdown"
-                payload: ""
-        
-        stasjonar_suspend:
-            alias: "Stasjonær - Suspend"
-            sequence:
-            - service: mqtt.publish
-              data:
-                topic: "iotlink/workgroup/desktop-4h2cphq/commands/suspend"
-                payload: ""
-        
-        stasjonar_hibernate:
-            alias: "Stasjonær - Hibernate"
-            sequence:
-            - service: mqtt.publish
-              data:
-                topic: "iotlink/workgroup/desktop-4h2cphq/commands/hibernate"
-                payload: ""
-        
-        stasjonar_reboot:
-            alias: "Stasjonær - Reboot"
-            sequence:
-            - service: mqtt.publish
-              data:
-                topic: "iotlink/workgroup/desktop-4h2cphq/commands/reboot"
-                payload: ""
-          
-        stasjonar_lock:
-            alias: "Stasjonær - Lock"
-            sequence:
-            - service: mqtt.publish
-              data:
-                topic: "iotlink/workgroup/desktop-4h2cphq/commands/lock"
-                payload: ""
-          
-        stasjonar_logoff:
-            alias: "Stasjonær - Logoff"
-            sequence:
-              - service: mqtt.publish
-                data:
-                  topic: "iotlink/workgroup/desktop-4h2cphq/commands/logoff"
-                  payload: ""
-          
-        stasjonar_vol_mute:
-            alias: "Stasjonær - Toggle Mute"
-            sequence:
-              - service: mqtt.publish
-                data:
-                  topic: "iotlink/workgroup/desktop-4h2cphq/commands/volume/mute"
-                  payload: ""
-          
-        stasjonar_vol_max:
-            alias: "Stasjonær - Vol Max"
-            sequence:
-              - service: mqtt.publish
-                data:
-                  topic: "iotlink/workgroup/desktop-4h2cphq/commands/volume/set"
-                  payload: "100"
-          
-        stasjonar_displays_on:
-            alias: "Stasjonær - Displays ON"
-            sequence:
-              - service: mqtt.publish
-                data:
-                  topic: "iotlink/workgroup/desktop-4h2cphq/commands/displays/on"
-                  payload: ""
-          
-        stasjonar_displays_off:
-            alias: "Stasjonær - Displays OFF"
-            sequence:
-              - service: mqtt.publish
-                data:
-                  topic: "iotlink/workgroup/desktop-4h2cphq/commands/displays/off"
-                  payload: ""
-          
-        stasjonar_refresh:
-            alias: "Stasjonær - Refresh"
-            sequence:
-              - service: mqtt.publish
-                data:
-                  topic: "iotlink/workgroup/desktop-4h2cphq/refresh"
-                  payload: ""
-        
-        stasjonar_notify:
-            alias: "Stasjonær - Notify"
-            sequence:
-              - service: mqtt.publish
-                data:
-                  topic: "iotlink/workgroup/desktop-4h2cphq/commands/notify"
-                  payload: '{ "title": "My Notification Title", "message": "This is an example of notification using IOT Link", "launchParams": "toast://open/https://iotlink.gitlab.io" }'
-          
-        stasjonar_run_chrome:
-            alias: "Stasjonær - Run Chrome"
-            sequence:
-              - service: mqtt.publish
-                data:
-                  topic: "iotlink/workgroup/desktop-4h2cphq/commands/run"
-                  payload: '{ "command": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe", "args": "https://iotlink.gitlab.io", "path": "C:\\Program Files (x86)\\Google\\Chrome\\Application", "user": "", "visible": true, "fallback": true }'
-          
-        stasjonar_run_ccleaner:
-            alias: "Stasjonær - Run CCleaner"
-            sequence:
-              - service: mqtt.publish
-                data:
-                  topic: "iotlink/workgroup/desktop-4h2cphq/commands/run"
-                  payload: '{ "command": "C:\\Program Files\\CCleaner\\CCleaner64.exe", "args": "/AUTO", "path": "C:\\Program Files\\CCleaner\\", "user": "", "visible": true, "fallback": true }'
-          
-        
+          friendly_name: "Stasjonær"
+          value_template: "{{ is_state('binary_sensor.stasjonar_connected', 'on') }}"
+          turn_on:
+            service: script.stasjonar_wake
+          turn_off:
+            service: script.stasjonar_suspend
+          icon_template: mdi:laptop
+  script:
+    stasjonar_wake:
+      # To enable see https://www.home-assistant.io/components/wake_on_lan/
+      alias: "Stasjonær - Wake"
+      sequence:
+        - service: wake_on_lan.send_magic_packet
+          data:
+            mac: "08:60:6E:69:19:53"
+
+    stasjonar_shutdown:
+      alias: "Stasjonær - Shutdown"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/desktop-4h2cphq/commands/shutdown"
+            payload: ""
+
+    stasjonar_suspend:
+      alias: "Stasjonær - Suspend"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/desktop-4h2cphq/commands/suspend"
+            payload: ""
+
+    stasjonar_hibernate:
+      alias: "Stasjonær - Hibernate"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/desktop-4h2cphq/commands/hibernate"
+            payload: ""
+
+    stasjonar_reboot:
+      alias: "Stasjonær - Reboot"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/desktop-4h2cphq/commands/reboot"
+            payload: ""
+
+    stasjonar_lock:
+      alias: "Stasjonær - Lock"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/desktop-4h2cphq/commands/lock"
+            payload: ""
+
+    stasjonar_logoff:
+      alias: "Stasjonær - Logoff"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/desktop-4h2cphq/commands/logoff"
+            payload: ""
+
+    stasjonar_vol_mute:
+      alias: "Stasjonær - Toggle Mute"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/desktop-4h2cphq/commands/volume/mute"
+            payload: ""
+
+    stasjonar_vol_max:
+      alias: "Stasjonær - Vol Max"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/desktop-4h2cphq/commands/volume/set"
+            payload: "100"
+
+    stasjonar_displays_on:
+      alias: "Stasjonær - Displays ON"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/desktop-4h2cphq/commands/displays/on"
+            payload: ""
+
+    stasjonar_displays_off:
+      alias: "Stasjonær - Displays OFF"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/desktop-4h2cphq/commands/displays/off"
+            payload: ""
+
+    stasjonar_refresh:
+      alias: "Stasjonær - Refresh"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/desktop-4h2cphq/refresh"
+            payload: ""
+
+    stasjonar_notify:
+      alias: "Stasjonær - Notify"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/desktop-4h2cphq/commands/notify"
+            payload: '{ "title": "My Notification Title", "message": "This is an example of notification using IOT Link", "launchParams": "toast://open/https://iotlink.gitlab.io" }'
+
+    stasjonar_run_chrome:
+      alias: "Stasjonær - Run Chrome"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/desktop-4h2cphq/commands/run"
+            payload: '{ "command": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe", "args": "https://iotlink.gitlab.io", "path": "C:\\Program Files (x86)\\Google\\Chrome\\Application", "user": "", "visible": true, "fallback": true }'
+
+    stasjonar_run_ccleaner:
+      alias: "Stasjonær - Run CCleaner"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/desktop-4h2cphq/commands/run"
+            payload: '{ "command": "C:\\Program Files\\CCleaner\\CCleaner64.exe", "args": "/AUTO", "path": "C:\\Program Files\\CCleaner\\", "user": "", "visible": true, "fallback": true }'

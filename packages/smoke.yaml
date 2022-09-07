@@ -79,15 +79,15 @@ smoke:
         - service: switch.turn_off
           entity_id: switch.blanket
         #spill av denne flere ganger.
-        - service: xiaomi_aqara.play_ringtone
-          data:
-            gw_mac: 7C:49:EB:1C:2D:6B
-            ringtone_id: 1
-            ringtone_vol: 100
-        - service: light.turn_on
-          entity_id: light.gateway_light_7c49eb1c2d6b
-          data:
-            color_name: red
+        # - service: xiaomi_aqara.play_ringtone
+        #   data:
+        #     gw_mac: 7C:49:EB:1C:2D:6B
+        #     ringtone_id: 1
+        #     ringtone_vol: 100
+        # - service: light.turn_on
+        #   entity_id: light.gateway_light_7c49eb1c2d6b
+        #   data:
+        #     color_name: red
         - service: logbook.log
           data_template:
             name: Smokesensor
@@ -157,10 +157,10 @@ smoke:
           data_template:
             entity_id: media_player.minis, media_player.clock
             volume_level: 0.5
-        - service: xiaomi_aqara.play_ringtone
-          data:
-            gw_mac: 7C:49:EB:1C:2D:6B
-            ringtone_id: 1
-            ringtone_vol: 100
-        - service: light.turn_off
-          entity_id: light.gateway_light_7c49eb1c2d6b
+        # - service: xiaomi_aqara.play_ringtone
+        #   data:
+        #     gw_mac: 7C:49:EB:1C:2D:6B
+        #     ringtone_id: 1
+        #     ringtone_vol: 100
+        # - service: light.turn_off
+        #   entity_id: light.gateway_light_7c49eb1c2d6b

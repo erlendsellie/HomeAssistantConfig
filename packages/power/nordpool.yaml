@@ -65,6 +65,9 @@ nordpool:
             message: >-
               Tomorrows price is {{states.sensor.tomorrow_low_price.state}} / {{states.sensor.tomorrow_max_price.state}}, todays is {{states.sensor.today_low_price.state}} / {{states.sensor.today_max_price.state}}.
 
+    # - platform: pioneer
+    #   host: 192.168.1.105
+
     - alias: NotifyPriceTomorrow
       trigger:
         - platform: state

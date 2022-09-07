@@ -516,6 +516,7 @@ notifypackage:
             title: "{{message}}"
             message: TTS
             data:
+              tts_text: "{{message}}"
               ttl: 0
               priority: high
               channel: alarm_stream_max
@@ -528,6 +529,7 @@ notifypackage:
             title: "{{message}}"
             message: TTS
             data:
+              tts_text: "{{message}}"
               ttl: 0
               priority: high
               channel: alarm_stream_max

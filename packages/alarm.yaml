@@ -603,6 +603,21 @@ alarm:
         - service: vacuum.start
           entity_id: vacuum.xiaomi_vacuum_cleaner
 
+    - id: RunNeato
+      alias: RunNeato
+      trigger:
+        platform: state
+        entity_id: input_select.alarm
+        to: "Arm Away"
+        for:
+          minutes: 5
+      action:
+        # - condition: state
+        #   entity_id: input_boolean.runvacuum
+        #   state: "on"
+        - service: vacuum.start
+          entity_id: vacuum.neato
+
     ################
     ##  Arm Home  ##
     ################
@@ -735,8 +750,8 @@ alarm:
               message: Alarmen ble aktivert for natten
         - delay:
             seconds: 10
-        - service: light.turn_off
-          entity_id: light.gateway_light_7c49eb1c2d6b
+        # - service: light.turn_off
+        #   entity_id: light.gateway_light_7c49eb1c2d6b
         - service: script.turn_on
           entity_id: script.lockdoor
 
@@ -803,7 +818,7 @@ alarm:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           to: "cleaning"
           for:
-            minutes: 45
+            minutes: 30
       #condition:
       # - condition: template
       #   value_template: "{{ states.input_select.alarm.state != 'Arm Home' }}"
@@ -1000,7 +1015,9 @@ alarm:
           from: "Arm Away"
       action:
         - service: vacuum.return_to_base
-          entity_id: vacuum.xiaomi_vacuum_cleaner
+          entity_id:
+            - vacuum.xiaomi_vacuum_cleaner
+            - vacuum.neato
         - delay:
             seconds: 5
         - service: vacuum.return_to_base
@@ -1283,17 +1300,17 @@ alarm:
             fan_speed: Turbo
         - service: vacuum.start
           entity_id: vacuum.xiaomi_vacuum_cleaner
-        - service: xiaomi_aqara.play_ringtone
-          data:
-            gw_mac: 7C:49:EB:1C:2D:6B
-            ringtone_id: 1
-            ringtone_vol: 100
+        # - service: xiaomi_aqara.play_ringtone
+        #   data:
+        #     gw_mac: 7C:49:EB:1C:2D:6B
+        #     ringtone_id: 1
+        #     ringtone_vol: 100
         - service: script.turn_on
           entity_id: script.blink_lights_danger
-        - service: light.turn_on
-          entity_id: light.gateway_light_7c49eb1c2d6b
-          data:
-            color_name: red
+        # - service: light.turn_on
+        #   entity_id: light.gateway_light_7c49eb1c2d6b
+        #   data:
+        #     color_name: red
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.living_room_speaker
@@ -1326,11 +1343,11 @@ alarm:
           entity_id: media_player.minis
           data:
             message: "Alarm! Husalarm utløst!."
-        - service: xiaomi_aqara.play_ringtone
-          data:
-            gw_mac: 7C:49:EB:1C:2D:6B
-            ringtone_id: 1
-            ringtone_vol: 100
+        # - service: xiaomi_aqara.play_ringtone
+        #   data:
+        #     gw_mac: 7C:49:EB:1C:2D:6B
+        #     ringtone_id: 1
+        #     ringtone_vol: 100
         - delay:
             seconds: 15
         - service: script.turn_on
@@ -1343,52 +1360,52 @@ alarm:
           data_template:
             name: House Alarm
             message: triggered
-        - service: xiaomi_aqara.play_ringtone
-          data:
-            gw_mac: 7C:49:EB:1C:2D:6B
-            ringtone_id: 1
-            ringtone_vol: 100
+        # - service: xiaomi_aqara.play_ringtone
+        #   data:
+        #     gw_mac: 7C:49:EB:1C:2D:6B
+        #     ringtone_id: 1
+        #     ringtone_vol: 100
         - delay:
             seconds: 15
         - service: script.turn_on
           entity_id: script.lightsoff
-        - service: xiaomi_aqara.play_ringtone
-          data:
-            gw_mac: 7C:49:EB:1C:2D:6B
-            ringtone_id: 1
-            ringtone_vol: 100
+        # - service: xiaomi_aqara.play_ringtone
+        #   data:
+        #     gw_mac: 7C:49:EB:1C:2D:6B
+        #     ringtone_id: 1
+        #     ringtone_vol: 100
         - delay:
             seconds: 15
         - service: script.turn_on
           entity_id: script.lightson
-        - service: xiaomi_aqara.play_ringtone
-          data:
-            gw_mac: 7C:49:EB:1C:2D:6B
-            ringtone_id: 1
-            ringtone_vol: 100
+        # - service: xiaomi_aqara.play_ringtone
+        #   data:
+        #     gw_mac: 7C:49:EB:1C:2D:6B
+        #     ringtone_id: 1
+        #     ringtone_vol: 100
         - delay:
             seconds: 15
         - service: script.turn_on
           entity_id: script.lightsoff
-        - service: xiaomi_aqara.play_ringtone
-          data:
-            gw_mac: 7C:49:EB:1C:2D:6B
-            ringtone_id: 1
-            ringtone_vol: 100
-        - service: light.turn_off
-          entity_id: light.gateway_light_7c49eb1c2d6b
+        # - service: xiaomi_aqara.play_ringtone
+        #   data:
+        #     gw_mac: 7C:49:EB:1C:2D:6B
+        #     ringtone_id: 1
+        #     ringtone_vol: 100
+        # - service: light.turn_off
+        #   entity_id: light.gateway_light_7c49eb1c2d6b
 
     alarmdone:
       alias: "alarm done"
       sequence:
-        - service: light.turn_off
-          entity_id: light.gateway_light_7c49eb1c2d6b
-        - service: xiaomi_aqara.stop_ringtone
-          data:
-            gw_mac: 7C:49:EB:1C:2D:6B
-        - service: xiaomi_aqara.stop_ringtone
-          data:
-            gw_mac: 7C:49:EB:1C:2D:6B
+        # - service: light.turn_off
+        #   entity_id: light.gateway_light_7c49eb1c2d6b
+        # - service: xiaomi_aqara.stop_ringtone
+        #   data:
+        #     gw_mac: 7C:49:EB:1C:2D:6B
+        # - service: xiaomi_aqara.stop_ringtone
+        #   data:
+        #     gw_mac: 7C:49:EB:1C:2D:6B
 
     lockdoor:
       alias: "Lock door"

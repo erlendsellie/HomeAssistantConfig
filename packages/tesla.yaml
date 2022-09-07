@@ -16,6 +16,7 @@ tesla:
         - name: "ModelY Minutes To Charge"
           unit_of_measurement: "minutes"
           state: >-
+            {%set speed = 3 %}
             {{((states('sensor.modely_kwh_to_charge') | float / 11) * 60) | round(0)}}
   automation:
     - alias: "upgradeInsurance"

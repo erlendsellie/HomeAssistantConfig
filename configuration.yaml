@@ -67,6 +67,8 @@ logger:
     #homeassistant.components.recorder: fatal
     homeassistant.components.generic.camera: fatal
     homeassistant.helpers.template: error #warning
+    graphql_subscription_manager: error
+    xiaomi_cloud_map_extractor: error
 
 upnp:
 
@@ -152,6 +154,7 @@ recorder:
       - sensor.time
       - sensor.oneplus_last_removed_notification
       - sensor.oneplus_last_notification
+      - sensor.caroline_active_notification_count
       #Maria DB Addon Config
       # databases:
       #   - homeassistant

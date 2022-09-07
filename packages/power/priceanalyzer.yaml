@@ -5,6 +5,8 @@ priceanalyzer:
       trigger:
         - platform: time
           at: "13:00:00"
+        - platform: time
+          at: "00:02:00"
       action:
         - service: homeassistant.reload_config_entry
           entity_id: sensor.priceanalyzer

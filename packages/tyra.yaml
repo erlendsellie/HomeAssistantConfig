@@ -185,6 +185,8 @@ tyra:
     # #delay and then turn off?
 
     - alias: TyraTemp
+      mode: single
+      max_exceeded: silent
       trigger:
         - platform: state
           entity_id: sensor.tyratemp

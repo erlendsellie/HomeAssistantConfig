@@ -90,6 +90,8 @@ lights:
       # - service: switch.turn_on
       #   entity_id: switch.table_lamp
     - alias: turnOnTrymLight
+      mode: single
+      max_exceeded: silent
       trigger:
         - platform: state
           entity_id: binary_sensor.trym_door

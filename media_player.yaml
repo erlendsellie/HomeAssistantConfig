@@ -65,5 +65,3 @@
 #   adb_server_ip: 127.0.0.1
 #   adb_server_port: 5037
 #treg!
-# - platform: pioneer
-#   host: 192.168.1.105

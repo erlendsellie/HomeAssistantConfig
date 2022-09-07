@@ -122,13 +122,13 @@ effectcontrol:
             #if VVB is drawing power, limit to  lower temp.
             - conditions:
                 - condition: template
-                  value_template: "{{ states.input_boolean.limit_water_heater.state == 'off' and now().minute > 30 and states.sensor.varmtvannsbereder_electric_consumption_w.state | float(default=0) > 10}}"
+                  value_template: "{{ states.input_boolean.limit_water_heater.state == 'off' and states.sensor.varmtvannsbereder_electric_consumption_w.state | float(default=0) > 10}}"
               sequence:
                 - service: input_boolean.turn_on
                   entity_id: input_boolean.limit_water_heater
             - conditions:
                 - condition: template
-                  value_template: "{{ states.input_boolean.limit_heaters.state == 'off' and now().minute > 30}}"
+                  value_template: "{{ states.input_boolean.limit_heaters.state == 'off'}}"
               sequence:
                 - service: input_boolean.turn_on
                   entity_id: input_boolean.limit_heaters

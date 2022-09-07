@@ -671,6 +671,9 @@ manualautomations:
         - platform: state
           entity_id: binary_sensor.door_toilet
           to: "on"
+      condition:
+        - condition: template
+          value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
       action:
         - service: light.turn_on
           entity_id: light.toilet
@@ -714,6 +717,9 @@ manualautomations:
       # - platform: state
       #   entity_id: binary_sensor.motion_hallway
       #   to: 'on'
+      condition:
+        - condition: template
+          value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
       action:
         - service: light.turn_on
           entity_id: light.vindfang

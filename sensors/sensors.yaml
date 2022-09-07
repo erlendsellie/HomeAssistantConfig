@@ -33,14 +33,14 @@
   force_update: true
   unit_of_measurement: USD
 
-- platform: rest
-  name: GME
-  scan_interval: 5
-  json_attributes:
-  resource: https://query2.finance.yahoo.com/v10/finance/quoteSummary/GME?formatted=true&crumb=8ldhetOu7RJ&lang=en-US&region=US&modules=defaultKeyStatistics%2CfinancialData%2CcalendarEvents&corsDomain=finance.yahoo.com
-  value_template: "{{ value_json.quoteSummary.result[0].financialData.currentPrice.raw }}"
-  force_update: true
-  unit_of_measurement: USD
+# - platform: rest
+#   name: GME
+#   scan_interval: 5
+#   json_attributes:
+#   resource: https://query2.finance.yahoo.com/v10/finance/quoteSummary/GME?formatted=true&crumb=8ldhetOu7RJ&lang=en-US&region=US&modules=defaultKeyStatistics%2CfinancialData%2CcalendarEvents&corsDomain=finance.yahoo.com
+#   value_template: "{{ value_json.quoteSummary.result[0].financialData.currentPrice.raw }}"
+#   force_update: true
+#   unit_of_measurement: USD
 
 # - platform: scrape
 #   name: 'THETA'
