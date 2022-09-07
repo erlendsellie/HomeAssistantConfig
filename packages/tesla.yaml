@@ -8,16 +8,48 @@ tesla:
         - name: "ModelY Percent To Charge"
           unit_of_measurement: "%"
           state: >-
-            {{states('sensor.modely_target_soc') | float - states('sensor.modely') | float}}
+            {{states('sensor.modely_target_soc') | float - states('sensor.modely') | float(default=0)}}
         - name: "ModelY kWh To Charge"
           unit_of_measurement: "kWh"
           state: >-
-            {{(75 * (states('sensor.modely_percent_to_charge') | float / 100))| round(2)}}
+            {{(75 * (states('sensor.modely_percent_to_charge') | float(default=0) / 100))| round(2)}}
+        - name: "Easee Charging Speed"
+          unit_of_measurement: "W"
+          state: >-
+            {%set A = states('sensor.garage_max_charger_limit') | float%}
+            {%set pf = states('sensor.power_factor_sivert_thonstads_vei_6b')| float%}
+            {% set V = states('sensor.garage_voltage') | float%}
+            {{((sqrt(3) * pf * A * V) / 100) | round(0)}}
         - name: "ModelY Minutes To Charge"
           unit_of_measurement: "minutes"
           state: >-
-            {%set speed = 3 %}
-            {{((states('sensor.modely_kwh_to_charge') | float / 11) * 60) | round(0)}}
+            {%set speed = (states('sensor.easee_charging_speed') | float) / 1000 %}
+            {{((states('sensor.modely_kwh_to_charge') | float(default=0) / speed) * 60) | round(0)}}
+        - name: "ModelY Cost Charging to Soc"
+          icon: "mdi:lightning-bolt-outline"
+          unit_of_measurement: "NOK"
+          state: >-
+            {% set kwh = states('sensor.modely_kwh_to_charge') | float(default=0) %}
+            {% set kr = states('sensor.price_with_subsidy') | float %}
+            {{ (kwh * kr) | round(2) }}
+        - name: "ModelY kWh To Charge To 100"
+          unit_of_measurement: "kWh"
+          state: >-
+            {%set percent_to_charge = 100 - states('sensor.modely')| float%}
+            {{(75 * (percent_to_charge | float(default=0) / 100))| round(2)}}
+        - name: "ModelY Minutes To Charge To 100"
+          unit_of_measurement: "minutes"
+          state: >-
+            {%set speed = (states('sensor.easee_charging_speed') | float) / 1000 %}
+            {{((states('sensor.modely_kwh_to_charge_to_100') | float(default=0) / speed) * 60) | round(0)}}
+        - name: "ModelY Cost Charging to Soc To 100"
+          icon: "mdi:lightning-bolt-outline"
+          unit_of_measurement: "NOK"
+          state: >-
+            {% set kwh = states('sensor.modely_kwh_to_charge_to_100') | float(default=0) %}
+            {% set kr = states('sensor.price_with_subsidy') | float %}
+            {{ (kwh * kr) | round(2)}}
+
   automation:
     - alias: "upgradeInsurance"
       id: "upgradeInsurance"

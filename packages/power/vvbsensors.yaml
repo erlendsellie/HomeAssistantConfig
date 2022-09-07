@@ -80,7 +80,7 @@ vvbsensors:
           unit_of_measurement: "kr"
           value_template: >-
             {% set kwh = states('sensor.vvb_kwh_diff_til_max') | float %}
-            {% set kr = states('sensor.nordpool') | float %}
+            {% set kr = states('sensor.price_with_subsidy') | float %}
             {{ (kwh * kr) | round(2) }}
 
     - platform: template
