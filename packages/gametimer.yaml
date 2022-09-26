@@ -63,6 +63,15 @@ gametimer:
       step: 0.1
       mode: box
       unit_of_measurement: "°C"
+
+    gametemp_temp:
+      name: Manuell Mørnings Temperatur
+      min: 0
+      max: 30
+      step: 1
+      mode: slider
+      unit_of_measurement: "C"
+
     # gametimer2:
     #   name: Mørningstimer 2
     #   min: -0
@@ -85,9 +94,11 @@ gametimer:
         gametemp:
           unit_of_measurement: "C"
           value_template: >
-            {% if is_state("input_select.gametemp", "Sleipner Utside") %} {{states.sensor.modely_temperature_sensor_inside.state | float}}
-            {% elif is_state("input_select.gametemp", "Sleipner Innside") %} {{states.sensor.modely_temperature_sensor_outside.state | float}}
+            {% if is_state("input_select.gametemp", "Sleipner Utside") %} {{states.sensor.modely_temperature_sensor_outside.state | float}}
+            {% elif is_state("input_select.gametemp", "Sleipner Innside") %} {{states.sensor.modely_temperature_sensor_inside.state | float}}
             {% elif is_state("input_select.gametemp", "Garasje") %} {{states.sensor.garage_temperature.state | float}}
+            {% elif is_state("input_select.gametemp", "Ute") %} {{states.sensor.ute_temperature.state | float}}
+            {% elif is_state("input_select.gametemp", "Manuell") %} {{states.sensor.ute_temperature.state | float}}
             {% else %} 10
             {% endif %}
 
@@ -112,3 +123,5 @@ gametimer:
         - Sleipner Utside
         - Sleipner Innside
         - Garasje
+        - Ute
+        - Manuell

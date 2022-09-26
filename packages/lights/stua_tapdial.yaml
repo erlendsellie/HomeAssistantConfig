@@ -211,9 +211,21 @@ stua_tapdial:
               sequence:
                 - service: media_player.volume_down
                   entity_id: media_player.tv_stua
+                - service: media_player.volume_down
+                  entity_id: media_player.tv_stua
+                - service: media_player.volume_down
+                  entity_id: media_player.tv_stua
+                - service: media_player.volume_down
+                  entity_id: media_player.tv_stua
             - conditions:
                 - condition: template
                   value_template: "{{ action == right_fast or action == right_slow or action == right_step}}"
               sequence:
+                - service: media_player.volume_up
+                  entity_id: media_player.tv_stua
+                - service: media_player.volume_up
+                  entity_id: media_player.tv_stua
+                - service: media_player.volume_up
+                  entity_id: media_player.tv_stua
                 - service: media_player.volume_up
                   entity_id: media_player.tv_stua

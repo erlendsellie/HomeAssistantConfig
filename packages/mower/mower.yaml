@@ -147,4 +147,4 @@ mower:
     #       entity_id: script.playsound
     #       data_template:
     #         variables:
-    #           sound: "https://sivert.duckdns.org/local/sounds/item.mp3"
+    #           sound: "https://hjem.sellie.no/local/sounds/item.mp3"

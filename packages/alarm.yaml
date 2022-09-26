@@ -56,7 +56,7 @@ alarm:
         #     title: Garage closed since since movement not detected.
         #     message: Garage closed since since movement not detected.
         #     data:
-        #       image: 'https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}'
+        #       image: 'https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}'
         - service: cover.close_cover
           entity_id: cover.garage_door
       # - service: notify.mobile_app_oneplus
@@ -99,7 +99,7 @@ alarm:
         #     title: Motion
         #     message: Motion
         #     data:
-        #       image: https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}
+        #       image: https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}
 
         # - service: script.turn_on
         #   entity_id: script.sendvideodriveway
@@ -141,7 +141,7 @@ alarm:
       #     title: Motion
       #     message: Motion
       #     data:
-      #       image: https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}
+      #       image: https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}
 
     - alias: SnapShotMeraker
       trigger:
@@ -331,7 +331,7 @@ alarm:
         #     title: Garage closed since someone left.
         #     message: Garage closed since someone left.
         #     data:
-        #       image: 'https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}'
+        #       image: 'https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}'
         - service: cover.close_cover
           entity_id: cover.garage_door
 
@@ -361,7 +361,7 @@ alarm:
     - alias: Open Garage and unlock when Caroline home
       trigger:
         - platform: state
-          entity_id: binary_sensor.carolienhome
+          entity_id: binary_sensor.carolinehome
           to: "on"
           from: "off"
       condition:
@@ -381,7 +381,29 @@ alarm:
               title: Garage opened because Caroline came home.
               message: Garage opened because Caroline came home.
 
-              #trigger leave sykehuset, wait 20 minutes, then wait for trigger carolinehome to open garage?
+    - alias: Open Garage and unlock when Caroline home from Work
+      trigger:
+        platform: zone
+        entity_id: person.caroline
+        zone: zone.sykehuset
+        # Event is either enter or leave
+        event: leave
+      action:
+        - wait_for_trigger:
+            - platform: state
+              entity_id: binary_sensor.carolinehome
+              to: "on"
+              from: "off"
+          timeout: "00:40:00"
+          continue_on_timeout: false
+        - service: cover.open_cover
+          entity_id: cover.garage_door
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Garage opened because Caroline came home from Work.
+              message: Garage opened because Caroline came home Work.
 
     - id: waterLeakage
       alias: waterLeakage

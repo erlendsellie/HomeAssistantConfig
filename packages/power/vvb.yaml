@@ -41,6 +41,8 @@ vvb:
             {%set isCheap = pricelevel ==  'CHEAP' or pricelevel == 'VERY_CHEAP'%}
             {%set current_hour = states.sensor.priceanalyzer.attributes.current_hour%}
             {%set is_ten_cheapest = current_hour.is_ten_cheapest %}
+            {%set is_five_cheapest = current_hour.is_five_cheapest %}
+            {%set current_temp = states.climate.varmtvannsbereder.attributes.current_temperature  | float(default=50)%}
             {%set temp = 60%}
             {% if limit%}
               {%set temp = 20%}
@@ -48,8 +50,12 @@ vvb:
               {%set temp = 70%}
             {% elif current_hour.is_five_most_expensive%}
               {%set temp = 40%}
+            {% elif is_five_cheapest%}
+              {%set temp = 75%}
+            {% elif current_hour.is_falling%}
+              {%set temp = 50%}
             {% elif is_ten_cheapest%}
-              {%set temp = 70%}
+              {%set temp = 65%}
             {% elif isLowPrice or isCheap %}
               {%set temp = 60%}
             {%else%}

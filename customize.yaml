@@ -244,9 +244,9 @@ sensor.papir:
 sensor.plastemballasje:
   entity_picture: /local/trash/plast.svg
 input_boolean.trymasleep:
-  entity_picture: https://sivert.duckdns.org/local/trym.png
+  entity_picture: https://hjem.sellie.no/local/trym.png
 input_boolean.tyraasleep:
-  entity_picture: https://sivert.duckdns.org/local/tyra.jpg
+  entity_picture: https://hjem.sellie.no/local/tyra.jpg
 binary_sensor.xps:
   icon: mdi:keyboard-outline
 sensor.leaf_updated:

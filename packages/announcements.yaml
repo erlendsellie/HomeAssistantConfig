@@ -60,7 +60,7 @@ announcements:
         - service: media_player.play_media
           data:
             entity_id: media_player.minis
-            media_content_id: https://sivert.duckdns.org/local/sounds/BOTW_Secret.wav
+            media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Secret.wav
             #https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Cheerful+R2D2&filename=ot/OTg5MjI4MzAzOTg5Mzk1__2fUoxQxvD9yY.mp3
             media_content_type: "music"
         - delay:
@@ -100,8 +100,8 @@ announcements:
         - service: media_player.play_media
           data:
             entity_id: media_player.minis
-            #media_content_id: https://sivert.duckdns.org/local/sounds/BOTW_Secret.wav
-            media_content_id: https://sivert.duckdns.org/local/sounds/sheikat_slate.mp3
+            #media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Secret.wav
+            media_content_id: https://hjem.sellie.no/local/sounds/sheikat_slate.mp3
             #media_content_id: https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Cheerful+R2D2&filename=ot/OTg5MjI4MzAzOTg5Mzk1__2fUoxQxvD9yY.mp3
             media_content_type: "music"
         - delay:
@@ -133,7 +133,7 @@ announcements:
           entity_id: script.playsound
           data_template:
             variables:
-              sound: "https://sivert.duckdns.org/local/sounds/item.mp3"
+              sound: "https://hjem.sellie.no/local/sounds/item.mp3"
               extraVolume: 0.3
 
     - alias: PlaySoundMotionDriveway
@@ -172,8 +172,8 @@ announcements:
         - service: media_player.play_media
           data_template:
             entity_id: media_player.minis
-            #media_content_id: https://sivert.duckdns.org/local/sounds/BOTW_Secret.wav
-            media_content_id: https://sivert.duckdns.org/local/sounds/OOT_Navi_Listen1.wav
+            #media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Secret.wav
+            media_content_id: https://hjem.sellie.no/local/sounds/OOT_Navi_Listen1.wav
             #media_content_id: https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Cheerful+R2D2&filename=ot/OTg5MjI4MzAzOTg5Mzk1__2fUoxQxvD9yY.mp3
             media_content_type: "music"
         - service: script.notifymotionshield
@@ -329,7 +329,7 @@ announcements:
             - service: media_player.play_media
               data:
                 entity_id: media_player.minis
-                media_content_id: https://sivert.duckdns.org/local/sounds/BOTW_Fanfare_Item.wav
+                media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Fanfare_Item.wav
                 media_content_type: "music"
             - delay:
                 seconds: 3
@@ -368,7 +368,7 @@ announcements:
         - service: media_player.play_media
           data:
             entity_id: media_player.minis
-            media_content_id: https://sivert.duckdns.org/local/sounds/BOTW_Fanfare_Item.wav
+            media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Fanfare_Item.wav
             media_content_type: "music"
         - delay:
             seconds: 3
@@ -404,7 +404,7 @@ announcements:
             - service: media_player.play_media
               data:
                 entity_id: media_player.minis
-                media_content_id: https://sivert.duckdns.org/local/sounds/BOTW_Fanfare_Item.wav
+                media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Fanfare_Item.wav
                 media_content_type: "music"
                 #todo play one clock as well.
             - delay:
@@ -431,7 +431,7 @@ announcements:
         - service: media_player.play_media
           data:
             entity_id: media_player.minis
-            media_content_id: https://sivert.duckdns.org/local/sounds/BOTW_Fanfare_Item.wav
+            media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Fanfare_Item.wav
             media_content_type: "music"
 
     # - id: PlayMediaWhenDoorMagnetOn

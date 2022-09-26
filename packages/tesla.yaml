@@ -23,7 +23,7 @@ tesla:
         - name: "ModelY Minutes To Charge"
           unit_of_measurement: "minutes"
           state: >-
-            {%set speed = (states('sensor.easee_charging_speed') | float) / 1000 %}
+            {%set speed = (states('sensor.easee_charging_speed') | float(default=8000)) / 1000 %}
             {{((states('sensor.modely_kwh_to_charge') | float(default=0) / speed) * 60) | round(0)}}
         - name: "ModelY Cost Charging to Soc"
           icon: "mdi:lightning-bolt-outline"
@@ -40,7 +40,7 @@ tesla:
         - name: "ModelY Minutes To Charge To 100"
           unit_of_measurement: "minutes"
           state: >-
-            {%set speed = (states('sensor.easee_charging_speed') | float) / 1000 %}
+            {%set speed = (states('sensor.easee_charging_speed') | float(default=8000)) / 1000 %}
             {{((states('sensor.modely_kwh_to_charge_to_100') | float(default=0) / speed) * 60) | round(0)}}
         - name: "ModelY Cost Charging to Soc To 100"
           icon: "mdi:lightning-bolt-outline"

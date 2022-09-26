@@ -247,7 +247,7 @@ notifypackage:
     #       title: Did Trym wake up?
     #       message: Did trym wake up?
     #       data:
-    #         image: 'https://sivert.duckdns.org{{states.camera.trym_dafang.attributes.entity_picture}}'
+    #         image: 'https://hjem.sellie.no{{states.camera.trym_dafang.attributes.entity_picture}}'
 
     # - alias: 'TrymCold'
     #   trigger:
@@ -569,4 +569,4 @@ notifypackage:
         #     title: 'Motion Outside'
         #     data:
         #       file:
-        #         url: https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}
+        #         url: https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}

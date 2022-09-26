@@ -215,10 +215,19 @@ temperaturecontrol:
             {%set analyzer = states.sensor.priceanalyzer%}
             {%set current_hour = analyzer.attributes.current_hour%}
             {%set temp = analyzer.state | float %}
-            {%if current_hour.price_next_hour > 2.00 or current_hour.value > 2.00%} {{temp * 4}} 
-            {%elif current_hour.price_next_hour > 1.00 or current_hour.value > 1.00%} {{temp * 3}} 
-            {%elif current_hour.is_max%} {{temp * 2}}
-            {%else%} {{temp}}
+            {%set outside_temp = states.sensor.ute_temperature.state | float(default=10)%}
+            {%if temp > 0 and outside_temp > 5%}
+              {%if current_hour.price_next_hour > 2.00 or current_hour.value > 2.00%} {{temp * 2}} 
+              {%elif current_hour.price_next_hour > 1.00 or current_hour.value > 1.00%} {{temp * 2}} 
+              {%elif current_hour.is_max%} {{temp * 2}}
+              {%else%} {{temp}}
+              {%endif%}
+            {%else%}
+              {%if current_hour.price_next_hour > 2.00 or current_hour.value > 2.00%} {{temp * 4}} 
+              {%elif current_hour.price_next_hour > 1.00 or current_hour.value > 1.00%} {{temp * 3}} 
+              {%elif current_hour.is_max%} {{temp * 2}}
+              {%else%} {{temp}}
+              {%endif%}
             {%endif%}
         pricecorrection_old:
           friendly_name: "Price Correction"
@@ -721,10 +730,10 @@ temperaturecontrol:
             entity_id: sensor.tempsenttoheater
             above: 15
       action:
-        - service: climate.set_hvac_mode
-          data_template:
-            entity_id: climate.toilet_heater
-            hvac_mode: "heat"
+        # - service: climate.set_hvac_mode
+        #   data_template:
+        #     entity_id: climate.toilet_heater
+        #     hvac_mode: "heat"
         - service: climate.set_hvac_mode
           data_template:
             entity_id: climate.varmepumpe

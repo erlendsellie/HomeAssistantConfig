@@ -1,0 +1,9 @@
+domeneshop:
+
+  sensor:
+    - platform: scrape
+      resource: https://domene.shop/expired
+      name: domeneshop
+      select: "td.HoverUnderline"
+      scan_interval: 9000
+      index: 0

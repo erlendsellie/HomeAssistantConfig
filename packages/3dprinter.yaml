@@ -12,7 +12,7 @@
             title: 3D Print is almost ready
             message: The 3D print will be done in a minute
             data:
-              image: "https://sivert.duckdns.org{{states.camera.octoprint.attributes.entity_picture}}"
+              image: "https://hjem.sellie.no{{states.camera.octoprint.attributes.entity_picture}}"
         - service: script.turn_on
           entity_id: script.say
           data_template:

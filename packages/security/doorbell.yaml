@@ -18,7 +18,7 @@ doorbell:
         #     title: Doorbell
         #     message: Doorbell
         #     data:
-        #       image: https://sivert.duckdns.org{{states.camera.driveway.attributes.entity_picture}}
+        #       image: https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}
         # - service: camera.play_stream
         #   entity_id: camera.driveway_stream
         #   data:
@@ -41,8 +41,8 @@ doorbell:
             entity_id: media_player.minis
             #media_content_id: https://www.redringtones.com/wp-content/uploads/2016/08/usa-national-anthem.mp3
             #media_content_id: https://archive.org/download/13BinarySunsetAlternate/01%20The%20Imperial%20March%20%28Darth%20Vader%C2%92%27s%20Theme%29.mp3
-            media_content_id: https://sivert.duckdns.org/local/sounds/cooking_great.mp3
-            #media_content_id: https://sivert.duckdns.org/local/sounds/ringeklokkeCaroline.mp4
+            media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
+            #media_content_id: https://hjem.sellie.no/local/sounds/ringeklokkeCaroline.mp4
             media_content_type: "music"
         # - service: camera.snapshot
         #   data:
@@ -69,8 +69,8 @@ doorbell:
             entity_id: media_player.minis
             #media_content_id: https://www.redringtones.com/wp-content/uploads/2016/08/usa-national-anthem.mp3
             #media_content_id: https://archive.org/download/13BinarySunsetAlternate/01%20The%20Imperial%20March%20%28Darth%20Vader%C2%92%27s%20Theme%29.mp3
-            media_content_id: https://sivert.duckdns.org/local/sounds/cooking_great.mp3
-            #media_content_id: https://sivert.duckdns.org/local/sounds/ringeklokkeCaroline.mp4
+            media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
+            #media_content_id: https://hjem.sellie.no/local/sounds/ringeklokkeCaroline.mp4
             media_content_type: "music"
         - delay:
             seconds: 15

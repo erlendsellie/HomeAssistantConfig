@@ -1,17 +1,17 @@
 shush:
   switch:
-  - platform: template
-    switches:
-      tyra_shush:
-        value_template: "{{ states.media_player.tyra.state == 'playing' }}"
-        turn_on:
-          service: script.turn_on
-          data:
-            entity_id: script.shush_tyra
-        turn_off:
-          service: media_player.turn_off
-          data:
-            entity_id: media_player.tyra
+    - platform: template
+      switches:
+        tyra_shush:
+          value_template: "{{ states.media_player.tyra.state == 'playing' }}"
+          turn_on:
+            service: script.turn_on
+            data:
+              entity_id: script.shush_tyra
+          turn_off:
+            service: media_player.turn_off
+            data:
+              entity_id: media_player.tyra
   script:
     shush_tyra:
       alias: Play Shushing Tyra
@@ -20,11 +20,11 @@ shush:
           data_template:
             entity_id: media_player.tyra
             volume_level: 0.5
-        - service: media_player.play_media 
+        - service: media_player.play_media
           entity_id: media_player.tyra
           data:
-            media_content_id: https://sivert.duckdns.org/local/sounds/shush.m4a
-            media_content_type: music    
+            media_content_id: https://hjem.sellie.no/local/sounds/shush.m4a
+            media_content_type: music
         - delay:
             minutes: 30
         - service: media_player.volume_set
@@ -32,6 +32,4 @@ shush:
             entity_id: media_player.tyra
             volume_level: 0.0
         - service: switch.turn_off
-          entity_id: switch.tyra_shush      
-
-
+          entity_id: switch.tyra_shush

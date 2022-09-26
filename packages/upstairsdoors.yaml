@@ -44,7 +44,7 @@ upstairsdoors:
             - service: media_player.play_media
               data:
                 entity_id: media_player.minis
-                media_content_id: "https://sivert.duckdns.org/local/sounds/korok.mp3"
+                media_content_id: "https://hjem.sellie.no/local/sounds/korok.mp3"
                 media_content_type: "music"
             - delay:
                 seconds: 3
