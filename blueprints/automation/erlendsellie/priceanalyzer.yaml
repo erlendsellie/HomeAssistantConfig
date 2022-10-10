@@ -43,7 +43,6 @@ action:
       sensor: !input sensor
       number: !input number
       climate: !input climate
-      multiply: !input multiply
   - condition: template
     value_template: "{{ states(climate) == 'heat' or states(climate) == 'off'}}"
   - service: climate.set_temperature
