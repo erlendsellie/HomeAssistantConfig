@@ -1244,23 +1244,24 @@ manualautomations:
     #     entity_id: input_boolean.ammetid
     #   - service: input_boolean.turn_off
     #     entity_id: input_boolean.trymasleep
-    - id: "1613686499118"
-      alias: Tvonwhenasleep
-      description: ""
-      trigger:
-        - platform: state
-          entity_id: input_boolean.easleep
-          to: "on"
-          from: "off"
-      condition:
-        - condition: state
-          entity_id: media_player.tv_soverommet
-          state: "off"
-      action:
-        - service: media_player.turn_on
-          data: {}
-          entity_id: media_player.bedroom
-      mode: single
+
+    # - id: "1613686499118"
+    #   alias: Tvonwhenasleep
+    #   description: ""
+    #   trigger:
+    #     - platform: state
+    #       entity_id: input_boolean.easleep
+    #       to: "on"
+    #       from: "off"
+    #   condition:
+    #     - condition: state
+    #       entity_id: media_player.tv_soverommet
+    #       state: "off"
+    #   action:
+    #     - service: media_player.turn_on
+    #       data: {}
+    #       entity_id: media_player.bedroom
+    #   mode: single
 
   script:
     bedtvoff:

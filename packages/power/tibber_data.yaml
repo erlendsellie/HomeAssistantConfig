@@ -5,33 +5,44 @@ tibber_data_package:
 
   template:
     - sensor:
+        - name: "Subsidy"
+          unit_of_measurement: "NOK"
+          state: >-
+            {%set subsidy = max(states('sensor.estimated_subsidy_sivert_thonstads_vei_6')| float,0) %}
+            {{subsidy | round(2)}}
         - name: "Customer Price With Subsidy"
           unit_of_measurement: "NOK"
           state: >-
             {%set base_price = states('sensor.monthly_avg_customer_price_sivert_thonstads_vei_6') | float%}
-            {%set subsidy = states('sensor.estimated_subsidy_sivert_thonstads_vei_6') | float%}
-            {{base_price - subsidy | round(1)}}
+            {%set subsidy = states('sensor.subsidy')| float %}
+            {{(base_price - subsidy) | round(2)}}
         - name: "Price With Subsidy"
           unit_of_measurement: "NOK"
           state: >-
             {%set base_price = states('sensor.monthly_avg_price_sivert_thonstads_vei_6') | float%}
-            {%set subsidy = states('sensor.estimated_subsidy_sivert_thonstads_vei_6') | float%}
-            {{base_price - subsidy | round(1)}}
+            {%set subsidy = states('sensor.subsidy') | float%}
+            {{(base_price - subsidy) | round(2)}}
+        - name: "Price Now With Subsidy"
+          unit_of_measurement: "NOK"
+          state: >-
+            {%set base_price = states('sensor.nordpool') | float%}
+            {%set subsidy = states('sensor.subsidy') | float%}
+            {{(base_price - subsidy) | round(2)}}
         - name: "Customer Monthly Cost With Subsidy"
           unit_of_measurement: "NOK"
           state: >-
             {%set price = states('sensor.customer_price_with_subsidy') | float%}
             {%set kwh = states('sensor.monthly_net_consumption_sivert_thonstads_vei_6b') | float %}
-            {{kwh * price | round(1)}}
+            {{(kwh * price) | round(2)}}
         - name: "Monthly Cost With Subsidy"
           unit_of_measurement: "NOK"
           state: >-
             {%set price = states('sensor.price_with_subsidy') | float%}
             {%set kwh = states('sensor.monthly_net_consumption_sivert_thonstads_vei_6b') | float%}
-            {{kwh * price | round(1)}}
+            {{(kwh * price) | round(2)}}
         - name: "Monthly Saving Compared to Nordpool Average"
           unit_of_measurement: "NOK"
           state: >-
             {%set nordpool_average_cost = states('sensor.monthly_cost_with_subsidy') | float%}
             {%set customer_cost = states('sensor.customer_monthly_cost_with_subsidy') | float%}
-            {{nordpool_average_cost - customer_cost | round(1)}}
+            {{(nordpool_average_cost - customer_cost) | round(2)}}

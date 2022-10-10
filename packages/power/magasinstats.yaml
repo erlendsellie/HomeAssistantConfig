@@ -1,0 +1,17 @@
+magasinstats:
+  sensor:
+    #https://nvebiapi.nve.no/swagger/index.html
+    - platform: rest
+      resource: https://nvebiapi.nve.no/api/Magasinstatistikk/HentOffentligDataSisteUke
+      name: FyllingsgradNO3
+      json_attributes_path: "$.[3]"
+      json_attributes:
+        - fyllingsgrad.fyllingsgrad_forrige_uke
+        - endring_fyllingsgrad
+        - fylling_TWh
+        - kapasitet_TWh
+        - neste_Publiseringsdato
+        - iso_uke
+        - dato_Id
+      value_template: "{{value_json[3].fyllingsgrad * 100}}"
+      unit_of_measurement: "%"

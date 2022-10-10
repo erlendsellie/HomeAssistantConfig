@@ -4,6 +4,7 @@ blueprint:
     Control a climate entity with PriceAnalyzer(https://github.com/erlendsellie/priceanalyzer)
     and an input number as a target temperature.
     The climate target temperature will update whenever input number is changed, or PriceAnalyzer updates.
+    This Blueprint also requires 'Multiply Correction', which is an input number where you can multiply the correction made by Priceanalyzer by for example 2 or 3.
   domain: automation
   input:
     sensor:
@@ -25,7 +26,13 @@ blueprint:
       selector:
         entity:
           domain: climate
-  source_url: https://github.com/erlendsellie/HomeAssistantConfig/blob/master/blueprints/automation/erlendsellie/priceanalyzer.yaml
+    multiply:
+      name: Multiply Correction
+      description: Input Number Helper To multiply the correction. Useful if you want more aggressive control.
+      selector:
+        entity:
+          domain: input_number
+  source_url: https://github.com/erlendsellie/HomeAssistantConfig/blob/master/blueprints/automation/erlendsellie/priceanalyzer_multiply.yaml
 mode: restart
 max_exceeded: silent
 trigger_variables:
@@ -38,6 +45,7 @@ trigger:
     entity_id:
       - !input sensor
       - !input number
+      - !input multiply
 action:
   - variables:
       sensor: !input sensor
@@ -52,4 +60,5 @@ action:
       temperature: >-
         {%-set baseTemp = states(number) | float(default=0)%}
         {%-set priceanalyzer = states(sensor) | float(default=0)%}
-        {{baseTemp + priceanalyzer}}
+        {% set multiplyNumber = states(multiply) | float(default=1)  %}
+        {{baseTemp + (priceanalyzer * multiplyNumber)}}

@@ -446,7 +446,7 @@ temperaturecontrol:
         pricedifferenceissmall:
           value_template: >-
             {%-set pricedifference = states.sensor.pricespike.state | float(default=0)%}       
-            {%-set max = states.sensor.nordpool.state | float(default=0)%}       
+            {%-set max = states.sensor.priceanalyzer.attributes.max | float(default=0)%}       
             {{pricedifference < 0.10 or max < 0.20}}
         pricecorrection_up:
           delay_off:

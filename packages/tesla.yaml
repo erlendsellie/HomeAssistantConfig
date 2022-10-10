@@ -30,7 +30,7 @@ tesla:
           unit_of_measurement: "NOK"
           state: >-
             {% set kwh = states('sensor.modely_kwh_to_charge') | float(default=0) %}
-            {% set kr = states('sensor.price_with_subsidy') | float %}
+            {% set kr = states('sensor.price_now_with_subsidy') | float %}
             {{ (kwh * kr) | round(2) }}
         - name: "ModelY kWh To Charge To 100"
           unit_of_measurement: "kWh"
@@ -47,7 +47,7 @@ tesla:
           unit_of_measurement: "NOK"
           state: >-
             {% set kwh = states('sensor.modely_kwh_to_charge_to_100') | float(default=0) %}
-            {% set kr = states('sensor.price_with_subsidy') | float %}
+            {% set kr = states('sensor.price_now_with_subsidy') | float %}
             {{ (kwh * kr) | round(2)}}
 
   automation:

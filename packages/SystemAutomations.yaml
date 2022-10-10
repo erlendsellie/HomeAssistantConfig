@@ -158,7 +158,8 @@ system:
         #     minutes: 2
         - service: hassio.addon_restart
           data:
-            addon: addon_core_zwave_js
+            #addon: addon_core_zwave_js
+            addon: addon_a0d7b954_zwavejs2mqtt
         - wait_for_trigger:
             - platform: template
               value_template: "{{states.light.hallway.state == 'on' or states.light.hallway.state == 'off'}}"
@@ -417,3 +418,14 @@ system:
     #   alias: PHP Lights on
     #   sequence:
     #     - service: shell_command.lights_on_php
+
+  sensor:
+    - platform: command_line
+      name: "HAstats YAML-line TOTAL count"
+      command: " find /config/ -name '*.yaml' | xargs cat | wc -l"
+    - platform: command_line
+      name: "HAstats YAML-line Dashboard count"
+      command: " find /config/dashboard -name '*.yaml' | xargs cat | wc -l"
+    - platform: command_line
+      name: "HAstats YAML-line Packages count"
+      command: " find /config/packages -name '*.yaml' | xargs cat | wc -l"
