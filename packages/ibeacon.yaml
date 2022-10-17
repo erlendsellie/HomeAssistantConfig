@@ -1,0 +1,35 @@
+ibeacon:
+  script:
+    ble_transmitter_off:
+      alias: Simple Notification If Home
+      sequence:
+        - service: notify.mobile_app_oneplus
+          data:
+            message: "command_ble_transmitter"
+            data:
+              command: "turn_off"
+
+    ble_transmitter_on:
+      alias: Simple Notification If Home
+      sequence:
+        - service: notify.mobile_app_oneplus
+          data:
+            message: "command_ble_transmitter"
+            data:
+              command: "turn_on"
+  automation:
+    - alias: ErlendHomeBLE
+      trigger:
+        - platform: state
+          entity_id: person.erlend
+          to: "home"
+      action:
+        - service: script.ble_transmitter_on
+
+    - alias: ErlendAwayBLE
+      trigger:
+        - platform: state
+          entity_id: person.erlend
+          to: "away"
+      action:
+        - service: script.ble_transmitter_off

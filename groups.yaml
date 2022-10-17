@@ -160,6 +160,7 @@ andrelys:
     - light.driveway
     - light.garage
     - light.garage_bulb
+    - light.garage_led_strip
 
 upstairs:
   name: Upstairs

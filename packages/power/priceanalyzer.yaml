@@ -10,13 +10,20 @@ priceanalyzer:
       action:
         - service: homeassistant.reload_config_entry
           entity_id: sensor.priceanalyzer
-        - service: homeassistant.reload_config_entry
-          entity_id: sensor.priceanalyzer_se2
+        # - service: homeassistant.reload_config_entry
+        #   entity_id: sensor.priceanalyzer_se2
         - service: homeassistant.reload_config_entry
           entity_id: sensor.priceanalyzer_kr_sand
-        - service: homeassistant.reload_config_entry
-          entity_id: sensor.priceanalyzer_no4
+        # - service: homeassistant.reload_config_entry
+        #   entity_id: sensor.priceanalyzer_no4
         - service: homeassistant.reload_config_entry
           entity_id: sensor.priceanalyzer_oslo
         - service: homeassistant.reload_config_entry
           entity_id: sensor.nordpool
+# value_template: >-
+# {%set hour = now().hour%}
+# {%if hour > 21 or hour < 6%}
+#   {{ 0.01 }}
+# {%else%}
+#   {{0.0787 + 0.01 }}
+# {% endif %}

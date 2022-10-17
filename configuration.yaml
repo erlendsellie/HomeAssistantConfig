@@ -94,7 +94,7 @@ zone:
   - name: Sykehuset
     latitude: !secret latitudeSykehuset
     longitude: !secret longitudeSykehuset
-    radius: 200
+    radius: 230
     icon: mdi:hospital-building
 
   - name: Ekra
@@ -118,7 +118,7 @@ zone:
   - name: kindergarden
     latitude: !secret latitudeBarnehage
     longitude: !secret longitudeBarnehage
-    radius: 50
+    radius: 5
     icon: mdi:ferry
 
 map:

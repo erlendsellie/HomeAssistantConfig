@@ -289,7 +289,7 @@ temperaturecontrol:
             {%-set isMaxPrice = states.binary_sensor.ismaxprice.state == 'on' -%}
             {%-set isPeak = states.binary_sensor.pricerelativycheap.state == 'off' -%}
             {%-set minPrice = (states.sensor.nordpool.attributes.min | float) -%}
-            {%-set price = states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float(default=0)-%}
+            {%-set price = states.sensor.nordpool.state | float(default=0)-%}
             {%-set isMinPrice = minPrice == price -%}
             {%-set hour = now().hour | int(default=0)-%}
             {% set startdaywarming = states.input_datetime.nighttemp.state.split(':')[0] | float(default=0)%}
@@ -399,7 +399,7 @@ temperaturecontrol:
         priceforgraph:
           friendly_name: Power Price
           unit_of_measurement: "W"
-          value_template: "{{states.sensor.electricity_price_sivert_thonstads_vei_6b.state | float(default=0)* 10000}}"
+          value_template: "{{states.sensor.nordpool.state | float(default=0)* 10000}}"
           #{{(priceNow < priceNextHour) and (states.sensor.pricelevel.state != 'EXPENSIVE')}}
         trymtemp:
           friendly_name: "Trym Temp"
@@ -549,7 +549,7 @@ temperaturecontrol:
         islowprice:
           friendly_name: "Is Low Price"
           value_template: >-
-            {{states.sensor.nordpool.attributes['low price'] == true}}
+            {{states.sensor.priceanalyzer.attributes['low price'] == true}}
         pricerelativycheap:
           friendly_name: "price Relativy Cheap"
           value_template: >-
@@ -661,24 +661,24 @@ temperaturecontrol:
     #         entity_id: climate.garage_heater
     #         temperature: '{{ [states.input_number.garagetemp.state | float(default=0)+ [((states.sensor.pricecorrection.state | float(default=0) * 5)), 1] | max, 0] | min }}'
 
-    - id: adjustsokkeltemp
-      alias: Climate Sokkel - Adjust temp
-      mode: restart
-      trigger:
-        - platform: homeassistant
-          event: start
-        - platform: state
-          entity_id:
-            - sensor.sokkeltemp
-            - sensor.priceanalyzer
-      action:
-        - service: climate.set_temperature
-          data_template:
-            entity_id: climate.sokkel
-            temperature: >-
-              {%-set baseTemp = states.input_number.sokkeltemp.state | float(default=0)%}
-              {%-set priceanalyzer = states.sensor.priceanalyzer.state | float(default=0)%}
-              {{baseTemp + priceanalyzer}}
+    # - id: adjustsokkeltemp
+    #   alias: Climate Sokkel - Adjust temp
+    #   mode: restart
+    #   trigger:
+    #     - platform: homeassistant
+    #       event: start
+    #     - platform: state
+    #       entity_id:
+    #         - sensor.sokkeltemp
+    #         - sensor.priceanalyzer
+    #   action:
+    #     - service: climate.set_temperature
+    #       data_template:
+    #         entity_id: climate.sokkel
+    #         temperature: >-
+    #           {%-set baseTemp = states.input_number.sokkeltemp.state | float(default=0)%}
+    #           {%-set priceanalyzer = states.sensor.priceanalyzer.state | float(default=0)%}
+    #           {{baseTemp + priceanalyzer}}
 
     - id: adjustothertemp
       alias: Climate Other - Adjust temp

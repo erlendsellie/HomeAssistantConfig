@@ -173,7 +173,8 @@ announcements:
           data_template:
             entity_id: media_player.minis
             #media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Secret.wav
-            media_content_id: https://hjem.sellie.no/local/sounds/OOT_Navi_Listen1.wav
+            #media_content_id: https://hjem.sellie.no/local/sounds/OOT_Navi_Listen1.wav
+            media_content_id: https://hjem.sellie.no/local/sounds/mario_coin.mp3
             #media_content_id: https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Cheerful+R2D2&filename=ot/OTg5MjI4MzAzOTg5Mzk1__2fUoxQxvD9yY.mp3
             media_content_type: "music"
         - service: script.notifymotionshield

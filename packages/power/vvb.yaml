@@ -43,9 +43,13 @@ vvb:
             {%set is_ten_cheapest = current_hour.is_ten_cheapest %}
             {%set current_temp = states.climate.varmtvannsbereder.attributes.current_temperature  | float(default=50)%}
             {%set temp = 60%}
-            {% if limit%}
+            {% if limit %}
               {%set temp = 20%}
-            {% elif shouldNotBother or notUsingSpot or pause%}
+            {% elif notUsingSpot or pause%}
+              {%set temp = 70%}
+            {%else%}
+            {%set temp = states.sensor.vvbsensor.state %}
+            {#{% elif shouldNotBother or notUsingSpot or pause%}
               {%set temp = 70%}
             {% elif current_hour.is_five_most_expensive %}
               {%set temp = 40%}
@@ -58,7 +62,7 @@ vvb:
             {% elif isLowPrice or isCheap %}
               {%set temp = 60%}
             {%else%}
-              {%set temp = 50%}
+              {%set temp = 50%}#}
             {% endif %}
             {{temp}}
         - name: "VVB Average"
@@ -139,6 +143,9 @@ vvb:
           # To avoid bugs during restarts, or other, trigger every hour, to avoid cold showers.
         - platform: time_pattern
           minutes: 5 #Every hour, 5 minutes over.
+        - platform: homeassistant
+          # Event can also be 'shutdown'
+          event: start
       action:
         - service: climate.set_temperature
           data:
