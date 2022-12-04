@@ -54,7 +54,7 @@ effectcontrol:
         effect_is_high:
           friendly_name: "Effect Is High"
           delay_off:
-            minutes: 5
+            minutes: 3
           value_template: >-
             {% set effect = states.sensor.effekt_denne_timen_trend.state | float(default=0)%}
             {% set minutes = now().minute %}
@@ -71,6 +71,7 @@ effectcontrol:
             {% set effektledd = states('input_number.effektledd') | float(default=9.8) %}
             {%-set threshold = effektledd | float(default=0) + 2 -%}
             {{effect > threshold and minutes > 20}}
+
   automation:
     - alias: "EffectTurnDownPowerWhenHigh"
       id: "EffectTurnDownPowerWhenHigh"
@@ -107,7 +108,7 @@ effectcontrol:
         - choose:
             - conditions:
                 - condition: template
-                  value_template: "{{ states.sensor.garage_status.state == 'charging'}}"
+                  value_template: "{{states('sensor.garage_power') | int(default=0) > 0}}"
               sequence:
                 - service: input_boolean.turn_on
                   entity_id: input_boolean.charging_was_paused
@@ -122,10 +123,11 @@ effectcontrol:
             #if VVB is drawing power, limit to  lower temp.
             - conditions:
                 - condition: template
-                  value_template: "{{ states.input_boolean.limit_water_heater.state == 'off' and states.sensor.varmtvannsbereder_electric_consumption_w.state | float(default=0) > 10}}"
+                  value_template: "{{states.sensor.varmtvannsbereder_electric_consumption_w.state | float(default=0) > 10}}"
               sequence:
                 - service: input_boolean.turn_on
                   entity_id: input_boolean.limit_water_heater
+                - service: script.pausecharging
             - conditions:
                 - condition: template
                   value_template: "{{ states.input_boolean.limit_heaters.state == 'off'}}"
@@ -137,11 +139,21 @@ effectcontrol:
                   data_template:
                     variables:
                       title: Limiting Heaters to avoid extra cost
-                      message: The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.
+                      message: "Warning, high power usage. The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now."
             - conditions:
                 - condition: template
-                  value_template: "{{now().minute > 30}}"
+                  value_template: "{{now().minute > 29}}"
               sequence:
+                - service: script.pausecharging
+                - service: input_boolean.turn_on
+                  entity_id: input_boolean.limit_water_heater
+                - service: input_boolean.turn_on
+                  entity_id: input_boolean.limit_heaters
+                - service: script.turn_on
+                  entity_id: script.notify_tts_max_if_home
+                  data_template:
+                    variables:
+                      message: "Warning, high power usage. The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now."
                 - service: script.turn_on
                   entity_id: script.notify
                   data_template:
@@ -149,6 +161,22 @@ effectcontrol:
                       title: Warning, high power usage.
                       message: The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.
           default:
+            - service: script.pausecharging
+            - service: input_boolean.turn_on
+              entity_id: input_boolean.limit_water_heater
+            - service: input_boolean.turn_on
+              entity_id: input_boolean.limit_heaters
+            - service: script.turn_on
+              entity_id: script.notify
+              data_template:
+                variables:
+                  title: Warning, high power usage.
+                  message: The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.
+            - service: script.turn_on
+              entity_id: script.notify_tts_max_if_home
+              data_template:
+                variables:
+                  message: Warning, high power usage! The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.
 
     - alias: "EffectTurnUpPowerWhenLow"
       id: "EffectTurnUpPowerWhenLow"
@@ -255,23 +283,30 @@ effectcontrol:
           value_template: "{{ states.input_boolean.charging_was_paused.state == 'on'}}"
         - service: input_boolean.turn_off
           entity_id: input_boolean.charging_was_paused
-        - service: easee.resume
+        - service: easee.action_command
           data:
-            charger_id: "EHRMB4AF"
+            device_id: 6253823754803a08f0b3d8c4d7acbd30
+            action_command: resume
 
     pausecharging:
       alias: Pause Charging
       sequence:
-        - service: easee.pause
+        - service: easee.action_command
           data:
-            charger_id: "EHRMB4AF"
+            device_id: 6253823754803a08f0b3d8c4d7acbd30
+            action_command: pause
+
         - delay:
             seconds: 30
         - condition: template
           value_template: "{{ states.sensor.garage_status.state == 'charging'}}"
-        - service: easee.pause
+        # - service: easee.pause
+        #   data:
+        #     charger_id: "EHRMB4AF"
+        - service: easee.action_command
           data:
-            charger_id: "EHRMB4AF"
+            device_id: 6253823754803a08f0b3d8c4d7acbd30
+            action_command: pause
         - service: script.turn_on
           entity_id: script.notify
           data_template:
