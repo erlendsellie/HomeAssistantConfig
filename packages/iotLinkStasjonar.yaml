@@ -19,16 +19,15 @@ iotlinkstasjoar:
       action:
         - service: switch.turn_off
           entity_id: switch.stasjonar
-
-  binary_sensor:
-    - platform: mqtt
-      name: "Stasjonar - Connected"
-      state_topic: "iotlink/workgroup/desktop-4h2cphq/lwt"
-      value_template: "{{ value }}"
-      payload_on: "ON"
-      payload_off: "OFF"
-      device_class: "connectivity"
-      qos: 1
+  mqtt:
+    binary_sensor:
+      - name: "Stasjonar - Connected"
+        state_topic: "iotlink/workgroup/desktop-4h2cphq/lwt"
+        value_template: "{{ value }}"
+        payload_on: "ON"
+        payload_off: "OFF"
+        device_class: "connectivity"
+        qos: 1
 
   switch:
     - platform: template

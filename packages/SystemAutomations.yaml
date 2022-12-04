@@ -105,9 +105,41 @@ system:
             - binary_sensor.front_door_ding
             - light.trym_ball
             - switch.varmtvannsbereder
+            - light.tv
+            - sensor.priceanalyzer
+            - sensor.pricecorrection
           to: "unavailable"
           for:
             minutes: 5
+        - platform: state
+          entity_id:
+            - sensor.accumulated_consumption_current_hour_sivert_thonstads_vei_6b
+            - sensor.modely
+            - sensor.stua_temperature
+            - climate.varmepumpe
+            - switch.varmepumpe
+            - climate.sokkel
+            - sensor.netatmo_home_temperature
+            - vacuum.xiaomi_vacuum_cleaner
+            - switch.garage_esp32
+            - binary_sensor.vindfang_door
+            - sensor.nordpool
+            - media_player.google_tv
+            - lock.ytterdor
+            - switch.garage_esp32
+            - device_tracker.oneplus
+            - device_tracker.caroline_app
+            - sensor.nordpool
+            - sensor.stua_temperature
+            - binary_sensor.front_door_ding
+            - light.trym_ball
+            - switch.varmtvannsbereder
+            - light.tv
+            - sensor.priceanalyzer
+            - sensor.pricecorrection
+          to: "unavailable"
+          for:
+            minutes: 30
       action:
         - service: notify.me
           data_template:
@@ -429,3 +461,218 @@ system:
     - platform: command_line
       name: "HAstats YAML-line Packages count"
       command: " find /config/packages -name '*.yaml' | xargs cat | wc -l"
+
+  template:
+    #  Count number of loaded Integrations
+    - sensor:
+        - name: HAstats integrations count
+          unique_id: hastats_integrations_count
+          state_class:
+            measurement
+            #{{ ns.count }} - {{attr}} {{states.sensor.start_time.attributes [attr] }}
+          state: >
+            {% set ns = namespace(count = 0) %}
+            {% for attr in states.sensor.start_time.attributes %}
+            {%- if not attr=="friendly_name" 
+                and not attr=="unit_of_measurement"     
+                and not attr=="icon" -%}
+            {%- set ns.count = ns.count+1 %}
+            {%- endif %}
+            {%- endfor %}
+            {{ns.count}}
+    #  EbD = Enteties by Domain  :)
+    - sensor:
+        # some groups to get right level reporting:
+        - unique_id: hastats_ebd_sum_sensors
+          name: HAstats EbD sum sensors
+          state_class: measurement
+          state: >
+            {{ states('sensor.hastats_ebd_sensors') | float(default=0)
+            + states('sensor.hastats_ebd_binary_sensors') | float(default=0)
+            }}
+          icon: mdi:case-sensitive-alt
+        - unique_id: hastats_ebd_sum_inputs2
+          name: HAstats EbD sum inputs
+          state_class: measurement
+          state: >
+            {{ states('sensor.hastats_ebd_input_booleans') | float(default=0)
+            + states('sensor.hastats_ebd_input_datetimes') | float(default=0)
+            + states('sensor.hastats_ebd_input_numbers') | float(default=0)
+            + states('sensor.hastats_ebd_input_selects') | float(default=0)
+            + states('sensor.hastats_ebd_input_texts') | float(default=0)
+            }}
+          icon: mdi:numeric-0
+
+        # then total and checksum:
+        - name: HAstats EbD total
+          unique_id: hastats_ebd_total
+          state_class: measurement
+          state: "{{'' ~ states | count }}"
+          icon: mdi:sigma
+        # Checksum to be able to verify of total = sum of defined domains ("are there new domains added?")
+        - name: HAstats EbD total checksum
+          unique_id: hastats_ebd_total_checksum
+          state_class: measurement
+          state: >-
+            {{states('sensor.hastats_ebd_total') | float(default=0)
+            - states('sensor.hastats_ebd_automations') | float(default=0)
+            - states('sensor.hastats_ebd_binary_sensors') | float(default=0)
+            - states('sensor.hastats_ebd_buttons') | float(default=0)
+            - states('sensor.hastats_ebd_calendars') | float(default=0)
+            - states('sensor.hastats_ebd_climates') | float(default=0)
+            - states('sensor.hastats_ebd_counters') | float(default=0)
+            - states('sensor.hastats_ebd_covers') | float(default=0) 
+            - states('sensor.hastats_ebd_device_trackers') | float(default=0)
+            - states('sensor.hastats_ebd_groups') | float(default=0)
+            - states('sensor.hastats_ebd_input_booleans') | float(default=0)
+            - states('sensor.hastats_ebd_input_datetimes') | float(default=0)
+            - states('sensor.hastats_ebd_input_numbers') | float(default=0)
+            - states('sensor.hastats_ebd_input_selects') | float(default=0)
+            - states('sensor.hastats_ebd_input_texts') | float(default=0)
+            - states('sensor.hastats_ebd_lights') | float(default=0)
+            - states('sensor.hastats_ebd_media_players') | float(default=0)
+            - states('sensor.hastats_ebd_numbers') | float(default=0)
+            - states('sensor.hastats_ebd_persistent_notifications') | float(default=0)
+            - states('sensor.hastats_ebd_persons') | float(default=0)
+            - states('sensor.hastats_ebd_remotes') | float(default=0)
+            - states('sensor.hastats_ebd_scenes') | float(default=0)
+            - states('sensor.hastats_ebd_scripts') | float(default=0)
+            - states('sensor.hastats_ebd_selects') | float(default=0)
+            - states('sensor.hastats_ebd_sensors') | float(default=0)
+            - states('sensor.hastats_ebd_sun') | float(default=0)
+            - states('sensor.hastats_ebd_switches') | float(default=0)
+            - states('sensor.hastats_ebd_timers') | float(default=0)
+            - states('sensor.hastats_ebd_updates') | float(default=0)
+            - states('sensor.hastats_ebd_weathers') | float(default=0)
+            - states('sensor.hastats_ebd_zones') | float(default=0)
+            - states('sensor.hastats_ebd_zwaves') | float(default=0)
+            }}
+        # then counters for each of the the actual domains:
+        - name: HAstats EbD automations
+          unique_id: hastats_ebd_automations
+          state_class: measurement
+          icon: mdi:play
+          state: "{{states.automation | count}}"
+        - name: HAstats EbD binary sensors
+          unique_id: hastats_ebd_binary_sensors
+          state_class: measurement
+          state: "{{states.binary_sensor | count}}"
+        - name: HAstats EbD buttons
+          unique_id: hastats_ebd_buttons
+          state_class: measurement
+          state: "{{states.button | count}}"
+        - name: hastats_ebd_calendars
+          unique_id: HAstats EbD calendars
+          state_class: measurement
+          state: "{{states.calendar | count}}"
+        - name: HAstats EbD climates
+          unique_id: hastats_ebd_climates
+          state_class: measurement
+          state: "{{states.climate | count}}"
+        - name: HAstats EbD counters
+          unique_id: hastats_ebd_counters
+          state_class: measurement
+          state: "{{states.counter | count}}"
+        - name: HAstats EbD Covers
+          unique_id: hastats_ebd_covers
+          state_class: measurement
+          state: "{{states.cover | count}}"
+        - name: HAstats EbD device trackers
+          unique_id: hastats_ebd_device_trackers
+          state_class: measurement
+          state: "{{states.device_tracker | count}}"
+        - name: HAstats EbD Groups
+          unique_id: hastats_ebd_groups
+          state_class: measurement
+          state: "{{states.group | count}}"
+        - name: HAstats EbD input booleans
+          unique_id: hastats_ebd_input_booleans
+          state_class: measurement
+          state: "{{states.input_boolean | count}}"
+        - name: HAstats EbD input datetimes
+          unique_id: hastats_ebd_input_datetimes
+          state_class: measurement
+          state: "{{states.input_datetime | count}}"
+        - name: HAstats EbD input numbers
+          unique_id: hastats_ebd_input_numbers
+          state_class: measurement
+          state: "{{states.input_number | count}}"
+        - name: HAstats EbD input selects
+          unique_id: hastats_ebd_input_selects
+          state_class: measurement
+          state: "{{states.input_select | count}}"
+        - name: HAstats EbD input texts
+          unique_id: hastats_ebd_input_texts
+          state_class: measurement
+          state: "{{states.input_text | count}}"
+        - name: HAstats EbD lights
+          unique_id: hastats_ebd_lights
+          state_class: measurement
+          icon: mdi:lightbulb
+          state: "{{states.light | count}}"
+        - name: HAstats EbD media players
+          unique_id: hastats_ebd_media_players
+          state_class: measurement
+          state: "{{states.media_player | count}}"
+        - name: HAstats EbD numbers
+          unique_id: hastats_ebd_numbers
+          state_class: measurement
+          state: "{{states.number | count}}"
+        - name: HAstats EbD persistent notifications
+          unique_id: hastats_ebd_persistent_notifications
+          state_class: measurement
+          state: "{{states.persistent_notification | count}}"
+        - name: HAstats EbD persons
+          unique_id: hastats_ebd_persons
+          state_class: measurement
+          state: "{{states.person | count}}"
+        - name: HAstats EbD remotes
+          unique_id: hastats_ebd_remotes
+          state_class: measurement
+          state: "{{states.remote | count}}"
+        - name: HAstats EbD scenes
+          unique_id: hastats_ebd_scenes
+          state_class: measurement
+          state: "{{states.scene | count}}"
+        - name: HAstats EbD scripts
+          unique_id: hastats_ebd_scripts
+          icon: mdi:script
+          state_class: measurement
+          state: "{{states.script | count}}"
+        - name: HAstats EbD selects
+          unique_id: hastats_ebd_selects
+          state_class: measurement
+          state: "{{states.select | count}}"
+        - name: HAstats EbD sensors
+          unique_id: hastats_ebd_sensors
+          state_class: measurement
+          icon: mdi:case-sensitive-alt
+          state: "{{states.sensor | count}}"
+        - name: HAstats EbD sun
+          unique_id: hastats_ebd_sun
+          state_class: measurement
+          state: "{{states.sun | count}}"
+        - name: HAstats EbD switches
+          unique_id: hastats_ebd_switches
+          state_class: measurement
+          state: "{{states.switch | count}}"
+        - name: HAstats EbD timers
+          unique_id: hastats_ebd_timers
+          state_class: measurement
+          state: "{{states.timer | count}}"
+        - name: HAstats EbD updates
+          unique_id: hastats_ebd_updates
+          state_class: measurement
+          state: "{{states.update | count}}"
+        - name: HAstats EbD weathers
+          unique_id: hastats_ebd_weathers
+          state_class: measurement
+          state: "{{states.weather | count}}"
+        - name: HAstats EbD zones
+          unique_id: hastats_ebd_zones
+          state_class: measurement
+          state: "{{states.zone | count}}"
+        - name: HAstats EbD zwaves
+          unique_id: hastats_ebd_zwaves
+          state_class: measurement
+          state: "{{states.zwave | count}}"

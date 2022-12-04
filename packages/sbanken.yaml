@@ -9,3 +9,24 @@ sbanken:
         - name: Rammelån Last transaction
           state: >-
             {{states.sensor.rammelan.attributes.transactions[0]}}
+        - name: Felleskortet Last transaction
+          state: >-
+            {%set last = states.sensor.felleskortet.attributes.transactions[0]%}
+            {{last.amount}} på {{last.text}}
+
+  # automation:
+  #   - alias: NotifyFelleskortet
+  #     trigger:
+  #       - platform: state
+  #         entity_id: sensor.felleskortet_last_transaction
+  #     condition:
+  #       - condition: template
+  #         value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
+  #     action:
+  #       - service: notify.mobile_app_oneplus
+  #         data_template:
+  #           title: Nytt trekk på felleskortet
+  #           message: "{{states('sensor.felleskortet_last_transaction')}}"
+  #           data:
+  #             ttl: 0
+  #             priority: high

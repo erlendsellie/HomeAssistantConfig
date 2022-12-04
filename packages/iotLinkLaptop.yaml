@@ -1,144 +1,142 @@
 iotlinklaptop:
-  binary_sensor:
-    - platform: mqtt
-      name: "laptop - Connected"
-      state_topic: "iotlink/workgroup/laptop-12odv0ur/lwt"
-      value_template: "{{ value }}"
-      payload_on: "ON"
-      payload_off: "OFF"
-      device_class: "connectivity"
-      qos: 1
+  mqtt:
+    binary_sensor:
+      - name: "laptop - Connected"
+        state_topic: "iotlink/workgroup/laptop-12odv0ur/lwt"
+        value_template: "{{ value }}"
+        payload_on: "ON"
+        payload_off: "OFF"
+        device_class: "connectivity"
+        qos: 1
 
   switch:
-  - platform: template
-    switches:
-      laptop:
+    - platform: template
+      switches:
+        laptop:
           friendly_name: "Laptop"
           value_template: "{{ is_state('binary_sensor.laptop_connected', 'on') }}"
           turn_on:
-              service: script.laptop_wake
+            service: script.laptop_wake
           turn_off:
-              service: script.laptop_shutdown
+            service: script.laptop_shutdown
           icon_template: mdi:laptop
   script:
-      laptop_wake:
-          # To enable see https://www.home-assistant.io/components/wake_on_lan/
-          alias: "Laptop - Wake"
-          sequence:
-          - service: wake_on_lan.send_magic_packet
-            data:
-              mac: "D8:12:65:E4:A9:43"
-      
-      laptop_shutdown:
-          alias: "Laptop - Shutdown"
-          sequence:
-          - service: mqtt.publish
-            data:
-              topic: "iotlink/workgroup/laptop-12odv0ur/commands/shutdown"
-              payload: ""
-      
-      laptop_suspend:
-          alias: "Laptop - Suspend"
-          sequence:
-          - service: mqtt.publish
-            data:
-              topic: "iotlink/workgroup/laptop-12odv0ur/commands/suspend"
-              payload: ""
-      
-      laptop_hibernate:
-          alias: "Laptop - Hibernate"
-          sequence:
-          - service: mqtt.publish
-            data:
-              topic: "iotlink/workgroup/laptop-12odv0ur/commands/hibernate"
-              payload: ""
-      
-      laptop_reboot:
-          alias: "Laptop - Reboot"
-          sequence:
-          - service: mqtt.publish
-            data:
-              topic: "iotlink/workgroup/laptop-12odv0ur/commands/reboot"
-              payload: ""
-        
-      laptop_lock:
-          alias: "Laptop - Lock"
-          sequence:
-          - service: mqtt.publish
-            data:
-              topic: "iotlink/workgroup/laptop-12odv0ur/commands/lock"
-              payload: ""
-        
-      laptop_logoff:
-          alias: "Laptop - Logoff"
-          sequence:
-            - service: mqtt.publish
-              data:
-                topic: "iotlink/workgroup/laptop-12odv0ur/commands/logoff"
-                payload: ""
-        
-      laptop_vol_mute:
-          alias: "Laptop - Toggle Mute"
-          sequence:
-            - service: mqtt.publish
-              data:
-                topic: "iotlink/workgroup/laptop-12odv0ur/commands/volume/mute"
-                payload: ""
-        
-      laptop_vol_max:
-          alias: "Laptop - Vol Max"
-          sequence:
-            - service: mqtt.publish
-              data:
-                topic: "iotlink/workgroup/laptop-12odv0ur/commands/volume/set"
-                payload: "100"
-        
-      laptop_displays_on:
-          alias: "Laptop - Displays ON"
-          sequence:
-            - service: mqtt.publish
-              data:
-                topic: "iotlink/workgroup/laptop-12odv0ur/commands/displays/on"
-                payload: ""
-        
-      laptop_displays_off:
-          alias: "Laptop - Displays OFF"
-          sequence:
-            - service: mqtt.publish
-              data:
-                topic: "iotlink/workgroup/laptop-12odv0ur/commands/displays/off"
-                payload: ""
-        
-      laptop_refresh:
-          alias: "Laptop - Refresh"
-          sequence:
-            - service: mqtt.publish
-              data:
-                topic: "iotlink/workgroup/laptop-12odv0ur/refresh"
-                payload: ""
-      
-      laptop_notify:
-          alias: "Laptop - Notify"
-          sequence:
-            - service: mqtt.publish
-              data:
-                topic: "iotlink/workgroup/laptop-12odv0ur/commands/notify"
-                payload: '{ "title": "My Notification Title", "message": "This is an example of notification using IOT Link", "launchParams": "toast://open/https://iotlink.gitlab.io" }'
-        
-      laptop_run_chrome:
-          alias: "Laptop - Run Chrome"
-          sequence:
-            - service: mqtt.publish
-              data:
-                topic: "iotlink/workgroup/laptop-12odv0ur/commands/run"
-                payload: '{ "command": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe", "args": "https://iotlink.gitlab.io", "path": "C:\\Program Files (x86)\\Google\\Chrome\\Application", "user": "", "visible": true, "fallback": true }'
-        
-      laptop_run_ccleaner:
-          alias: "Laptop - Run CCleaner"
-          sequence:
-            - service: mqtt.publish
-              data:
-                topic: "iotlink/workgroup/laptop-12odv0ur/commands/run"
-                payload: '{ "command": "C:\\Program Files\\CCleaner\\CCleaner64.exe", "args": "/AUTO", "path": "C:\\Program Files\\CCleaner\\", "user": "", "visible": true, "fallback": true }'
-        
-      
+    laptop_wake:
+      # To enable see https://www.home-assistant.io/components/wake_on_lan/
+      alias: "Laptop - Wake"
+      sequence:
+        - service: wake_on_lan.send_magic_packet
+          data:
+            mac: "D8:12:65:E4:A9:43"
+
+    laptop_shutdown:
+      alias: "Laptop - Shutdown"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/laptop-12odv0ur/commands/shutdown"
+            payload: ""
+
+    laptop_suspend:
+      alias: "Laptop - Suspend"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/laptop-12odv0ur/commands/suspend"
+            payload: ""
+
+    laptop_hibernate:
+      alias: "Laptop - Hibernate"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/laptop-12odv0ur/commands/hibernate"
+            payload: ""
+
+    laptop_reboot:
+      alias: "Laptop - Reboot"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/laptop-12odv0ur/commands/reboot"
+            payload: ""
+
+    laptop_lock:
+      alias: "Laptop - Lock"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/laptop-12odv0ur/commands/lock"
+            payload: ""
+
+    laptop_logoff:
+      alias: "Laptop - Logoff"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/laptop-12odv0ur/commands/logoff"
+            payload: ""
+
+    laptop_vol_mute:
+      alias: "Laptop - Toggle Mute"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/laptop-12odv0ur/commands/volume/mute"
+            payload: ""
+
+    laptop_vol_max:
+      alias: "Laptop - Vol Max"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/laptop-12odv0ur/commands/volume/set"
+            payload: "100"
+
+    laptop_displays_on:
+      alias: "Laptop - Displays ON"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/laptop-12odv0ur/commands/displays/on"
+            payload: ""
+
+    laptop_displays_off:
+      alias: "Laptop - Displays OFF"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/laptop-12odv0ur/commands/displays/off"
+            payload: ""
+
+    laptop_refresh:
+      alias: "Laptop - Refresh"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/laptop-12odv0ur/refresh"
+            payload: ""
+
+    laptop_notify:
+      alias: "Laptop - Notify"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/laptop-12odv0ur/commands/notify"
+            payload: '{ "title": "My Notification Title", "message": "This is an example of notification using IOT Link", "launchParams": "toast://open/https://iotlink.gitlab.io" }'
+
+    laptop_run_chrome:
+      alias: "Laptop - Run Chrome"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/laptop-12odv0ur/commands/run"
+            payload: '{ "command": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe", "args": "https://iotlink.gitlab.io", "path": "C:\\Program Files (x86)\\Google\\Chrome\\Application", "user": "", "visible": true, "fallback": true }'
+
+    laptop_run_ccleaner:
+      alias: "Laptop - Run CCleaner"
+      sequence:
+        - service: mqtt.publish
+          data:
+            topic: "iotlink/workgroup/laptop-12odv0ur/commands/run"
+            payload: '{ "command": "C:\\Program Files\\CCleaner\\CCleaner64.exe", "args": "/AUTO", "path": "C:\\Program Files\\CCleaner\\", "user": "", "visible": true, "fallback": true }'

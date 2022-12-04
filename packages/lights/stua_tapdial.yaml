@@ -71,13 +71,14 @@ stua_tapdial:
                 - condition: template
                   value_template: "{{ action == one_hold }}"
               sequence:
-                - service: input_select.select_option
-                  entity_id: input_select.stua_tapdial
-                  data:
-                    option: tvsone
+                - service: script.find_phone
+                # - service: input_select.select_option
+                #   entity_id: input_select.stua_tapdial
+                #   data:
+                #     option: tvsone
             - conditions:
                 - condition: template
-                  value_template: "{{ action == two_hold }}"
+                  value_template: "{{ action == four_hold }}"
               sequence:
                 - service: input_select.select_option
                   entity_id: input_select.stua_tapdial
@@ -91,7 +92,7 @@ stua_tapdial:
                   entity_id: media_player.tv_stua
             - conditions:
                 - condition: template
-                  value_template: "{{ action == four_hold }}"
+                  value_template: "{{ action == two_hold }}"
               sequence:
                 - service: media_player.media_play_pause
                   entity_id: media_player.google_tv
@@ -217,10 +218,18 @@ stua_tapdial:
                   entity_id: media_player.tv_stua
                 - service: media_player.volume_down
                   entity_id: media_player.tv_stua
+                - service: media_player.volume_down
+                  entity_id: media_player.tv_stua
+                - service: media_player.volume_down
+                  entity_id: media_player.tv_stua
             - conditions:
                 - condition: template
                   value_template: "{{ action == right_fast or action == right_slow or action == right_step}}"
               sequence:
+                - service: media_player.volume_up
+                  entity_id: media_player.tv_stua
+                - service: media_player.volume_up
+                  entity_id: media_player.tv_stua
                 - service: media_player.volume_up
                   entity_id: media_player.tv_stua
                 - service: media_player.volume_up

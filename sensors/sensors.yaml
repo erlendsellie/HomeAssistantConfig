@@ -254,11 +254,13 @@
   name: BathroomHumidity
   entity_id: sensor.bathroom_humidity
   state_characteristic: change
+  sampling_size: 60
   max_age:
-    days: 7
+    minutes: 30
 
 - platform: statistics
   name: TSLAStatistics
+  sampling_size: 200
   state_characteristic: change
   entity_id: sensor.tsla
   max_age:
@@ -518,24 +520,29 @@
     #   value_template: >-
     #       {{(as_timestamp(utcnow()) - as_timestamp(states.sensor.coordination_158d0002a520b4.last_changed))}}
 
-    # octoprint_time_left_minutes:
-    #   friendly_name: "OctoPrint Minutes Left"
-    #   unit_of_measurement: Minutes
-    #   value_template: >-
-    #     {{((states.sensor.octoprint_time_remaining.state | int(default=0)) /60 )|round(0)}}
-
-    # octoprint_time_ready:
-    #   friendly_name: "OctoPrint ETA time"
-    #   unit_of_measurement: time
-    #   value_template: >-
-    #     {%- set date = as_timestamp(now()) + states('sensor.octoprint_time_remaining')| float(default=0) -%}
-    #     {{(date|timestamp_local).split( )[1]}}
-    # octoprint_day_ready:
-    #   friendly_name: "OctoPrint ETA day"
-    #   unit_of_measurement: time
-    #   value_template: >-
-    #     {%- set date = as_timestamp(now()) + states('sensor.octoprint_time_remaining')| float(default=0) -%}
-    #     {{(date|timestamp_local).split( )[0]}}
+    octoprint_time_remaining:
+      friendly_name: "OctoPrint Time Remaining Left"
+      unit_of_measurement: Minutes
+      value_template: >-
+        {%set seconds = as_timestamp(states.sensor.octoprint_estimated_finish_time.state) - as_timestamp(now())%}
+        {{(seconds)}}
+    octoprint_time_left_minutes:
+      friendly_name: "OctoPrint Minutes Left"
+      unit_of_measurement: Minutes
+      value_template: >-
+        {{((states.sensor.octoprint_time_remaining.state | int(default=0)) /60 )|round(0)}}
+    octoprint_time_ready:
+      friendly_name: "OctoPrint ETA time"
+      unit_of_measurement: time
+      value_template: >-
+        {%- set date = as_timestamp(now()) + states('sensor.octoprint_time_remaining')| float(default=0) -%}
+        {{(date|timestamp_local).split( )[1]}}
+    octoprint_day_ready:
+      friendly_name: "OctoPrint ETA day"
+      unit_of_measurement: time
+      value_template: >-
+        {%- set date = as_timestamp(now()) + states('sensor.octoprint_time_remaining')| float(default=0) -%}
+        {{(date|timestamp_local).split( )[0]}}
 
     # realtargettemp:
     #   friendly_name: "Target"
@@ -565,6 +572,7 @@
     #   value_template: '{{float(states.light.kjokkenbord.attributes.brightness*0.3921568627450981)}}'
     distancefromhome:
       friendly_name: Distance from home
+      unit_of_measurement: km
       value_template: >-
         {% set dummy = states("sensor.time") %}
         {{[states.proximity.homecaroline.state | int(default=0), states.proximity.homeerlend.state | int(default=0)] | min | int(default=0)}}
@@ -576,6 +584,8 @@
         {%-set tyraasleep = states.input_boolean.tyraasleep.state == 'on' -%}
         {% if trymasleep or tyraasleep %}
           0.3
+        {% elif states.input_boolean.powernap.state == 'on' %} 
+          0.0
         {% elif states.input_select.alarm.state == 'Disarm' %} 
           0.6
         {% elif states.input_select.alarm.state == 'Arm Home'%}
@@ -601,7 +611,6 @@
     #     {{ [15, (float(states.input_number.bortetemp.state)) - (float(states.sensor.distancefromhome.state)/10) | round(0)] | max }}
     #   {% endif %}
     # {% endif %}
-
 # - platform: mqtt
 #   name: "Table light energy"
 #   state_topic: "tele/SONOFF-1/ENERGY"
@@ -618,21 +627,6 @@
 #   value_template: "{{ value_json.Voltage }}"
 #   unit_of_measurement: "V"
 
-- platform: mqtt
-  name: "Fan Bathroom energy"
-  state_topic: "tele/SONOFF-2/ENERGY"
-  value_template: "{{ value_json.Today }}"
-  unit_of_measurement: "kWh"
-- platform: mqtt
-  name: "Fan Bathroom power"
-  state_topic: "tele/SONOFF-2/ENERGY"
-  value_template: "{{ value_json.Power }}"
-  unit_of_measurement: "W"
-- platform: mqtt
-  name: "Fan Bathroom voltage"
-  state_topic: "tele/SONOFF-2/ENERGY"
-  value_template: "{{ value_json.Voltage }}"
-  unit_of_measurement: "V"
 #Diff
 # {%-set targetTemp = temp | float(default=0)%}
 # {%-set currentTemp = states.climate.varmepumpe.attributes.current_temperature | float(default=0)%}

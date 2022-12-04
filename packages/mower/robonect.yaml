@@ -235,55 +235,6 @@ robonect:
     #   select: "table > tbody > tr:nth-child(4) > td:nth-child(2)"
     #   value_template: "{{ value }}"
 
-    - platform: mqtt
-      state_topic: "robonect/mower/battery/charge"
-      name: "Esteban Battery"
-      unit_of_measurement: "%"
-      device_class: battery
-
-    - platform: mqtt
-      state_topic: "robonect/mower/stopped"
-      name: "Esteban Stopped"
-
-    - platform: mqtt
-      state_topic: "robonect/wlan/rssi"
-      name: "Esteban wifi signal"
-      unit_of_measurement: "dBm"
-
-    - platform: mqtt
-      state_topic: "robonect/mower/status/duration"
-      name: "Esteban time in current status"
-      unit_of_measurement: "minutes"
-
-    - platform: mqtt
-      state_topic: "robonect/mower/mode"
-      name: "Esteban mode raw"
-
-    - platform: mqtt
-      state_topic: "robonect/mower/statistic/hours"
-      name: "Esteban Operation Hours"
-      unit_of_measurement: "hours"
-      icon: mdi:timer-sand
-
-    - platform: mqtt
-      state_topic: "robonect/health/voltage/int33"
-      name: "Esteban Operating Voltage Robonect"
-      unit_of_measurement: "V"
-
-    - platform: mqtt
-      state_topic: "robonect/health/voltage/ext33"
-      name: "Esteban Operating Voltage Mower"
-      unit_of_measurement: "V"
-
-    - platform: mqtt
-      state_topic: "robonect/health/voltage/batt"
-      name: "Esteban Battery Voltage"
-      unit_of_measurement: "V"
-
-    - platform: mqtt
-      state_topic: "robonect/mower/status"
-      name: "Esteban status raw"
-
     - platform: template
       sensors:
         esteban_status_friendly:
@@ -314,3 +265,43 @@ robonect:
             {% else -%}
               Figure out what state {{ states("sensor.Esteban_status_raw") }} means
             {%- endif %}
+  mqtt:
+    sensor:
+      - state_topic: "robonect/mower/battery/charge"
+        name: "Esteban Battery"
+        unit_of_measurement: "%"
+        device_class: battery
+
+      - state_topic: "robonect/mower/stopped"
+        name: "Esteban Stopped"
+
+      - state_topic: "robonect/wlan/rssi"
+        name: "Esteban wifi signal"
+        unit_of_measurement: "dBm"
+
+      - state_topic: "robonect/mower/status/duration"
+        name: "Esteban time in current status"
+        unit_of_measurement: "minutes"
+
+      - state_topic: "robonect/mower/mode"
+        name: "Esteban mode raw"
+
+      - state_topic: "robonect/mower/statistic/hours"
+        name: "Esteban Operation Hours"
+        unit_of_measurement: "hours"
+        icon: mdi:timer-sand
+
+      - state_topic: "robonect/health/voltage/int33"
+        name: "Esteban Operating Voltage Robonect"
+        unit_of_measurement: "V"
+
+      - state_topic: "robonect/health/voltage/ext33"
+        name: "Esteban Operating Voltage Mower"
+        unit_of_measurement: "V"
+
+      - state_topic: "robonect/health/voltage/batt"
+        name: "Esteban Battery Voltage"
+        unit_of_measurement: "V"
+
+      - state_topic: "robonect/mower/status"
+        name: "Esteban status raw"

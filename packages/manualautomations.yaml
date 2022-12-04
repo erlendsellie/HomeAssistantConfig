@@ -243,37 +243,38 @@ manualautomations:
     ##   Other    ##
     ################
 
-    - alias: Perimeter - Doorbell ding - TV notification
-      description: ""
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.front_door_ding
-          to: "on"
-      condition:
-        - condition: state
-          entity_id: media_player.tv_stua
-          state: "on"
-      action:
-        - service: camera.snapshot
-          target:
-            entity_id: camera.driveway
-          data:
-            filename: /config/www/tmp/Visitor_alert.jpg
-        - service: notify.living_room_tv
-          data:
-            message: "You have a visitor"
-            title: Perimeter alert
-            data:
-              duration: 10
-              fontsize: max
-              position: bottom-right
-              transparency: 50%
-              color: grey
-              interrupt: 1
-              file:
-                path: /config/www/tmp/driveway.jpg
-      mode: parallel
-      max: 10
+    #TODO make work again.
+    # - alias: Perimeter - Doorbell ding - TV notification
+    #   description: ""
+    #   trigger:
+    #     - platform: state
+    #       entity_id: binary_sensor.front_door_ding
+    #       to: "on"
+    #   condition:
+    #     - condition: state
+    #       entity_id: media_player.tv_stua
+    #       state: "on"
+    #   action:
+    #     - service: camera.snapshot
+    #       target:
+    #         entity_id: camera.driveway
+    #       data:
+    #         filename: /config/www/tmp/Visitor_alert.jpg
+    #     - service: notify.living_room_tv
+    #       data:
+    #         message: "You have a visitor"
+    #         title: Perimeter alert
+    #         data:
+    #           duration: 10
+    #           fontsize: max
+    #           position: bottom-right
+    #           transparency: 50%
+    #           color: grey
+    #           interrupt: 1
+    #           file:
+    #             path: /config/www/tmp/driveway.jpg
+    #   mode: parallel
+    #   max: 10
 
     - id: doorbell
       alias: Door Bell

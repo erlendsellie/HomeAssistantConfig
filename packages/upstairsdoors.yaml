@@ -33,6 +33,9 @@ upstairsdoors:
                 variables:
                   title: Dør åpen
                   message: "{{trigger.from_state.name}}"
+            - condition: template
+              value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
+
             - service: media_player.volume_set
               data_template:
                 entity_id: media_player.hallway_speaker

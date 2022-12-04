@@ -298,10 +298,10 @@ notifypackage:
       #   entity_id:  group.erlend
       #   state: 'home'
       action:
-        - service: input_number.set_value
-          entity_id: input_number.trymasleeptime
-          data_template:
-            value: "{{((as_timestamp(utcnow()) - as_timestamp(states.automation.trymsoveron.attributes.last_triggered,true,0)) / 60) | round(0)}}"
+        # - service: input_number.set_value
+        #   entity_id: input_number.trymasleeptime
+        #   data_template:
+        #     value: "{{((as_timestamp(utcnow()) - as_timestamp(states.automation.trymsoveron.attributes.last_triggered,true,0)) / 60) | round(0)}}"
         - service: script.turn_on
           entity_id: script.notifyboth
           data_template:
@@ -520,6 +520,21 @@ notifypackage:
               ttl: 0
               priority: high
               channel: alarm_stream_max
+
+    sound_if_home:
+      alias: notify_tts_max_if_home
+      sequence:
+        - condition: state
+          entity_id: person.erlend
+          state: "home"
+        - service: notify.mobile_app_oneplus
+          data:
+            title: "{{sound}}"
+            message: "command_activity"
+            data:
+              intent_package_name: "org.videolan.vlc"
+              intent_action: "android.intent.action.VIEW"
+              intent_uri: "{{sound}}"
 
     notify_tts_max:
       alias: notify_tts_max_if_home

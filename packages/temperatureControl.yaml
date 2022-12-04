@@ -223,8 +223,9 @@ temperaturecontrol:
               {%else%} {{temp}}
               {%endif%}
             {%else%}
-              {%if current_hour.price_next_hour > 2.00 or current_hour.value > 2.00%} {{temp * 4}} 
-              {%elif current_hour.price_next_hour > 1.00 or current_hour.value > 1.00%} {{temp * 3}} 
+              {%if current_hour.price_next_hour > 6.00 or current_hour.value > 6.00%} {{temp * 4}} 
+              {%elif current_hour.price_next_hour > 4.00 or current_hour.value > 4.00%} {{temp * 3}} 
+              {%elif current_hour.price_next_hour > 1.00 or current_hour.value > 1.00%} {{temp * 2}} 
               {%elif current_hour.is_max%} {{temp * 2}}
               {%else%} {{temp}}
               {%endif%}
@@ -315,6 +316,10 @@ temperaturecontrol:
             {%-set baseTemp = states.input_number.sokkeltemp.state | float(default=0)%}
             {%-set priceCorrection = states.sensor.pricecorrection.state | float(default=0)%}
             {%-set temp = baseTemp + priceCorrection -%}
+            {% set limit = states.input_boolean.limit_heaters.state == 'on' %}
+            {% if limit %}
+              {%-set temp = temp - 8 -%}
+            {% endif %}
             {{temp}}
         vindfangtemp:
           friendly_name: "Vindfang temp"
@@ -323,6 +328,10 @@ temperaturecontrol:
             {%-set baseTemp = states.input_number.vindfangtemp.state | float(default=0)%}
             {%-set priceCorrection = states.sensor.pricecorrection.state | float(default=0)%}
             {%-set temp = baseTemp + priceCorrection -%}
+            {% set limit = states.input_boolean.limit_heaters.state == 'on' %}
+            {% if limit %}
+              {%-set temp = temp - 8 -%}
+            {% endif %}
             {{temp}}
         bathroomtemp:
           friendly_name: "Bathroom temp"
@@ -331,6 +340,10 @@ temperaturecontrol:
             {%-set baseTemp = states.input_number.bathroomtemp.state | float(default=0)%}
             {%-set priceCorrection = states.sensor.pricecorrection.state | float(default=0)%}
             {%-set temp = baseTemp + priceCorrection -%}
+            {% set limit = states.input_boolean.limit_heaters.state == 'on' %}
+            {% if limit %}
+              {%-set temp = temp - 8 -%}                 
+            {% endif %}
             {{temp}}
         toilettemp:
           friendly_name: "Toilet temp"
@@ -405,7 +418,7 @@ temperaturecontrol:
           friendly_name: "Trym Temp"
           unit_of_measurement: "C"
           value_template: >-
-            {%-set priceCorrection =  states.sensor.pricecorrection.state | float(default=0) %}
+            {%-set priceCorrection =  states.sensor.priceanalyzer.state | float(default=0) %}
             {%-set hour = now().hour | int(default=0)-%}
             {%-set trymasleep = states.input_boolean.trymasleep.state == 'on' -%}
             {%-set trymaway = states.input_boolean.tryminkindergarden.state == 'on'%}
@@ -418,12 +431,16 @@ temperaturecontrol:
             {% else %}
               {%-set temp = 13%}
             {% endif %}
+            {% set limit = states.input_boolean.limit_heaters.state == 'on' %}
+            {% if limit %}
+              {%-set temp = temp - 2 -%}
+            {% endif %}
             {{temp + priceCorrection}}
         tyratemp:
           friendly_name: "Tyra Temp"
           unit_of_measurement: "C"
           value_template: >-
-            {%-set priceCorrection =  states.sensor.pricecorrection.state | float(default=0) %}
+            {%-set priceCorrection =  states.sensor.priceanalyzer.state | float(default=0) %}
             {%-set hour = now().hour | float(default=0)-%}
             {%-set tyraasleep = states.input_boolean.tyraasleep.state == 'on' -%}
             {%-set tyraaway = states.input_boolean.tyrainkindergarden.state == 'on'%}
@@ -437,6 +454,10 @@ temperaturecontrol:
             {% else %}
               {%-set temp = 13%}
             {% endif %}
+            {% set limit = states.input_boolean.limit_heaters.state == 'on' %}
+            {% if limit %}
+              {%-set temp = temp - 2 -%}
+            {% endif %}            
             {{temp + priceCorrection}}
 
   binary_sensor:
@@ -445,8 +466,8 @@ temperaturecontrol:
       sensors:
         pricedifferenceissmall:
           value_template: >-
-            {%-set pricedifference = states.sensor.pricespike.state | float(default=0)%}       
-            {%-set max = states.sensor.priceanalyzer.attributes.max | float(default=0)%}       
+            {%-set pricedifference = states.sensor.pricespike.state | float(default=0)%}
+            {%-set max = states.sensor.priceanalyzer.attributes.max | float(default=0)%}
             {{pricedifference < 0.10 or max < 0.20}}
         pricecorrection_up:
           delay_off:
@@ -661,27 +682,27 @@ temperaturecontrol:
     #         entity_id: climate.garage_heater
     #         temperature: '{{ [states.input_number.garagetemp.state | float(default=0)+ [((states.sensor.pricecorrection.state | float(default=0) * 5)), 1] | max, 0] | min }}'
 
-    # - id: adjustsokkeltemp
-    #   alias: Climate Sokkel - Adjust temp
-    #   mode: restart
-    #   trigger:
-    #     - platform: homeassistant
-    #       event: start
-    #     - platform: state
-    #       entity_id:
-    #         - sensor.sokkeltemp
-    #         - sensor.priceanalyzer
-    #   action:
-    #     - service: climate.set_temperature
-    #       data_template:
-    #         entity_id: climate.sokkel
-    #         temperature: >-
-    #           {%-set baseTemp = states.input_number.sokkeltemp.state | float(default=0)%}
-    #           {%-set priceanalyzer = states.sensor.priceanalyzer.state | float(default=0)%}
-    #           {{baseTemp + priceanalyzer}}
+    - id: adjustsokkeltemp
+      alias: Climate Sokkel - Adjust temp
+      mode: restart
+      trigger:
+        - platform: homeassistant
+          event: start
+        - platform: state
+          entity_id:
+            - sensor.sokkeltemp
+            - sensor.priceanalyzer
+      action:
+        - service: climate.set_temperature
+          data_template:
+            entity_id: climate.sokkel
+            temperature: >-
+              {%-set baseTemp = states.input_number.sokkeltemp.state | float(default=0)%}
+              {%-set priceanalyzer = states.sensor.pricecorrection.state | float(default=0)%}
+              {{baseTemp + priceanalyzer}}
 
-    - id: adjustothertemp
-      alias: Climate Other - Adjust temp
+    - id: adjustbathroomtemp
+      alias: Climate bathroom - Adjust temp
       mode: restart
       trigger:
         - platform: homeassistant
@@ -689,12 +710,22 @@ temperaturecontrol:
         - platform: state
           entity_id:
             - sensor.bathroomtemp
-            - sensor.vindfangtemp
       action:
         - service: climate.set_temperature
           data_template:
             entity_id: climate.bathroom
             temperature: "{{ states.sensor.bathroomtemp.state | int(default=0) }}"
+
+    - id: adjustvindfangtemp
+      alias: Climate Vindfang - Adjust temp
+      mode: restart
+      trigger:
+        - platform: homeassistant
+          event: start
+        - platform: state
+          entity_id:
+            - sensor.vindfangtemp
+      action:
         - service: climate.set_temperature
           data_template:
             entity_id: climate.vindfang

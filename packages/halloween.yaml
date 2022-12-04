@@ -1,0 +1,115 @@
+halloween:
+  automation:
+    - id: doorbell_halloween
+      alias: Door Bell halloween
+      mode: restart
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.front_door_ding
+          to: "on"
+          from: "off"
+      action:
+        - service: light.turn_on
+          entity_id: light.driveway
+          data:
+            color_name: red
+        - service: script.flashteslaifhome
+        - delay:
+            seconds: 10
+        - service: light.turn_on
+          data:
+            entity_id: light.driveway
+            kelvin: 2400
+
+    - id: bathroom_door_halloween
+      alias: bathroom door halloween
+      mode: restart
+      trigger:
+        - platform: state
+          entity_id:
+            - binary_sensor.door_toilet
+            - binary_sensor.motion_sokkel
+          to: "on"
+      action:
+        - service: script.playrandomscarysongonhallwayspeaker
+
+    # - id: halloween_airraid
+    #   alias: halloween_airraid
+    #   trigger:
+    #     - platform: time
+    #       at: "23:00:00"
+    #   sequence:
+    #     - script.airraid
+
+  script:
+    playrandomscarysongonhallwayspeaker:
+      alias: playrandomscarysongonhallwayspeaker
+      sequence:
+        - service: media_player.volume_set
+          data:
+            entity_id: media_player.hallway_speaker
+            volume_level: 0.7
+        - service: media_player.play_media
+          data:
+            entity_id: media_player.hallway_speaker
+            #todo, range must be one more than number of songs
+            media_content_id: "https://hjem.sellie.no/local/sounds/screams/sound{{ range(1, 7) | random }}.mp3"
+            media_content_type: "music"
+
+    flashteslaifhome:
+      alias: Flash Tesla if home
+      sequence:
+        - condition: template
+          value_template: "{{states.device_tracker.modely_location_tracker.state == 'home'}}"
+        - service: button.press
+          data:
+            entity_id: button.sleipner_flash_lights
+        - delay:
+            seconds: 2
+        - service: button.press
+          data:
+            entity_id: button.sleipner_flash_lights
+        - delay:
+            seconds: 2
+        - service: button.press
+          data:
+            entity_id: button.sleipner_flash_lights
+        - delay:
+            seconds: 2
+        - service: button.press
+          data:
+            entity_id: button.sleipner_flash_lights
+
+    airraid:
+      sequence:
+        - service: media_player.volume_set
+          data:
+            entity_id: media_player.allehome
+            volume_level: 1
+        - service: media_player.play_media
+          data:
+            entity_id: media_player.allehome
+            media_content_id: "https://hjem.sellie.no/local/sounds/screams/airraid.mp3"
+            media_content_type: "music"
+
+    mockingbird:
+      sequence:
+        - service: media_player.volume_set
+          data:
+            entity_id: media_player.allehome
+            volume_level: 1
+        - service: media_player.play_media
+          data:
+            entity_id: media_player.allehome
+            media_content_id: "https://hjem.sellie.no/local/sounds/screams/mockingbird.mp3"
+            media_content_type: "music"
+
+    stopplyd:
+      sequence:
+        - service: media_player.volume_set
+          data:
+            entity_id: media_player.allehome
+            volume_level: "{{states.sensor.speakervolume.state}}"
+        - service: media_player.media_stop
+          data:
+            entity_id: media_player.allehome

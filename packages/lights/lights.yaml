@@ -163,6 +163,11 @@ lights:
           entity_id: input_select.alarm
           to: "Arm Home"
           for:
+            seconds: 30
+        - platform: state
+          entity_id: input_select.alarm
+          to: "Arm Home"
+          for:
             minutes: 10
       action:
         - service: light.turn_on
@@ -757,7 +762,7 @@ lights:
         - service: light.turn_on
           entity_id: light.play, light.peis, light.ledstrip_kitchen
           data:
-            color_name: blue
+            color_name: red
         - delay:
             seconds: 0.5
         - service: light.turn_off
@@ -767,7 +772,7 @@ lights:
         - service: light.turn_on
           entity_id: light.play, light.peis, light.ledstrip_kitchen
           data:
-            color_name: blue
+            color_name: red
         - delay:
             seconds: 0.5
         - service: light.turn_off
@@ -777,7 +782,7 @@ lights:
         - service: light.turn_on
           entity_id: light.play, light.peis, light.ledstrip_kitchen
           data:
-            color_name: blue
+            color_name: red
         - delay:
             seconds: 0.5
         - service: light.turn_off
@@ -787,7 +792,7 @@ lights:
         - service: light.turn_on
           entity_id: light.play, light.peis, light.ledstrip_kitchen
           data:
-            color_name: blue
+            color_name: red
         - delay:
             seconds: 0.5
         - service: light.turn_off
@@ -801,7 +806,7 @@ lights:
         - service: light.turn_on
           entity_id: light.play, light.peis, light.ledstrip_kitchen
           data:
-            color_name: blue
+            color_name: red
         - delay:
             seconds: 0.5
         - service: light.turn_off
@@ -811,7 +816,69 @@ lights:
         - service: light.turn_on
           entity_id: light.play, light.peis, light.ledstrip_kitchen
           data:
-            color_name: blue
+            color_name: red
+        - service: light.turn_off
+          entity_id: light.play, light.peis, light.ledstrip_kitchen
+        - delay:
+            seconds: 0.5
+        - service: light.turn_on
+          entity_id: light.play, light.peis, light.ledstrip_kitchen
+          data:
+            color_name: red
+        - delay:
+            seconds: 0.5
+        - service: light.turn_off
+          entity_id: light.play, light.peis, light.ledstrip_kitchen
+        - delay:
+            seconds: 0.5
+        - service: light.turn_on
+          entity_id: light.play, light.peis, light.ledstrip_kitchen
+          data:
+            color_name: red
+        - delay:
+            seconds: 0.5
+        - service: light.turn_off
+          entity_id: light.play, light.peis, light.ledstrip_kitchen
+        - delay:
+            seconds: 0.5
+        - service: light.turn_on
+          entity_id: light.play, light.peis, light.ledstrip_kitchen
+          data:
+            color_name: red
+        - delay:
+            seconds: 0.5
+        - service: light.turn_off
+          entity_id: light.play, light.peis, light.ledstrip_kitchen
+        - delay:
+            seconds: 0.5
+        - service: light.turn_on
+          entity_id: light.play, light.peis, light.ledstrip_kitchen
+          data:
+            color_name: red
+        - delay:
+            seconds: 0.5
+        - service: light.turn_off
+          entity_id: light.play, light.peis, light.ledstrip_kitchen
+        - delay:
+            seconds: 0.5
+        - service: light.turn_off
+          entity_id: light.play, light.peis, light.ledstrip_kitchen
+        - delay:
+            seconds: 0.5
+        - service: light.turn_on
+          entity_id: light.play, light.peis, light.ledstrip_kitchen
+          data:
+            color_name: red
+        - delay:
+            seconds: 0.5
+        - service: light.turn_off
+          entity_id: light.play, light.peis, light.ledstrip_kitchen
+        - delay:
+            seconds: 0.5
+        - service: light.turn_on
+          entity_id: light.play, light.peis, light.ledstrip_kitchen
+          data:
+            color_name: red
         - service: light.turn_off
           entity_id: light.play, light.peis, light.ledstrip_kitchen
         - delay:

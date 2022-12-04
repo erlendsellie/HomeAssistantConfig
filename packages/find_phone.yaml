@@ -1,0 +1,27 @@
+find_phone:
+  automation:
+
+  script:
+    find_phone:
+      sequence:
+        - condition: state
+          entity_id: person.caroline
+          state: "home"
+        - service: notify.mobile_app_caroline
+          data:
+            title: "https://hjem.sellie.no/local/sounds/lost_woods.mp3"
+            message: "command_activity"
+            data:
+              intent_package_name: "org.videolan.vlc"
+              intent_action: "android.intent.action.VIEW"
+              intent_uri: "https://hjem.sellie.no/local/sounds/lost_woods.mp3"
+    airraid_erlend:
+      sequence:
+        - service: notify.mobile_app_oneplus
+          data:
+            title: "https://hjem.sellie.no/local/sounds/airraid.mp3"
+            message: "command_activity"
+            data:
+              intent_package_name: "org.videolan.vlc"
+              intent_action: "android.intent.action.VIEW"
+              intent_uri: "https://hjem.sellie.no/local/sounds/airraid.mp3"

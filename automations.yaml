@@ -37,12 +37,30 @@
     input:
       entity: sensor.nordpool
       notify: true
-- id: "1651777949264"
-  alias: PriceAnalyzer - Control Climate Sokkel
+
+- id: "1666519974103"
+  alias: PriceAnalyzer - Control Hot Water Tank
   description: ""
   use_blueprint:
-    path: erlendsellie/priceanalyzer.yaml
+    path: erlendsellie/priceanalyzer_vvb.yaml
     input:
-      sensor: sensor.priceanalyzer
-      number: input_number.sokkeltemp
-      climate: climate.sokkel
+      sensor: sensor.vvbsensor
+      climate: climate.varmtvannsbereder
+
+  mode: single
+- id: "1669413053126"
+  alias: Turn off vvb at 12
+  description: ""
+  trigger:
+    - platform: time
+      at: 00:01:00
+  condition: []
+  action:
+    - service: input_boolean.turn_on
+      data: {}
+      target:
+        entity_id: input_boolean.vvb_off
+    - service: notify.mobile_app_oneplus
+      data:
+        message: Turning off vvb
+  mode: single

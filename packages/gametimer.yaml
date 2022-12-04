@@ -98,6 +98,7 @@ gametimer:
             {% elif is_state("input_select.gametemp", "Sleipner Innside") %} {{states.sensor.modely_temperature_sensor_inside.state | float}}
             {% elif is_state("input_select.gametemp", "Garasje") %} {{states.sensor.garage_temperature.state | float}}
             {% elif is_state("input_select.gametemp", "Ute") %} {{states.sensor.ute_temperature.state | float}}
+            {% elif is_state("input_select.gametemp", "Bod") %} {{states.sensor.bthome_bod_temperature.state | float}}
             {% elif is_state("input_select.gametemp", "Manuell") %} {{states.sensor.ute_temperature.state | float}}
             {% else %} 10
             {% endif %}
@@ -124,4 +125,5 @@ gametimer:
         - Sleipner Innside
         - Garasje
         - Ute
+        - Bod
         - Manuell

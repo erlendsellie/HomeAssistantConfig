@@ -323,6 +323,8 @@ announcements:
                 variables:
                   title: Stairs Exposed
                   message: Stairs are exposed!
+            - condition: template
+              value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
             - service: media_player.volume_set
               data_template:
                 entity_id: media_player.minis
@@ -362,6 +364,8 @@ announcements:
             variables:
               title: Grinda og hoveddøra
               message: er åpen!
+        - condition: template
+          value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.minis
@@ -398,6 +402,8 @@ announcements:
                 variables:
                   title: Stairs Exposed
                   message: Grinda oppe ble ikke lukket
+            - condition: template
+              value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
             - service: media_player.volume_set
               data_template:
                 entity_id: media_player.minis
@@ -425,6 +431,9 @@ announcements:
             variables:
               title: Hundene kan stikke av
               message: Både garasjen og garasjedøra er åpen
+        - condition: template
+          value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
+
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.minis
@@ -695,6 +704,7 @@ announcements:
             - binary_sensor.grind
             - binary_sensor.motion_sokkel
           to: "on"
+          from: "off"
       condition:
         - condition: state
           entity_id: input_boolean.washer_emptied

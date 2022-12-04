@@ -1,25 +1,24 @@
 blinds:
+  mqtt:
+    cover:
+      - name: "veranda_door"
+        device_class: "shade"
+        command_topic: "am43/027e259e8621/set"
+        position_topic: "am43/027e259e8621/position"
+        set_position_topic: "am43/027e259e8621/set_position"
+        availability_topic: "am43/027e259e8621/available"
+        position_open: 2
+        position_closed: 99
+
+      - name: "veranda_window"
+        device_class: "shade"
+        command_topic: "am43/02feff09d6d0/set"
+        position_topic: "am43/02feff09d6d0/position"
+        set_position_topic: "am43/02feff09d6d0/set_position"
+        availability_topic: "am43/02feff09d6d0/available"
+        position_open: 2
+        position_closed: 99
   cover:
-    - platform: mqtt
-      name: "veranda_door"
-      device_class: "shade"
-      command_topic: "am43/027e259e8621/set"
-      position_topic: "am43/027e259e8621/position"
-      set_position_topic: "am43/027e259e8621/set_position"
-      availability_topic: "am43/027e259e8621/available"
-      position_open: 2
-      position_closed: 99
-
-    - platform: mqtt
-      name: "veranda_window"
-      device_class: "shade"
-      command_topic: "am43/02feff09d6d0/set"
-      position_topic: "am43/02feff09d6d0/position"
-      set_position_topic: "am43/02feff09d6d0/set_position"
-      availability_topic: "am43/02feff09d6d0/available"
-      position_open: 2
-      position_closed: 99
-
     - platform: group
       name: Veranda Curtains
       entities:

@@ -1,0 +1,42 @@
+fingerprint:
+  automation:
+    - id: fingerprint_garage_door
+      alias: fingerprint_garage_door
+      trigger:
+        - platform: state
+          entity_id: sensor.garage_fingerprint_state
+          to: "Authorized finger"
+      condition:
+        - condition: template
+          value_template: >-
+            {% set id = states('sensor.garage_fingerprint_last_finger_id') | int(default=-1) %}
+            {{id == 0 or id == 10}}
+      action:
+        - service: cover.toggle
+          entity_id: cover.garage_door
+
+    - id: fingerprint_ytterdor
+      alias: fingerprint_ytterdor
+      trigger:
+        - platform: state
+          entity_id: sensor.garage_fingerprint_state
+          to: "Authorized finger"
+      condition:
+        - condition: template
+          value_template: >-
+            {% set id = states('sensor.garage_fingerprint_last_finger_id') | int(default=-1) %}
+            {{id == 2 or id == 11}}
+      action:
+        - service: script.unlockdoor
+  template:
+    - sensor:
+        - name: "Last fingerprint scanned"
+          state: >-
+            {% set personid = states('sensor.garage_fingerprint_last_finger_id') | int(default=-1) %}
+            {% if personid > 0 and personid < 10 %}
+              Erlend
+            {% elif personid > 9 and personid < 20 %}
+              Caroline
+            {% else %}
+              Unknown
+            {% endif %}

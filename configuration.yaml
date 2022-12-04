@@ -33,6 +33,9 @@ homeassistant:
 system_health:
 default_config:
 
+trace:
+  stored_traces: 40
+
 logger:
   default: warning
   logs:
@@ -118,7 +121,7 @@ zone:
   - name: kindergarden
     latitude: !secret latitudeBarnehage
     longitude: !secret longitudeBarnehage
-    radius: 5
+    radius: 50
     icon: mdi:ferry
 
 map:
@@ -132,8 +135,8 @@ cloud:
 
 http:
   #removed due to cloudflare. also renamed.
-  ssl_certificate: /ssl/fullchain.pem
-  ssl_key: /ssl/privkey.pem
+  #ssl_certificate: /ssl/fullchain.pem
+  #ssl_key: /ssl/privkey.pem
 
   use_x_forwarded_for: true
   trusted_proxies:
@@ -361,6 +364,29 @@ light:
 #   detect_non_ha_changes: false
 #   only_once: false
 
+mqtt:
+  switch:
+    - name: "fan_bathroom"
+      state_topic: "stat/SONOFF-2/POWER"
+      command_topic: "cmnd/SONOFF-2/POWER"
+      qos: 1
+      payload_on: "ON"
+      payload_off: "OFF"
+      retain: true
+  sensor:
+    - name: "Fan Bathroom energy"
+      state_topic: "tele/SONOFF-2/ENERGY"
+      value_template: "{{ value_json.Today }}"
+      unit_of_measurement: "kWh"
+    - name: "Fan Bathroom power"
+      state_topic: "tele/SONOFF-2/ENERGY"
+      value_template: "{{ value_json.Power }}"
+      unit_of_measurement: "W"
+    - name: "Fan Bathroom voltage"
+      state_topic: "tele/SONOFF-2/ENERGY"
+      value_template: "{{ value_json.Voltage }}"
+      unit_of_measurement: "V"
+
 switch:
   - platform: rest
     resource: http://192.168.1.88/api/printer/tool
@@ -381,15 +407,6 @@ switch:
     headers:
       Content-Type: application/json
       X-Api-Key: !secret octoprint
-
-  - platform: mqtt
-    name: "fan_bathroom"
-    state_topic: "stat/SONOFF-2/POWER"
-    command_topic: "cmnd/SONOFF-2/POWER"
-    qos: 1
-    payload_on: "ON"
-    payload_off: "OFF"
-    retain: true
 
   - platform: tellstick
 

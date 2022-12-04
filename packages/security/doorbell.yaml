@@ -36,13 +36,13 @@ doorbell:
           data_template:
             variables:
               message: Ding Dong!
+        - condition: template
+          value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
         - service: media_player.play_media
           data:
             entity_id: media_player.minis
-            #media_content_id: https://www.redringtones.com/wp-content/uploads/2016/08/usa-national-anthem.mp3
-            #media_content_id: https://archive.org/download/13BinarySunsetAlternate/01%20The%20Imperial%20March%20%28Darth%20Vader%C2%92%27s%20Theme%29.mp3
             media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
-            #media_content_id: https://hjem.sellie.no/local/sounds/ringeklokkeCaroline.mp4
+            #media_content_id: https://hjem.sellie.no/local/sounds/screams/goosebumps.mp3
             media_content_type: "music"
         # - service: camera.snapshot
         #   data:
@@ -62,18 +62,18 @@ doorbell:
         #       file: /tmp/snapshot.jpg
         # - service: script.turn_on
         #   entity_id: script.sendvideodriveway
+        # - delay:
+        #     seconds: 8
+        #         - service: media_player.play_media
+        #           data:
+        #             entity_id: media_player.minis
+        # #            media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
+        #             media_content_id: https://hjem.sellie.no/local/sounds/screams/goosebumps.mp3
+        #             media_content_type: "music"
+        # - delay:
+        #     seconds: 15
         - delay:
-            seconds: 8
-        - service: media_player.play_media
-          data:
-            entity_id: media_player.minis
-            #media_content_id: https://www.redringtones.com/wp-content/uploads/2016/08/usa-national-anthem.mp3
-            #media_content_id: https://archive.org/download/13BinarySunsetAlternate/01%20The%20Imperial%20March%20%28Darth%20Vader%C2%92%27s%20Theme%29.mp3
-            media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
-            #media_content_id: https://hjem.sellie.no/local/sounds/ringeklokkeCaroline.mp4
-            media_content_type: "music"
-        - delay:
-            seconds: 15
+            seconds: 30
         - service: media_player.media_stop
           data:
             entity_id: media_player.minis

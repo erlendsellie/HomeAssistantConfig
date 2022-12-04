@@ -27,12 +27,21 @@ vvb:
             {% else %}
               {{isLowPrice or isCheap}}
             {% endif %}
+        - name: "Using Hot Water"
+          delay_off:
+            seconds: 10
+          state: >-
+            {{
+              states.sensor.vvb_difference_statistics.state | float(default=0) < -0.5
+            }}
+
     - sensor:
         - name: "vvb_temp"
           unit_of_measurement: "°C"
           state: >-
             {%-set notUsingSpot = states.binary_sensor.usingspot.state == 'off' -%}
-            {%-set pause = states.input_boolean.vvb_on.state == 'on' -%}
+            {%-set turn_on = states.input_boolean.vvb_on.state == 'on' -%}
+            {%-set turn_off = states.input_boolean.vvb_off.state == 'on' -%}
             {%-set limit = states.input_boolean.limit_water_heater.state == 'on' -%}
             {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
             {%-set shouldNotBother = states.binary_sensor.pricedifferenceissmall.state == 'on' -%}
@@ -43,12 +52,14 @@ vvb:
             {%set is_ten_cheapest = current_hour.is_ten_cheapest %}
             {%set current_temp = states.climate.varmtvannsbereder.attributes.current_temperature  | float(default=50)%}
             {%set temp = 60%}
-            {% if limit %}
+            {% if limit or turn_off%}
               {%set temp = 20%}
-            {% elif notUsingSpot or pause%}
+            {% elif notUsingSpot or turn_on%}
               {%set temp = 70%}
             {%else%}
-            {%set temp = states.sensor.vvbsensor.state %}
+              {%set temp = states.sensor.vvbsensor.state %}
+
+
             {#{% elif shouldNotBother or notUsingSpot or pause%}
               {%set temp = 70%}
             {% elif current_hour.is_five_most_expensive %}
@@ -89,6 +100,18 @@ vvb:
             {%set bottom = states('sensor.vvb_bottom') | float%}
             {%set top = states('sensor.vvb_top') | float%}
             {{max(top,bottom)}}
+        - name: "VVB Calculated"
+          unit_of_measurement: "°C"
+          state: >-
+            {%set average = states('sensor.vvb_average')%}
+            {%set bottom = states('sensor.vvb_bottom')%}
+            {{max(average,bottom)}}
+        - name: "VVB Difference"
+          unit_of_measurement: "°C"
+          state: >-
+            {%set bottom = states.sensor.vvb_bottom.state | float%}
+            {%set top = states.sensor.vvb_top.state | float%}
+            {{bottom - top}}
 
   #Set to on always at some hours at night, to ensure hot water at morning?
   # or when car charges = start heater?
@@ -106,6 +129,7 @@ vvb:
       name: VVB Top Statistics
       state_characteristic: change
       entity_id: sensor.vvb_top
+      sampling_size: 100
       max_age:
         days: 7
 
@@ -113,12 +137,42 @@ vvb:
       name: VVB bottom Statistics
       state_characteristic: change
       entity_id: sensor.vvb_bottom
+      sampling_size: 100
       max_age:
         days: 7
+
+    - platform: statistics
+      name: VVB difference Statistics
+      entity_id: sensor.vvb_bottom
+      state_characteristic: change
+      max_age:
+        minutes: 3
+      sampling_size: 150
+      precision: 1
+
+    - platform: statistics
+      name: VVB variance top Statistics
+      entity_id: sensor.vvb_top
+      state_characteristic: variance
+      sampling_size: 100
+      max_age:
+        minutes: 15
+      precision: 1
+
+    - platform: statistics
+      name: VVB standard_deviation top Statistics
+      entity_id: sensor.vvb_top
+      state_characteristic: standard_deviation
+      sampling_size: 100
+      max_age:
+        minutes: 15
+      precision: 1
 
   input_boolean:
     vvb_on:
       name: VVB on for rest of today
+    vvb_off:
+      name: VVB off for rest of today
 
   automation:
     - id: ResetPauseVVBcontrolfortoday
@@ -126,14 +180,12 @@ vvb:
       trigger:
         - platform: time
           at: "00:00:00"
-      condition:
-        - condition: state
-          entity_id: input_boolean.vvb_on
-          state: "on"
       action:
         - service: input_boolean.turn_off
           target:
-            entity_id: input_boolean.vvb_on
+            entity_id:
+              - input_boolean.vvb_on
+              - input_boolean.vvb_off
 
     - id: VVBToggle
       alias: VVBToggle
@@ -143,15 +195,16 @@ vvb:
           # To avoid bugs during restarts, or other, trigger every hour, to avoid cold showers.
         - platform: time_pattern
           minutes: 5 #Every hour, 5 minutes over.
-        - platform: homeassistant
-          # Event can also be 'shutdown'
-          event: start
+        # - platform: homeassistant
+        #   # Event can also be 'shutdown'
+        #   event: start
       action:
         - service: climate.set_temperature
           data:
             temperature: "{{states('sensor.vvb_temp')}}"
           target:
             entity_id: climate.varmtvannsbereder
+
         - alias: "TurnOn VVB"
           service: >-
             climate.turn_on
@@ -179,7 +232,7 @@ vvb:
     - platform: generic_thermostat
       name: Varmtvannsbereder
       heater: switch.varmtvannsbereder
-      target_sensor: sensor.vvb_average
+      target_sensor: sensor.vvb_calculated
       min_temp: 40
       max_temp: 80
       precision: 1

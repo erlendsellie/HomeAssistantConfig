@@ -3,10 +3,10 @@ priceanalyzer:
     - id: reloadPowerStuff
       alias: reloadPowerStuff
       trigger:
-        - platform: time
-          at: "13:00:00"
-        - platform: time
-          at: "00:02:00"
+        # - platform: time
+        #   at: "18:00:00"
+        # - platform: time
+        #   at: "00:02:00"
       action:
         - service: homeassistant.reload_config_entry
           entity_id: sensor.priceanalyzer
@@ -20,10 +20,13 @@ priceanalyzer:
           entity_id: sensor.priceanalyzer_oslo
         - service: homeassistant.reload_config_entry
           entity_id: sensor.nordpool
-# value_template: >-
+#value_template: >-
 # {%set hour = now().hour%}
 # {%if hour > 21 or hour < 6%}
 #   {{ 0.01 }}
 # {%else%}
 #   {{0.0787 + 0.01 }}
 # {% endif %}
+
+#{"default_temp": 75, "five_most_expensive": 40, "is_falling": 50, "five_cheapest": 65, "ten_cheapest": 60, "low_price": 50, "not_cheap_not_expensive": 50, "min_price_for_day": 80}
+#{"default_temp": 75, "five_most_expensive": 40, "is_falling": 50, "five_cheapest": 70, "ten_cheapest": 60, "low_price": 50, "not_cheap_not_expensive": 50, "min_price_for_day": 80}
