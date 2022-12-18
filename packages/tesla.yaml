@@ -402,10 +402,10 @@ tesla:
     - alias: "TurnOffSentryWhenHome"
       id: "TurnOffSentryWhenHome"
       trigger:
-        - platform: template
-          value_template: "{{states('device_tracker.modely_location_tracker') != 'home'}}"
+        - platform: state
+          entity_id: device_tracker.modely_location_tracker
       action:
-        - service: switch.turn_{{trigger.to_state.state}}
+        - service: switch.turn_{{iif(states('device_tracker.modely_location_tracker') == 'home','off','on')}}
           entity_id: switch.modely_sentry_mode_switch
 
   script:

@@ -17,6 +17,13 @@ effectcontrol:
       step: 0.1
       mode: box
       unit_of_measurement: "KWh"
+    max_charger_limit:
+      name: Adjust Max Charger Limit
+      min: 5
+      max: 30
+      step: 1
+      mode: slider
+      unit_of_measurement: "A"
 
   sensor:
     - platform: template
@@ -60,7 +67,7 @@ effectcontrol:
             {% set minutes = now().minute %}
             {% set effektledd = states('input_number.effektledd') | float(default=9.8) %}
             {%-set threshold = effektledd | float(default=0)-%}
-            {{effect > threshold and minutes > 10}}
+            {{effect > threshold and minutes > 11}}
         effect_is_really_high:
           friendly_name: "Effect Is Really High"
           delay_off:
@@ -108,26 +115,25 @@ effectcontrol:
         - choose:
             - conditions:
                 - condition: template
-                  value_template: "{{states('sensor.garage_power') | int(default=0) > 0}}"
+                  value_template: "{{states('sensor.garage_power') | int(default=0) > 3000}}"
               sequence:
-                - service: input_boolean.turn_on
-                  entity_id: input_boolean.charging_was_paused
-                - service: script.pausecharging
+                - service: script.limitcharging
                 - wait_for_trigger:
                     - platform: state
                       entity_id: binary_sensor.effect_is_high
                       to: "off"
                   timeout: "01:00:00"
                   continue_on_timeout: true
-                - service: script.resumecharging
+                - service: script.dontlimitcharging
             #if VVB is drawing power, limit to  lower temp.
             - conditions:
                 - condition: template
                   value_template: "{{states.sensor.varmtvannsbereder_electric_consumption_w.state | float(default=0) > 10}}"
               sequence:
+                - service: script.limitcharging
                 - service: input_boolean.turn_on
                   entity_id: input_boolean.limit_water_heater
-                - service: script.pausecharging
+                - service: script.limitcharging
             - conditions:
                 - condition: template
                   value_template: "{{ states.input_boolean.limit_heaters.state == 'off'}}"
@@ -144,7 +150,7 @@ effectcontrol:
                 - condition: template
                   value_template: "{{now().minute > 29}}"
               sequence:
-                - service: script.pausecharging
+                - service: script.limitcharging
                 - service: input_boolean.turn_on
                   entity_id: input_boolean.limit_water_heater
                 - service: input_boolean.turn_on
@@ -161,7 +167,7 @@ effectcontrol:
                       title: Warning, high power usage.
                       message: The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.
           default:
-            - service: script.pausecharging
+            - service: script.limitcharging
             - service: input_boolean.turn_on
               entity_id: input_boolean.limit_water_heater
             - service: input_boolean.turn_on
@@ -196,7 +202,7 @@ effectcontrol:
           entity_id: input_boolean.limit_heaters
         - service: input_boolean.turn_off
           entity_id: input_boolean.limit_water_heater
-        - service: script.resumecharging
+        - service: script.dontlimitcharging
 
     - alias: chargerWasNotPaused
       id: chargertwasnotpaused
@@ -204,12 +210,25 @@ effectcontrol:
         - platform: template
           value_template: >-
             {{
-              states.sensor.garage_status.state == 'charging'
+              states('sensor.garage_power') | int(default=0) > 3000
               and
               states.input_boolean.charging_was_paused.state == 'on'
             }}
       action:
-        - service: script.pausecharging
+        - service: script.limitcharging
+
+    - id: set_max_charger_limit
+      alias: Set Max Charger Limit
+      trigger:
+        - platform: state
+          entity_id: input_number.max_charger_limit
+          for:
+            seconds: 3
+      action:
+        - service: easee.set_charger_dynamic_limit
+          data:
+            charger_id: "EHRMB4AF"
+            current: "{{trigger.to_state.state}}"
 
     # - alias: limitChargingAtDay
     #   id: limitChargingAtDay
@@ -288,6 +307,28 @@ effectcontrol:
             device_id: 6253823754803a08f0b3d8c4d7acbd30
             action_command: resume
 
+    limitcharging:
+      alias: Limit Charging
+      sequence:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.charging_was_paused
+        - service: easee.set_charger_dynamic_limit
+          data:
+            charger_id: "EHRMB4AF"
+            current: 10
+
+    dontlimitcharging:
+      alias: Dont Limit Charging
+      sequence:
+        - condition: template
+          value_template: "{{ states.input_boolean.charging_was_paused.state == 'on'}}"
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.charging_was_paused
+        - service: easee.set_charger_dynamic_limit
+          data:
+            charger_id: "EHRMB4AF"
+            current: "{{states('input_number.max_charger_limit') | float(20)}}"
+
     pausecharging:
       alias: Pause Charging
       sequence:
@@ -295,7 +336,6 @@ effectcontrol:
           data:
             device_id: 6253823754803a08f0b3d8c4d7acbd30
             action_command: pause
-
         - delay:
             seconds: 30
         - condition: template

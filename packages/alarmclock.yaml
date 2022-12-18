@@ -52,95 +52,96 @@ alarmclock:
         #     message: 'Vekking av deg startet'
         - service: script.turn_on
           entity_id: script.wakeup
+
     # - alias: ErlendWakeup
     #   id: ErlendWakeup
     #   trigger:
-    #   - platform: time
-    #     at: 06:20:00
+    #     - platform: time
+    #       at: 06:20:00
     #   condition:
     #     condition: and
     #     conditions:
-    #     - condition: time
-    #       weekday:
-    #       - mon
-    #       - tue
-    #       - wed
-    #       - thu
-    #       - fri
-    #     - condition: state
-    #       entity_id: input_boolean.easleep
-    #       state: 'on'
-    #     - condition: state
-    #       entity_id: input_boolean.casleep
-    #       state: 'off'
-    #     - condition: state
-    #       entity_id: binary_sensor.ccharging
-    #       state: 'off'
-    #     - condition: state
-    #       entity_id: input_boolean.alarmclock
-    #       state: 'on'
-    #     # - condition: state
-    #     #   entity_id: input_boolean.trymasleep
-    #     #   state: 'off'
-    #     - condition: state
-    #       entity_id: binary_sensor.erlendhome
-    #       state: 'on'
+    #       - condition: time
+    #         weekday:
+    #           - mon
+    #           - tue
+    #           - wed
+    #           - thu
+    #           - fri
+    #       - condition: state
+    #         entity_id: input_boolean.easleep
+    #         state: "on"
+    #       - condition: state
+    #         entity_id: input_boolean.casleep
+    #         state: "off"
+    #       - condition: state
+    #         entity_id: binary_sensor.ccharging
+    #         state: "off"
+    #       - condition: state
+    #         entity_id: input_boolean.alarmclock
+    #         state: "on"
+    #       # - condition: state
+    #       #   entity_id: input_boolean.trymasleep
+    #       #   state: 'off'
+    #       - condition: state
+    #         entity_id: binary_sensor.erlendhome
+    #         state: "on"
     #   action:
-    #   - service: notify.me
-    #     data:
-    #       message: 'Vekking av deg startet'
-    #   - service: script.turn_on
-    #     entity_id: script.wakeup
+    #     - service: notify.me
+    #       data:
+    #         message: "Vekking av deg startet"
+    #     - service: script.turn_on
+    #       entity_id: script.wakeup
 
-    # - alias: ErlendOverSover
-    #   id: ErlendOverSover
-    #   trigger:
-    #   - platform: time
-    #     at: 07:30:00
-    #   condition:
-    #     condition: and
-    #     conditions:
-    #     - condition: time
-    #       weekday:
-    #       - mon
-    #       - tue
-    #       - wed
-    #       - thu
-    #       - fri
-    #     - condition: state
-    #       entity_id: input_boolean.easleep
-    #       state: 'on'
-    #     - condition: state
-    #       entity_id: input_boolean.alarmclock
-    #       state: 'on'
-    #   action:
-    #   - service: script.turn_on
-    #     entity_id: script.overslept
+    - alias: ErlendOverSover
+      id: ErlendOverSover
+      trigger:
+        - platform: time
+          at: 08:30:00
+      condition:
+        condition: and
+        conditions:
+          - condition: time
+            weekday:
+              - mon
+              - tue
+              - wed
+              - thu
+              - fri
+          - condition: state
+            entity_id: input_boolean.easleep
+            state: "on"
+          - condition: state
+            entity_id: input_boolean.alarmclock
+            state: "on"
+      action:
+        - service: script.turn_on
+          entity_id: script.overslept
 
-    # - alias: ErlendOverSoverfortsatt
-    #   id: ErlendOverSoverfortsatt
-    #   trigger:
-    #   - platform: time
-    #     at: 07:55:00
-    #   condition:
-    #     condition: and
-    #     conditions:
-    #     - condition: time
-    #       weekday:
-    #       - mon
-    #       - tue
-    #       - wed
-    #       - thu
-    #       - fri
-    #     - condition: state
-    #       entity_id: binary_sensor.erlendhome
-    #       state: 'on'
-    #     - condition: state
-    #       entity_id: input_boolean.reminderlendwork
-    #       state: 'on'
-    #   action:
-    #   - service: script.turn_on
-    #     entity_id: script.stilloverslept
+    - alias: ErlendOverSoverfortsatt
+      id: ErlendOverSoverfortsatt
+      trigger:
+        - platform: time
+          at: 08:55:00
+      condition:
+        condition: and
+        conditions:
+          - condition: time
+            weekday:
+              - mon
+              - tue
+              - wed
+              - thu
+              - fri
+          - condition: state
+            entity_id: binary_sensor.erlendhome
+            state: "on"
+          - condition: state
+            entity_id: input_boolean.reminderlendwork
+            state: "on"
+      action:
+        - service: script.turn_on
+          entity_id: script.stilloverslept
 
   script:
     wakeup:

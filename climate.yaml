@@ -39,7 +39,7 @@
   heater: switch.office_heater
   target_sensor: sensor.office_temp_temperature
   precision: 0.5
-  min_temp: 14
+  min_temp: 3
   max_temp: 26
   hot_tolerance: 0.2
   keep_alive:

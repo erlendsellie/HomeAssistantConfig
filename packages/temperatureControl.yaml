@@ -295,7 +295,7 @@ temperaturecontrol:
             {%-set hour = now().hour | int(default=0)-%}
             {% set startdaywarming = states.input_datetime.nighttemp.state.split(':')[0] | float(default=0)%}
             {% set limit = states.input_boolean.limit_heaters.state == 'on' %}
-            {% if alarm == 'Disarm' or (alarm == 'Arm Home' and (hour >= startdaywarming and priceGaining or hour > startdaywarming) and hour < 16) %}
+            {% if alarm == 'Disarm' or (alarm == 'Arm Home' and (hour >= startdaywarming and priceGaining or hour > startdaywarming and hjemmeTemp > borteTemp) and hour < 16) %}
               {%-set temp = hjemmeTemp -%}
             {% elif alarm == 'Arm Home'%}
                 {%-set temp = nattaTemp -%} 
@@ -369,6 +369,7 @@ temperaturecontrol:
             {%-set priceCorrection =  states.sensor.pricecorrection.state | float(default=0) %}
             {%-set baseTemp =  states.sensor.baseheat.state | float(default=0)%}
             {%-set difference = ([baseTemp - currentTemp] | max) | round(1) %}       
+            {%-set difference = 0.0 %}       
             {%-set temp = baseTemp -%}
             {% if prettyCold %} 
               {%-set temp = temp + float(states.input_number.extradegrees.state) -%}
@@ -424,16 +425,22 @@ temperaturecontrol:
             {%-set trymaway = states.input_boolean.tryminkindergarden.state == 'on'%}
             {%-set away = states.input_select.alarm.state == 'Arm Away'%}
             {%-set windowopen = states.binary_sensor.trym_window.state == 'on'%}
+            {%-set bedroomheateron = states.switch.bedroom_heater.state == 'on' %}
+            {%-set trymtemp = states.input_number.trym_temp.state | float %}
+
             {% if away or trymaway or windowopen %}
               {%-set temp = 13%}
             {% elif trymasleep or hour > 17 %}
-              {%-set temp = 16%}
+              {%-set temp = trymtemp%}
             {% else %}
               {%-set temp = 13%}
             {% endif %}
             {% set limit = states.input_boolean.limit_heaters.state == 'on' %}
             {% if limit %}
               {%-set temp = temp - 2 -%}
+            {% endif %}
+            {% if bedroomheateron %}
+              {%-set temp = 4 -%}
             {% endif %}
             {{temp + priceCorrection}}
         tyratemp:
@@ -446,18 +453,22 @@ temperaturecontrol:
             {%-set tyraaway = states.input_boolean.tyrainkindergarden.state == 'on'%}
             {%-set away = states.input_select.alarm.state == 'Arm Away'%}
             {%-set windowopen = states.binary_sensor.tyra_window.state == 'on' %}
-
+            {%-set bedroomheateron = states.switch.bedroom_heater.state == 'on' %}
+            {%-set tyratemp = states.input_number.tyra_temp.state | float %}
             {% if away or windowopen %}
               {%-set temp = 13%}
             {% elif (tyraasleep)  or hour > 17 %}
-              {%-set temp = 17%}
+              {%-set temp = tyratemp%}
             {% else %}
               {%-set temp = 13%}
             {% endif %}
             {% set limit = states.input_boolean.limit_heaters.state == 'on' %}
             {% if limit %}
               {%-set temp = temp - 2 -%}
-            {% endif %}            
+            {% endif %}
+            {% if bedroomheateron %}
+              {%-set temp = 4 -%}
+            {% endif %}
             {{temp + priceCorrection}}
 
   binary_sensor:
@@ -1248,21 +1259,21 @@ temperaturecontrol:
   input_number:
     sokkeltemp:
       name: Sokkel Temperatur
-      min: 10
+      min: 5
       max: 30
       step: 1
       mode: slider
 
     vindfangtemp:
       name: Vindfang Temperatur
-      min: 10
+      min: 5
       max: 30
       step: 1
       mode: slider
 
     bathroomtemp:
       name: Bathroom Temperatur
-      min: 10
+      min: 5
       max: 30
       step: 1
       mode: slider
@@ -1317,3 +1328,15 @@ temperaturecontrol:
       min: -10
       max: 20
       step: 0.5
+
+    tyra_temp:
+      name: "Tyra Temperature"
+      min: 0
+      max: 25
+      step: 1
+
+    trym_temp:
+      name: "Trym Temperature"
+      min: 0
+      max: 25
+      step: 1

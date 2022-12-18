@@ -5,7 +5,22 @@ tibber_data_package:
   #    email: !secret tibber_email
   #   password: !secret tibber_password
 
+  input_number:
+    average_price_rest_of_month:
+      name: Average Price Rest Of Month
+      min: 0
+      max: 800
+      step: 1
+      mode: box
+      unit_of_measurement: "Øre"
+
   template:
+    - binary_sensor:
+        - name: "Is Price Under Subsidy"
+          state: >-
+            {%set price = (states.sensor.priceanalyzer.attributes.current_hour.value | float(default=0)) * 100%}
+            {%set subsidy = states('sensor.estimated_subsidy_for_month') | float(default=0) %}
+            {{price < subsidy}}
     - sensor:
         - name: "Subsidy"
           unit_of_measurement: "NOK"
@@ -17,6 +32,14 @@ tibber_data_package:
           state: >-
             {%set subsidy = max(states('sensor.subsidy')| float,0) %}
             {{subsidy * 100| round(2)}}
+          attributes:
+            raw_today: >-
+              {%set hours = states.sensor.nordpool.attributes.raw_today%}
+              {%set subsidy = states.sensor.subsidy_ore.state | float%}
+              {%for hour in hours%}
+              {{hour.value | float * 100 - subsidy}}
+              {%endfor%}
+
         - name: "Customer Price With Subsidy"
           unit_of_measurement: "NOK"
           state: >-
@@ -35,6 +58,12 @@ tibber_data_package:
             {%set base_price = states('sensor.nordpool') | float%}
             {%set subsidy = states('sensor.subsidy') | float%}
             {{(base_price - subsidy) | round(2)}}
+        - name: "Total Price Now With Estimated Subsidy For Month"
+          unit_of_measurement: "NOK"
+          state: >-
+            {%set totalPrice = states.sensor.priceanalyzer.attributes.current_hour.value | float(100) * 100%}
+            {%set totalEstimatedSubsidy = states.sensor.estimated_subsidy_for_month.state | float(100)%}
+            {{(totalPrice - totalEstimatedSubsidy) | round(2)}}
         - name: "Customer Monthly Cost With Subsidy"
           unit_of_measurement: "NOK"
           state: >-
@@ -53,6 +82,18 @@ tibber_data_package:
             {%set nordpool_average_cost = states('sensor.monthly_cost_with_subsidy') | float%}
             {%set customer_cost = states('sensor.customer_monthly_cost_with_subsidy') | float%}
             {{(nordpool_average_cost - customer_cost) | round(2)}}
+        - name: "Monthly Cost Nordpool Average"
+          unit_of_measurement: "NOK"
+          state: >-
+            {%set price = states('sensor.monthly_avg_price_sivert_thonstads_vei_6') | float%}
+            {%set kwh = states('sensor.monthly_net_consumption_sivert_thonstads_vei_6b') | float%}
+            {{(kwh * price) | round(2)}}
+        - name: "Monthly Saving Compared to Nordpool Average Without Subisidy"
+          unit_of_measurement: "NOK"
+          state: >-
+            {%set nordpool_average_cost = states('sensor.monthly_cost_nordpool_average') | float%}
+            {%set customer_cost = states('sensor.monthly_cost_sivert_thonstads_vei_6b') | float%}
+            {{(nordpool_average_cost - customer_cost) | round(2)}}
         - name: "Customer Daily Average"
           unit_of_measurement: "NOK"
           state: >-
@@ -68,3 +109,29 @@ tibber_data_package:
             {%set snitt = states('sensor.nordpool_daily_average') | float(default=0) %}
             {%set forbruk = states('sensor.accumulated_consumption_sivert_thonstads_vei_6b')|float(default=0) %}
             {{((snitt * forbruk) - (mitt_snitt * forbruk)) | round(2)}}
+        - name: "Estimated Subsidy For Month"
+          unit_of_measurement: "Øre"
+          state: >-
+            {%set averge_price = states.sensor.monthly_avg_price_sivert_thonstads_vei_6.state | float(default=50) * 100%}
+            {%set day_now = now().day%}
+            {%set total_days = (now().replace(month=now().month % 12 + 1, day=1) - timedelta(days=1)).day %}
+            {%set days_left = total_days - day_now %}
+            {%set averge_rest_of_month = states.input_number.average_price_rest_of_month.state | float(default=50)%}
+            {{(((((averge_price * day_now) + (averge_rest_of_month * days_left)) / total_days) - 87.5) * 0.9) | round(2)}}
+
+  automation:
+    - id: free_power
+      alias: free_power
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.is_price_under_subsidy
+          to: "on"
+      action:
+        - service: notify.me
+          data_template:
+            title: "Gratis strøm!"
+            message: >-
+              Det ser ut til å være gratis strøm nå.
+              Pris med Nettleie: {{(states.sensor.priceanalyzer.attributes.current_hour.value | float(0) * 100) | round(2)}}
+              Estimert strømstøtte: {{states('sensor.estimated_subsidy_for_month')}}
+              Gitt gjennomsnittpris resten av måneden på: {{states('input_number.average_price_rest_of_month')}}

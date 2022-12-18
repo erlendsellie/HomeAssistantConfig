@@ -18,6 +18,7 @@ homeassistant:
   unit_system: metric
   time_zone: Europe/Oslo
   currency: NOK
+  country: "NO"
 
   #whitelist_external_dirs:
   # - /tmp
@@ -79,7 +80,7 @@ zone:
   - name: Home
     latitude: !secret latitude
     longitude: !secret longitude
-    radius: 30
+    radius: 50
     icon: mdi:home
 
   - name: CloseBy
@@ -97,7 +98,7 @@ zone:
   - name: Sykehuset
     latitude: !secret latitudeSykehuset
     longitude: !secret longitudeSykehuset
-    radius: 230
+    radius: 40
     icon: mdi:hospital-building
 
   - name: Ekra

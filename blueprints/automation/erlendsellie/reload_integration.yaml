@@ -23,10 +23,10 @@ max_exceeded: silent
 trigger_variables:
   entity: !input entity
 trigger:
-  - platform: state
-    entity_id: !input entity
-    for:
-      hours: 1
+  # - platform: state
+  #   entity_id: !input entity
+  #   for:
+  #     hours: 1
   - platform: template
     value_template: >-
       {%set state = states[entity]%}
@@ -35,7 +35,7 @@ trigger:
         state == 'unavailable'
       }}
     for:
-      seconds: 20
+      minutes: 10
 action:
   - variables:
       entity: !input entity
@@ -44,7 +44,7 @@ action:
     entity_id: !input entity
   - condition: "{{ notify == true }}"
   - delay:
-      seconds: 10
+      seconds: 30
   - service: persistent_notification.create
     data:
       title: >-

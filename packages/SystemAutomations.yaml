@@ -108,6 +108,14 @@ system:
             - light.tv
             - sensor.priceanalyzer
             - sensor.pricecorrection
+            - switch.toilet_heater
+            - climate.tyra_heater
+            - climate.trym
+            - switch.office_heater
+            - switch.blanket
+            - light.tv
+            - light.sofa
+            - light.bathroom
           to: "unavailable"
           for:
             minutes: 5
@@ -137,6 +145,11 @@ system:
             - light.tv
             - sensor.priceanalyzer
             - sensor.pricecorrection
+            - switch.toilet_heater
+            - climate.tyra_heater
+            - climate.trym
+            - switch.office_heater
+            - switch.blanket
           to: "unavailable"
           for:
             minutes: 30
