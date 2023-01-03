@@ -27,7 +27,7 @@
   use_blueprint:
     path: erlendsellie/tibber_reload.yaml
     input:
-      entity: sensor.power_sivert_thonstads_vei_6b
+      entity: sensor.pulse_power
       notify: true
 - id: '1649098665941'
   alias: Nordpool - Reload Integration Blueprint
@@ -78,3 +78,14 @@
     input:
       entity: climate.tyra_heater
       notify: true
+- id: '1671622551793'
+  alias: Tag Jobb is scanned - start defrost
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: a5a72966-28f2-45b3-9004-7eba690b8e4b
+  condition: []
+  action:
+  - service: script.defrostcar
+    data: {}
+  mode: single

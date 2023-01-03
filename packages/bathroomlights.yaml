@@ -2,8 +2,11 @@ bathroomlights:
   template:
     - binary_sensor:
         - name: "Should Bathroom Lights Be On"
+          unique_id: 4afd0a31-efb0-49e0-9da8-2ae58c0a8394
           delay_off:
             minutes: 20
+          attributes:
+            motion_bathroom: "{{states.binary_sensor.motion_bathroom.state == 'on'}}"
           state: >-
             {{
               states.binary_sensor.motion_bathroom.state == 'on'

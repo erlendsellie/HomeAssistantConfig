@@ -156,7 +156,6 @@ recorder:
   purge_keep_days: 10
   exclude:
     entities:
-      # - sensor.power_sivert_thonstads_vei_6b
       # - sensor.consumptionrounded_mean
       - sensor.time_date
       - sensor.time_utc

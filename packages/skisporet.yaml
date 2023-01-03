@@ -1,60 +1,57 @@
-# skisporet:
-# #https://github.com/Olen/home-assistant-skisporet
-#   sensor:
-#     - platform: skisporet
-#       name: Saupstad-Smistad
-#       track_id: 11652
+skisporet:
+  #https://github.com/Olen/home-assistant-skisporet
+  sensor:
+    - platform: skisporet
+      name: Saupstad-Smistad
+      track_id: 1051
+      #track_id: 11652
 
-#     - platform: skisporet
-#       name: Kartet
-#       track_id: 11651
+    - platform: skisporet
+      name: Kartet
+      track_id: 11651
 
-#     - platform: skisporet
-#       name: Langmyra
-#       track_id:  39968
+    - platform: skisporet
+      name: Langmyra
+      track_id: 39968
 
-#     - platform: skisporet
-#       name: Saupstad-Granasen
-#       track_id: 11899
+    - platform: skisporet
+      name: Saupstad-Granasen
+      track_id: 11899
 
-#     - platform: skisporet
-#       name: Henriksasen
-#       track_id: 12015
-
-#   binary_sensor:
-#   - platform: template
-#     scan_interval: 3600
-#     sensors:
-#       saupstad_just_prepped:
-#         friendly_name: 'Saupstad-Smistad'
-#         value_template: >-
-#             {%-set state = states.sensor.skisporet_saupstad_smistad.state -%}
-#             {%-set stateAsTimestamp = as_timestamp(state) -%}
-#             {%-set twoHours = 120 * 60 -%}
-#             {{((as_timestamp(utcnow())) - stateAsTimestamp) < twoHours }}
-#       saupstad_granasen_just_prepped:
-#         friendly_name: 'Saupstad-Granåsen'
-#         value_template: >-
-#             {%-set state = states.sensor.skisporet_saupstad_granasen.state -%}
-#             {%-set stateAsTimestamp = as_timestamp(state) -%}
-#             {%-set twoHours = 120 * 60 -%}
-#             {{((as_timestamp(utcnow())) - stateAsTimestamp) < twoHours }}
-#   automation:
-
-
-
-#     - alias: NotifySaupstadSkisporet
-#       trigger:
-#       - platform: state
-#         entity_id: binary_sensor.saupstad_just_prepped
-#         to: 'on'
-#       - platform: state
-#         entity_id: binary_sensor.saupstad_granasen_just_prepped
-#         to: 'on'
-#       action:
-#         - service: script.turn_on
-#           entity_id: script.notify
-#           data_template:
-#             variables:
-#               title: "{{trigger.from_state.name}} ble oppkjørt nå."
-#               message: "{{trigger.from_state.name}} ble oppkjørt nå."
+    - platform: skisporet
+      name: Henriksasen
+      track_id: 12015
+  binary_sensor:
+    - platform: template
+      scan_interval: 3600
+      sensors:
+        saupstad_just_prepped:
+          friendly_name: "Saupstad-Smistad"
+          value_template: >-
+            {%-set state = states.sensor.skisporet_saupstad_smistad.state -%}
+            {%-set stateAsTimestamp = as_timestamp(state) -%}
+            {%-set twoHours = 120 * 60 -%}
+            {{((as_timestamp(utcnow())) - stateAsTimestamp) < twoHours }}
+        saupstad_granasen_just_prepped:
+          friendly_name: "Saupstad-Granåsen"
+          value_template: >-
+            {%-set state = states.sensor.skisporet_saupstad_granasen.state -%}
+            {%-set stateAsTimestamp = as_timestamp(state) -%}
+            {%-set twoHours = 120 * 60 -%}
+            {{((as_timestamp(utcnow())) - stateAsTimestamp) < twoHours }}
+  automation:
+    - alias: NotifySaupstadSkisporet
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.saupstad_just_prepped
+          to: "on"
+        - platform: state
+          entity_id: binary_sensor.saupstad_granasen_just_prepped
+          to: "on"
+      action:
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: "{{trigger.from_state.name}} ble oppkjørt nå."
+              message: "{{trigger.from_state.name}} ble oppkjørt nå."

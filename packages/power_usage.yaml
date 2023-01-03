@@ -6,7 +6,7 @@ power_usage:
           friendly_name: Power Without Easee
           unit_of_measurement: W
           value_template: >-
-            {% set main = states.sensor.power_sivert_thonstads_vei_6b.state | float(default=0)%}
+            {% set main = states.sensor.pulse_power.state | float(default=0)%}
             {{max(0,main
             - (states.sensor.garage_power.state | float(default=0)* 1000) 
             )
@@ -15,7 +15,7 @@ power_usage:
           friendly_name: Power other
           unit_of_measurement: W
           value_template: >-
-            {% set main = states('sensor.power_sivert_thonstads_vei_6b') | float(default=0)%}
+            {% set main = states('sensor.pulse_power') | float(default=0)%}
             {{max(0,main
             - (states('sensor.garage_power') | float(default=0)* 1000) 
             - (states('sensor.varmtvannsbereder_electric_consumption_w') | float(default=0)) 

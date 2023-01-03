@@ -55,7 +55,7 @@ vvb:
             {% if limit or turn_off%}
               {%set temp = 20%}
             {% elif notUsingSpot or turn_on%}
-              {%set temp = 70%}
+              {%set temp = 80%}
             {%else%}
               {%set temp = states.sensor.vvbsensor.state %}
 

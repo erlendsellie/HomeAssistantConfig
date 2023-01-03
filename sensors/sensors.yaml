@@ -1,6 +1,6 @@
 #works, but we have tibber, so.
 # - platform: integration
-#   source: sensor.power_sivert_thonstads_vei_6b
+#   source: sensor.pulse_power
 #   name: energy_spent
 #   unit_prefix: k
 #   round: 2
@@ -188,7 +188,7 @@
 
 - platform: filter
   name: "filtered consumption"
-  entity_id: sensor.power_sivert_thonstads_vei_6b
+  entity_id: sensor.pulse_power
   filters:
     - filter: throttle
       window_size: 4
@@ -200,7 +200,7 @@
 
 - platform: filter
   name: "filtered consumption extra"
-  entity_id: sensor.power_sivert_thonstads_vei_6b
+  entity_id: sensor.pulse_power
   filters:
     - filter: throttle
       window_size: 10
@@ -216,12 +216,12 @@
 
   #do not work when consumption not in logger.
 # - platform: statistics
-#   entity_id: sensor.power_sivert_thonstads_vei_6b
+#   entity_id: sensor.pulse_power
 #   name: consumptionRounded
 #   sampling_size: 30
 
 # - platform: statistics
-#   entity_id: sensor.power_sivert_thonstads_vei_6b
+#   entity_id: sensor.pulse_power
 #   name: consumptionRoundedMore
 #   sampling_size: 90
 

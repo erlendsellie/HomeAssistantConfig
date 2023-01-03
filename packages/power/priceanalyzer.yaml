@@ -20,6 +20,26 @@ priceanalyzer:
           entity_id: sensor.priceanalyzer_oslo
         - service: homeassistant.reload_config_entry
           entity_id: sensor.nordpool
+
+    - id: tomorrow_valid_wrong
+      alias: tomorrow_valid_wrong
+      trigger:
+        - platform: time
+          at: 03:00:00
+      condition:
+        - condition: state
+          entity_id: binary_sensor.priceanalyzer_tomorrow_valid
+          state: "on"
+      action:
+        - service: script.turn_on
+          entity_id: script.notify
+          data_template:
+            variables:
+              title: Tomorrow_valid is wrong for Priceanalyzer!
+              message: >-
+                Nordpool tomorrow valid is {{states('binary_sensor.nordpool_tomorrow_valid')}}.
+                What about raw_tomorrow?
+
 #value_template: >-
 # {%set hour = now().hour%}
 # {%if hour > 21 or hour < 6%}

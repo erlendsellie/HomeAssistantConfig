@@ -32,7 +32,7 @@ effectcontrol:
           friendly_name: Effekttrend inneværende time
           unit_of_measurement: KW
           value_template: >-
-            {% set usage = states.sensor.accumulated_consumption_current_hour_sivert_thonstads_vei_6b.state | float(default=0)%}
+            {% set usage = states.sensor.accumulated_consumption_current_hour.state | float(default=0)%}
             {% set minutes = now().minute %}
             {% set seconds = now().second %}
             {%if minutes%}
@@ -45,7 +45,7 @@ effectcontrol:
           friendly_name: Effekttrend inneværende dag
           unit_of_measurement: KW
           value_template: >-
-            {% set usage = states.sensor.accumulated_consumption_sivert_thonstads_vei_6b.state | float(default=0)%}
+            {% set usage = states.sensor.accumulated_consumption_current_hour.state | float(default=0)%}
             {% set minutes = now().minute %}
             {% set hour = now().hour %}
             {%if minutes%}
@@ -54,7 +54,19 @@ effectcontrol:
             {%else%}
               {{usage | round (2)}}
             {%endif%}
-
+        amshan_increase_possible:
+          friendly_name: "Amshan increase possible"
+          unit_of_measurement: "kWh"
+          value_template: >-
+            {% set usage = states.sensor.effekt_denne_timen_trend.state | float%}
+            {% set limit = states.input_number.effektledd.state | float%}
+            {% set safe = 0.3 %}
+            {% set minutes = now().minute %}
+            {% set seconds = now().second %}
+              {%if minutes%}
+              {% set timeLeft = (3600 - ((minutes * 60) + seconds)) %}
+            {{ ((limit - usage - safe) * (3600 / timeLeft)) | round (2)}}
+            {%endif%}
   binary_sensor:
     - platform: template
       sensors:
@@ -115,25 +127,24 @@ effectcontrol:
         - choose:
             - conditions:
                 - condition: template
-                  value_template: "{{states('sensor.garage_power') | int(default=0) > 3000}}"
+                  value_template: "{{states('sensor.garage_power') | int(default=0) > 1}}"
               sequence:
-                - service: script.limitcharging
+                - service: script.pausecharging
                 - wait_for_trigger:
                     - platform: state
                       entity_id: binary_sensor.effect_is_high
                       to: "off"
                   timeout: "01:00:00"
                   continue_on_timeout: true
-                - service: script.dontlimitcharging
+                - service: script.resumecharging
             #if VVB is drawing power, limit to  lower temp.
             - conditions:
                 - condition: template
                   value_template: "{{states.sensor.varmtvannsbereder_electric_consumption_w.state | float(default=0) > 10}}"
               sequence:
-                - service: script.limitcharging
+                - service: script.pausecharging
                 - service: input_boolean.turn_on
                   entity_id: input_boolean.limit_water_heater
-                - service: script.limitcharging
             - conditions:
                 - condition: template
                   value_template: "{{ states.input_boolean.limit_heaters.state == 'off'}}"
@@ -150,7 +161,7 @@ effectcontrol:
                 - condition: template
                   value_template: "{{now().minute > 29}}"
               sequence:
-                - service: script.limitcharging
+                - service: script.pausecharging
                 - service: input_boolean.turn_on
                   entity_id: input_boolean.limit_water_heater
                 - service: input_boolean.turn_on
@@ -167,7 +178,7 @@ effectcontrol:
                       title: Warning, high power usage.
                       message: The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.
           default:
-            - service: script.limitcharging
+            - service: script.pausecharging
             - service: input_boolean.turn_on
               entity_id: input_boolean.limit_water_heater
             - service: input_boolean.turn_on
@@ -202,7 +213,7 @@ effectcontrol:
           entity_id: input_boolean.limit_heaters
         - service: input_boolean.turn_off
           entity_id: input_boolean.limit_water_heater
-        - service: script.dontlimitcharging
+        - service: script.resumecharging
 
     - alias: chargerWasNotPaused
       id: chargertwasnotpaused
@@ -210,12 +221,12 @@ effectcontrol:
         - platform: template
           value_template: >-
             {{
-              states('sensor.garage_power') | int(default=0) > 3000
+              states('sensor.garage_power') | int(default=0) > 3
               and
               states.input_boolean.charging_was_paused.state == 'on'
             }}
       action:
-        - service: script.limitcharging
+        - service: script.pausecharging
 
     - id: set_max_charger_limit
       alias: Set Max Charger Limit
@@ -225,7 +236,7 @@ effectcontrol:
           for:
             seconds: 3
       action:
-        - service: easee.set_charger_dynamic_limit
+        - service: easee.set_charger_max_limit
           data:
             charger_id: "EHRMB4AF"
             current: "{{trigger.to_state.state}}"
@@ -332,6 +343,8 @@ effectcontrol:
     pausecharging:
       alias: Pause Charging
       sequence:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.charging_was_paused
         - service: easee.action_command
           data:
             device_id: 6253823754803a08f0b3d8c4d7acbd30

@@ -112,12 +112,26 @@ tibber_data_package:
         - name: "Estimated Subsidy For Month"
           unit_of_measurement: "Øre"
           state: >-
-            {%set averge_price = states.sensor.monthly_avg_price_sivert_thonstads_vei_6.state | float(default=50) * 100%}
+            {%set averge_price = states.sensor.monthly_avg_price_sivert_thonstads_vei_6.state | float(default=2.5) * 100%}
             {%set day_now = now().day%}
             {%set total_days = (now().replace(month=now().month % 12 + 1, day=1) - timedelta(days=1)).day %}
             {%set days_left = total_days - day_now %}
             {%set averge_rest_of_month = states.input_number.average_price_rest_of_month.state | float(default=50)%}
             {{(((((averge_price * day_now) + (averge_rest_of_month * days_left)) / total_days) - 87.5) * 0.9) | round(2)}}
+
+  sensor:
+    - platform: rest
+      name: stromstotte_compensation
+      scan_interval: 7200
+      unit_of_measurement: NOK
+      json_attributes:
+        - value_json[42]
+      resource: https://raw.githubusercontent.com/martinju/stromstotte/master/data/current_estimated_compensation.json
+      value_template: >-
+        {%set mean_pos = 31%}
+        {%set mean = value_json[mean_pos]%}
+        {{mean.compensation}}
+      force_update: false
 
   automation:
     - id: free_power

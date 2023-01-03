@@ -1,0 +1,29 @@
+amshan:
+  sensor:
+    - platform: integration
+      source: sensor.pulse_power
+      name: accumulated consumption
+      unique_id: accumulated_consumption
+      round: 4
+      unit_prefix: k
+      unit_time: h
+      method: left
+
+  utility_meter:
+    accumulated_consumption_current_hour:
+      source: sensor.accumulated_consumption
+      cycle: hourly
+      name: accumulated consumption current hour
+      unique_id: sensor.accumulated_consumption_current_hour
+
+    accumulated_consumption_current_day:
+      source: sensor.accumulated_consumption
+      cycle: daily
+      name: accumulated consumption current day
+      unique_id: sensor.accumulated_consumption_current_day
+
+    accumulated_consumption_current_month:
+      source: sensor.accumulated_consumption
+      cycle: monthly
+      name: accumulated consumption current month
+      unique_id: sensor.accumulated_consumption_current_month

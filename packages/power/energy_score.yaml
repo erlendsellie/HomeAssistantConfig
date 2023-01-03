@@ -4,7 +4,7 @@ energy_score:
       name: Energy Score Total
       unique_id: AC816DB0-868A-431C-92AE-CBD46A864DC51
       price_entity: sensor.nordpool
-      energy_entity: sensor.power_sivert_thonstads_vei_6b
+      energy_entity: sensor.pulse_power
 
     - platform: energyscore
       name: Energy Score Bathroom

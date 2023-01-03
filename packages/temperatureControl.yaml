@@ -211,6 +211,8 @@ temperaturecontrol:
         pricecorrection:
           friendly_name: "Price Analyzer"
           unit_of_measurement: "°C"
+          attribute_templates:
+            source: "{{ states.sensor.priceanalyzer.state }}"
           value_template: >-
             {%set analyzer = states.sensor.priceanalyzer%}
             {%set current_hour = analyzer.attributes.current_hour%}

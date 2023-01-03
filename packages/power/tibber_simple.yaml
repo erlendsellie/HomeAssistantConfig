@@ -5,18 +5,18 @@ tibber_simple:
       alias: reloadTibberSimple
       trigger:
         - platform: state
-          entity_id: sensor.power_sivert_thonstads_vei_6b
+          entity_id: sensor.pulse_power
           for:
             seconds: 30
         - platform: state
-          entity_id: sensor.power_sivert_thonstads_vei_6b
+          entity_id: sensor.pulse_power
           for:
             minutes: 2
       action:
         - service: homeassistant.reload_config_entry
-          entity_id: sensor.power_sivert_thonstads_vei_6b
+          entity_id: sensor.pulse_power
         - service: persistent_notification.create
           data:
             title: Tibber var utilgjengelig, relastet integrasjonen
             message: >-
-              Sist endret for {{relative_time(states.sensor.power_sivert_thonstads_vei_6b.last_changed)}} siden
+              Sist endret for {{relative_time(states.sensor.pulse_power.last_changed)}} siden

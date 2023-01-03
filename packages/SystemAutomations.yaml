@@ -22,15 +22,15 @@ system:
     #           - [GitHub](https://github.com/home-assistant/core/releases/tag/{{ trigger.to_state.attributes.newest_version }})
     #           - [home-assistant.io]({{ trigger.to_state.attributes.release_notes }})
 
-    # - alias: "System - Set Custom Theme at Startup"
-    #   trigger:
-    #     platform: homeassistant
-    #     event: start
-    #   action:
-    #     service: frontend.set_theme
-    #     data:
-    #       name: ios-dark-mode-copy
-    #       mode: dark
+    - alias: "System - Set Custom Theme at Startup"
+      trigger:
+        platform: homeassistant
+        event: start
+      action:
+        service: frontend.set_theme
+        data:
+          name: ios-dark-mode
+          mode: dark
 
     - alias: Restart Home Assistant When High Memory
       trigger:
@@ -85,6 +85,7 @@ system:
         - platform: state
           entity_id:
             - sensor.accumulated_consumption_current_hour_sivert_thonstads_vei_6b
+            - sensor.accumulated_consumption_current_hour
             - sensor.modely
             - sensor.stua_temperature
             - climate.varmepumpe
@@ -122,6 +123,7 @@ system:
         - platform: state
           entity_id:
             - sensor.accumulated_consumption_current_hour_sivert_thonstads_vei_6b
+            - sensor.accumulated_consumption_current_hour
             - sensor.modely
             - sensor.stua_temperature
             - climate.varmepumpe
