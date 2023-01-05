@@ -2,8 +2,8 @@ tibber_data_package:
   #custom component for additional data from tibber
   # https://github.com/Danielhiversen/home_assistant_tibber_data
   tibber_data:
-  #    email: !secret tibber_email
-  #   password: !secret tibber_password
+    email: !secret tibber_email
+    password: !secret tibber_password
 
   input_number:
     average_price_rest_of_month:

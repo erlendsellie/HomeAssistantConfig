@@ -1,26 +1,53 @@
 skisporet:
   #https://github.com/Olen/home-assistant-skisporet
   sensor:
-    - platform: skisporet
-      name: Saupstad-Smistad
-      track_id: 1051
-      #track_id: 11652
+    # - platform: skisporet
+    #   name: Saupstad-Smistad
+    #   track_id: 1051
+    #   #track_id: 11652
 
-    - platform: skisporet
-      name: Kartet
-      track_id: 11651
+    # - platform: skisporet
+    #   name: Kartet
+    #   track_id: 11651
 
-    - platform: skisporet
-      name: Langmyra
-      track_id: 39968
+    # - platform: skisporet
+    #   name: Langmyra
+    #   track_id: 39968
 
-    - platform: skisporet
-      name: Saupstad-Granasen
-      track_id: 11899
+    # - platform: skisporet
+    #   name: Saupstad-Granasen
+    #   track_id: 11899
 
-    - platform: skisporet
-      name: Henriksasen
-      track_id: 12015
+    # - platform: skisporet
+    #   name: Henriksasen
+    #   track_id: 12015
+
+    - platform: rest
+      name: Skisporet Saupstad-Granåsen
+      unique_id: 48f12a1e-3824-4309-8653-34667eb812c8
+      scan_interval: 300
+      json_attributes:
+        - value_json
+      resource: https://beta.skisporet.no/map/segment/55815?_data=routes%2Fmap%2Fsegment.%24segmentId
+      value_template: >-
+        {%set prep = value_json.segment.newestPrep%}
+        {%set days = prep.days | float(default=0)%}
+        {%set hours = prep.hours | float(default=0) * 60 * 60%}
+        {{utcnow() - timedelta(days,hours)}}
+
+    - platform: rest
+      unique_id: 48f12a1e-3824-4309-8653-34667eb812c9
+      name: Skisporet Saupstad-Kartet
+      scan_interval: 300
+      json_attributes:
+        - value_json
+      resource: https://beta.skisporet.no/map/segment/11652?_data=routes%2Fmap%2Fsegment.%24segmentId
+      value_template: >-
+        {%set prep = value_json.segment.newestPrep%}
+        {%set days = prep.days | float(default=0)%}
+        {%set hours = prep.hours | float(default=0) * 60 * 60%}
+        {{utcnow() - timedelta(days,hours)}}
+
   binary_sensor:
     - platform: template
       scan_interval: 3600

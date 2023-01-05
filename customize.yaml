@@ -255,3 +255,8 @@ device_tracker.tesla_model_y_location_tracker:
   icon: mdi:car-electric
 device_tracker.modely_location_tracker:
   icon: mdi:car-electric
+
+sensor.skisporet_saupstad_kartet:
+  device_class: timestamp
+sensor.skisporet_saupstad_granasen:
+  device_class: timestamp

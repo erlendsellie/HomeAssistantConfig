@@ -58,22 +58,6 @@ vvb:
               {%set temp = 80%}
             {%else%}
               {%set temp = states.sensor.vvbsensor.state %}
-
-
-            {#{% elif shouldNotBother or notUsingSpot or pause%}
-              {%set temp = 70%}
-            {% elif current_hour.is_five_most_expensive %}
-              {%set temp = 40%}
-            {% elif current_hour.is_five_cheapest %}
-              {%set temp = 75%}
-            {% elif current_hour.is_falling%}
-              {%set temp = 50%}
-            {% elif is_ten_cheapest%}
-              {%set temp = 65%}
-            {% elif isLowPrice or isCheap %}
-              {%set temp = 60%}
-            {%else%}
-              {%set temp = 50%}#}
             {% endif %}
             {{temp}}
         - name: "VVB Average"
@@ -102,10 +86,17 @@ vvb:
             {{max(top,bottom)}}
         - name: "VVB Calculated"
           unit_of_measurement: "°C"
+          #Todo add so that both top and bottom must be at setpoint?
           state: >-
-            {%set average = states('sensor.vvb_average')%}
-            {%set bottom = states('sensor.vvb_bottom')%}
-            {{max(average,bottom)}}
+            {%set average = states('sensor.vvb_average') | float(default=50)%}
+            {%set bottom = states('sensor.vvb_bottom') | float(default=50)%}
+            {%set top = states('sensor.vvb_top') | float(default=50)%}
+            {%set max_temp = max(average,bottom)%}
+            {%set temp = max_temp%}
+            {%if top < 50%}
+              {%set temp = top%}
+            {% endif %}
+            {{temp}}
         - name: "VVB Difference"
           unit_of_measurement: "°C"
           state: >-
