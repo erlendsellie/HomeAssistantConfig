@@ -96,7 +96,7 @@ system:
             - switch.garage_esp32
             - binary_sensor.vindfang_door
             - sensor.nordpool
-            - media_player.google_tv
+            - media_player.nvidia_shield
             - lock.ytterdor
             - switch.garage_esp32
             - device_tracker.oneplus
@@ -134,7 +134,7 @@ system:
             - switch.garage_esp32
             - binary_sensor.vindfang_door
             - sensor.nordpool
-            - media_player.google_tv
+            - media_player.nvidia_shield
             - lock.ytterdor
             - switch.garage_esp32
             - device_tracker.oneplus

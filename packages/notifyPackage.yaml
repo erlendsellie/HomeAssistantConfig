@@ -382,7 +382,7 @@ notifypackage:
               #   entity_id: switch.circadian_lighting_circadian_stua
             - conditions:
                 - condition: state
-                  entity_id: media_player.google_tv
+                  entity_id: media_player.nvidia_shield
                   state: "playing"
                 - condition: state
                   entity_id: person.erlend
@@ -393,7 +393,7 @@ notifypackage:
                     or states.binary_sensor.trym_home.state == 'off' }}
               sequence:
                 - service: media_player.media_pause
-                  entity_id: media_player.google_tv
+                  entity_id: media_player.nvidia_shield
                 - wait_for_trigger:
                     - platform: state
                       entity_id: sensor.oneplus_audio_mode
@@ -401,9 +401,9 @@ notifypackage:
                   timeout: "02:00:00"
                   continue_on_timeout: false
                 - condition: template
-                  value_template: "{{ states.media_player.google_tv.state != 'playing'}}"
+                  value_template: "{{ states.media_player.nvidia_shield.state != 'playing'}}"
                 - service: media_player.media_play
-                  entity_id: media_player.google_tv
+                  entity_id: media_player.nvidia_shield
 
     - alias: lunchtime
       trigger:
@@ -577,7 +577,7 @@ notifypackage:
       alias: Notify When Motion Outside On Shield
       sequence:
         - condition: template
-          value_template: "{{states.media_player.google_tv.state != 'off'}}"
+          value_template: "{{states.media_player.nvidia_shield.state != 'off'}}"
         # - service: notify.shield_gentle
         #   data_template:
         #     message: 'Motion Outside'

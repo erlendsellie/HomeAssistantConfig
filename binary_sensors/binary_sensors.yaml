@@ -93,9 +93,9 @@
     bed_tv_idle:
       friendly_name: "Bed TV Idle"
       value_template: >-
-        {{(states.media_player.bedroom.state == 'idle' or 
-        states.media_player.bedroom.state == 'paused' or 
-        states.media_player.bedroom.state == 'off')
+        {{(states.media_player.google_tv.state == 'idle' or 
+        states.media_player.google_tv.state == 'paused' or 
+        states.media_player.google_tv.state == 'off')
         and states.media_player.tv_soverommet.state == 'on'}}
       delay_on:
         minutes: 5

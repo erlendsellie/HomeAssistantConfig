@@ -13,7 +13,7 @@ living_room_tags:
 
       # - service: media_extractor.play_media
       #   data:
-      #     entity_id: media_player.google_tv
+      #     entity_id: media_player.nvidia_shield
       #     media_content_id: "https://www.youtube.com/watch?v=84AJflQ8YRc"
       #     media_content_type: video/youtube
 
@@ -24,10 +24,10 @@ living_room_tags:
       action:
         - service: media_player.turn_on
           data:
-            entity_id: media_player.google_tv
+            entity_id: media_player.nvidia_shield
         - service: media_player.select_source
           data:
-            entity_id: media_player.google_tv
+            entity_id: media_player.nvidia_shield
             source: "Plex"
         - delay:
             seconds: 2

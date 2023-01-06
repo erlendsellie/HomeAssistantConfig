@@ -95,7 +95,7 @@ stua_tapdial:
                   value_template: "{{ action == two_hold }}"
               sequence:
                 - service: media_player.media_play_pause
-                  entity_id: media_player.google_tv
+                  entity_id: media_player.nvidia_shield
         - delay:
             seconds: 10
         - service: input_select.select_option

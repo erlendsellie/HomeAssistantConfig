@@ -79,10 +79,10 @@ garminwebhookscaroline:
                           state: "on"
                       sequence:
                         - service: media_player.media_play_pause
-                          entity_id: media_player.bedroom
+                          entity_id: media_player.google_tv
                     - conditions:
                         - condition: template
-                          value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.google_tv.state != 'paused' and states.media_player.google_tv.state != 'playing'))}}"
+                          value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.nvidia_shield.state != 'paused' and states.media_player.nvidia_shield.state != 'playing'))}}"
                       sequence:
                         - service: media_player.media_play_pause
                           entity_id: media_player.musikkstua
@@ -92,7 +92,7 @@ garminwebhookscaroline:
                           state: "off"
                       sequence:
                         - service: media_player.media_play_pause
-                          entity_id: media_player.google_tv
+                          entity_id: media_player.nvidia_shield
             - conditions:
                 - condition: template
                   value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
@@ -212,7 +212,7 @@ garminwebhookscaroline:
                           state: "off"
                       sequence:
                         # - service: media_player.toggle
-                        #   entity_id: media_player.google_tv
+                        #   entity_id: media_player.nvidia_shield
                         - service: media_player.toggle
                           entity_id: media_player.tv_stua
                     - conditions:
@@ -224,7 +224,7 @@ garminwebhookscaroline:
                           state: "off"
                       sequence:
                         - service: media_player.turn_on
-                          entity_id: media_player.bedroom
+                          entity_id: media_player.google_tv
                     - conditions:
                         - condition: state
                           entity_id: input_boolean.casleep

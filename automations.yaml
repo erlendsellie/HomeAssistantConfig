@@ -1,91 +1,91 @@
-- id: '1616060381373'
+- id: "1616060381373"
   alias: Tag Brikke is scanned
-  description: ''
+  description: ""
   trigger:
-  - platform: tag
-    tag_id: b51cc136-c0d6-4ddc-9795-958eda69188a
+    - platform: tag
+      tag_id: b51cc136-c0d6-4ddc-9795-958eda69188a
   condition: []
   action:
-  - service: media_extractor.play_media
-    data:
-      entity_id: media_player.google_tv
-      media_content_id: https://www.youtube.com/watch?v=EwhFNvfNVPk&t=117s
+    - service: media_extractor.play_media
+      data:
+        entity_id: media_player.nvidia_shield
+        media_content_id: https://www.youtube.com/watch?v=EwhFNvfNVPk&t=117s
   mode: single
-- id: '1612620277117'
+- id: "1612620277117"
   alias: Cast to Google Hub
   mode: restart
-  description: ''
+  description: ""
   use_blueprint:
     path: kind3r/cast-and-re-cast-a-lovelace-view-to-a-google-hub.yaml
     input:
       dashboard: lovelace
       player: media_player.kitchen_display
       view: cast
-- id: '1649081912664'
+- id: "1649081912664"
   alias: Tibber - Reload Integration Blueprint
-  description: ''
+  description: ""
   use_blueprint:
     path: erlendsellie/tibber_reload.yaml
     input:
       entity: sensor.pulse_power
       notify: true
-- id: '1649098665941'
+- id: "1649098665941"
   alias: Nordpool - Reload Integration Blueprint
-  description: ''
+  description: ""
   use_blueprint:
     path: erlendsellie/nordpool_reload.yaml
     input:
       entity: sensor.nordpool
       notify: true
-- id: '1666519974103'
+- id: "1666519974103"
   alias: PriceAnalyzer - Control Hot Water Tank
-  description: ''
+  description: ""
   use_blueprint:
     path: erlendsellie/priceanalyzer_vvb.yaml
     input:
       sensor: sensor.vvbsensor
       climate: climate.varmtvannsbereder
   mode: single
-- id: '1669413053126'
+- id: "1669413053126"
   alias: Turn off vvb at 12
-  description: ''
+  description: ""
   trigger:
-  - platform: time
-    at: 00:01:00
+    - platform: time
+      at: 00:01:00
   condition: []
   action:
-  - service: input_boolean.turn_on
-    data: {}
-    target:
-      entity_id: input_boolean.vvb_off
-  - service: notify.mobile_app_oneplus
-    data:
-      message: Turning off vvb
+    - service: input_boolean.turn_on
+      data: {}
+      target:
+        entity_id: input_boolean.vvb_off
+    - service: notify.mobile_app_oneplus
+      data:
+        message: Turning off vvb
   mode: single
-- id: '1670796220883'
+- id: "1670796220883"
   alias: Reload Integration - Mill Trym
-  description: ''
+  description: ""
   use_blueprint:
     path: erlendsellie/reload_integration.yaml
     input:
       entity: climate.trym
       notify: true
-- id: '1670796277164'
+- id: "1670796277164"
   alias: Reload Integration Tyra Mill
-  description: ''
+  description: ""
   use_blueprint:
     path: erlendsellie/reload_integration.yaml
     input:
       entity: climate.tyra_heater
       notify: true
-- id: '1671622551793'
+- id: "1671622551793"
   alias: Tag Jobb is scanned - start defrost
-  description: ''
+  description: ""
   trigger:
-  - platform: tag
-    tag_id: a5a72966-28f2-45b3-9004-7eba690b8e4b
+    - platform: tag
+      tag_id: a5a72966-28f2-45b3-9004-7eba690b8e4b
   condition: []
   action:
-  - service: script.defrostcar
-    data: {}
+    - service: script.defrostcar
+      data: {}
   mode: single

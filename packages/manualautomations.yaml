@@ -917,7 +917,7 @@ manualautomations:
     - alias: TvLightsWhenTVOff
       trigger:
         - platform: state
-          entity_id: media_player.google_tv
+          entity_id: media_player.nvidia_shield
           to: "Off"
           for:
             seconds: 4
@@ -978,22 +978,22 @@ manualautomations:
     - alias: bedroomtvOnWrong
       trigger:
         # - platform: state
-        #   entity_id: media_player.tv_soverommet #Maybe media_player.bedroom, check states for chromecast first.
+        #   entity_id: media_player.tv_soverommet #Maybe media_player.google_tv, check states for chromecast first.
         #   to: 'on'
         #   for:
         #     seconds: 20
         - platform: state
-          entity_id: media_player.bedroom
+          entity_id: media_player.google_tv
           to: "Idle"
           for:
             seconds: 20
         - platform: state
-          entity_id: media_player.bedroom
+          entity_id: media_player.google_tv
           to: "Playing"
           for:
             seconds: 20
         - platform: state
-          entity_id: media_player.bedroom
+          entity_id: media_player.google_tv
           to: "Paused"
           for:
             seconds: 20
@@ -1051,13 +1051,13 @@ manualautomations:
           entity_id: media_player.tv_soverommet
           to: "unavailable"
         - platform: state
-          entity_id: media_player.bedroom
+          entity_id: media_player.google_tv
           to: "off"
           for:
             minutes: 5
       action:
         - service: media_player.media_stop
-          entity_id: media_player.bedroom
+          entity_id: media_player.google_tv
         - service: media_player.turn_off
           entity_id: media_player.tv_soverommet
 
@@ -1075,7 +1075,7 @@ manualautomations:
           for:
             minutes: 240
         - platform: state
-          entity_id: media_player.bedroom
+          entity_id: media_player.google_tv
           to: "on"
           for:
             minutes: 118
@@ -1089,22 +1089,22 @@ manualautomations:
           entity_id: binary_sensor.bed_tv_idle
           to: "on"
         - platform: state
-          entity_id: media_player.bedroom
+          entity_id: media_player.google_tv
           to: "off"
           for:
             minutes: 15
         - platform: state
-          entity_id: media_player.bedroom
+          entity_id: media_player.google_tv
           to: "idle"
           for:
             minutes: 5
         - platform: state
-          entity_id: media_player.bedroom
+          entity_id: media_player.google_tv
           to: "Idle"
           for:
             minutes: 5
         - platform: state
-          entity_id: media_player.bedroom
+          entity_id: media_player.google_tv
           to: "Paused"
           for:
             minutes: 15
@@ -1261,7 +1261,7 @@ manualautomations:
     #   action:
     #     - service: media_player.turn_on
     #       data: {}
-    #       entity_id: media_player.bedroom
+    #       entity_id: media_player.google_tv
     #   mode: single
 
   script:
@@ -1271,4 +1271,4 @@ manualautomations:
         - service: media_player.turn_off
           entity_id: media_player.tv_soverommet
         - service: media_player.turn_off
-          entity_id: media_player.bedroom
+          entity_id: media_player.google_tv
