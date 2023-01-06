@@ -19,7 +19,14 @@ effectcontrol:
       unit_of_measurement: "KWh"
     max_charger_limit:
       name: Adjust Max Charger Limit
-      min: 5
+      min: 6
+      max: 30
+      step: 1
+      mode: slider
+      unit_of_measurement: "A"
+    easee_dynamic_limit:
+      name: Dynamic Limit
+      min: 6
       max: 30
       step: 1
       mode: slider
@@ -75,7 +82,16 @@ effectcontrol:
             {% set pf = states('sensor.power_factor_sivert_thonstads_vei_6b')| float(default=99) / 100%}
             {% set V = states('sensor.garage_voltage') | float(default=240)%}
             {{min(40,(W / ((sqrt(3)) * pf * V))) | round(0)}}
-
+        easee_ampere_limit:
+          friendly_name: "Easee Ampere Limit"
+          unit_of_measurement: A
+          value_template: >-
+            {% set default = states('input_number.easee_dynamic_limit') | float(default=20)%}
+            {% set adjustment = states('sensor.ampere_increase_possible')| float(default=0)%}
+            {% set return = default + adjustment%}
+            {% set return = max(6,return)%}
+            {% set return = min(30,return)%}
+            {{return}}
   binary_sensor:
     - platform: template
       sensors:
@@ -101,11 +117,21 @@ effectcontrol:
             {{effect > threshold and minutes > 20}}
 
   automation:
-    ###
-    ##
-    ##if charging, adjust charge limit every 2 minutes
-    ##
-    ##
+    - id: dynamiccharging
+      alias: dynamiccharging
+      trigger:
+        - platform: time_pattern
+          minutes: "/2"
+        - platform: state
+          entity_id: input_number.dynamic_limit
+      condition:
+        - condition: template
+          value_template: "{{states('sensor.garage_power') | int(default=0) > 1}}"
+      action:
+        - service: easee.set_charger_dynamic_limit
+          data:
+            charger_id: "EHRMB4AF"
+            current: "{{states('sensor.easee_ampere_limit')}}"
 
     - alias: "EffectTurnDownPowerWhenHigh"
       id: "EffectTurnDownPowerWhenHigh"

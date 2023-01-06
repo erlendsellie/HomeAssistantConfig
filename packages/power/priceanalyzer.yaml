@@ -25,7 +25,7 @@ priceanalyzer:
       alias: tomorrow_valid_wrong
       trigger:
         - platform: time
-          at: 03:00:00
+          at: 12:00:00
       condition:
         - condition: state
           entity_id: binary_sensor.priceanalyzer_tomorrow_valid
