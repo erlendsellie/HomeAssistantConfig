@@ -363,7 +363,19 @@ light:
 #   take_over_control: false
 #   detect_non_ha_changes: false
 #   only_once: false
-
+proxmoxve:
+  - host: 192.168.1.100
+    username: homeassistant
+    password: !secret proxmox_password
+    verify_ssl: false
+    realm: pve
+    nodes:
+      - node: tinyprox
+        vms:
+          - 101
+        containers:
+          - 102
+          - 103
 mqtt:
   switch:
     - name: "fan_bathroom"
