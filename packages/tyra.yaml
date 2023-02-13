@@ -52,7 +52,7 @@ tyra:
     #           - action: tyrasoveron
     #             title: Ja
     #             destructive: true
-    #   - service: notify.mobile_app_caroline
+    #   - service: notify.mobile_app_caroline_pixel
     #     data_template:
     #       title: 'Slå på'
     #       message: 'Tyra sover?'
@@ -101,6 +101,22 @@ tyra:
     #   - service: input_boolean.turn_on
     #     entity_id: input_boolean.tyraasleep
 
+    - alias: "TurnOnTyraAsleepByLight"
+      trigger:
+        - platform: state
+          entity_id: light.tyra
+          to: "off"
+      condition:
+        - condition: time
+          after: "11:30:00"
+          before: "12:45:00"
+        - condition: state
+          entity_id: binary_sensor.tyra_motion
+          state: "on"
+      action:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.tyraasleep
+
     - alias: "TurnOTyraAsleepByDoor"
       trigger:
         - platform: state
@@ -127,7 +143,7 @@ tyra:
           to: "on"
       condition:
         condition: time
-        after: "05:15:00"
+        after: "04:10:00"
         before: "18:00:00"
       action:
         - service: input_boolean.turn_off
@@ -170,14 +186,13 @@ tyra:
         - service: light.turn_off
           data_template:
             entity_id:
-              - light.tyra_2
-              - light.tyra_3
-              #- light.tyra
+              - light.tyra
         - service: light.turn_on
           data_template:
             brightness_pct: "1"
             entity_id:
-              - light.tyra_1
+              - light.tyra_ball
+            color_name: "pink"
         # - service: light.turn_on
         #   entity_id: light.upstairs
         #   data_template:

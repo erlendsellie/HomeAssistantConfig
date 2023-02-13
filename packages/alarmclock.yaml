@@ -126,7 +126,7 @@ alarmclock:
       condition:
         condition: and
         conditions:
-          - condition: time
+          - condition: time  
             weekday:
               - mon
               - tue
@@ -160,7 +160,7 @@ alarmclock:
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.clock
-            volume_level: "0.35"
+            volume_level: "0.45"
         # - service: media_player.play_media
         #   entity_id: media_player.clock
         #   data:

@@ -27,3 +27,51 @@ amshan:
       cycle: monthly
       name: accumulated consumption current month
       unique_id: sensor.accumulated_consumption_current_month
+
+  automation:
+    - id: amshan_calibrate_current_hour
+      alias: amshan_calibrate_current_hour
+      mode: single
+      max_exceeded: silent
+      trigger:
+        - platform: state
+          entity_id: sensor.accumulated_consumption_current_hour_sivert_thonstads_vei_6b
+      action:
+        - service: utility_meter.calibrate
+          target:
+            entity_id: sensor.accumulated_consumption_current_hour
+          data:
+            value: "{{trigger.to_state.state}}"
+        - delay:
+            minutes: 10
+
+    - id: amshan_calibrate_current_day
+      alias: amshan_calibrate_current_day
+      mode: single
+      max_exceeded: silent
+      trigger:
+        - platform: state
+          entity_id: sensor.accumulated_consumption_sivert_thonstads_vei_6b
+      action:
+        - service: utility_meter.calibrate
+          target:
+            entity_id: sensor.accumulated_consumption_current_day
+          data:
+            value: "{{trigger.to_state.state}}"
+        - delay:
+            minutes: 10
+    - id: amshan_calibrate_current_month
+      alias: amshan_calibrate_current_month
+      mode: single
+      max_exceeded: silent
+      trigger:
+        - platform: state
+          entity_id: sensor.monthly_net_consumption_sivert_thonstads_vei_6b
+      action:
+        - service: utility_meter.calibrate
+          target:
+            entity_id: sensor.accumulated_consumption_current_month
+          data:
+            value: "{{trigger.to_state.state}}"
+        - delay:
+            minutes: 30

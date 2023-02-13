@@ -636,7 +636,7 @@ announcements:
                 - action: garageRemind
                   title: Remind me in 5 minutes
                   destructive: true
-        - service: notify.mobile_app_caroline
+        - service: notify.mobile_app_caroline_pixel
           data_template:
             title: "Garage has been open for 60 minutes"
             message: "Close it?"

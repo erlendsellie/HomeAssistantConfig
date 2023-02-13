@@ -39,7 +39,12 @@ tibber_data_package:
               {%for hour in hours%}
               {{hour.value | float * 100 - subsidy}}
               {%endfor%}
-
+        - name: "Easee Average Price For Month"
+          unit_of_measurement: "NOK"
+          state: >-
+            {%set cost = states('sensor.garage_cost_month') | float(default=0)%}
+            {%set consumption = states('sensor.easee_cost_month') | float(default=0)%}
+            {{(cost / consumption) | round(4)}}
         - name: "Customer Price With Subsidy"
           unit_of_measurement: "NOK"
           state: >-
@@ -79,8 +84,8 @@ tibber_data_package:
         - name: "Monthly Saving Compared to Nordpool Average"
           unit_of_measurement: "NOK"
           state: >-
-            {%set nordpool_average_cost = states('sensor.monthly_cost_with_subsidy') | float%}
-            {%set customer_cost = states('sensor.customer_monthly_cost_with_subsidy') | float%}
+            {%set nordpool_average_cost = states('sensor.monthly_cost_with_subsidy') | float(default=0)%}
+            {%set customer_cost = states('sensor.customer_monthly_cost_with_subsidy') | float(default=0)%}
             {{(nordpool_average_cost - customer_cost) | round(2)}}
         - name: "Monthly Cost Nordpool Average"
           unit_of_measurement: "NOK"

@@ -75,7 +75,7 @@
     echarging:
       value_template: "{{states.binary_sensor.oneplus_is_charging.state == 'on'}}"
     ccharging:
-      value_template: "{{states.binary_sensor.caroline_charging.state == 'on'}}"
+      value_template: "{{states.binary_sensor.caroline_is_charging.state == 'on'}}"
     tv_on:
       value_template: "{{ states.media_player.tv_stua.state == 'Playing'}}"
     garageanddooropen:

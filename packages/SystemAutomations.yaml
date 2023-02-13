@@ -60,7 +60,7 @@ system:
       trigger:
         - platform: numeric_state
           entity_id: sensor.speedtest_download
-          below: 40
+          below: 100
       action:
         - service: notify.me
           data_template:
@@ -104,7 +104,9 @@ system:
             - sensor.nordpool
             - sensor.stua_temperature
             - binary_sensor.front_door_ding
-            - light.trym_ball
+            - light.trym_balloon
+            - light.tyra_ball
+            - light.trym_roof
             - switch.varmtvannsbereder
             - light.tv
             - sensor.priceanalyzer
@@ -142,7 +144,9 @@ system:
             - sensor.nordpool
             - sensor.stua_temperature
             - binary_sensor.front_door_ding
-            - light.trym_ball
+            - light.trym_balloon
+            - light.tyra_ball
+            - light.trym_roof
             - switch.varmtvannsbereder
             - light.tv
             - sensor.priceanalyzer
@@ -248,28 +252,28 @@ system:
           data_template:
             message: "The Zigbee network is up again"
 
-    - alias: NotifyMqttDown
-      trigger:
-        - platform: time
-          at: "02:00:00"
-      action:
-        - service: switch.turn_on
-          entity_id: switch.fan_bathroom
-        - delay:
-            seconds: 10
-        - condition: template
-          value_template: "{{states.switch.fan_bathroom.state == 'off'}}"
-        - service: notify.me
-          data_template:
-            message: "The MQTT network seems to be down"
+    # - alias: NotifyMqttDown
+    #   trigger:
+    #     - platform: time
+    #       at: "02:00:00"
+    #   action:
+    #     - service: switch.turn_on
+    #       entity_id: switch.bathroom_fan
+    #     - delay:
+    #         seconds: 10
+    #     - condition: template
+    #       value_template: "{{states.switch.bathroom_fan.state == 'off'}}"
+    #     - service: notify.me
+    #       data_template:
+    #         message: "The MQTT network seems to be down"
 
-    - alias: NotifyMqttDownreset
-      trigger:
-        - platform: time
-          at: "02:00:40"
-      action:
-        - service: switch.turn_off
-          entity_id: switch.fan_bathroom
+    # - alias: NotifyMqttDownreset
+    #   trigger:
+    #     - platform: time
+    #       at: "02:00:40"
+    #   action:
+    #     - service: switch.turn_off
+    #       entity_id: switch.bathroom_fan
 
     - alias: health check every 3 mins
       trigger:
@@ -439,7 +443,7 @@ system:
       alias: Request Location
       mode: restart
       sequence:
-        - service: notify.mobile_app_caroline
+        - service: notify.mobile_app_caroline_pixel
           data:
             message: "request_location_update"
         - service: notify.mobile_app_oneplus

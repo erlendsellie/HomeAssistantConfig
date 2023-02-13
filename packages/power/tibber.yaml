@@ -59,5 +59,3 @@ tibber:
               Tibber er tilgjengelig,
               {%endif%}
               Sist endret for {{relative_time(states.sensor.power_sivert_thonstads_vei_6b.last_changed)}} siden
-
-#  tibber_custom:

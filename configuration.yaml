@@ -59,6 +59,7 @@ logger:
     #homeassistant.components.stream: fatal
     #homeassistant.components.tibber: debug
     homeassistant.components.priceanalyzer: debug
+    homeassistant.components.skisporet_v2: debug
     custom_components.priceanalyzer: debug
     libav: fatal
     aiohttp: fatal
@@ -70,7 +71,7 @@ logger:
     homeassistant.components.stream: fatal
     #homeassistant.components.recorder: fatal
     homeassistant.components.generic.camera: fatal
-    homeassistant.helpers.template: error #warning
+    homeassistant.helpers.template: fatal #error #warning
     graphql_subscription_manager: error
     xiaomi_cloud_map_extractor: error
 
@@ -98,7 +99,7 @@ zone:
   - name: Sykehuset
     latitude: !secret latitudeSykehuset
     longitude: !secret longitudeSykehuset
-    radius: 40
+    radius: 200
     icon: mdi:hospital-building
 
   - name: Ekra
@@ -135,25 +136,18 @@ config:
 cloud:
 
 http:
-  #removed due to cloudflare. also renamed.
-  #ssl_certificate: /ssl/fullchain.pem
-  #ssl_key: /ssl/privkey.pem
-
   use_x_forwarded_for: true
   trusted_proxies:
-    - 172.30.33.0/24
-
-  # use_x_forwarded_for: true
-  # trusted_proxies:
-  #   - 172.30.33.0/24
+    - "172.30.33.0/24"
+    - "192.168.1.200"
 
 discovery:
 
 wake_on_lan:
 
 recorder:
-  db_url: !secret db_url
-  purge_keep_days: 10
+  db_url: !secret external_db_url #db_url
+  purge_keep_days: 30
   exclude:
     entities:
       # - sensor.consumptionrounded_mean
@@ -377,14 +371,14 @@ proxmoxve:
           - 102
           - 103
 mqtt:
-  switch:
-    - name: "fan_bathroom"
-      state_topic: "stat/SONOFF-2/POWER"
-      command_topic: "cmnd/SONOFF-2/POWER"
-      qos: 1
-      payload_on: "ON"
-      payload_off: "OFF"
-      retain: true
+  # switch:
+  #   - name: "fan_bathroom"
+  #     state_topic: "stat/SONOFF-2/POWER"
+  #     command_topic: "cmnd/SONOFF-2/POWER"
+  #     qos: 1
+  #     payload_on: "ON"
+  #     payload_off: "OFF"
+  #     retain: true
   sensor:
     - name: "Fan Bathroom energy"
       state_topic: "tele/SONOFF-2/ENERGY"

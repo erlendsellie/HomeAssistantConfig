@@ -163,7 +163,7 @@
 - platform: tellstick
   only_named:
     - id: 11 #13
-      name: Bathroom
+      name: Bathroom Tellstick
     - id: 33
       name: Stua
     - id: 101

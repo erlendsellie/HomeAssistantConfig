@@ -1,0 +1,222 @@
+trym:
+  automation:
+    #todo implement better logic, so yellow is on for a longer time if erlend
+    # is home alone with the kids. And add triggers based on when we wake up.
+    # If we stay up late the day before, we may want the kids to
+    # sleep a little while longer
+    - id: traffic_light_trym
+      alias: Traffic Light Trym
+      trigger:
+        - platform: time
+          at: "07:00:00"
+          variables:
+            color: green
+        - platform: time
+          at: "06:00:00"
+          variables:
+            color: yellow
+        - platform: time
+          at: "02:00:00"
+          variables:
+            color: red
+      condition:
+        - condition: template
+          value_template: "{{states.person.caroline.state == 'home' }}"
+      action:
+        - service: light.turn_on
+          data:
+            color_name: "{{color}}"
+          target:
+            - entity_id: light.trym_balloonoon
+            - entity_id: light.tyra_ball
+
+    - alias: "TurnOnTrymAsleepByDoor"
+      id: TurnOnTrymAsleepByDoor
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.trym_door
+          to: "on"
+        - platform: state
+          entity_id: binary_sensor.trym_door
+          to: "off"
+        - platform: state
+          entity_id: binary_sensor.trym_motion
+          to: "on"
+      condition:
+        - condition: time
+          after: "18:20:00"
+          before: "23:00:00"
+        - condition: state
+          entity_id: input_boolean.trymasleep
+          state: "off"
+      action:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.trymasleep
+
+    - alias: "TurnOffTrymAsleepByDoor"
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.trym_door
+          to: "on"
+      condition:
+        condition: time
+        after: "05:50:00"
+        before: "18:00:00"
+      action:
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.trymasleep
+
+    - alias: "TurnOnTrymAsleepAtTime"
+      trigger:
+        - platform: time
+          at: "20:00:00"
+      # - platform: time
+      #   at: '20:15:00'
+      action:
+        - service: input_boolean.turn_on
+          entity_id: input_boolean.trymasleep
+
+    - alias: "TurnOffTrymAsleepAtTime"
+      trigger:
+        platform: time
+        at: "09:30:00"
+      action:
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.trymasleep
+
+    - alias: turnOnTrymLight
+      mode: single
+      max_exceeded: silent
+      trigger:
+        - platform: state
+          entity_id: binary_sensor.trym_door
+          to: "on"
+        - platform: state
+          entity_id: binary_sensor.trym_motion
+          to: "on"
+      condition:
+        - condition: state
+          entity_id: input_boolean.trymasleep
+          state: "off"
+      action:
+        - service: light.turn_on
+          entity_id: light.trym_roof
+          data_template:
+            brightness_pct: "{{ states.sensor.brightnessfortrymlight.state }}"
+        - service: light.turn_on
+          entity_id: light.trym_balloon
+          data_template:
+            brightness_pct: "100"
+        - wait_for_trigger:
+            - platform: state
+              entity_id: binary_sensor.trym_motion
+              to: "off"
+              for:
+                minutes: 6
+          timeout: "00:20:00"
+          continue_on_timeout: true
+        - condition: template
+          value_template: "{{ states.input_boolean.trymasleep.state == 'off' }}"
+        - service: light.turn_off
+          entity_id: light.trym_roof
+        - service: light.turn_off
+          entity_id: light.trym_balloon
+
+    - alias: turnOffTrymBallLight
+      trigger:
+        - platform: state
+          entity_id: light.trym_balloon
+          to: "on"
+          for:
+            minutes: 30
+      condition:
+        - condition: state
+          entity_id: input_boolean.trymasleep
+          state: "off"
+      action:
+        - service: light.turn_off
+          entity_id: light.trym_balloon
+
+    # - alias: trymRoofTurnedOnFor20Minutes
+    #   trigger:
+    #   - platform: state
+    #     entity_id: light.trym_roof
+    #     to: 'on'
+    #     for:
+    #       minutes: 20
+    #   action:
+    #   - service: light.turn_off
+    #     entity_id: light.trym_roof
+
+    - alias: TrymAsleepOnLights
+      id: trymasleeponlights
+      trigger:
+        - platform: state
+          entity_id: input_boolean.trymasleep
+          to: "on"
+        - platform: state
+          entity_id: input_select.alarm
+          to: "Arm Home"
+          for:
+            seconds: 30
+        - platform: state
+          entity_id: input_select.alarm
+          to: "Arm Home"
+          for:
+            minutes: 10
+      action:
+        - service: light.turn_on
+          entity_id: light.trym_roof
+          data_template:
+            brightness_pct: "{{ states.sensor.brightnessfortrymlight.state }}"
+
+    - alias: turnOffTrymLightBall
+      trigger:
+        - platform: state
+          entity_id: light.trym_roof
+          to: "off"
+      condition:
+        - condition: state
+          entity_id: input_boolean.trymasleep
+          state: "off"
+      action:
+        - service: light.turn_off
+          entity_id: light.trym_balloon
+
+    # - alias: turnOffTrymLight
+    #   trigger:
+    #   - platform: state
+    #     entity_id: input_boolean.trymasleep
+    #     to: 'on'
+    #   action:
+    #   - service: light.turn_off
+    #     data_template:
+    #       entity_id:
+    #         - light.trym_2
+    #         - light.trym_3
+    #   - service: light.turn_on
+    #     data_template:
+    #       entity_id:
+    #         - light.trym_1
+    #       brightness: 1
+    #   - service: light.turn_on
+    #     entity_id: light.upstairs
+    #     data_template:
+    #       brightness_pct: '{{ states.sensor.brightnessforupstairslights.state }}'
+    #delay and then turn off?
+
+    - alias: turnOnNightLigthTrym
+      trigger:
+        - platform: state
+          entity_id: input_boolean.trymasleep
+          to: "on"
+      condition:
+        - condition: template
+          value_template: "{{ states.input_select.alarm.state == 'Disarm' }}"
+      action:
+        - service: light.turn_on
+          data_template:
+            brightness_pct: "100"
+            color_name: white
+            entity_id:
+              - light.trym_balloon

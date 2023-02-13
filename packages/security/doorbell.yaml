@@ -36,6 +36,11 @@ doorbell:
           data_template:
             variables:
               message: Ding Dong!
+        - service: notify.mobile_app_oneplus
+          data:
+            message: Ding Dong!
+            data:
+              image: "/api/camera_proxy/camera.driveway"
         - condition: template
           value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
         - service: media_player.play_media
@@ -60,20 +65,18 @@ doorbell:
         #     message: Noen ringte på døra
         #     data:
         #       file: /tmp/snapshot.jpg
-        # - service: script.turn_on
-        #   entity_id: script.sendvideodriveway
-        # - delay:
-        #     seconds: 8
-        #         - service: media_player.play_media
-        #           data:
-        #             entity_id: media_player.minis
-        # #            media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
-        #             media_content_id: https://hjem.sellie.no/local/sounds/screams/goosebumps.mp3
-        #             media_content_type: "music"
-        # - delay:
-        #     seconds: 15
+        - service: script.turn_on
+          entity_id: script.sendvideodriveway
         - delay:
-            seconds: 30
+            seconds: 8
+        - service: media_player.play_media
+          data:
+            entity_id: media_player.minis
+            #            media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
+            media_content_id: https://hjem.sellie.no/local/sounds/screams/goosebumps.mp3
+            media_content_type: "music"
+        - delay:
+            seconds: 15
         - service: media_player.media_stop
           data:
             entity_id: media_player.minis

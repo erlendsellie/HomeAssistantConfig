@@ -37,7 +37,8 @@
 - platform: generic_thermostat
   name: Office Heater
   heater: switch.office_heater
-  target_sensor: sensor.office_temp_temperature
+  target_sensor: sensor.office_floor_air_temperature
+  #target_sensor: sensor.office_temp_temperature
   precision: 0.5
   min_temp: 3
   max_temp: 26

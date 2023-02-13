@@ -81,19 +81,24 @@ alarm:
             seconds: 1
       condition:
         - condition: template
-          value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
+          value_template: "{{ states.person.erlend.state  != 'home'}}"
       action:
         - service: script.turn_on
           entity_id: script.requestlocation
         - delay:
             seconds: 2
-        - service: notify.me
+        # - service: notify.me
+        #   data:
+        #     title: "Motion Driveway"
+        #     message: "Motion in driveway when armed."
+        #     data:
+        #       photo:
+        #         url: !secret outdoorcamerastream
+        - service: notify.mobile_app_oneplus
           data:
-            title: "Motion Driveway"
-            message: "Motion in driveway when armed."
+            message: Motion in driveway when armed.
             data:
-              photo:
-                url: !secret outdoorcamerastream
+              image: "/api/camera_proxy/camera.driveway"
         # - service: notify.mobile_app_oneplus
         #   data_template:
         #     title: Motion
@@ -768,7 +773,11 @@ alarm:
         - service: switch.turn_off
           entity_id: switch.nexa3 #Fan Heater
         - service: light.turn_on
-          entity_id: light.trym_ball
+          entity_id: light.trym_balloon
+          data:
+            brightness: 1
+        - service: light.turn_on
+          entity_id: light.tyra_ball
           data:
             brightness: 1
         - service: script.turn_on

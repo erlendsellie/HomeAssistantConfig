@@ -4,7 +4,7 @@ bathroom_fan:
       fans:
         bathroom:
           friendly_name: "Bathroom"
-          value_template: "{{ states('switch.fan_bathroom') }}"
+          value_template: "{{ states('switch.bathroom_fan') }}"
           turn_on:
             service: script.bathroom_fan_on
           turn_off:
@@ -13,15 +13,15 @@ bathroom_fan:
   generic_hygrostat:
     - name: Bathroom
       device_class: "dehumidifier"
-      humidifier: switch.fan_bathroom
+      humidifier: switch.bathroom_fan
       target_sensor: sensor.bathroom_humidity
 
   script:
     bathroom_fan_on:
       sequence:
         - service: switch.turn_on
-          entity_id: switch.fan_bathroom
+          entity_id: switch.bathroom_fan
     bathroom_fan_off:
       sequence:
         - service: switch.turn_off
-          entity_id: switch.fan_bathroom
+          entity_id: switch.bathroom_fan

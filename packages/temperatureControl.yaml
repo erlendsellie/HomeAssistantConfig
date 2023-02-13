@@ -218,20 +218,26 @@ temperaturecontrol:
             {%set current_hour = analyzer.attributes.current_hour%}
             {%set temp = analyzer.state | float %}
             {%set outside_temp = states.sensor.ute_temperature.state | float(default=10)%}
+            {%set effektledd = states('input_number.effektledd') | float(default=9.8) %}
+            {%set is_charging = states('sensor.garage_power') | int(default=0) > 1%}
             {%if temp > 0 and outside_temp > 5%}
-              {%if current_hour.price_next_hour > 2.00 or current_hour.value > 2.00%} {{temp * 2}} 
-              {%elif current_hour.price_next_hour > 1.00 or current_hour.value > 1.00%} {{temp * 2}} 
-              {%elif current_hour.is_max%} {{temp * 2}}
-              {%else%} {{temp}}
+              {%if current_hour.price_next_hour > 2.00 or current_hour.value > 2.00%} {%set temp = temp * 2%} 
+              {%elif current_hour.price_next_hour > 1.00 or current_hour.value > 1.00%} {%set temp = temp * 2%} 
+              {%elif current_hour.is_max%} {%set temp = temp * 2%}
+              {%else%} {%set temp = temp%}
               {%endif%}
             {%else%}
-              {%if current_hour.price_next_hour > 6.00 or current_hour.value > 6.00%} {{temp * 4}} 
-              {%elif current_hour.price_next_hour > 4.00 or current_hour.value > 4.00%} {{temp * 3}} 
-              {%elif current_hour.price_next_hour > 1.00 or current_hour.value > 1.00%} {{temp * 2}} 
-              {%elif current_hour.is_max%} {{temp * 2}}
-              {%else%} {{temp}}
+              {%if current_hour.price_next_hour > 6.00 or current_hour.value > 6.00%} {%set temp = temp * 4%} 
+              {%elif current_hour.price_next_hour > 4.00 or current_hour.value > 4.00%} {%set temp = temp * 3%} 
+              {%elif current_hour.price_next_hour > 1.00 or current_hour.value > 1.00%} {%set temp = temp * 2%} 
+              {%elif current_hour.is_max%} {%set temp = temp * 2%}
+              {%else%} {%set temp = temp%}
               {%endif%}
             {%endif%}
+            {%if is_charging and effektledd < 10%}
+              {%set temp = temp - 1 %}
+            {%endif%}
+            {{temp}}
         pricecorrection_old:
           friendly_name: "Price Correction"
           unit_of_measurement: "°C"
@@ -645,7 +651,7 @@ temperaturecontrol:
           device_class: power
           delay_off:
             hours: 2
-          value_template: "{{states.switch.fan_bathroom.state == 'on' and states.input_select.alarm.state == 'Disarm'}}"
+          value_template: "{{states.switch.bathroom_fan.state == 'on' and states.input_select.alarm.state == 'Disarm'}}"
 
   automation:
     # - alias: NotifySpikeToday
@@ -791,7 +797,7 @@ temperaturecontrol:
             entity_id: climate.stua_heater
             temperature: "{{ states.sensor.baseheat.state | int(default=0) - 1 }}"
         - service: logbook.log
-          data_template:
+          data:
             name: Varmepumpe
             message: "set to {{ states.sensor.tempsenttoheater.state | int(default=0) }} degrees and {{states.input_select.operationmode.state}}"
         - service: climate.set_temperature
@@ -822,9 +828,9 @@ temperaturecontrol:
           data:
             swing_mode: >-
               {%if states.media_player.tv_stua.state == 'on'%}
-                fixedMiddleBottom
+                5_down
               {%else%}
-                stopped
+                1_up
               {%endif%}
 
     - alias: TurnOffClimateStua

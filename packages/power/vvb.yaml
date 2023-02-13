@@ -93,9 +93,6 @@ vvb:
             {%set top = states('sensor.vvb_top') | float(default=50)%}
             {%set max_temp = max(average,bottom)%}
             {%set temp = max_temp%}
-            {%if top < 50%}
-              {%set temp = top%}
-            {% endif %}
             {{temp}}
         - name: "VVB Difference"
           unit_of_measurement: "°C"

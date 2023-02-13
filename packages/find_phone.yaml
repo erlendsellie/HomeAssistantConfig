@@ -7,7 +7,7 @@ find_phone:
         - condition: state
           entity_id: person.caroline
           state: "home"
-        - service: notify.mobile_app_caroline
+        - service: notify.mobile_app_caroline_pixel
           data:
             title: "https://hjem.sellie.no/local/sounds/lost_woods.mp3"
             message: "command_activity"

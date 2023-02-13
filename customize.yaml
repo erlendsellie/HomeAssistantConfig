@@ -210,7 +210,7 @@ group.people:
       95, 140)';
 
       "
-switch.fan_bathroom:
+switch.bathroom_fan:
   icon: mdi:fan
   friendly_name: Bathroom Fan
   templates:

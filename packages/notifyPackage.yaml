@@ -1,3 +1,20 @@
+#https://app.uberduck.ai/speak#mode=tts-basic&voice=11th-doctor
+#TTS
+
+# - service: notify.attic_google_tv
+#   data:
+#     message: En luring er observert...
+#     title: Så noen
+#     data:
+#       fontsize: small
+#       position: bottom-right
+#       duration: 10
+#       transparency: 50%
+#       image:
+#         url: http://192.168.68.42:8123{{ state_attr('camera.ezviz_person','entity_picture') }}
+#         username: !secret adm_user
+#         password: !secret adm_password
+
 notifypackage:
   automation:
     - alias: CarolineDeviceTrackernotWorking
@@ -80,7 +97,7 @@ notifypackage:
                 - action: garageRemind
                   title: Remind me in 5 minutes
                   destructive: true
-        - service: notify.mobile_app_caroline
+        - service: notify.mobile_app_caroline_pixel
           data_template:
             title: "Garage has been open for 90 minutes"
             message: "Close it?"
@@ -444,7 +461,7 @@ notifypackage:
             message: "remove_channel"
             data:
               channel: "{{channel}}"
-        - service: notify.mobile_app_caroline
+        - service: notify.mobile_app_caroline_pixel
           data:
             message: "remove_channel"
             data:
@@ -496,7 +513,7 @@ notifypackage:
         - condition: state
           entity_id: person.caroline
           state: "home"
-        - service: notify.mobile_app_caroline
+        - service: notify.mobile_app_caroline_pixel
           data_template:
             title: "{{title}}"
             message: "{{message}}"
@@ -564,7 +581,7 @@ notifypackage:
     notifycaroline:
       alias: Simple Notification to Caroline
       sequence:
-        - service: notify.mobile_app_caroline
+        - service: notify.mobile_app_caroline_pixel
           data_template:
             title: "{{title}}"
             message: "{{message}}"

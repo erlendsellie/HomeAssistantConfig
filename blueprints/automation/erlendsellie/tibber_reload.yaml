@@ -33,11 +33,11 @@ trigger:
   - platform: state
     entity_id: !input entity
     for:
-      seconds: 30
+      minutes: 1
   - platform: state
     entity_id: !input entity
     for:
-      minutes: 2
+      minutes: 4
   - platform: state
     entity_id: !input entity
     for:
@@ -50,7 +50,7 @@ trigger:
         tibber == 'unavailable'
       }}
     for:
-      seconds: 20
+      minutes: 1
 action:
   - variables:
       entity: !input entity
@@ -59,7 +59,7 @@ action:
     entity_id: !input entity
   - condition: "{{ notify == true }}"
   - delay:
-      seconds: 10
+      seconds: 20
   - service: persistent_notification.create
     data:
       title: Tibber var utilgjengelig, relastet integrasjonen

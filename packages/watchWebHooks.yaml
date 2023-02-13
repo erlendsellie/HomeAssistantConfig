@@ -536,7 +536,7 @@ watchwebhooks:
     notifyblanketcaroline:
       alias: notifyblanketcaroline
       sequence:
-        - service: notify.mobile_app_caroline
+        - service: notify.mobile_app_caroline_pixel
           data_template:
             title: "Blanket is {{states.switch.blanket.state}}"
             message: "Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom."

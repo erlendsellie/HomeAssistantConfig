@@ -1,4 +1,16 @@
 power_usage:
+  utility_meter:
+    power_other_kwh_hourly:
+      source: sensor.power_other_kwh
+      name: Power Other Kwh Hourly
+      unique_id: sensor.power_other_kwh_hourly
+      cycle: hourly
+    varmepumpe_energy_hourly:
+      source: sensor.varmepumpe_energy
+      name: Varmepumpe Energy Hourly
+      unique_id: sensor.varmepumpe_energy_hourly
+      cycle: hourly
+
   sensor:
     - platform: template
       sensors:
@@ -29,7 +41,21 @@ power_usage:
             - (states('sensor.varmepumpe_w') | float(default=0)) 
             - (states('sensor.vaskemaskin_electric_w') | float(default=0)) 
             - (states('sensor.torketrommel_electric_w') | float(default=0)) 
+            - (states('sensor.office_floor_watt') | float(default=0)) 
+            - (states('sensor.downstairs_bathroom_electric_consumption_w') | float(default=0)) 
             )}}
+        power_other_kwh:
+          friendly_name: Power other kWh
+          unit_of_measurement: kWh
+          value_template: >-
+            {% set powerUsageBeforeNewSensor = 6405%}
+            {% set main = states('sensor.power_other_kwh_raw') | float(default=0)%}
+            {% set heat_pump = states('sensor.varmepumpe_energy') | float(default=0)%}
+            {{
+            main - 
+            heat_pump
+            + powerUsageBeforeNewSensor
+            }}
         easee_w:
           friendly_name: Easee Watt
           unit_of_measurement: W
@@ -138,7 +164,7 @@ power_usage:
 
     - platform: integration
       source: sensor.power_other_filtered
-      name: Power Other Kwh
+      name: Power Other Kwh Raw
       unit_prefix: k
       round: 2
 

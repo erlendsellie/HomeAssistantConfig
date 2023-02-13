@@ -8,13 +8,41 @@ sbanken:
             {{ states.sensor.rammelan.attributes.balance }}
         - name: Rammelån Last transaction
           state: >-
-            {{states.sensor.rammelan.attributes.transactions[0]}}
+            {%set last = states.sensor.rammelan.attributes.transactions[0]%}
+            {{last.amount}} på {{last.text}}
         - name: Felleskortet Last transaction
           state: >-
             {%set last = states.sensor.felleskortet.attributes.transactions[0]%}
             {{last.amount}} på {{last.text}}
+        - name: Regningskonto Last transaction
+          state: >-
+            {%set last = states.sensor.regningskonto.attributes.transactions[0]%}
+            {{last.amount}} på {{last.text}}
 
-  # automation:
+  automation:
+    - id: updaterammelansheets
+      alias: updaterammelansheets
+      trigger:
+        # - platform: state
+        #   entity_id: sensor.rammelan_last_transaction
+        - platform: template
+          value_template: "{{ states.sensor.rammelan.attributes.transactions[0] }}"
+      condition:
+        - condition: template
+          value_template: "{{trigger.to_state.state != ''}}"
+        - condition: template
+          value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
+      action:
+        - service: google_sheets.append_sheet
+          data:
+            config_entry: c24dd893a5b4a2667d24610dc5b5577a
+            worksheet: Rammelånbevegelser
+            data:
+              Dato: "{{states.sensor.rammelan.attributes.transactions[0].accountingDate}}"
+              Sum: "{{states.sensor.rammelan.attributes.transactions[0].amount}}"
+              Årsak: "{{states.sensor.rammelan.attributes.transactions[0].text}}"
+              Fra: Home Assistant - Endre meg
+
   #   - alias: NotifyFelleskortet
   #     trigger:
   #       - platform: state

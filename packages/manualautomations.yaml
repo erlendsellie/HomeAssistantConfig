@@ -433,7 +433,7 @@ manualautomations:
               actions:
                 - action: turnoncarheater
                   title: "Yes"
-        - service: notify.mobile_app_caroline
+        - service: notify.mobile_app_caroline_pixel
           data_template:
             title: "Is the Car Heater Mounted?"
             message: "Its {{states.sensor.ute_temperature.state}} degrees outside."
@@ -806,7 +806,7 @@ manualautomations:
           value_template: "{{states.sensor.bathroom_humidity.state | float(default=0) > float(30)}}"
       action:
         - service: switch.turn_on
-          entity_id: switch.fan_bathroom
+          entity_id: switch.bathroom_fan
 
     - id: Bathroom_Humidity_Normal
       alias: Bathroom Humidity Normal
@@ -817,18 +817,18 @@ manualautomations:
           for:
             minutes: 30
         - platform: state
-          entity_id: switch.fan_bathroom
+          entity_id: switch.bathroom_fan
           to: "on"
           for:
             minutes: 60
       # - platform: state
-      #   entity_id: switch.fan_bathroom
+      #   entity_id: switch.bathroom_fan
       #   to: 'on'
       #   for:
       #     minutes: 30
       action:
         - service: switch.turn_off
-          entity_id: switch.fan_bathroom
+          entity_id: switch.bathroom_fan
 
     - id: BathroomFanWhenVVBOn
       alias: BathroomFanWhenVVBOn
@@ -836,7 +836,7 @@ manualautomations:
         # - platform: template
         #   value_template: "{{ (states.sensor.varmtvannsbereder.state | int(default=70) - states.climate.varmtvannsbereder.attributes.temperature | int(default=70)) > 10 }}"
         - platform: state
-          entity_id: binary_sensor.vvb_heating
+          entity_id: binary_sensor.using_hot_water
           to: "on"
       condition:
         - condition: state
@@ -844,15 +844,17 @@ manualautomations:
           state: "on"
       action:
         - service: switch.turn_on
-          entity_id: switch.fan_bathroom
-        - wait_for_trigger:
-            - platform: state
-              entity_id: binary_sensor.vvb_heating
-              to: "off"
-          timeout: "01:00:00"
-          continue_on_timeout: true
+          entity_id: switch.bathroom_fan
+        # - wait_for_trigger:
+        #     - platform: state
+        #       entity_id: binary_sensor.using_hot_water
+        #       to: "off"
+        #   timeout: "01:00:00"
+        #   continue_on_timeout: true
+        - delay:
+            minutes: 30
         - service: switch.turn_off
-          entity_id: switch.fan_bathroom
+          entity_id: switch.bathroom_fan
 
     ########################################
     ########        Sleeping        ########
@@ -1019,7 +1021,7 @@ manualautomations:
                 - action: tvbedroomoff
                   title: Ja, slå av TV på soverommet igjen
                   destructive: true
-        - service: notify.mobile_app_caroline
+        - service: notify.mobile_app_caroline_pixel
           data_template:
             title: "Castet til Soverommet."
             message: " Var det feil?"
@@ -1162,76 +1164,6 @@ manualautomations:
     ########                        ########
     ########         Wakeup         ########
     ########################################
-
-    - alias: "TurnOnTrymAsleepByDoor"
-      id: TurnOnTrymAsleepByDoor
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.trym_door
-          to: "on"
-        - platform: state
-          entity_id: binary_sensor.trym_door
-          to: "off"
-        - platform: state
-          entity_id: binary_sensor.trym_motion
-          to: "on"
-      condition:
-        - condition: time
-          after: "18:20:00"
-          before: "23:00:00"
-        - condition: state
-          entity_id: input_boolean.trymasleep
-          state: "off"
-      action:
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.trymasleep
-
-    - alias: "TurnOnTyraAsleepByLight"
-      trigger:
-        - platform: state
-          entity_id: light.tyra
-          to: "off"
-      condition:
-        - condition: time
-          after: "11:30:00"
-          before: "12:45:00"
-        - condition: state
-          entity_id: binary_sensor.tyra_motion
-          state: "on"
-      action:
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.tyraasleep
-
-    - alias: "TurnOffTrymAsleepByDoor"
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.trym_door
-          to: "on"
-      condition:
-        condition: time
-        after: "05:50:00"
-        before: "18:00:00"
-      action:
-        - service: input_boolean.turn_off
-          entity_id: input_boolean.trymasleep
-
-    - alias: "TurnOnTrymAsleepAtTime"
-      trigger:
-        - platform: time
-          at: "20:00:00"
-      # - platform: time
-      #   at: '20:15:00'
-      action:
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.trymasleep
-
-    - alias: "TurnOffTrymAsleepAtTime"
-      trigger:
-        platform: time
-        at: "09:30:00"
-      action:
-        - service: input_boolean.turn_off
-          entity_id: input_boolean.trymasleep
 
     # - alias: 'turnofftrymasleep'
     #   trigger:

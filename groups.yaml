@@ -2,6 +2,13 @@
 ## Groups
 #################################################################
 
+garmin:
+  name: Garmin
+  entities:
+    - light.tvsone
+    - cover.garage_door
+    - script.climatecar
+
 people:
   name: People
   entities:
@@ -150,7 +157,8 @@ andrelys:
     - light.toilet
     - group.bedroomlights
     - light.trym_roof
-    - light.trym_ball
+    - light.trym_balloon
+    - light.tyra_ball
     - light.tyra
     - light.bathroom
     - light.sokkel

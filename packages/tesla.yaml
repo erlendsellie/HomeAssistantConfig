@@ -69,7 +69,7 @@ tesla:
       trigger:
         - platform: numeric_state
           entity_id: sensor.modely_mileage_sensor
-          above: 20000
+          above: 34000
       action:
         - service: script.turn_on
           entity_id: script.notify

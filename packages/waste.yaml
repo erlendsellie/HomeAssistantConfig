@@ -1,4 +1,18 @@
 waste:
+  template:
+    - sensor:
+        - name: "Waste"
+          state: >
+            {%set rest = states.sensor.restavfall%}
+            {%set plast = states.sensor.papir%}
+            {%set papir = states.sensor.plastemballasje%}
+            {%set next = rest%}
+            {%if plast.attributes.next_pickup_week != None and plast.attributes.next_pickup_week < next.attributes.next_pickup_week%}
+              {%set next = plast%}
+            {%elif papir.attributes.next_pickup_week != None and papir.attributes.next_pickup_week < next.attributes.next_pickup_week%}
+              {%set papir = plast%}
+            {%endif%}
+            {{next.attributes.friendly_name}} tømmes {{next.state | lower | regex_replace(find='uke', replace='tirsdag', ignorecase=True) | regex_replace(find='uken', replace='tirsdag', ignorecase=True)}}
   automation:
     - alias: Søppel denne uken
       trigger:
