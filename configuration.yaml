@@ -1,5 +1,8 @@
+#https://github.com/ArveVM/HomeAssistantConfig4/wiki/1-Configuration#advanced-yaml-guide-general-yaml-guides--node-anchors
+#TODO
 homeassistant:
   packages: !include_dir_merge_named packages
+  #  packages: !include_dir_named avm_yaml/packages
 
   customize: !include customize.yaml
   customize_glob: !include customize_glob.yaml
@@ -75,7 +78,7 @@ logger:
     graphql_subscription_manager: error
     xiaomi_cloud_map_extractor: error
 
-upnp:
+#upnp:
 
 zone:
   - name: Home
@@ -147,7 +150,7 @@ wake_on_lan:
 
 recorder:
   db_url: !secret external_db_url #db_url
-  purge_keep_days: 30
+  purge_keep_days: 20
   exclude:
     entities:
       # - sensor.consumptionrounded_mean

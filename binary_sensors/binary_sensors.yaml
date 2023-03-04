@@ -35,7 +35,7 @@
 
 - platform: command_line
   command: >-
-    curl 'https://www.posten.no/levering-av-post-2020/_/component/main/1/leftRegion/1?postCode=7072' \
+    curl 'https://www.posten.no/levering-av-post/_/component/main/1/leftRegion/11?postCode=7072' \
       -H 'x-requested-with: XMLHttpRequest' \
       --compressed
   name: MailTodayBinary

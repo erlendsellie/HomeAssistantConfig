@@ -1,4 +1,20 @@
 announcements:
+  template:
+    - binary_sensor:
+        - name: "google_home_playing"
+          unique_id: 4afd0a31-efb0-49e0-9da8-ljasldjl2j
+          attributes:
+            musikkstua: "{{states.media_player.musikkstua.state}}"
+            livingroom: "{{states.media_player.living_room_speaker.state}}"
+            kitchen: "{{states.media_player.musikkstua.state}}"
+          state: >-
+            {{
+              (states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused')
+              and
+              (states.media_player.living_room_speaker.state == 'playing' or states.media_player.living_room_speaker.state == 'paused')
+              and
+              (states.media_player.kitchen_display.state == 'playing' or states.media_player.kitchen_display.state == 'paused')
+            }}
   automation:
     - alias: SetVolume
       trigger:
@@ -8,23 +24,23 @@ announcements:
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state}}"
+            volume_level: "{{states.sensor.speakervolume.state | float(default=0)}}"
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.hallway_speaker
-            volume_level: "{{states.sensor.speakervolume.state}}"
+            volume_level: "{{states.sensor.speakervolume.state | float(default=0)}}"
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.living_room_speaker
-            volume_level: "{{states.sensor.speakervolume.state | float(default=0)- 0.1}}"
+            volume_level: "{{states.sensor.speakervolume.state | float(default=0.5)- 0.1}}"
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state}}"
+            volume_level: "{{states.sensor.speakervolume.state | float(default=0)}} "
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.hallway_speaker
-            volume_level: "{{states.sensor.speakervolume.state}}"
+            volume_level: "{{states.sensor.speakervolume.state | float(default=0)}}"
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.living_room_speaker
@@ -48,7 +64,7 @@ announcements:
           state: "off"
       action:
         - condition: template
-          value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
+          value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.hallway_speaker
@@ -88,7 +104,7 @@ announcements:
           state: "off"
       action:
         - condition: template
-          value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
+          value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.hallway_speaker
@@ -164,7 +180,7 @@ announcements:
             state: "Disarm"
       action:
         - condition: template
-          value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
+          value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.minis
@@ -324,7 +340,7 @@ announcements:
                   title: Stairs Exposed
                   message: Stairs are exposed!
             - condition: template
-              value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
+              value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
             - service: media_player.volume_set
               data_template:
                 entity_id: media_player.minis
@@ -365,7 +381,7 @@ announcements:
               title: Grinda og hoveddøra
               message: er åpen!
         - condition: template
-          value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
+          value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
         - service: media_player.volume_set
           data_template:
             entity_id: media_player.minis
@@ -403,7 +419,7 @@ announcements:
                   title: Stairs Exposed
                   message: Grinda oppe ble ikke lukket
             - condition: template
-              value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
+              value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
             - service: media_player.volume_set
               data_template:
                 entity_id: media_player.minis
@@ -432,7 +448,7 @@ announcements:
               title: Hundene kan stikke av
               message: Både garasjen og garasjedøra er åpen
         - condition: template
-          value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
+          value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
 
         - service: media_player.volume_set
           data_template:
@@ -960,6 +976,10 @@ announcements:
       alias: Announcement over Google Homes
       mode: queued
       sequence:
+        - service: tts.google_say
+          entity_id: media_player.mirror
+          data_template:
+            message: "{{message}}"
         - condition: template
           value_template: "{{ (states.media_player.living_room_speaker.state != 'playing' and states.media_player.hallway_speaker.state != 'playing') and states.media_player.living_room_speaker.state != 'paused' and states.media_player.hallway_speaker.state != 'paused'}}"
         - service: media_player.volume_set

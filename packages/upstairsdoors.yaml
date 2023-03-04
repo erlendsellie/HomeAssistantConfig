@@ -34,8 +34,7 @@ upstairsdoors:
                   title: Dør åpen
                   message: "{{trigger.from_state.name}}"
             - condition: template
-              value_template: "{{states.media_player.musikkstua.state != 'playing' and states.media_player.musikkstua.state != 'paused' }}"
-
+              value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
             # - service: media_player.volume_set
             #   data_template:
             #     entity_id: media_player.hallway_speaker

@@ -153,7 +153,7 @@ andrelys:
     #- light.officelight
     - light.bedroom
     # - light.gateway_light_7c49eb1c2d6b
-    - light.guestroom
+    #- light.guestroom
     - light.toilet
     - group.bedroomlights
     - light.trym_roof

@@ -1,4 +1,30 @@
 trym:
+  template:
+    - sensor:
+        - name: "trym_traffic_color"
+          state: >-
+            {%set hour = now().hour%}
+            {%set isWeekend = now().weekday() == 6 or now().weekday() == 7%}
+            {%set onlyErlendHome = states('sensor.peoplehome') == 'Erlend'%}
+
+            {%if isWeekend and onlyErlendHome%}
+              {%if hour > 21 or hour < 6%}
+                red
+              {%elif hour < 8%}
+                gold
+              {%elif hour >= 8%}
+                green
+              {%endif%}
+            {%else%}
+              {%if hour > 21 or hour < 6%}
+                red
+              {%elif hour < 7%}
+                gold
+              {%elif hour >= 7%}
+                green
+              {%endif%} 
+            {%endif%}
+
   automation:
     #todo implement better logic, so yellow is on for a longer time if erlend
     # is home alone with the kids. And add triggers based on when we wake up.
@@ -7,28 +33,65 @@ trym:
     - id: traffic_light_trym
       alias: Traffic Light Trym
       trigger:
-        - platform: time
-          at: "07:00:00"
-          variables:
-            color: green
-        - platform: time
-          at: "06:00:00"
-          variables:
-            color: yellow
-        - platform: time
-          at: "02:00:00"
-          variables:
-            color: red
+        # - platform: time
+        #   at: "07:00:00"
+        #   variables:
+        #     color: green
+        # - platform: time
+        #   at: "06:00:00"
+        #   variables:
+        #     color: gold
+        # - platform: time
+        #   at: "02:00:00"
+        #   variables:
+        #     color: red
+        - platform: time_pattern
+          # You can also match on interval. This will match every 5 minutes
+          minutes: "/5"
       condition:
+        # - condition: template
+        #   value_template: "{{states.person.caroline.state == 'home' }}"
         - condition: template
-          value_template: "{{states.person.caroline.state == 'home' }}"
+          value_template: "{{states.sensor.alarm.state != 'Arm Away' }}"
+        - condition: time
+          after: "23:59:00"
+          before: "08:06:00"
       action:
+        # - choose:
+        #     - conditions:
+        #         - condition: time
+        #           after: "00:00:00"
+        #       sequence:
+        #         - alias: "Set variables"
+        #           variables:
+        #             color: red
+        #     - conditions:
+        #         - condition: time
+        #           after: "06:00:00"
+        #       sequence:
+        #         - alias: "Set variables"
+        #           variables:
+        #             color: gold
+        #     - conditions:
+        #         - condition: time
+        #           after: "07:00:00"
+        #       sequence:
+        #         - alias: "Set variables"
+        #           variables:
+        #             color: green
         - service: light.turn_on
           data:
-            color_name: "{{color}}"
-          target:
-            - entity_id: light.trym_balloonoon
-            - entity_id: light.tyra_ball
+            color_name: "{{states('sensor.trym_traffic_color')}}"
+            brightness_pct: "3"
+            entity_id: light.trym_balloon
+        - service: light.turn_on
+          data:
+            color_name: "{{states('sensor.tyra_traffic_color')}}"
+            brightness_pct: "50"
+            entity_id: light.tyra_ball
+
+        #TODO ASAP: FInd a solution for weekends
+        # find a solution for Tyra,.
 
     - alias: "TurnOnTrymAsleepByDoor"
       id: TurnOnTrymAsleepByDoor
@@ -59,9 +122,8 @@ trym:
           entity_id: binary_sensor.trym_door
           to: "on"
       condition:
-        condition: time
-        after: "05:50:00"
-        before: "18:00:00"
+        - condition: template
+          value_template: "{{ states('sensor.trym_traffic_color') != 'red'}}"
       action:
         - service: input_boolean.turn_off
           entity_id: input_boolean.trymasleep

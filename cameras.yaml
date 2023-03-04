@@ -1,168 +1,153 @@
+- platform: xiaomi_cloud_map_extractor
+  host: 192.168.1.123
+  token: !secret vacuum_token
+  username: !secret vacuum_username
+  password: !secret vacuum_password
+  draw: ["all"]
+  map_transformation:
+    rotate: 90
+    trim:
+      left: 25
+      top: 10
+      right: 25
+      bottom: 10
+  colors:
+    color_map_inside: [32, 115, 185]
+    color_map_outside: [19, 87, 148]
+    color_map_wall: [100, 196, 254]
+    color_map_wall_v2: [93, 109, 126]
+    color_grey_wall: [93, 109, 126]
+    color_ignored_obstacle: [0, 0, 0, 127]
+    color_ignored_obstacle_with_photo: [0, 0, 0, 127]
+    color_obstacle: [0, 0, 0, 127]
+    color_obstacle_with_photo: [0, 0, 0, 127]
+    color_path: [147, 194, 238]
+    #color_path: [255, 255, 255]
+    color_goto_path: [0, 255, 0]
+    color_predicted_path: [255, 255, 0, 0]
+    color_cleaned_area: [127, 127, 127, 127]
+    color_zones: [0xAD, 0xD8, 0xFF, 0x8F]
+    color_zones_outline: [0xAD, 0xD8, 0xFF]
+    color_virtual_walls: [255, 0, 0]
+    color_new_discovered_area: [64, 64, 64]
+    color_no_go_zones: [255, 33, 55, 127]
+    color_no_go_zones_outline: [255, 0, 0]
+    color_no_mop_zones: [163, 130, 211, 127]
+    color_no_mop_zones_outline: [163, 130, 211]
+    color_charger: [0x66, 0xfe, 0xda, 0x7f]
+    color_robo: [75, 235, 149]
+    color_room_names: [0, 0, 0]
+    color_unknown: [0, 0, 0]
+    color_scan: [0xDF, 0xDF, 0xDF]
 
-  - platform: xiaomi_cloud_map_extractor
-    host: 192.168.1.123
-    token: !secret vacuum_token
-    username: !secret vacuum_username
-    password: !secret vacuum_password
-    draw: ['all']
-    map_transformation:
-      rotate: 90
-      trim:
-        left: 25
-        top: 10
-        right: 25
-        bottom: 10
-    colors:
-      color_map_inside: [32, 115, 185]
-      color_map_outside: [19, 87, 148]
-      color_map_wall: [100, 196, 254]
-      color_map_wall_v2: [93, 109, 126]
-      color_grey_wall: [93, 109, 126]
-      color_ignored_obstacle: [0, 0, 0, 127]
-      color_ignored_obstacle_with_photo: [0, 0, 0, 127]
-      color_obstacle: [0, 0, 0, 127]
-      color_obstacle_with_photo: [0, 0, 0, 127]
-      color_path: [147, 194, 238]
-      #color_path: [255, 255, 255]
-      color_goto_path: [0, 255, 0]
-      color_predicted_path: [255, 255, 0, 0]
-      color_cleaned_area: [127, 127, 127, 127]
-      color_zones: [0xAD, 0xD8, 0xFF, 0x8F]
-      color_zones_outline: [0xAD, 0xD8, 0xFF]
-      color_virtual_walls: [255, 0, 0]
-      color_new_discovered_area: [64, 64, 64]
-      color_no_go_zones: [255, 33, 55, 127]
-      color_no_go_zones_outline: [255, 0, 0]
-      color_no_mop_zones: [163, 130, 211, 127]
-      color_no_mop_zones_outline: [163, 130, 211]
-      color_charger: [0x66, 0xfe, 0xda, 0x7f]
-      color_robo: [75, 235, 149]
-      color_room_names: [0, 0, 0]
-      color_unknown: [0, 0, 0]
-      color_scan: [0xDF, 0xDF, 0xDF]
+  attributes:
+    - calibration_points
 
-    attributes:
-      - calibration_points
+  #Octoprint
+# - platform: mjpeg
+#   name: OctoPrint
+#   still_image_url: !secret octoprint_still
+#   mjpeg_url: !secret octoprint_mjpeg
+#Garage
+- platform: generic
+  name: Garasje
+  still_image_url: !secret garage_still
+  stream_source: !secret garage_stream
 
-    #Octoprint
-  - platform: mjpeg
-    name: OctoPrint
-    still_image_url: !secret octoprint_still
-    mjpeg_url: !secret octoprint_mjpeg
+  #Dogs
+- platform: generic
+  name: dogs_still
+  still_image_url: !secret dogs_still
+  authentication: basic
+  framerate: 24
+  username: root
+  password: !secret dafang_password
+  verify_ssl: false
 
+  #Trym
+- platform: generic
+  name: Trym_dafang
+  verify_ssl: false
+  username: root
+  password: !secret dafang_password
+  authentication: basic
+  still_image_url: !secret trym_dafang_still
+  stream_source: !secret trym_dafang_stream
+  scan_interval: 5
 
-    #Garage
-  - platform: generic
-    name: Garasje
-    still_image_url: !secret garage_still
-    stream_source: !secret garage_stream
-  
+- platform: generic
+  name: Trym_still
+  framerate: 10
+  verify_ssl: false
+  still_image_url: !secret trym_dafang_still
+  authentication: basic
+  username: root
+  password: !secret dafang_password
 
-    #Dogs
-  - platform: generic
-    name: dogs_still
-    still_image_url: !secret dogs_still
-    authentication: basic
-    framerate: 24
-    username: root
-    password: !secret dafang_password
-    verify_ssl: false
+  ##Tyra
+- platform: generic
+  name: Tyra Tapo HQ
+  username: erlend
+  password: !secret dafang_password
+  authentication: basic
+  still_image_url: !secret tyra_picture_url
+  stream_source: !secret tyra_tapo_hq
+  verify_ssl: false
+  scan_interval: 5
 
+- platform: generic
+  name: Tyra Tapo
+  username: erlend
+  password: !secret dafang_password
+  authentication: basic
+  still_image_url: !secret tyra_picture_url
+  stream_source: !secret tyra_tapo_lq
+  verify_ssl: false
+  scan_interval: 5
 
-    #Trym
-  - platform: generic
-    name: Trym_dafang
-    verify_ssl: false
-    username: root
-    password: !secret dafang_password
-    authentication: basic
-    still_image_url: !secret trym_dafang_still
-    stream_source: !secret trym_dafang_stream
-    scan_interval: 5
+  # Last picture
+- platform: generic
+  name: last_picture
+  still_image_url: !secret last_picture_url
 
-  - platform: generic
-    name: Trym_still
-    framerate: 10
-    verify_ssl: false
-    still_image_url: !secret trym_dafang_still
-    authentication: basic
-    username: root
-    password: !secret dafang_password
+- platform: generic
+  name: doods driveway
+  still_image_url: !secret doods_driveway
 
+- platform: generic
+  name: doods Tyra
+  still_image_url: !secret doods_tyra
 
-    ##Tyra 
-  - platform: generic
-    name: Tyra Tapo HQ
-    username: erlend
-    password: !secret dafang_password
-    authentication: basic
-    still_image_url: !secret tyra_picture_url
-    stream_source: !secret tyra_tapo_hq
-    verify_ssl: false
-    scan_interval: 5
-    
-    
-  - platform: generic
-    name: Tyra Tapo
-    username: erlend
-    password: !secret dafang_password
-    authentication: basic
-    still_image_url: !secret tyra_picture_url
-    stream_source: !secret tyra_tapo_lq
-    verify_ssl: false
-    scan_interval: 5
+  ## Driveway
+- platform: generic
+  name: driveway
+  still_image_url: !secret outdoorcamerastream
 
+- platform: generic
+  name: driveway_stream
+  still_image_url: !secret outdoorcamerastream
+  stream_source: !secret driveway_stream
 
-    # Last picture
-  - platform: generic
-    name: last_picture
-    still_image_url: !secret last_picture_url
+- platform: generic
+  name: Meraker
+  still_image_url: https://metnet.no/custcams/merakeralpin1/laget/webcam_semihd.jpg?t=1636459159851
 
-  - platform: generic
-    name: doods driveway
-    still_image_url: !secret doods_driveway
+- platform: generic
+  name: meraker_day
+  still_image_url: !secret last_picture_url_meraker
+# - platform: generic
+#   name: garden
+#   still_image_url: !secret garden_still
 
-  - platform: generic
-    name: doods Tyra
-    still_image_url: !secret doods_tyra
-    
+# - platform: generic
+#   name: garden_stream
+#   still_image_url: !secret garden_still
+#   stream_source: !secret garden_stream
 
-
-    ## Driveway
-  - platform: generic
-    name: driveway
-    still_image_url: !secret outdoorcamerastream
-
-
-  - platform: generic
-    name: driveway_stream
-    still_image_url: !secret outdoorcamerastream
-    stream_source: !secret driveway_stream
-
-
-  - platform: generic
-    name: Meraker
-    still_image_url: https://metnet.no/custcams/merakeralpin1/laget/webcam_semihd.jpg?t=1636459159851
-
-  - platform: generic
-    name: meraker_day
-    still_image_url: !secret last_picture_url_meraker
-  # - platform: generic
-  #   name: garden
-  #   still_image_url: !secret garden_still
-
-  # - platform: generic
-  #   name: garden_stream
-  #   still_image_url: !secret garden_still
-  #   stream_source: !secret garden_stream
-
-
-  #Treg, men fungerer.
-  # - platform: ffmpeg
-  #   name: dogs
-  #   input: !secret dogs_stream
-
-
+#Treg, men fungerer.
+# - platform: ffmpeg
+#   name: dogs
+#   input: !secret dogs_stream
 
 #image src='https://api.sat24.com/crop?type=snow&lat=63.4305&lon=10.3951&width=300&height=300&zoom=1.00&continent=eu' width=300 height=300
 #https://en.sat24.com/en/freeimages for å konfigurere.

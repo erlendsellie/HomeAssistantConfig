@@ -1,4 +1,29 @@
 tyra:
+  template:
+    - sensor:
+        - name: "tyra_traffic_color"
+          state: >-
+            {%set hour = now().hour%}
+            {%set isWeekend = now().weekday() == 6 or now().weekday() == 7%}
+            {%set onlyErlendHome = states('sensor.peoplehome') == 'Erlend'%}
+
+            {%if isWeekend and onlyErlendHome%}
+              {%if hour > 21 or hour < 6%}
+                red
+              {%elif hour < 8%}
+                gold
+              {%elif hour >= 8%}
+                green
+              {%endif%}
+            {%else%}
+              {%if hour > 21 or hour < 6%}
+                red
+              {%elif hour < 7%}
+                gold
+              {%elif hour >= 7%}
+                green
+              {%endif%} 
+            {%endif%}
   binary_sensor:
     - platform: template
       sensors:
@@ -142,9 +167,11 @@ tyra:
           entity_id: binary_sensor.tyra_door
           to: "on"
       condition:
-        condition: time
-        after: "04:10:00"
-        before: "18:00:00"
+        # condition: time
+        # after: "04:10:00"
+        # before: "18:00:00"
+        - condition: template
+          value_template: "{{ states('sensor.tyra_traffic_color') != 'red'}}"
       action:
         - service: input_boolean.turn_off
           entity_id: input_boolean.tyraasleep
@@ -183,16 +210,17 @@ tyra:
         - condition: template
           value_template: "{{ states.input_select.alarm.state != 'Arm Away' }}"
       action:
-        - service: light.turn_off
+        - service: light.turn_on
           data_template:
+            brightness_pct: "1"
             entity_id:
-              - light.tyra
+              - light.tyra_1
         - service: light.turn_on
           data_template:
             brightness_pct: "1"
             entity_id:
               - light.tyra_ball
-            color_name: "pink"
+            color_name: "DeepPink"
         # - service: light.turn_on
         #   entity_id: light.upstairs
         #   data_template:
@@ -236,9 +264,9 @@ tyra:
         - platform: state
           entity_id: binary_sensor.tyra_door
           to: "on"
-      # - platform: state
-      #   entity_id: binary_sensor.tyra_motion
-      #   to: 'on'
+        - platform: state
+          entity_id: binary_sensor.tyra_motion
+          to: "on"
       condition:
         - condition: state
           entity_id: input_boolean.tyraasleep
@@ -248,6 +276,11 @@ tyra:
           entity_id: light.tyra
           data_template:
             brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
+        - service: light.turn_on
+          data:
+            brightness_pct: "100"
+            entity_id: light.tyra_ball
+            color_name: "DeepPink"
         - wait_for_trigger:
             - platform: state
               entity_id: binary_sensor.tyra_motion
@@ -260,3 +293,5 @@ tyra:
           value_template: "{{ states.input_boolean.tyraasleep.state == 'off' }}"
         - service: light.turn_off
           entity_id: light.tyra
+        - service: light.turn_off
+          entity_id: light.tyra_ball

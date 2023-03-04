@@ -12,7 +12,7 @@ blueprint:
       selector:
         entity:
           #integration: priceanalyzer
-          domain: sensor
+          #domain: sensor
     number:
       name: Base Setpoint Temperature
       description: Input Number Helper for base setpoint temperature

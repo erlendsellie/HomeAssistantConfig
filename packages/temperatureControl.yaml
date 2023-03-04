@@ -830,7 +830,7 @@ temperaturecontrol:
               {%if states.media_player.tv_stua.state == 'on'%}
                 5_down
               {%else%}
-                1_up
+                auto
               {%endif%}
 
     - alias: TurnOffClimateStua
@@ -987,7 +987,7 @@ temperaturecontrol:
         - service: climate.set_temperature
           data_template:
             entity_id: climate.varmepumpe
-            temperature: "{{ float(states.sensor.tempsenttoheater.state)}}"
+            temperature: "{{ states.sensor.tempsenttoheater.state | float(default=22)}}"
         - service: climate.set_hvac_mode
           data_template:
             entity_id: climate.varmepumpe

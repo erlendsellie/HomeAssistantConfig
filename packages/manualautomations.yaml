@@ -276,93 +276,6 @@ manualautomations:
     #   mode: parallel
     #   max: 10
 
-    - id: doorbell
-      alias: Door Bell
-      mode: restart
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.front_door_ding
-          to: "on"
-          from: "off"
-        - platform: state
-          entity_id: switch.doorbutton
-          to: "on"
-        # - platform: event
-        #   event_type: deconz_event
-        #   event_data:
-        #     id: smart_switch
-      action:
-        - service: script.turn_on
-          entity_id: script.doorbell
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.doorbelljustrang
-        - delay:
-            minutes: 4
-        - service: input_boolean.turn_off
-          entity_id: input_boolean.doorbelljustrang
-
-    - alias: stopDoorbell
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.hoveddor
-          to: "on"
-      condition:
-        - condition: template
-          value_template: "{{((as_timestamp(utcnow()) - as_timestamp(states.script.doorbell.last_changed)) / 60) | round(0) < 3}}"
-      action:
-        - service: script.turn_off
-          entity_id: script.doorbell
-        - service: script.turn_off
-          entity_id: script.blink_lights_doorbell
-        - service: script.turn_on
-          entity_id: script.restorelightcolor
-        - delay:
-            minutes: 2
-        - service: media_player.media_stop
-          entity_id: media_player.kitchen_display
-
-    - alias: Door Bell done turn off
-      trigger:
-        platform: state
-        entity_id: switch.doorbutton
-        to: "on"
-        for:
-          minutes: 1
-      action:
-        - service: switch.turn_off
-          entity_id: switch.doorbutton
-
-    - alias: Door Bell done
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.hoveddor, input_boolean.doorbelljustrang
-          to: "on"
-      condition:
-        - condition: state
-          entity_id: input_boolean.doorbelljustrang
-          state: "on"
-      action:
-        - service: media_player.turn_off
-          entity_id: media_player.kitchen_display
-        - service: switch.turn_off
-          entity_id: switch.doorbutton
-
-    - alias: doorbellShowCamera
-      trigger:
-        platform: state
-        entity_id: switch.doorbutton
-        to: "on"
-      condition:
-        condition: state
-        entity_id: media_player.tv_stua
-        state: "on"
-      action:
-        - service: camera.play_stream
-          entity_id: camera.driveway
-          data:
-            format: hls
-            media_player: media_player.chromecast9350
-
     - id: Turnlightsonwhendisarm
       alias: Turn lights on when disarm
       trigger:
@@ -513,34 +426,34 @@ manualautomations:
           data:
             message: "Car Heater turned on."
 
-    - alias: TurnOffCarHeater
-      trigger:
-        # - platform: time
-        #   at: 09:55:00
-        - platform: state
-          entity_id: switch.carheater
-          to: "on"
-          for:
-            hours: 4
-        - platform: state
-          entity_id: input_select.alarm
-          to: "Arm Away"
-      condition:
-        - condition: state
-          entity_id: switch.carheater
-          state: "on"
-      action:
-        # - service: input_boolean.turn_off
-        #   entity_id: input_boolean.carheatermounted
-        - service: switch.turn_off
-          entity_id: switch.carheater
-        - service: switch.turn_off
-          entity_id: switch.carheater
-        - service: switch.turn_off
-          entity_id: switch.carheater
-        - service: notify.me
-          data:
-            message: "Car Heater turned off."
+    # - alias: TurnOffCarHeater
+    #   trigger:
+    #     # - platform: time
+    #     #   at: 09:55:00
+    #     - platform: state
+    #       entity_id: switch.carheater
+    #       to: "on"
+    #       for:
+    #         hours: 4
+    #     - platform: state
+    #       entity_id: input_select.alarm
+    #       to: "Arm Away"
+    #   condition:
+    #     - condition: state
+    #       entity_id: switch.carheater
+    #       state: "on"
+    #   action:
+    #     # - service: input_boolean.turn_off
+    #     #   entity_id: input_boolean.carheatermounted
+    #     - service: switch.turn_off
+    #       entity_id: switch.carheater
+    #     - service: switch.turn_off
+    #       entity_id: switch.carheater
+    #     - service: switch.turn_off
+    #       entity_id: switch.carheater
+    #     - service: notify.me
+    #       data:
+    #         message: "Car Heater turned off."
 
     - alias: TurnOffCarHeaterMounted
       trigger:

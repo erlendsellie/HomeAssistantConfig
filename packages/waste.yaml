@@ -13,6 +13,38 @@ waste:
               {%set papir = plast%}
             {%endif%}
             {{next.attributes.friendly_name}} tømmes {{next.state | lower | regex_replace(find='uke', replace='tirsdag', ignorecase=True) | regex_replace(find='uken', replace='tirsdag', ignorecase=True)}}
+  multiscrape:
+    - resource: https://trv.no/plan/1edf022a-1b8f-4297-aea9-0e916919e386/
+      scan_interval: 14400 #4 hours
+      sensor:
+        - name: "TRV
+          select: "tbody tr:not(.tommefri-uke) a"
+          icon: mdi:trash-can
+          attributes:
+            - name: Date
+              select: "tbody tr:not(.tommefri-uke) .date"
+            - name: IsoDate
+              select: "tbody tr:not(.tommefri-uke) .date"
+              value_template: >
+                {%set year = now().year | string%}
+                {%set date = value + '.' + year + ' 11:00:00'%}
+                {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
+                {{dt}}
+            - name: RelativeTime
+              select: "tbody tr:not(.tommefri-uke) .date"
+              value_template: >
+                {%set year = now().year | string%}
+                {%set date = value + '.' + year + ' 11:00:00'%}
+                {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
+                {{relative_time(dt)}}
+            - name: TimedeltaDays
+              select: "tbody tr:not(.tommefri-uke) .date"
+              value_template: >
+                {%set year = now().year | string%}
+                {%set date = value + '.' + year + ' 23:59:00'%}
+                {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
+                {{timedelta((as_timestamp(dt) - as_timestamp(now()))/60/60/24).days}}
+
   automation:
     - alias: Søppel denne uken
       trigger:
