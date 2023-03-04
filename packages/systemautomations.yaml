@@ -96,7 +96,7 @@ automation:
           - binary_sensor.vindfang_door
           - sensor.nordpool
           - media_player.nvidia_shield
-          - lock.ytterdor
+          - lock.ytterdor_verisure
           - switch.garage_esp32
           - device_tracker.oneplus
           - device_tracker.caroline_app
@@ -136,7 +136,7 @@ automation:
           - binary_sensor.vindfang_door
           - sensor.nordpool
           - media_player.nvidia_shield
-          - lock.ytterdor
+          - lock.ytterdor_verisure
           - switch.garage_esp32
           - device_tracker.oneplus
           - device_tracker.caroline_app

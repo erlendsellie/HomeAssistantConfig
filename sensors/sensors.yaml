@@ -595,7 +595,7 @@
         {% endif %}
     unlockedby:
       friendly_name: "Door unlocked by"
-      value_template: "{{states.lock.ytterdor.attributes.changed_by}}"
+      value_template: "{{states.lock.ytterdor_verisure.attributes.changed_by}}"
     # {% if states.input_select.alarm.state == 'Disarm' %}
     #   {% if float(states.sensor.ute_temperature.state) < float(states.input_number.coldthreshold.state) %}
     #     {{ float(states.input_number.hjemmetemp.state) + float(states.input_number.extradegrees.state) }}

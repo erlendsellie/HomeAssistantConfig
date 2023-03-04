@@ -1,0 +1,164 @@
+lock:
+  - platform: template
+    name: ytterdor
+    unique_id: "22aceadb-488c-4bf9-a387-c70ea9fe81c1"
+    value_template: "{{ is_state('lock.ytterdor_verisure', 'locked') }}"
+    availability_template: "{{ is_state('lock.ytterdor_verisure', 'locked') or is_state('lock.ytterdor_verisure', 'unlocked') }}"
+    lock:
+      service: script.lockdoor
+    unlock:
+      service: script.unlockdoor
+
+script:
+  lockdoor:
+    alias: "Lock door"
+    sequence:
+      # - condition: template
+      #   value_template: "{{ states.lock.ytterdor_verisure.state != 'locked' }}"
+      - service: lock.lock
+        entity_id: lock.ytterdor_verisure
+        data:
+          code: !secret lock_code
+
+  unlockdoor:
+    alias: "Unlock door"
+    sequence:
+      - service: lock.unlock
+        entity_id: lock.ytterdor_verisure
+        data:
+          code: !secret lock_code
+
+automation:
+  - id: lockDoorsAtNight
+    alias: lockDoorsAtNight
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.hoveddor
+        to: "off"
+        for:
+          minutes: 10
+      - platform: time
+        at: "19:01:00"
+    condition:
+      - condition: time
+        after: "19:00:00"
+        before: "08:00:00"
+      - condition: state
+        entity_id: lock.ytterdor
+        state: "unlocked"
+    action:
+      - service: script.turn_on
+        entity_id: script.lockdoor
+
+  - alias: UnlockDoor
+    id: unlockdoor
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_select.alarm
+        to: "Disarm"
+        from: Arm Away
+      - platform: state
+        entity_id: binary_sensor.erlendhome
+        to: "on"
+        from: "off"
+      - platform: state
+        entity_id: binary_sensor.carolinehome
+        to: "on"
+        from: "off"
+    condition:
+      - condition: state
+        entity_id: lock.ytterdor
+        state: "locked"
+    action:
+      - service: script.turn_on
+        entity_id: script.unlockdoor
+      - service: notify.me
+        data_template:
+          title: "door unlocked"
+          message: "The door was unlocked automatically. {{states.sensor.peoplehome.state}} are home. Trigger: {{trigger.to_state.name}}"
+      - service: notify.me
+        data:
+          title: "door unlocked"
+          message: "The door was unlocked automatically."
+          data:
+            photo:
+              url: !secret outdoorcamerastream
+      - delay:
+          minutes: 5
+      - condition: template
+        value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed)) / 60) | round(0)) > 5) and (states.lock.ytterdor.state == 'unlocked') }}"
+      - service: script.turn_on
+        entity_id: script.lockdoor
+      - service: camera.snapshot
+        data:
+          entity_id: camera.driveway
+          filename: "/tmp/snapshot.jpg"
+      - service: notify.erlendpush
+        data:
+          title: "door locked"
+          message: "The door was locked since no one opened it."
+          data:
+            file: /tmp/snapshot.jpg
+
+  - alias: LockDoorByGarage
+    trigger:
+      - platform: state
+        entity_id: cover.garage_door
+        to: "closed"
+    condition:
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
+    action:
+      - service: script.turn_on
+        entity_id: script.lockdoor
+
+  - alias: UnlockDoorByGarage
+    trigger:
+      - platform: state
+        entity_id: cover.garage_door
+        to: "open"
+    condition:
+      condition: and
+      conditions:
+        - condition: state
+          entity_id: lock.ytterdor
+          state: "locked"
+    action:
+      - service: script.turn_on
+        entity_id: script.unlockdoor
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
+      - service: notify.me
+        data_template:
+          title: "door unlocked"
+          message: "The door was unlocked by Garage. {{states.sensor.peoplehome.state}} are home. "
+      - service: notify.me
+        data:
+          title: "door unlocked"
+          message: "The door was unlocked automatically by garage."
+          data:
+            photo:
+              url: !secret outdoorcamerastream
+      - delay:
+          minutes: 5
+      - condition: template
+        value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed)) / 60) | round(0)) > 5) and (states.lock.ytterdor.state == 'unlocked')}}"
+      - service: script.turn_on
+        entity_id: script.lockdoor
+      - service: camera.snapshot
+        data:
+          entity_id: camera.driveway
+          filename: "/tmp/snapshot.jpg"
+      - service: notify.erlendpush
+        data:
+          title: "door locked"
+          message: "The door was locked since no one opened it. Garage is {{states.cover.garage_door.state}}"
+          data:
+            file: /tmp/snapshot.jpg
+      - condition: template
+        value_template: "{{states.input_boolean.guestmode.state == 'off' and states.sensor.alarm.state != 'Disarm' }}"
+      - service: input_select.select_option
+        data_template:
+          entity_id: input_select.alarm
+          option: "{{ states.sensor.alarm.state }}"

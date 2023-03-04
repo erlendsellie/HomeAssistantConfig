@@ -78,9 +78,6 @@
       value_template: "{{states.binary_sensor.caroline_is_charging.state == 'on'}}"
     tv_on:
       value_template: "{{ states.media_player.tv_stua.state == 'Playing'}}"
-    garageanddooropen:
-      device_class: opening
-      value_template: "{{(states.binary_sensor.garage_backdoor.state == 'on' and states.cover.garage_door.state == 'on') and (states.binary_sensor.door_downstair.state == 'on' or states.binary_sensor.veranda.state == 'on') }}"
     stairsexposed:
       device_class: opening
       value_template: >-
@@ -109,12 +106,6 @@
       friendly_name: "Erlend Probably Asleep"
       value_template: >-
         {{states.sensor.oneplus_sleep_confidence.state | int(default=0) > 93}}
-    garagelightshouldbeon:
-      friendly_name: "Garage Light should be on"
-      delay_off:
-        minutes: 5
-      value_template: >-
-        {{states.binary_sensor.motion_garage.state == 'on' or states.cover.garage_door.state == 'open'}}
     drivewaylightshouldbeon:
       friendly_name: "Driveway Light should be on"
       delay_off:

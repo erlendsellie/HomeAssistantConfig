@@ -1,11 +1,11 @@
-sensor:
-  # - platform: scrape
-  #   resource: https://podkast.nrk.no/program/smartere_paa_10_minutter.rss
-  #   name: podcast_smartere_paa
-  #   select: "enclosure"
-  #   attribute: url
-  #   index: 0
-  #   scan_interval: 900
+#sensor:
+# - platform: scrape
+#   resource: https://podkast.nrk.no/program/smartere_paa_10_minutter.rss
+#   name: podcast_smartere_paa
+#   select: "enclosure"
+#   attribute: url
+#   index: 0
+#   scan_interval: 900
 
 automation:
   - alias: AlarmTime
@@ -125,7 +125,7 @@ automation:
     condition:
       condition: and
       conditions:
-        - condition: time  
+        - condition: time
           weekday:
             - mon
             - tue
