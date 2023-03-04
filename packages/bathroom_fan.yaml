@@ -1,27 +1,26 @@
-bathroom_fan:
-  fan:
-    - platform: template
-      fans:
-        bathroom:
-          friendly_name: "Bathroom"
-          value_template: "{{ states('switch.bathroom_fan') }}"
-          turn_on:
-            service: script.bathroom_fan_on
-          turn_off:
-            service: script.bathroom_fan_off
+fan:
+  - platform: template
+    fans:
+      bathroom:
+        friendly_name: "Bathroom"
+        value_template: "{{ states('switch.bathroom_fan') }}"
+        turn_on:
+          service: script.bathroom_fan_on
+        turn_off:
+          service: script.bathroom_fan_off
 
-  generic_hygrostat:
-    - name: Bathroom
-      device_class: "dehumidifier"
-      humidifier: switch.bathroom_fan
-      target_sensor: sensor.bathroom_humidity
+generic_hygrostat:
+  - name: Bathroom
+    device_class: "dehumidifier"
+    humidifier: switch.bathroom_fan
+    target_sensor: sensor.bathroom_humidity
 
-  script:
-    bathroom_fan_on:
-      sequence:
-        - service: switch.turn_on
-          entity_id: switch.bathroom_fan
-    bathroom_fan_off:
-      sequence:
-        - service: switch.turn_off
-          entity_id: switch.bathroom_fan
+script:
+  bathroom_fan_on:
+    sequence:
+      - service: switch.turn_on
+        entity_id: switch.bathroom_fan
+  bathroom_fan_off:
+    sequence:
+      - service: switch.turn_off
+        entity_id: switch.bathroom_fan

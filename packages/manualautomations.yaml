@@ -1,1119 +1,1118 @@
-manualautomations:
-  automation:
-    #Rollback:
-    #curl -d '{"version": "0.66.1"}' http://hassio/homeassistant/update
+automation:
+  #Rollback:
+  #curl -d '{"version": "0.66.1"}' http://hassio/homeassistant/update
 
-    #Hvis TVSoverommet eller ChromecastSoverommet er på mellom 1000 og 2000
-    # Og Pappa erikke hjemmetemp
-    # Then Arm Home
+  #Hvis TVSoverommet eller ChromecastSoverommet er på mellom 1000 og 2000
+  # Og Pappa erikke hjemmetemp
+  # Then Arm Home
 
-    #Exittask:
-    #
+  #Exittask:
+  #
 
-    # Disarm når døra låses opp.  -- trigger på eksisterende?
-    #armaway når døra låses og ingen er hjemme. -- trigger på eksisternede?
+  # Disarm når døra låses opp.  -- trigger på eksisterende?
+  #armaway når døra låses og ingen er hjemme. -- trigger på eksisternede?
 
-    ########################################
-    ########                        ########
-    ########       Telegram         ########
-    ########################################
+  ########################################
+  ########                        ########
+  ########       Telegram         ########
+  ########################################
 
-    # persistent_notification.config_warning -entity
-    #attributes.title
-    #attributes.message
-    #varsle ved state notifying
+  # persistent_notification.config_warning -entity
+  #attributes.title
+  #attributes.message
+  #varsle ved state notifying
 
-    - alias: trymInKinderGardenChangedToOff
-      trigger:
-        platform: state
+  - alias: trymInKinderGardenChangedToOff
+    trigger:
+      platform: state
+      entity_id: input_boolean.tryminkindergarden
+      to: "off"
+    action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.tyrainkindergarden
+
+  - alias: trymInKinderGardenChangedToON
+    trigger:
+      platform: state
+      entity_id: input_boolean.tryminkindergarden
+      to: "on"
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.tyrainkindergarden
+
+  - alias: Trym left in kindergarden
+    trigger:
+      # - platform: zone
+      #   entity_id: person.erlend
+      #   zone: zone.kindergarden
+      #   # Event is either enter or leave
+      #   event: enter
+      #   for:
+      #     minutes: 3
+      # - platform: zone
+      #   entity_id: person.caroline
+      #   zone: zone.kindergarden
+      #   # Event is either enter or leave
+      #   event: enter
+      #   for:
+      #     minutes: 3
+      - platform: state
+        entity_id: person.erlend, person.caroline
+        to: "kindergarden"
+        for:
+          minutes: 2
+    condition:
+      - condition: time
+        before: "13:20:00"
+      - condition: state
         entity_id: input_boolean.tryminkindergarden
-        to: "off"
-      action:
-        - service: input_boolean.turn_off
-          entity_id: input_boolean.tyrainkindergarden
-
-    - alias: trymInKinderGardenChangedToON
-      trigger:
-        platform: state
+        state: "off"
+    action:
+      - service: notify.me
+        data:
+          title: Kids left in kindergarden
+          message: The time is {{ now().hour }}:{{ now().minute }}.
+      - service: logbook.log
+        data_template:
+          name: Kids
+          message: Left in kindergarden
+      - service: input_boolean.turn_on
         entity_id: input_boolean.tryminkindergarden
-        to: "on"
-      action:
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.tyrainkindergarden
 
-    - alias: Trym left in kindergarden
-      trigger:
-        # - platform: zone
-        #   entity_id: person.erlend
-        #   zone: zone.kindergarden
-        #   # Event is either enter or leave
-        #   event: enter
-        #   for:
-        #     minutes: 3
-        # - platform: zone
-        #   entity_id: person.caroline
-        #   zone: zone.kindergarden
-        #   # Event is either enter or leave
-        #   event: enter
-        #   for:
-        #     minutes: 3
-        - platform: state
-          entity_id: person.erlend, person.caroline
-          to: "kindergarden"
-          for:
-            minutes: 2
-      condition:
-        - condition: time
-          before: "13:20:00"
-        - condition: state
-          entity_id: input_boolean.tryminkindergarden
-          state: "off"
-      action:
-        - service: notify.me
+  - alias: Trym picked up in kindergarden
+    trigger:
+      # - platform: zone
+      #   entity_id: person.erlend
+      #   zone: zone.kindergarden
+      #   # Event is either enter or leave
+      #   event: enter
+      # - platform: zone
+      #   entity_id: person.caroline
+      #   zone: zone.kindergarden
+      #   # Event is either enter or leave
+      #   event: enter
+      - platform: time
+        at: "16:45:00"
+      - platform: state
+        entity_id: person.erlend, person.caroline
+        to: "kindergarden"
+        for:
+          minutes: 3
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+      - condition: time
+        after: "12:00:00"
+      - condition: state
+        entity_id: input_boolean.tryminkindergarden
+        state: "on"
+    action:
+      - service: notify.me
+        data_template:
+          title: Kids picked up from kindergarden
+          message: De var der i {{states.sensor.trymsleeptimeformatted.state}}.
+      - service: logbook.log
+        data_template:
+          name: Kids
+          message: Picked up from kindergarden
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "Barna ble hentet i barnehagen"
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.tryminkindergarden
+      - service: script.turn_on
+        entity_id: script.blinkliving
+        data_template:
+          variables:
+            color: blue
+      - delay:
+          seconds: 20
+      - service: script.turn_on
+        entity_id: script.restorelightcolor
+      - condition: template
+        value_template: "{{states.binary_sensor.grind.state == 'on'}}"
+      - service: script.turn_on
+        entity_id: script.notifyBoth
+        data_template:
+          variables:
+            title: Barna er på vei hjem
+            message: Grinda er åpen
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "Grinda er åpen, lukk den før barna kommer hjem"
+
+  - alias: TrymStillInKindergarden
+    trigger:
+      - platform: time
+        at: "15:50:00"
+      - platform: time
+        at: "16:10:00"
+      - platform: time
+        at: "16:00:00"
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+      - condition: state
+        entity_id: input_boolean.tryminkindergarden
+        state: "on"
+    action:
+      - service: notify.me
+        data:
+          title: The kids is still in kindergarden
+          message: leave now to pick him up before closing.
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "Husk å hente barna i barnehagen"
+
+  - alias: Telegram Reply
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: "/garage"
+    action:
+      - service: notify.me
+        data_template:
+          message:
+            '{% if states.cover.garage_door.state == "open" %} "The garage is open. do you like to close it?""
+            {% else %} "The Garage is closed. Do you want to open it?"" {% endif %}'
           data:
-            title: Kids left in kindergarden
-            message: The time is {{ now().hour }}:{{ now().minute }}.
-        - service: logbook.log
-          data_template:
-            name: Kids
-            message: Left in kindergarden
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.tryminkindergarden
+            inline_keyboard:
+              - "Open Garage:/openGarage, Close Garage:/closeGarage"
 
-    - alias: Trym picked up in kindergarden
-      trigger:
-        # - platform: zone
-        #   entity_id: person.erlend
-        #   zone: zone.kindergarden
-        #   # Event is either enter or leave
-        #   event: enter
-        # - platform: zone
-        #   entity_id: person.caroline
-        #   zone: zone.kindergarden
-        #   # Event is either enter or leave
-        #   event: enter
-        - platform: time
-          at: "16:45:00"
-        - platform: state
-          entity_id: person.erlend, person.caroline
-          to: "kindergarden"
-          for:
-            minutes: 3
-      condition:
-        - condition: time
-          weekday:
-            - mon
-            - tue
-            - wed
-            - thu
-            - fri
-        - condition: time
-          after: "12:00:00"
-        - condition: state
-          entity_id: input_boolean.tryminkindergarden
-          state: "on"
-      action:
-        - service: notify.me
-          data_template:
-            title: Kids picked up from kindergarden
-            message: De var der i {{states.sensor.trymsleeptimeformatted.state}}.
-        - service: logbook.log
-          data_template:
-            name: Kids
-            message: Picked up from kindergarden
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: "Barna ble hentet i barnehagen"
-        - service: input_boolean.turn_off
-          entity_id: input_boolean.tryminkindergarden
-        - service: script.turn_on
-          entity_id: script.blinkliving
-          data_template:
-            variables:
-              color: blue
-        - delay:
-            seconds: 20
-        - service: script.turn_on
-          entity_id: script.restorelightcolor
-        - condition: template
-          value_template: "{{states.binary_sensor.grind.state == 'on'}}"
-        - service: script.turn_on
-          entity_id: script.notifyBoth
-          data_template:
-            variables:
-              title: Barna er på vei hjem
-              message: Grinda er åpen
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: "Grinda er åpen, lukk den før barna kommer hjem"
+            #keyboard:
+            # - '/openGarage'
+            # - '/closeGarage'
 
-    - alias: TrymStillInKindergarden
-      trigger:
-        - platform: time
-          at: "15:50:00"
-        - platform: time
-          at: "16:10:00"
-        - platform: time
-          at: "16:00:00"
-      condition:
-        - condition: time
-          weekday:
-            - mon
-            - tue
-            - wed
-            - thu
-            - fri
-        - condition: state
-          entity_id: input_boolean.tryminkindergarden
-          state: "on"
-      action:
-        - service: notify.me
-          data:
-            title: The kids is still in kindergarden
-            message: leave now to pick him up before closing.
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: "Husk å hente barna i barnehagen"
-
-    - alias: Telegram Reply
-      trigger:
-        platform: event
-        event_type: telegram_command
-        event_data:
-          command: "/garage"
-      action:
-        - service: notify.me
-          data_template:
-            message:
-              '{% if states.cover.garage_door.state == "open" %} "The garage is open. do you like to close it?""
-              {% else %} "The Garage is closed. Do you want to open it?"" {% endif %}'
-            data:
-              inline_keyboard:
-                - "Open Garage:/openGarage, Close Garage:/closeGarage"
-
-              #keyboard:
-              # - '/openGarage'
-              # - '/closeGarage'
-
-    - alias: Close Garage by Telegram
-      trigger:
-        platform: event
-        event_type: telegram_callback
-        event_data:
-          data: "/closeGarage"
-      action:
-        - service: cover.close_cover
-          entity_id: cover.garage_door
-        - service: notify.me
-          data:
-            message: "Okay, i'll tell you if it won't close."
-        - delay:
-            seconds: 19
-        - service: script.turn_on
-          data_template:
-            entity_id:
-              '{% if states.cover.garage_door.state == "open" %} script.garageopen
-              {% else %} {% endif %}'
-
-    - alias: Open Garage by Telegram
-      trigger:
-        platform: event
-        event_type: telegram_callback
-        event_data:
-          data: "/openGarage"
-      action:
-        - service: cover.open_cover
-          entity_id: cover.garage_door
-        - service: notify.me
-          data:
-            message: "Okay, ill open the garage."
-
-    ########################################
-    ########                        ########
-    ########         Security       ########
-    ########################################
-
-    ################
-    ##   Other    ##
-    ################
-
-    #TODO make work again.
-    # - alias: Perimeter - Doorbell ding - TV notification
-    #   description: ""
-    #   trigger:
-    #     - platform: state
-    #       entity_id: binary_sensor.front_door_ding
-    #       to: "on"
-    #   condition:
-    #     - condition: state
-    #       entity_id: media_player.tv_stua
-    #       state: "on"
-    #   action:
-    #     - service: camera.snapshot
-    #       target:
-    #         entity_id: camera.driveway
-    #       data:
-    #         filename: /config/www/tmp/Visitor_alert.jpg
-    #     - service: notify.living_room_tv
-    #       data:
-    #         message: "You have a visitor"
-    #         title: Perimeter alert
-    #         data:
-    #           duration: 10
-    #           fontsize: max
-    #           position: bottom-right
-    #           transparency: 50%
-    #           color: grey
-    #           interrupt: 1
-    #           file:
-    #             path: /config/www/tmp/driveway.jpg
-    #   mode: parallel
-    #   max: 10
-
-    - id: Turnlightsonwhendisarm
-      alias: Turn lights on when disarm
-      trigger:
-        - entity_id: input_select.alarm
-          platform: state
-          to: Disarm
-      condition:
-        # - condition: sun
-        #       before: sunset
-        #       before_offset: "1:00:00"
-        - condition: state
-          entity_id: sun.sun
-          state:
-            below_horizon
-            # offset: "-02:00:00"
-      action:
-        - service: script.turn_on
-          entity_id: script.lightson
-
-    ########################################
-    ########                        ########
-    ########         Heating         ########
-    ########################################
-
-    - alias: AskToTurnOnCarHeater
-      id: AskToTurnOnCarHeater
-      trigger:
-        - platform: time
-          at: "21:00:00"
-        - platform: time
-          at: "21:30:00"
-      condition:
-        condition: and
-        conditions:
-          - condition: time
-            weekday:
-              - mon
-              - tue
-              - wed
-              - thu
-              - sun
-          - condition: state
-            entity_id: switch.carheater
-            state: "off"
-          - condition: state
-            entity_id: input_boolean.carheatermounted
-            state: "off"
-          - condition: or
-            conditions:
-              - condition: state
-                entity_id: sensor.bad_weather
-                state: "frost"
-              - condition: state
-                entity_id: sensor.bad_weather
-                state: "snow"
-              - condition: state
-                entity_id: sensor.bad_weather
-                state: "freezing overnight"
-          - condition: state
-            entity_id: binary_sensor.erlendhome
-            state: "on"
-      action:
-        - service: notify.mobile_app_oneplus
-          data_template:
-            title: "Is the Car Heater Mounted?"
-            message: "Its {{states.sensor.ute_temperature.state}} degrees outside."
-            data:
-              actions:
-                - action: turnoncarheater
-                  title: "Yes"
-        - service: notify.mobile_app_caroline_pixel
-          data_template:
-            title: "Is the Car Heater Mounted?"
-            message: "Its {{states.sensor.ute_temperature.state}} degrees outside."
-            data:
-              actions:
-                - action: turnoncarheater
-                  title: "Yes"
-
-    - alias: TurnOnCarHeaterMounted
-      trigger:
-        - platform: event
-          event_type: mobile_app_notification_action
-          event_data:
-            action: turnoncarheater
-      action:
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.carheatermounted
-
-    - alias: TurnOnCarHeater
-      id: TurnOnCarHeater
-      trigger:
-        - platform: time
-          at: "05:30:00"
-      condition:
-        condition: and
-        conditions:
-          - condition: time
-            weekday:
-              - mon
-              - tue
-              - wed
-              - thu
-              - fri
-                #group.people problem
-          - condition: state
-            entity_id: group.people
-            state: "home"
-          - condition: state
-            entity_id: input_boolean.carheatermounted
-            state: "on"
-      action:
-        - service: switch.turn_on
-          entity_id: switch.carheater
-        - service: notify.me
-          data:
-            message: "Car Heater turned on."
-
-    - alias: TurnOnCarHeaterReallyCold
-      id: TurnOnCarHeaterReallyCold
-      trigger:
-        - platform: time
-          at: "05:00:00"
-      condition:
-        condition: and
-        conditions:
-          - condition: time
-            weekday:
-              - mon
-              - tue
-              - wed
-              - thu
-              - fri
-                #group.people problem
-          - condition: state
-            entity_id: group.people
-            state: "home"
-          - condition: state
-            entity_id: input_boolean.carheatermounted
-            state: "on"
-          - condition: numeric_state
-            entity_id: sensor.ute_temperature
-            below: -8
-      action:
-        - service: switch.turn_on
-          entity_id: switch.carheater
-        - service: notify.me
-          data:
-            message: "Car Heater turned on."
-
-    # - alias: TurnOffCarHeater
-    #   trigger:
-    #     # - platform: time
-    #     #   at: 09:55:00
-    #     - platform: state
-    #       entity_id: switch.carheater
-    #       to: "on"
-    #       for:
-    #         hours: 4
-    #     - platform: state
-    #       entity_id: input_select.alarm
-    #       to: "Arm Away"
-    #   condition:
-    #     - condition: state
-    #       entity_id: switch.carheater
-    #       state: "on"
-    #   action:
-    #     # - service: input_boolean.turn_off
-    #     #   entity_id: input_boolean.carheatermounted
-    #     - service: switch.turn_off
-    #       entity_id: switch.carheater
-    #     - service: switch.turn_off
-    #       entity_id: switch.carheater
-    #     - service: switch.turn_off
-    #       entity_id: switch.carheater
-    #     - service: notify.me
-    #       data:
-    #         message: "Car Heater turned off."
-
-    - alias: TurnOffCarHeaterMounted
-      trigger:
-        - platform: time
-          at: "14:00:00"
-      action:
-        - service: input_boolean.turn_off
-          entity_id: input_boolean.carheatermounted
-
-    # - id: turnonkitchenandpanelheater
-    #   alias: turnOnKitchenAndPanelHeater
-    #   trigger:
-    #   - platform: state
-    #     entity_id: input_number.hjemmetemp
-    #   - platform: state
-    #     entity_id: input_select.alarm
-    #     to: 'Disarm'
-    #   - platform: state
-    #     entity_id: sensor.yr_temperature
-    #   # - platform: state
-    #   #   entity_id: sensor.stua2_temperature
-    #   condition:
-    #     condition: and
-    #     conditions:
-    #     #- condition: numeric_state
-    #       #entity_id: sensor.yr_temperature
-    #       #below: 4
-    #     - condition: state
-    #       entity_id: climate.varmepumpe
-    #       state: 'heat'
-    #     - condition: template
-    #       value_template: "{{ float(states.sensor.ute_temperature.state) < float(3) }}"
-    #     - condition: state
-    #       entity_id: input_select.alarm
-    #       state: 'Disarm'
-    #   action:
-    #   - service: switch.turn_on
-    #     entity_id: switch.kitchen_heater
-    # - service: switch.turn_on
-    #   entity_id: switch.bench
-
-    # After editing tempsetntoheater, this isn't used except turning off the switch.bench.
-    # - id: setbortetemp
-    #   alias: Set Bortetemp
-    #   trigger:
-    #   - platform: state
-    #     entity_id: input_number.bortetemp
-    #   - platform: state
-    #     entity_id: input_select.alarm
-    #     to: 'Arm Away'
-    #     for:
-    #        minutes: 4
-    #   - platform: state
-    #     entity_id: input_select.alarm
-    #     to: 'Arm Home'
-    #     for:
-    #        minutes: 4
-    #   condition:
-    #     condition: or
-    #     conditions:
-    #     - condition: state
-    #       entity_id: input_select.alarm
-    #       state: 'Arm Away'
-    #     - condition: state
-    #       entity_id: input_select.alarm
-    #       state: 'Arm Home'
-    #   action:
-    #   - service: input_number.set_value
-    #     data_template:
-    #       entity_id: input_number.temperature
-    #       value: '{{ states.input_number.bortetemp.state | int(default=0) }}'
-    #   - service: climate.set_hvac_mode
-    #     data_template:
-    #       entity_id: climate.varmepumpe
-    #       hvac_mode: 'Heat'
-    #       #Seing if this will result in warmer nights.
-    #   # - service: switch.turn_off
-    #   #   entity_id: switch.kitchen_heater
-    #   - service: switch.turn_off
-    #     entity_id: switch.bench
-
-    - id: NotifyCloseVerandaDoor
-      alias: NotifyCloseVerandaDoor
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.veranda_open
-          to: "on"
-          for:
-            minutes: 60
-      action:
-        - service: notify.me
-          data_template:
-            message: Verandaen har vært åpen i 60 minutter nå
-
-    ########################################
-    ########   Environment and      ########
-    ########         Lights         ########
-    ########################################
-
-    - id: TurnoffbedroomlightwhenHallMotion
-      alias: TurnoffbedroomlightwhenHallMotion
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_hallway
-          to: "on"
-      condition:
-        condition: or
-        conditions:
-          - condition: state
-            entity_id: group.caroline
-            state: not_home
-          - condition: state
-            entity_id: group.erlend
-            state: "not_home"
-      action:
-        - service: light.turn_off
+  - alias: Close Garage by Telegram
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: "/closeGarage"
+    action:
+      - service: cover.close_cover
+        entity_id: cover.garage_door
+      - service: notify.me
+        data:
+          message: "Okay, i'll tell you if it won't close."
+      - delay:
+          seconds: 19
+      - service: script.turn_on
+        data_template:
           entity_id:
-            - light.bedroom
-            - light.caroline_bedroom
-            - light.erlend_bedroom
+            '{% if states.cover.garage_door.state == "open" %} script.garageopen
+            {% else %} {% endif %}'
 
-    ### Toilet Light ###
-    - id: TurnOnToiletLight
-      alias: TurnOnToiletLight
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_toilet
-          to: "on"
-        - platform: state
-          entity_id: binary_sensor.door_toilet
-          to: "on"
-      condition:
-        - condition: template
-          value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
-      action:
-        - service: light.turn_on
-          entity_id: light.toilet
-          data_template:
-            brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
-        - service: light.turn_on
-          entity_id: group.hallwaylights
+  - alias: Open Garage by Telegram
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: "/openGarage"
+    action:
+      - service: cover.open_cover
+        entity_id: cover.garage_door
+      - service: notify.me
+        data:
+          message: "Okay, ill open the garage."
 
-    - id: TurnOffToiletLight
-      alias: TurnOffToiletLight
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_toilet
-          to: "off"
-          for:
-            minutes: 5
-        - platform: state
-          entity_id: binary_sensor.motion_toilet
-          to: "off"
-          for:
-            minutes: 10
-        - platform: state
-          entity_id: light.toilet
-          to: "on"
-          for:
-            minutes: 30
-      action:
-        - service: light.turn_off
-          entity_id: light.toilet
+  ########################################
+  ########                        ########
+  ########         Security       ########
+  ########################################
 
-    ### Vindfang light ###
-    - id: TurnOnVindFangLight
-      alias: TurnOnVindFangLight
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_vindfang
-          to: "on"
-        - platform: state
-          entity_id: binary_sensor.hoveddor
-          to: "on"
-      # - platform: state
-      #   entity_id: binary_sensor.motion_hallway
-      #   to: 'on'
-      condition:
-        - condition: template
-          value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
-      action:
-        - service: light.turn_on
-          entity_id: light.vindfang
-        # - service: light.turn_on
-        #   entity_id: light.nexadim1
-        # - service: light.turn_on
-        #   entity_id: light.nexadim1
-        #Remove when battery
-        - service: light.turn_on
-          entity_id: group.hallwaylights
-          data_template:
-            brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
+  ################
+  ##   Other    ##
+  ################
 
-    - id: TurnOffVindFangLight
-      alias: TurnOffVindFangLight
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_vindfang
-          to: "off"
-          for:
-            minutes: 3
-      # - platform: state
-      #   entity_id: binary_sensor.motion_hallway
-      #   to: 'off'
-      #   for:
-      #     minutes: 5
-      condition:
-        - condition: template
-          value_template: "{{ states.binary_sensor.motion_vindfang.state == 'off' and states.binary_sensor.hoveddor.state == 'off'}}"
-      action:
-        - service: light.turn_off
-          entity_id: light.vindfang
+  #TODO make work again.
+  # - alias: Perimeter - Doorbell ding - TV notification
+  #   description: ""
+  #   trigger:
+  #     - platform: state
+  #       entity_id: binary_sensor.front_door_ding
+  #       to: "on"
+  #   condition:
+  #     - condition: state
+  #       entity_id: media_player.tv_stua
+  #       state: "on"
+  #   action:
+  #     - service: camera.snapshot
+  #       target:
+  #         entity_id: camera.driveway
+  #       data:
+  #         filename: /config/www/tmp/Visitor_alert.jpg
+  #     - service: notify.living_room_tv
+  #       data:
+  #         message: "You have a visitor"
+  #         title: Perimeter alert
+  #         data:
+  #           duration: 10
+  #           fontsize: max
+  #           position: bottom-right
+  #           transparency: 50%
+  #           color: grey
+  #           interrupt: 1
+  #           file:
+  #             path: /config/www/tmp/driveway.jpg
+  #   mode: parallel
+  #   max: 10
 
-    - id: adjustbrightness
-      alias: Living Room Lights - Adjust Brightness
-      mode: restart
-      trigger:
+  - id: Turnlightsonwhendisarm
+    alias: Turn lights on when disarm
+    trigger:
+      - entity_id: input_select.alarm
         platform: state
-        entity_id: input_number.brightness
-      action:
-        - delay:
-            seconds: 1
-        - service: light.turn_on
-          data_template:
-            entity_id: light.tvsone
-            brightness_pct: "{{ trigger.to_state.state | int(default=20) }}"
-            profile: "{{ states.input_number.light_profile.state }}"
+        to: Disarm
+    condition:
+      # - condition: sun
+      #       before: sunset
+      #       before_offset: "1:00:00"
+      - condition: state
+        entity_id: sun.sun
+        state:
+          below_horizon
+          # offset: "-02:00:00"
+    action:
+      - service: script.turn_on
+        entity_id: script.lightson
 
-    - id: adjustbrightness_turn_off
-      alias: Living Room Lights - Adjust Brightness_turn_off
-      trigger:
-        platform: numeric_state
-        entity_id: input_number.brightness
-        below: 1
-      action:
-        - service: light.turn_off
-          data_template:
-            entity_id: light.tvsone, light.peis
+  ########################################
+  ########                        ########
+  ########         Heating         ########
+  ########################################
 
-    # - id: Bathroom_Humidity_High_When_Not_Home
-    #   alias: Bathroom_Humidity_High_When_Not_Home
-    #   trigger:
-    #   - platform: template
-    #     value_template: "{{states.sensor.bathroomhumidity.attributes.change > float(8)}}"
-    #   condition:
-    #     - condition: state
-    #       entity_id:  input_select.alarm
-    #       state: 'Arm Away'
-    #   action:
-    #   - service:  notify.erlendpush
-    #     data_template:
-    #       message: Fuktigheten på badet har gått opp uten at noen er hjemme!
-    #   - service:  notify.carolinepush
-    #     data_template:
-    #       message: Fuktigheten på badet har gått opp uten at noen er hjemme!
-
-    - id: Bathroom_Humidity_High
-      alias: Bathroom Humidity High
-      trigger:
-        # - platform: template
-        #   value_template: "{{states.sensor.bathroomhumidity.attributes.change > float(5)}}"
-        - platform: template
-          value_template: "{{states.sensor.bathroom_humidity.state | float(default=0) > float(30)}}"
-      action:
-        - service: switch.turn_on
-          entity_id: switch.bathroom_fan
-
-    - id: Bathroom_Humidity_Normal
-      alias: Bathroom Humidity Normal
-      trigger:
-        - platform: numeric_state
-          entity_id: sensor.bathroom_humidity
-          below: 30
-          for:
-            minutes: 30
-        - platform: state
-          entity_id: switch.bathroom_fan
-          to: "on"
-          for:
-            minutes: 60
-      # - platform: state
-      #   entity_id: switch.bathroom_fan
-      #   to: 'on'
-      #   for:
-      #     minutes: 30
-      action:
-        - service: switch.turn_off
-          entity_id: switch.bathroom_fan
-
-    - id: BathroomFanWhenVVBOn
-      alias: BathroomFanWhenVVBOn
-      trigger:
-        # - platform: template
-        #   value_template: "{{ (states.sensor.varmtvannsbereder.state | int(default=70) - states.climate.varmtvannsbereder.attributes.temperature | int(default=70)) > 10 }}"
-        - platform: state
-          entity_id: binary_sensor.using_hot_water
-          to: "on"
-      condition:
+  - alias: AskToTurnOnCarHeater
+    id: AskToTurnOnCarHeater
+    trigger:
+      - platform: time
+        at: "21:00:00"
+      - platform: time
+        at: "21:30:00"
+    condition:
+      condition: and
+      conditions:
+        - condition: time
+          weekday:
+            - mon
+            - tue
+            - wed
+            - thu
+            - sun
         - condition: state
-          entity_id: binary_sensor.motionbathroom
-          state: "on"
-      action:
-        - service: switch.turn_on
-          entity_id: switch.bathroom_fan
-        # - wait_for_trigger:
-        #     - platform: state
-        #       entity_id: binary_sensor.using_hot_water
-        #       to: "off"
-        #   timeout: "01:00:00"
-        #   continue_on_timeout: true
-        - delay:
-            minutes: 30
-        - service: switch.turn_off
-          entity_id: switch.bathroom_fan
-
-    ########################################
-    ########        Sleeping        ########
-    ########      and Bedroom       ########
-    ########################################
-
-    - id: carolinenatta70
-      alias: Caroline legger seg + 60 min
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.bedtvon
-          to: "on"
-          for:
-            minutes: 60
-        - platform: state
-          entity_id: binary_sensor.ccharging
-          to: "on"
-          for:
-            minutes: 60
-      condition:
-        - condition: state
-          entity_id: input_boolean.ccharging
-          state: "on"
-        - condition: state
-          entity_id: input_boolean.easleep
+          entity_id: switch.carheater
           state: "off"
-      action:
-        - service: script.turn_on
-          entity_id: script.bedtvoff
-
-    - alias: TV Still on
-      trigger:
-        platform: state
-        entity_id: input_boolean.casleep
-        to: "on"
-        for:
-          minutes: 90
-      condition:
         - condition: state
-          entity_id: input_boolean.easleep
+          entity_id: input_boolean.carheatermounted
           state: "off"
-      action:
-        - service: notify.me
+        - condition: or
+          conditions:
+            - condition: state
+              entity_id: sensor.bad_weather
+              state: "frost"
+            - condition: state
+              entity_id: sensor.bad_weather
+              state: "snow"
+            - condition: state
+              entity_id: sensor.bad_weather
+              state: "freezing overnight"
+        - condition: state
+          entity_id: binary_sensor.erlendhome
+          state: "on"
+    action:
+      - service: notify.mobile_app_oneplus
+        data_template:
+          title: "Is the Car Heater Mounted?"
+          message: "Its {{states.sensor.ute_temperature.state}} degrees outside."
           data:
-            message: "TV på soverommet er fortsatt på"
-        - service: script.turn_on
-          entity_id: script.bedtvoff
+            actions:
+              - action: turnoncarheater
+                title: "Yes"
+      - service: notify.mobile_app_caroline_pixel
+        data_template:
+          title: "Is the Car Heater Mounted?"
+          message: "Its {{states.sensor.ute_temperature.state}} degrees outside."
+          data:
+            actions:
+              - action: turnoncarheater
+                title: "Yes"
 
-    - id: erlendnatta70
-      alias: Erlend legger seg + 70 min
-      trigger:
-        platform: template
-        value_template: >-
-          {{states.input_boolean.easleep.state == 'on' and
-            states.binary_sensor.bedtvon == 'on'}}
-        for:
-          minutes: 60
-      action:
-        - service: script.turn_on
-          entity_id: script.bedtvoff
-
-    - alias: TvLightsWhenTVOff
-      trigger:
-        - platform: state
-          entity_id: media_player.nvidia_shield
-          to: "Off"
-          for:
-            seconds: 4
-      action:
-        - service: light.turn_on
-          entity_id: light.hyperion
-          data_template:
-            brightness_pct: "100"
-            #rgb_color: [255,162,71]
-            rgb_color: [255, 128, 25]
-
-    - id: tv2long
-      alias: tv2long
-      trigger:
-        - platform: state
-          entity_id: sensor.tvsource
-          to: "TV 2 Sumo"
-          for:
-            minutes: 120
-      action:
-        - service: notify.tv_stua
-          data_template:
-            message: "TV2 Sumo har stått på i 1 time nå. Bytt til en annen kilde eller slå av innen 5 minutter"
-        - delay:
-            minutes: 5
-        - condition: state
-          entity_id: sensor.tvsource
-          state: "TV 2 Sumo"
-        - service: notify.tv_stua
-          data_template:
-            message: "Slår av TV."
-        - delay:
-            seconds: 10
-        - service: media_player.turn_off
-          entity_id: media_player.tv_stua
-
-    - id: tvWrongChromecast
-      alias: Castet to wrong cromecast
-      trigger:
-        - platform: state
-          entity_id: media_player.tv_stua
-          to: "Playing"
-        - platform: state
-          entity_id: media_player.tv_stua
-          to: "on"
-      condition:
-        - condition: template
-          value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
-      action:
-        - service: notify.tv_stua
-          data_template:
-            message: "Castet til chromecast når ingen er der."
-        - delay:
-            seconds: 10
-        - service: media_player.turn_off
-          entity_id: media_player.tv_stua
-
-    - alias: bedroomtvOnWrong
-      trigger:
-        # - platform: state
-        #   entity_id: media_player.tv_soverommet #Maybe media_player.google_tv, check states for chromecast first.
-        #   to: 'on'
-        #   for:
-        #     seconds: 20
-        - platform: state
-          entity_id: media_player.google_tv
-          to: "Idle"
-          for:
-            seconds: 20
-        - platform: state
-          entity_id: media_player.google_tv
-          to: "Playing"
-          for:
-            seconds: 20
-        - platform: state
-          entity_id: media_player.google_tv
-          to: "Paused"
-          for:
-            seconds: 20
-      condition:
-        condition: and
-        conditions:
-          - condition: state
-            entity_id: binary_sensor.motion_bedroom
-            state: "off"
-          - condition: state
-            entity_id: input_boolean.casleep
-            state: "off"
-          - condition: state
-            entity_id: input_boolean.easleep
-            state: "off"
-      action:
-        - service: notify.mobile_app_oneplus
-          data_template:
-            title: "Castet til Soverommet."
-            message: " Var det feil?"
-            data:
-              actions:
-                - action: tvbedroomoff
-                  title: Ja, slå av TV på soverommet igjen
-                  destructive: true
-        - service: notify.mobile_app_caroline_pixel
-          data_template:
-            title: "Castet til Soverommet."
-            message: " Var det feil?"
-            data:
-              actions:
-                - action: tvbedroomoff
-                  title: Ja, slå av TV på soverommet igjen
-                  destructive: true
-
-    - alias: bedroomoffWebhook
-      trigger:
-        platform: event
+  - alias: TurnOnCarHeaterMounted
+    trigger:
+      - platform: event
         event_type: mobile_app_notification_action
         event_data:
-          action: tvbedroomoff
-      action:
-        - service: script.turn_on
-          entity_id: script.bedtvoff
+          action: turnoncarheater
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.carheatermounted
 
-    - id: bedroomtvoff
-      alias: bedroomtvoff
-      trigger:
-        - platform: state
-          entity_id: media_player.tv_soverommet
-          to: "off"
-          for:
-            minutes: 2
-        - platform: state
-          entity_id: media_player.tv_soverommet
-          to: "unavailable"
-        - platform: state
-          entity_id: media_player.google_tv
-          to: "off"
-          for:
-            minutes: 5
-      action:
-        - service: media_player.media_stop
-          entity_id: media_player.google_tv
-        - service: media_player.turn_off
-          entity_id: media_player.tv_soverommet
-
-    - id: bedroomtvonfor120
-      alias: bedroomtvonfor120
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.bedtvon
-          to: "on"
-          for:
-            minutes: 120
-        - platform: state
-          entity_id: binary_sensor.bedtvon
-          to: "on"
-          for:
-            minutes: 240
-        - platform: state
-          entity_id: media_player.google_tv
-          to: "on"
-          for:
-            minutes: 118
-      action:
-        - service: script.turn_on
-          entity_id: script.bedtvoff
-
-    - alias: BedroomChromecastNotPlaying
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.bed_tv_idle
-          to: "on"
-        - platform: state
-          entity_id: media_player.google_tv
-          to: "off"
-          for:
-            minutes: 15
-        - platform: state
-          entity_id: media_player.google_tv
-          to: "idle"
-          for:
-            minutes: 5
-        - platform: state
-          entity_id: media_player.google_tv
-          to: "Idle"
-          for:
-            minutes: 5
-        - platform: state
-          entity_id: media_player.google_tv
-          to: "Paused"
-          for:
-            minutes: 15
-      action:
-        - service: script.turn_on
-          entity_id: script.bedtvoff
-
-    - alias: OfficeCasleep
-      trigger:
-        - platform: state
-          entity_id: input_boolean.casleep
-          to: "on"
-      condition:
+  - alias: TurnOnCarHeater
+    id: TurnOnCarHeater
+    trigger:
+      - platform: time
+        at: "05:30:00"
+    condition:
+      condition: and
+      conditions:
+        - condition: time
+          weekday:
+            - mon
+            - tue
+            - wed
+            - thu
+            - fri
+              #group.people problem
         - condition: state
-          entity_id: binary_sensor.motion_downstairs_office
+          entity_id: group.people
+          state: "home"
+        - condition: state
+          entity_id: input_boolean.carheatermounted
           state: "on"
+    action:
+      - service: switch.turn_on
+        entity_id: switch.carheater
+      - service: notify.me
+        data:
+          message: "Car Heater turned on."
+
+  - alias: TurnOnCarHeaterReallyCold
+    id: TurnOnCarHeaterReallyCold
+    trigger:
+      - platform: time
+        at: "05:00:00"
+    condition:
+      condition: and
+      conditions:
+        - condition: time
+          weekday:
+            - mon
+            - tue
+            - wed
+            - thu
+            - fri
+              #group.people problem
         - condition: state
-          entity_id: input_boolean.guestmode
+          entity_id: group.people
+          state: "home"
+        - condition: state
+          entity_id: input_boolean.carheatermounted
+          state: "on"
+        - condition: numeric_state
+          entity_id: sensor.ute_temperature
+          below: -8
+    action:
+      - service: switch.turn_on
+        entity_id: switch.carheater
+      - service: notify.me
+        data:
+          message: "Car Heater turned on."
+
+  # - alias: TurnOffCarHeater
+  #   trigger:
+  #     # - platform: time
+  #     #   at: 09:55:00
+  #     - platform: state
+  #       entity_id: switch.carheater
+  #       to: "on"
+  #       for:
+  #         hours: 4
+  #     - platform: state
+  #       entity_id: input_select.alarm
+  #       to: "Arm Away"
+  #   condition:
+  #     - condition: state
+  #       entity_id: switch.carheater
+  #       state: "on"
+  #   action:
+  #     # - service: input_boolean.turn_off
+  #     #   entity_id: input_boolean.carheatermounted
+  #     - service: switch.turn_off
+  #       entity_id: switch.carheater
+  #     - service: switch.turn_off
+  #       entity_id: switch.carheater
+  #     - service: switch.turn_off
+  #       entity_id: switch.carheater
+  #     - service: notify.me
+  #       data:
+  #         message: "Car Heater turned off."
+
+  - alias: TurnOffCarHeaterMounted
+    trigger:
+      - platform: time
+        at: "14:00:00"
+    action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.carheatermounted
+
+  # - id: turnonkitchenandpanelheater
+  #   alias: turnOnKitchenAndPanelHeater
+  #   trigger:
+  #   - platform: state
+  #     entity_id: input_number.hjemmetemp
+  #   - platform: state
+  #     entity_id: input_select.alarm
+  #     to: 'Disarm'
+  #   - platform: state
+  #     entity_id: sensor.yr_temperature
+  #   # - platform: state
+  #   #   entity_id: sensor.stua2_temperature
+  #   condition:
+  #     condition: and
+  #     conditions:
+  #     #- condition: numeric_state
+  #       #entity_id: sensor.yr_temperature
+  #       #below: 4
+  #     - condition: state
+  #       entity_id: climate.varmepumpe
+  #       state: 'heat'
+  #     - condition: template
+  #       value_template: "{{ float(states.sensor.ute_temperature.state) < float(3) }}"
+  #     - condition: state
+  #       entity_id: input_select.alarm
+  #       state: 'Disarm'
+  #   action:
+  #   - service: switch.turn_on
+  #     entity_id: switch.kitchen_heater
+  # - service: switch.turn_on
+  #   entity_id: switch.bench
+
+  # After editing tempsetntoheater, this isn't used except turning off the switch.bench.
+  # - id: setbortetemp
+  #   alias: Set Bortetemp
+  #   trigger:
+  #   - platform: state
+  #     entity_id: input_number.bortetemp
+  #   - platform: state
+  #     entity_id: input_select.alarm
+  #     to: 'Arm Away'
+  #     for:
+  #        minutes: 4
+  #   - platform: state
+  #     entity_id: input_select.alarm
+  #     to: 'Arm Home'
+  #     for:
+  #        minutes: 4
+  #   condition:
+  #     condition: or
+  #     conditions:
+  #     - condition: state
+  #       entity_id: input_select.alarm
+  #       state: 'Arm Away'
+  #     - condition: state
+  #       entity_id: input_select.alarm
+  #       state: 'Arm Home'
+  #   action:
+  #   - service: input_number.set_value
+  #     data_template:
+  #       entity_id: input_number.temperature
+  #       value: '{{ states.input_number.bortetemp.state | int(default=0) }}'
+  #   - service: climate.set_hvac_mode
+  #     data_template:
+  #       entity_id: climate.varmepumpe
+  #       hvac_mode: 'Heat'
+  #       #Seing if this will result in warmer nights.
+  #   # - service: switch.turn_off
+  #   #   entity_id: switch.kitchen_heater
+  #   - service: switch.turn_off
+  #     entity_id: switch.bench
+
+  - id: NotifyCloseVerandaDoor
+    alias: NotifyCloseVerandaDoor
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.veranda_open
+        to: "on"
+        for:
+          minutes: 60
+    action:
+      - service: notify.me
+        data_template:
+          message: Verandaen har vært åpen i 60 minutter nå
+
+  ########################################
+  ########   Environment and      ########
+  ########         Lights         ########
+  ########################################
+
+  - id: TurnoffbedroomlightwhenHallMotion
+    alias: TurnoffbedroomlightwhenHallMotion
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_hallway
+        to: "on"
+    condition:
+      condition: or
+      conditions:
+        - condition: state
+          entity_id: group.caroline
+          state: not_home
+        - condition: state
+          entity_id: group.erlend
+          state: "not_home"
+    action:
+      - service: light.turn_off
+        entity_id:
+          - light.bedroom
+          - light.caroline_bedroom
+          - light.erlend_bedroom
+
+  ### Toilet Light ###
+  - id: TurnOnToiletLight
+    alias: TurnOnToiletLight
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_toilet
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.door_toilet
+        to: "on"
+    condition:
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+    action:
+      - service: light.turn_on
+        entity_id: light.toilet
+        data_template:
+          brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
+      - service: light.turn_on
+        entity_id: group.hallwaylights
+
+  - id: TurnOffToiletLight
+    alias: TurnOffToiletLight
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_toilet
+        to: "off"
+        for:
+          minutes: 5
+      - platform: state
+        entity_id: binary_sensor.motion_toilet
+        to: "off"
+        for:
+          minutes: 10
+      - platform: state
+        entity_id: light.toilet
+        to: "on"
+        for:
+          minutes: 30
+    action:
+      - service: light.turn_off
+        entity_id: light.toilet
+
+  ### Vindfang light ###
+  - id: TurnOnVindFangLight
+    alias: TurnOnVindFangLight
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_vindfang
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.hoveddor
+        to: "on"
+    # - platform: state
+    #   entity_id: binary_sensor.motion_hallway
+    #   to: 'on'
+    condition:
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+    action:
+      - service: light.turn_on
+        entity_id: light.vindfang
+      # - service: light.turn_on
+      #   entity_id: light.nexadim1
+      # - service: light.turn_on
+      #   entity_id: light.nexadim1
+      #Remove when battery
+      - service: light.turn_on
+        entity_id: group.hallwaylights
+        data_template:
+          brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
+
+  - id: TurnOffVindFangLight
+    alias: TurnOffVindFangLight
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_vindfang
+        to: "off"
+        for:
+          minutes: 3
+    # - platform: state
+    #   entity_id: binary_sensor.motion_hallway
+    #   to: 'off'
+    #   for:
+    #     minutes: 5
+    condition:
+      - condition: template
+        value_template: "{{ states.binary_sensor.motion_vindfang.state == 'off' and states.binary_sensor.hoveddor.state == 'off'}}"
+    action:
+      - service: light.turn_off
+        entity_id: light.vindfang
+
+  - id: adjustbrightness
+    alias: Living Room Lights - Adjust Brightness
+    mode: restart
+    trigger:
+      platform: state
+      entity_id: input_number.brightness
+    action:
+      - delay:
+          seconds: 1
+      - service: light.turn_on
+        data_template:
+          entity_id: light.tvsone
+          brightness_pct: "{{ trigger.to_state.state | int(default=20) }}"
+          profile: "{{ states.input_number.light_profile.state }}"
+
+  - id: adjustbrightness_turn_off
+    alias: Living Room Lights - Adjust Brightness_turn_off
+    trigger:
+      platform: numeric_state
+      entity_id: input_number.brightness
+      below: 1
+    action:
+      - service: light.turn_off
+        data_template:
+          entity_id: light.tvsone, light.peis
+
+  # - id: Bathroom_Humidity_High_When_Not_Home
+  #   alias: Bathroom_Humidity_High_When_Not_Home
+  #   trigger:
+  #   - platform: template
+  #     value_template: "{{states.sensor.bathroomhumidity.attributes.change > float(8)}}"
+  #   condition:
+  #     - condition: state
+  #       entity_id:  input_select.alarm
+  #       state: 'Arm Away'
+  #   action:
+  #   - service:  notify.erlendpush
+  #     data_template:
+  #       message: Fuktigheten på badet har gått opp uten at noen er hjemme!
+  #   - service:  notify.carolinepush
+  #     data_template:
+  #       message: Fuktigheten på badet har gått opp uten at noen er hjemme!
+
+  - id: Bathroom_Humidity_High
+    alias: Bathroom Humidity High
+    trigger:
+      # - platform: template
+      #   value_template: "{{states.sensor.bathroomhumidity.attributes.change > float(5)}}"
+      - platform: template
+        value_template: "{{states.sensor.bathroom_humidity.state | float(default=0) > float(30)}}"
+    action:
+      - service: switch.turn_on
+        entity_id: switch.bathroom_fan
+
+  - id: Bathroom_Humidity_Normal
+    alias: Bathroom Humidity Normal
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bathroom_humidity
+        below: 30
+        for:
+          minutes: 30
+      - platform: state
+        entity_id: switch.bathroom_fan
+        to: "on"
+        for:
+          minutes: 60
+    # - platform: state
+    #   entity_id: switch.bathroom_fan
+    #   to: 'on'
+    #   for:
+    #     minutes: 30
+    action:
+      - service: switch.turn_off
+        entity_id: switch.bathroom_fan
+
+  - id: BathroomFanWhenVVBOn
+    alias: BathroomFanWhenVVBOn
+    trigger:
+      # - platform: template
+      #   value_template: "{{ (states.sensor.varmtvannsbereder.state | int(default=70) - states.climate.varmtvannsbereder.attributes.temperature | int(default=70)) > 10 }}"
+      - platform: state
+        entity_id: binary_sensor.using_hot_water
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.motionbathroom
+        state: "on"
+    action:
+      - service: switch.turn_on
+        entity_id: switch.bathroom_fan
+      # - wait_for_trigger:
+      #     - platform: state
+      #       entity_id: binary_sensor.using_hot_water
+      #       to: "off"
+      #   timeout: "01:00:00"
+      #   continue_on_timeout: true
+      - delay:
+          minutes: 30
+      - service: switch.turn_off
+        entity_id: switch.bathroom_fan
+
+  ########################################
+  ########        Sleeping        ########
+  ########      and Bedroom       ########
+  ########################################
+
+  - id: carolinenatta70
+    alias: Caroline legger seg + 60 min
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bedtvon
+        to: "on"
+        for:
+          minutes: 60
+      - platform: state
+        entity_id: binary_sensor.ccharging
+        to: "on"
+        for:
+          minutes: 60
+    condition:
+      - condition: state
+        entity_id: input_boolean.ccharging
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.easleep
+        state: "off"
+    action:
+      - service: script.turn_on
+        entity_id: script.bedtvoff
+
+  - alias: TV Still on
+    trigger:
+      platform: state
+      entity_id: input_boolean.casleep
+      to: "on"
+      for:
+        minutes: 90
+    condition:
+      - condition: state
+        entity_id: input_boolean.easleep
+        state: "off"
+    action:
+      - service: notify.me
+        data:
+          message: "TV på soverommet er fortsatt på"
+      - service: script.turn_on
+        entity_id: script.bedtvoff
+
+  - id: erlendnatta70
+    alias: Erlend legger seg + 70 min
+    trigger:
+      platform: template
+      value_template: >-
+        {{states.input_boolean.easleep.state == 'on' and
+          states.binary_sensor.bedtvon == 'on'}}
+      for:
+        minutes: 60
+    action:
+      - service: script.turn_on
+        entity_id: script.bedtvoff
+
+  - alias: TvLightsWhenTVOff
+    trigger:
+      - platform: state
+        entity_id: media_player.nvidia_shield
+        to: "Off"
+        for:
+          seconds: 4
+    action:
+      - service: light.turn_on
+        entity_id: light.hyperion
+        data_template:
+          brightness_pct: "100"
+          #rgb_color: [255,162,71]
+          rgb_color: [255, 128, 25]
+
+  - id: tv2long
+    alias: tv2long
+    trigger:
+      - platform: state
+        entity_id: sensor.tvsource
+        to: "TV 2 Sumo"
+        for:
+          minutes: 120
+    action:
+      - service: notify.tv_stua
+        data_template:
+          message: "TV2 Sumo har stått på i 1 time nå. Bytt til en annen kilde eller slå av innen 5 minutter"
+      - delay:
+          minutes: 5
+      - condition: state
+        entity_id: sensor.tvsource
+        state: "TV 2 Sumo"
+      - service: notify.tv_stua
+        data_template:
+          message: "Slår av TV."
+      - delay:
+          seconds: 10
+      - service: media_player.turn_off
+        entity_id: media_player.tv_stua
+
+  - id: tvWrongChromecast
+    alias: Castet to wrong cromecast
+    trigger:
+      - platform: state
+        entity_id: media_player.tv_stua
+        to: "Playing"
+      - platform: state
+        entity_id: media_player.tv_stua
+        to: "on"
+    condition:
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
+    action:
+      - service: notify.tv_stua
+        data_template:
+          message: "Castet til chromecast når ingen er der."
+      - delay:
+          seconds: 10
+      - service: media_player.turn_off
+        entity_id: media_player.tv_stua
+
+  - alias: bedroomtvOnWrong
+    trigger:
+      # - platform: state
+      #   entity_id: media_player.tv_soverommet #Maybe media_player.google_tv, check states for chromecast first.
+      #   to: 'on'
+      #   for:
+      #     seconds: 20
+      - platform: state
+        entity_id: media_player.google_tv
+        to: "Idle"
+        for:
+          seconds: 20
+      - platform: state
+        entity_id: media_player.google_tv
+        to: "Playing"
+        for:
+          seconds: 20
+      - platform: state
+        entity_id: media_player.google_tv
+        to: "Paused"
+        for:
+          seconds: 20
+    condition:
+      condition: and
+      conditions:
+        - condition: state
+          entity_id: binary_sensor.motion_bedroom
           state: "off"
-      action:
-        - service: light.turn_on
-          entity_id: light.play
+        - condition: state
+          entity_id: input_boolean.casleep
+          state: "off"
+        - condition: state
+          entity_id: input_boolean.easleep
+          state: "off"
+    action:
+      - service: notify.mobile_app_oneplus
+        data_template:
+          title: "Castet til Soverommet."
+          message: " Var det feil?"
           data:
-            color_name: purple
-        - service: script.restoreofficecolor
-      # - delay:
-      #     seconds: 10
-      # - service: light.turn_off
-      #   entity_id: light.gateway_light_7c49eb1c2d6b
+            actions:
+              - action: tvbedroomoff
+                title: Ja, slå av TV på soverommet igjen
+                destructive: true
+      - service: notify.mobile_app_caroline_pixel
+        data_template:
+          title: "Castet til Soverommet."
+          message: " Var det feil?"
+          data:
+            actions:
+              - action: tvbedroomoff
+                title: Ja, slå av TV på soverommet igjen
+                destructive: true
 
-    ########################################
-    ########                        ########
-    ########         Garage         ########
-    ########################################
+  - alias: bedroomoffWebhook
+    trigger:
+      platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: tvbedroomoff
+    action:
+      - service: script.turn_on
+        entity_id: script.bedtvoff
 
-    - id: lukkgarasjemedfjern
-      alias: lukkgarasjemedfjern
-      trigger:
-        platform: state
-        entity_id: switch.testportapner
-      action:
-        - service: homeassistant.toggle
-          entity_id: input_boolean.garageport
+  - id: bedroomtvoff
+    alias: bedroomtvoff
+    trigger:
+      - platform: state
+        entity_id: media_player.tv_soverommet
+        to: "off"
+        for:
+          minutes: 2
+      - platform: state
+        entity_id: media_player.tv_soverommet
+        to: "unavailable"
+      - platform: state
+        entity_id: media_player.google_tv
+        to: "off"
+        for:
+          minutes: 5
+    action:
+      - service: media_player.media_stop
+        entity_id: media_player.google_tv
+      - service: media_player.turn_off
+        entity_id: media_player.tv_soverommet
 
-    - id: Garageport
-      alias: Garageport
-      trigger:
-        platform: state
+  - id: bedroomtvonfor120
+    alias: bedroomtvonfor120
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bedtvon
+        to: "on"
+        for:
+          minutes: 120
+      - platform: state
+        entity_id: binary_sensor.bedtvon
+        to: "on"
+        for:
+          minutes: 240
+      - platform: state
+        entity_id: media_player.google_tv
+        to: "on"
+        for:
+          minutes: 118
+    action:
+      - service: script.turn_on
+        entity_id: script.bedtvoff
+
+  - alias: BedroomChromecastNotPlaying
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bed_tv_idle
+        to: "on"
+      - platform: state
+        entity_id: media_player.google_tv
+        to: "off"
+        for:
+          minutes: 15
+      - platform: state
+        entity_id: media_player.google_tv
+        to: "idle"
+        for:
+          minutes: 5
+      - platform: state
+        entity_id: media_player.google_tv
+        to: "Idle"
+        for:
+          minutes: 5
+      - platform: state
+        entity_id: media_player.google_tv
+        to: "Paused"
+        for:
+          minutes: 15
+    action:
+      - service: script.turn_on
+        entity_id: script.bedtvoff
+
+  - alias: OfficeCasleep
+    trigger:
+      - platform: state
+        entity_id: input_boolean.casleep
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.motion_downstairs_office
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.guestmode
+        state: "off"
+    action:
+      - service: light.turn_on
+        entity_id: light.play
+        data:
+          color_name: purple
+      - service: script.restoreofficecolor
+    # - delay:
+    #     seconds: 10
+    # - service: light.turn_off
+    #   entity_id: light.gateway_light_7c49eb1c2d6b
+
+  ########################################
+  ########                        ########
+  ########         Garage         ########
+  ########################################
+
+  - id: lukkgarasjemedfjern
+    alias: lukkgarasjemedfjern
+    trigger:
+      platform: state
+      entity_id: switch.testportapner
+    action:
+      - service: homeassistant.toggle
         entity_id: input_boolean.garageport
-      action:
-        - service: switch.toggle
-          entity_id: switch.garageswitch
 
-    ########################################
-    ########                        ########
-    ########         Wakeup         ########
-    ########################################
+  - id: Garageport
+    alias: Garageport
+    trigger:
+      platform: state
+      entity_id: input_boolean.garageport
+    action:
+      - service: switch.toggle
+        entity_id: switch.garageswitch
 
-    # - alias: 'turnofftrymasleep'
-    #   trigger:
-    #   - platform: state
-    #     entity_id: input_boolean.casleep
-    #     to: 'off'
-    #     for:
-    #       minutes: 30
-    #   action:
-    #   - service: input_boolean.turn_off
-    #     entity_id: input_boolean.ammetid
-    #   - service: input_boolean.turn_off
-    #     entity_id: input_boolean.trymasleep
+  ########################################
+  ########                        ########
+  ########         Wakeup         ########
+  ########################################
 
-    # - id: "1613686499118"
-    #   alias: Tvonwhenasleep
-    #   description: ""
-    #   trigger:
-    #     - platform: state
-    #       entity_id: input_boolean.easleep
-    #       to: "on"
-    #       from: "off"
-    #   condition:
-    #     - condition: state
-    #       entity_id: media_player.tv_soverommet
-    #       state: "off"
-    #   action:
-    #     - service: media_player.turn_on
-    #       data: {}
-    #       entity_id: media_player.google_tv
-    #   mode: single
+  # - alias: 'turnofftrymasleep'
+  #   trigger:
+  #   - platform: state
+  #     entity_id: input_boolean.casleep
+  #     to: 'off'
+  #     for:
+  #       minutes: 30
+  #   action:
+  #   - service: input_boolean.turn_off
+  #     entity_id: input_boolean.ammetid
+  #   - service: input_boolean.turn_off
+  #     entity_id: input_boolean.trymasleep
 
-  script:
-    bedtvoff:
-      alias: "Bedroom TV off"
-      sequence:
-        - service: media_player.turn_off
-          entity_id: media_player.tv_soverommet
-        - service: media_player.turn_off
-          entity_id: media_player.google_tv
+  # - id: "1613686499118"
+  #   alias: Tvonwhenasleep
+  #   description: ""
+  #   trigger:
+  #     - platform: state
+  #       entity_id: input_boolean.easleep
+  #       to: "on"
+  #       from: "off"
+  #   condition:
+  #     - condition: state
+  #       entity_id: media_player.tv_soverommet
+  #       state: "off"
+  #   action:
+  #     - service: media_player.turn_on
+  #       data: {}
+  #       entity_id: media_player.google_tv
+  #   mode: single
+
+script:
+  bedtvoff:
+    alias: "Bedroom TV off"
+    sequence:
+      - service: media_player.turn_off
+        entity_id: media_player.tv_soverommet
+      - service: media_player.turn_off
+        entity_id: media_player.google_tv

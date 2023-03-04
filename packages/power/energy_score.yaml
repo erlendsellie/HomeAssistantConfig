@@ -1,25 +1,24 @@
-energy_score:
-  sensor:
-    - platform: energyscore
-      name: Energy Score Total
-      unique_id: AC816DB0-868A-431C-92AE-CBD46A864DC51
-      price_entity: sensor.nordpool
-      energy_entity: sensor.pulse_power
+sensor:
+  - platform: energyscore
+    name: Energy Score Total
+    unique_id: AC816DB0-868A-431C-92AE-CBD46A864DC51
+    price_entity: sensor.nordpool
+    energy_entity: sensor.pulse_power
 
-    - platform: energyscore
-      name: Energy Score Bathroom
-      unique_id: AC816DB0-868A-431C-92AE-CBD46A864DC52
-      price_entity: sensor.nordpool
-      energy_entity: sensor.bathroom_electric_consumption_w_3
+  - platform: energyscore
+    name: Energy Score Bathroom
+    unique_id: AC816DB0-868A-431C-92AE-CBD46A864DC52
+    price_entity: sensor.nordpool
+    energy_entity: sensor.bathroom_electric_consumption_w_3
 
-    - platform: energyscore
-      name: Energy Score VVB
-      unique_id: AC816DB0-868A-431C-92AE-CBD46A864DC53
-      price_entity: sensor.nordpool
-      energy_entity: sensor.varmtvannsbereder_electric_consumption_w
+  - platform: energyscore
+    name: Energy Score VVB
+    unique_id: AC816DB0-868A-431C-92AE-CBD46A864DC53
+    price_entity: sensor.nordpool
+    energy_entity: sensor.varmtvannsbereder_electric_consumption_w
 
-    - platform: energyscore
-      name: Energy Score Easee
-      unique_id: AC816DB0-868A-431C-92AE-CBD46A864DC54
-      price_entity: sensor.nordpool
-      energy_entity: sensor.garage_power
+  - platform: energyscore
+    name: Energy Score Easee
+    unique_id: AC816DB0-868A-431C-92AE-CBD46A864DC54
+    price_entity: sensor.nordpool
+    energy_entity: sensor.garage_power

@@ -1,146 +1,103 @@
-alarm:
-  alarm_control_panel:
-    - platform: manual
-      name: Home Alarm
-      code: !secret alarm_code
-      arming_time: 10 #30
-      delay_time: 5 #30 #20
-      trigger_time: 300 #240 #4
-      # disarmed:
-      #   trigger_time: 0
-      # armed_home:
-      #   pending_time: 0
-      #   delay_time: 0
+alarm_control_panel:
+  - platform: manual
+    name: Home Alarm
+    code: !secret alarm_code
+    arming_time: 10 #30
+    delay_time: 5 #30 #20
+    trigger_time: 300 #240 #4
+    # disarmed:
+    #   trigger_time: 0
+    # armed_home:
+    #   pending_time: 0
+    #   delay_time: 0
 
-  automation:
-    - alias: Arm Alarm
-      trigger:
-        - platform: state
-          entity_id: sensor.alarm
-        - platform: homeassistant
-          event: start
-        - platform: state
-          entity_id: input_boolean.guestmode
-      condition:
-        - condition: state
-          entity_id: input_boolean.guestmode
-          state: "off"
-      action:
-        - service: input_select.select_option
-          data_template:
-            entity_id: input_select.alarm
-            option: "{{ states.sensor.alarm.state }}"
+automation:
+  - alias: Arm Alarm
+    trigger:
+      - platform: state
+        entity_id: sensor.alarm
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id: input_boolean.guestmode
+    condition:
+      - condition: state
+        entity_id: input_boolean.guestmode
+        state: "off"
+    action:
+      - service: input_select.select_option
+        data_template:
+          entity_id: input_select.alarm
+          option: "{{ states.sensor.alarm.state }}"
 
-    - alias: RequestLocation
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_driveway
-          to: "on"
-      action:
-        - service: script.turn_on
-          entity_id: script.requestlocation
+  - alias: RequestLocation
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_driveway
+        to: "on"
+    action:
+      - service: script.turn_on
+        entity_id: script.requestlocation
 
-    - alias: CloseGarageAfter15minutes
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_driveway_or_garage
-          to: "off"
-          for:
-            minutes: 7
-      condition:
-        - condition: template
-          value_template: "{{ states.cover.garage_door.state  == 'open'}}" #Maybe add garage not occupied?
-      action:
-        # - service: notify.mobile_app_oneplus
-        #   data_template:
-        #     title: Garage closed since since movement not detected.
-        #     message: Garage closed since since movement not detected.
-        #     data:
-        #       image: 'https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}'
-        - service: cover.close_cover
-          entity_id: cover.garage_door
+  - alias: CloseGarageAfter15minutes
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_driveway_or_garage
+        to: "off"
+        for:
+          minutes: 7
+    condition:
+      - condition: template
+        value_template: "{{ states.cover.garage_door.state  == 'open'}}" #Maybe add garage not occupied?
+    action:
       # - service: notify.mobile_app_oneplus
       #   data_template:
-      #     title: 'Garage left open?'
-      #     message: 'Close it?'
+      #     title: Garage closed since since movement not detected.
+      #     message: Garage closed since since movement not detected.
       #     data:
-      #       actions:
-      #         - action: closegarage
-      #           title: Close it
-      #           destructive: true
-      #         - action: garageRemind
-      #           title: Remind me in 5 minutes
-      #           destructive: true
+      #       image: 'https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}'
+      - service: cover.close_cover
+        entity_id: cover.garage_door
+    # - service: notify.mobile_app_oneplus
+    #   data_template:
+    #     title: 'Garage left open?'
+    #     message: 'Close it?'
+    #     data:
+    #       actions:
+    #         - action: closegarage
+    #           title: Close it
+    #           destructive: true
+    #         - action: garageRemind
+    #           title: Remind me in 5 minutes
+    #           destructive: true
 
-    - alias: NotifyMotion
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_driveway
-          to: "on"
-          for:
-            seconds: 1
-      condition:
-        - condition: template
-          value_template: "{{ states.person.erlend.state  != 'home'}}"
-      action:
-        - service: script.turn_on
-          entity_id: script.requestlocation
-        - delay:
-            seconds: 2
-        # - service: notify.me
-        #   data:
-        #     title: "Motion Driveway"
-        #     message: "Motion in driveway when armed."
-        #     data:
-        #       photo:
-        #         url: !secret outdoorcamerastream
-        - service: notify.mobile_app_oneplus
+  - alias: NotifyMotion
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_driveway
+        to: "on"
+        for:
+          seconds: 1
+    condition:
+      - condition: template
+        value_template: "{{ states.person.erlend.state  != 'home'}}"
+    action:
+      - service: script.turn_on
+        entity_id: script.requestlocation
+      - delay:
+          seconds: 2
+      # - service: notify.me
+      #   data:
+      #     title: "Motion Driveway"
+      #     message: "Motion in driveway when armed."
+      #     data:
+      #       photo:
+      #         url: !secret outdoorcamerastream
+      - service: notify.mobile_app_oneplus
+        data:
+          message: Motion in driveway when armed.
           data:
-            message: Motion in driveway when armed.
-            data:
-              image: "/api/camera_proxy/camera.driveway"
-        # - service: notify.mobile_app_oneplus
-        #   data_template:
-        #     title: Motion
-        #     message: Motion
-        #     data:
-        #       image: https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}
-
-        # - service: script.turn_on
-        #   entity_id: script.sendvideodriveway
-
-    - alias: SnapshotMotionFilm
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_driveway
-          to: "on"
-      condition:
-        - condition: state
-          entity_id: binary_sensor.hoveddor
-          state: "off"
-      action:
-        - service: camera.record
-          data:
-            entity_id: camera.driveway_stream
-            filename: "/config/www/snapshot.mp4"
-            duration: 5
-
-    - alias: SnapshotMotion
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_driveway
-          to: "on"
-          for:
-            seconds: 1
-      condition:
-        - condition: state
-          entity_id: binary_sensor.hoveddor
-          state: "off"
-      action:
-        - service: camera.snapshot
-          data:
-            entity_id: camera.driveway
-            filename: "/config/www/snapshot2.jpg"
+            image: "/api/camera_proxy/camera.driveway"
       # - service: notify.mobile_app_oneplus
       #   data_template:
       #     title: Motion
@@ -148,1261 +105,1303 @@ alarm:
       #     data:
       #       image: https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}
 
-    - alias: SnapShotMeraker
-      trigger:
-        - platform: time_pattern
-          minutes: "/5"
-      condition:
-        - condition: state
-          entity_id: sun.sun
-          state: above_horizon
-      action:
-        - service: camera.snapshot
-          data:
-            entity_id: camera.meraker
-            filename: "/config/www/meraker.jpg"
+      # - service: script.turn_on
+      #   entity_id: script.sendvideodriveway
 
-    - id: lockDoorsAtNight
-      alias: lockDoorsAtNight
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.hoveddor
-          to: "off"
-          for:
-            minutes: 10
-        - platform: time
-          at: "19:01:00"
-      condition:
-        - condition: time
-          after: "19:00:00"
-          before: "08:00:00"
-        - condition: state
-          entity_id: lock.ytterdor
-          state: "unlocked"
-      action:
-        - service: script.turn_on
-          entity_id: script.lockdoor
+  - alias: SnapshotMotionFilm
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_driveway
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.hoveddor
+        state: "off"
+    action:
+      - service: camera.record
+        data:
+          entity_id: camera.driveway_stream
+          filename: "/config/www/snapshot.mp4"
+          duration: 5
 
-    - alias: NotifyDisarm
-      trigger:
-        platform: state
+  - alias: SnapshotMotion
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_driveway
+        to: "on"
+        for:
+          seconds: 1
+    condition:
+      - condition: state
+        entity_id: binary_sensor.hoveddor
+        state: "off"
+    action:
+      - service: camera.snapshot
+        data:
+          entity_id: camera.driveway
+          filename: "/config/www/snapshot2.jpg"
+    # - service: notify.mobile_app_oneplus
+    #   data_template:
+    #     title: Motion
+    #     message: Motion
+    #     data:
+    #       image: https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}
+
+  - alias: SnapShotMeraker
+    trigger:
+      - platform: time_pattern
+        minutes: "/5"
+    condition:
+      - condition: state
+        entity_id: sun.sun
+        state: above_horizon
+    action:
+      - service: camera.snapshot
+        data:
+          entity_id: camera.meraker
+          filename: "/config/www/meraker.jpg"
+
+  - id: lockDoorsAtNight
+    alias: lockDoorsAtNight
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.hoveddor
+        to: "off"
+        for:
+          minutes: 10
+      - platform: time
+        at: "19:01:00"
+    condition:
+      - condition: time
+        after: "19:00:00"
+        before: "08:00:00"
+      - condition: state
+        entity_id: lock.ytterdor
+        state: "unlocked"
+    action:
+      - service: script.turn_on
+        entity_id: script.lockdoor
+
+  - alias: NotifyDisarm
+    trigger:
+      platform: state
+      entity_id: input_select.alarm
+      to: Disarm
+      from: Arm Away
+    action:
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "Alarmen ble deaktivert."
+
+  - alias: UnlockDoor
+    id: unlockdoor
+    mode: restart
+    trigger:
+      - platform: state
         entity_id: input_select.alarm
-        to: Disarm
+        to: "Disarm"
         from: Arm Away
-      action:
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: "Alarmen ble deaktivert."
+      - platform: state
+        entity_id: binary_sensor.erlendhome
+        to: "on"
+        from: "off"
+      - platform: state
+        entity_id: binary_sensor.carolinehome
+        to: "on"
+        from: "off"
+    condition:
+      - condition: state
+        entity_id: lock.ytterdor
+        state: "locked"
+    action:
+      - service: script.turn_on
+        entity_id: script.unlockdoor
+      - service: notify.me
+        data_template:
+          title: "door unlocked"
+          message: "The door was unlocked automatically. {{states.sensor.peoplehome.state}} are home. Trigger: {{trigger.to_state.name}}"
+      - service: notify.me
+        data:
+          title: "door unlocked"
+          message: "The door was unlocked automatically."
+          data:
+            photo:
+              url: !secret outdoorcamerastream
+      - delay:
+          minutes: 5
+      - condition: template
+        value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed)) / 60) | round(0)) > 5) and (states.lock.ytterdor.state == 'unlocked') }}"
+      - service: script.turn_on
+        entity_id: script.lockdoor
+      - service: camera.snapshot
+        data:
+          entity_id: camera.driveway
+          filename: "/tmp/snapshot.jpg"
+      - service: notify.erlendpush
+        data:
+          title: "door locked"
+          message: "The door was locked since no one opened it."
+          data:
+            file: /tmp/snapshot.jpg
 
-    - alias: UnlockDoor
-      id: unlockdoor
-      mode: restart
-      trigger:
-        - platform: state
-          entity_id: input_select.alarm
-          to: "Disarm"
-          from: Arm Away
-        - platform: state
-          entity_id: binary_sensor.erlendhome
-          to: "on"
-          from: "off"
-        - platform: state
-          entity_id: binary_sensor.carolinehome
-          to: "on"
-          from: "off"
-      condition:
+  - alias: LockDoorByGarage
+    trigger:
+      - platform: state
+        entity_id: cover.garage_door
+        to: "closed"
+    condition:
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
+    action:
+      - service: script.turn_on
+        entity_id: script.lockdoor
+
+  - alias: UnlockDoorByGarage
+    trigger:
+      - platform: state
+        entity_id: cover.garage_door
+        to: "open"
+    condition:
+      condition: and
+      conditions:
         - condition: state
           entity_id: lock.ytterdor
           state: "locked"
-      action:
-        - service: script.turn_on
-          entity_id: script.unlockdoor
-        - service: notify.me
-          data_template:
-            title: "door unlocked"
-            message: "The door was unlocked automatically. {{states.sensor.peoplehome.state}} are home. Trigger: {{trigger.to_state.name}}"
-        - service: notify.me
+    action:
+      - service: script.turn_on
+        entity_id: script.unlockdoor
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
+      - service: notify.me
+        data_template:
+          title: "door unlocked"
+          message: "The door was unlocked by Garage. {{states.sensor.peoplehome.state}} are home. "
+      - service: notify.me
+        data:
+          title: "door unlocked"
+          message: "The door was unlocked automatically by garage."
           data:
-            title: "door unlocked"
-            message: "The door was unlocked automatically."
-            data:
-              photo:
-                url: !secret outdoorcamerastream
-        - delay:
-            minutes: 5
-        - condition: template
-          value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed)) / 60) | round(0)) > 5) and (states.lock.ytterdor.state == 'unlocked') }}"
-        - service: script.turn_on
-          entity_id: script.lockdoor
-        - service: camera.snapshot
-          data:
-            entity_id: camera.driveway
-            filename: "/tmp/snapshot.jpg"
-        - service: notify.erlendpush
-          data:
-            title: "door locked"
-            message: "The door was locked since no one opened it."
-            data:
-              file: /tmp/snapshot.jpg
-
-    - alias: LockDoorByGarage
-      trigger:
-        - platform: state
-          entity_id: cover.garage_door
-          to: "closed"
-      condition:
-        - condition: template
-          value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
-      action:
-        - service: script.turn_on
-          entity_id: script.lockdoor
-
-    - alias: UnlockDoorByGarage
-      trigger:
-        - platform: state
-          entity_id: cover.garage_door
-          to: "open"
-      condition:
-        condition: and
-        conditions:
-          - condition: state
-            entity_id: lock.ytterdor
-            state: "locked"
-      action:
-        - service: script.turn_on
-          entity_id: script.unlockdoor
-        - condition: template
-          value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
-        - service: notify.me
-          data_template:
-            title: "door unlocked"
-            message: "The door was unlocked by Garage. {{states.sensor.peoplehome.state}} are home. "
-        - service: notify.me
-          data:
-            title: "door unlocked"
-            message: "The door was unlocked automatically by garage."
-            data:
-              photo:
-                url: !secret outdoorcamerastream
-        - delay:
-            minutes: 5
-        - condition: template
-          value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed)) / 60) | round(0)) > 5) and (states.lock.ytterdor.state == 'unlocked')}}"
-        - service: script.turn_on
-          entity_id: script.lockdoor
-        - service: camera.snapshot
-          data:
-            entity_id: camera.driveway
-            filename: "/tmp/snapshot.jpg"
-        - service: notify.erlendpush
-          data:
-            title: "door locked"
-            message: "The door was locked since no one opened it. Garage is {{states.cover.garage_door.state}}"
-            data:
-              file: /tmp/snapshot.jpg
-        - condition: template
-          value_template: "{{states.input_boolean.guestmode.state == 'off' and states.sensor.alarm.state != 'Disarm' }}"
-        - service: input_select.select_option
-          data_template:
-            entity_id: input_select.alarm
-            option: "{{ states.sensor.alarm.state }}"
-
-    - alias: Close Garage When someone leaves
-      id: CloseGarageWhensomeoneleaves
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.erlendhome
-          to: "off"
-        - platform: state
-          entity_id: binary_sensor.carolinehome
-          to: "off"
-          #Also do this when garage has been open for some time? Should be safe, as motion is not detected anymore.
-      condition:
-        - condition: state
-          entity_id: cover.garage_door
-          state: "open"
-      action:
-        #When motion in driveway has been off for 1 minutes. Lets wait 15 minutes as a timeout.
-        - wait_template: >-
-            {{ (states.binary_sensor.motion_driveway.state == 'off')
-            and 
-            ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 1}}
-          timeout: "0:15:00"
-          #And if timed out, abort with the same logic
-        - condition: template
-          value_template: >-
-            {{ (states.binary_sensor.motion_driveway.state == 'off')
-            and 
-            ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 1}}
-        # - service: notify.mobile_app_oneplus
-        #   data_template:
-        #     title: Garage closed since someone left.
-        #     message: Garage closed since someone left.
-        #     data:
-        #       image: 'https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}'
-        - service: cover.close_cover
-          entity_id: cover.garage_door
-
-    - alias: Open Garage and unlock when home
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.erlendhome
-          to: "on"
-          from: "off"
-      condition:
-        - condition: state
-          entity_id: binary_sensor.garage_occupied
-          state: "off"
-        - condition: state
-          entity_id: cover.garage_door
-          state: "closed"
-      action:
-        - service: cover.open_cover
-          entity_id: cover.garage_door
-        - service: script.turn_on
-          entity_id: script.notify
-          data_template:
-            variables:
-              title: Garage opened because Erlend came home.
-              message: Garage opened because Erlend came home.
-
-    - alias: Open Garage and unlock when Caroline home
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.carolinehome
-          to: "on"
-          from: "off"
-      condition:
-        - condition: state
-          entity_id: binary_sensor.garage_occupied
-          state: "off"
-        - condition: state
-          entity_id: cover.garage_door
-          state: "closed"
-      action:
-        - service: cover.open_cover
-          entity_id: cover.garage_door
-        - service: script.turn_on
-          entity_id: script.notify
-          data_template:
-            variables:
-              title: Garage opened because Caroline came home.
-              message: Garage opened because Caroline came home.
-
-    - alias: Open Garage and unlock when Caroline home from Work
-      id: Open Garage and unlock when Caroline home from Work
-      trigger:
-        platform: zone
-        entity_id: person.caroline
-        zone: zone.sykehuset
-        # Event is either enter or leave
-        event: leave
-      action:
-        - wait_for_trigger:
-            - platform: state
-              entity_id: binary_sensor.carolinehome
-              to: "on"
-              from: "off"
-          timeout: "00:45:00"
-          continue_on_timeout: false
-        - service: cover.open_cover
-          entity_id: cover.garage_door
-        - service: script.turn_on
-          entity_id: script.notify
-          data_template:
-            variables:
-              title: Garage opened because Caroline came home from Work.
-              message: Garage opened because Caroline came home Work.
-
-    - id: waterLeakage
-      alias: waterLeakage
-      trigger:
-        platform: state
-        entity_id:
-          - binary_sensor.water_bathroom_upstairs
-          - binary_sensor.water_dishwasher
-          - binary_sensor.water_kitchen
-          - binary_sensor.water_laundry_room
-        to: "on"
-      action:
-        - service: notify.erlendpush
-          data_template:
-            title: "ALARM!"
-            message: "Vannlekkasje på {{ trigger.from_state.name }}!"
-        - service: notify.carolinepush
-          data_template:
-            title: "ALARM!"
-            message: "Vannlekkasje på {{ trigger.from_state.name }}!"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: 1
-        - service: tts.google_say
-          entity_id: media_player.minis
-          data_template:
-            message: "Alarm! Vannlekkasje på {{ trigger.from_state.name }}!"
-        - delay:
-            seconds: 3
-        - service: tts.google_say
-          entity_id: media_player.minis
-          data_template:
-            message: "Alarm! Vannlekkasje på {{ trigger.from_state.name }}!"
-        - delay:
-            seconds: 10
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state}}"
-
-    - alias: "DisarmByGuestModeOrGuests"
-      trigger:
-        - platform: state
-          entity_id: input_boolean.guestmode
-          to: "on"
-      action:
-        - service: input_select.select_option
-          data:
-            entity_id: input_select.alarm
-            option: Disarm
-
-    - alias: "ArmByGuestMode"
-      trigger:
-        - platform: state
-          entity_id: input_boolean.guestmode
-          to: "off"
-      condition:
-        condition: and
-        conditions:
-          - condition: state
-            entity_id: input_boolean.easleep
-            state: "off"
-          - condition: state
-            entity_id: input_boolean.casleep
-            state: "off"
-            #group.people problem
-          - condition: state
-            entity_id: group.people
-            state: "not_home"
-      action:
-        - service: input_select.select_option
-          data:
-            entity_id: input_select.alarm
-            option: Arm Away
-
-    ################
-    ##  Arm Away  ##
-    ################
-
-    # - id: arm_away2
-    #   alias: arm_away2
-    #   condition:
-    #     condition: and
-    #     conditions:
-    #     - condition: state
-    #       entity_id: group.people
-    #       state: 'not_home'
-    #     - condition: state
-    #       entity_id: input_boolean.guestmode
-    #       state: 'off'
-    #     - condition: and
-    #       conditions:
-    #       # Should have this, but if someone is asleep,we should arm home.
-    #       # - condition: state
-    #       #   entity_id: input_boolean.casleep
-    #       #   state: 'off'
-    #       - condition: state
-    #         entity_id: binary_sensor.carolinehome
-    #         state: 'off'
-    #       # - condition: state
-    #       #   entity_id: group.caroline
-    #       #   state: not_home
-    #     - condition: and
-    #       conditions:
-    #       # - condition: state
-    #       #   entity_id: input_boolean.easleep
-    #       #   state: 'off'
-    #       - condition: state
-    #         entity_id: binary_sensor.erlendhome
-    #         state: 'off'
-    #         # entity_id: group.erlend
-    #         # state: not_home
-    #   trigger:
-    #   - platform: state
-    #     entity_id: group.people
-    #     to: 'not_home'
-    #   - platform: state
-    #     entity_id: group.people
-    #     to: 'not_home'
-    #     for:
-    #       minutes: 5
-    #   - platform: state
-    #     entity_id: lock.ytterdor
-    #     to: 'locked'
-    #     for:
-    #       minutes: 5
-    #   - platform: state
-    #     entity_id: binary_sensor.carolinehome
-    #     to: 'off'
-    #   - platform: state
-    #     entity_id: binary_sensor.erlendhome
-    #     to: 'off'
-    #   action:
-    #   - service: input_select.select_option
-    #     data:
-    #       entity_id: input_select.alarm
-    #       option: Arm Away
-    - id: Turnalarmawayminutes10
-      alias: Turn Alarm away for 10 minutes
-      trigger:
-        platform: state
-        entity_id: input_select.alarm
-        to: "Arm Away"
-        for:
-          minutes: 10
-      action:
-        - service: script.turn_on
-          entity_id: script.lockdoor
-
-    - id: Turnalarmaway
-      alias: Turn Alarm away
-      trigger:
-        platform: state
-        entity_id: input_select.alarm
-        to: "Arm Away"
-      action:
-        # - service: notify.me
-        #   data_template:
-        #     message: 'Arm Away'
-        - service: script.turn_on
-          entity_id: script.lockdoor
-        - service: script.turn_on
-          entity_id: script.alllightsoff
-        - delay:
-            seconds: 20
-        - service: script.turn_on
-          entity_id: script.alllightsoff
-        - service: script.turn_on
-          entity_id: script.alllightsoff
-        - service: script.turn_on
-          entity_id: script.lockdoor
-
-      # - delay:
-      #     seconds: 20
-
-    - id: closegarageAlarmAway
-      alias: closegarageAlarmAway
-      trigger:
-        platform: state
-        entity_id: input_select.alarm
-        to: "Arm Away"
-        for:
-          seconds: 10
-      condition:
-        condition: state
-        entity_id: cover.garage_door
-        state: "open"
-      action:
-        - service: cover.close_cover
-          entity_id: cover.garage_door
-      # - service: script.turn_on
-      #   entity_id: script.notify
-      #   data_template:
-      #     variables:
-      #       title: Garage closed because Armed away.
-      #       message: Garage closed because Armed away.
-
-    - id: Turnalarmaway10seconds
-      alias: Turn Alarm Away After 10 seconds
-      trigger:
-        platform: state
-        entity_id: input_select.alarm
-        to: "Arm Away"
-        for:
-          seconds: 10
-      action:
-        - service: media_player.turn_off
-          entity_id: media_player.tv_stua
-        - service: switch.turn_off
-          entity_id: switch.nexa3 #Fan Heater
-        - condition: state
-          entity_id: input_boolean.runvacuum
-          state: "on"
-        - service: vacuum.set_fan_speed
-          entity_id: vacuum.xiaomi_vacuum_cleaner
-          data:
-            fan_speed: Turbo
-        - service: vacuum.start
-          entity_id: vacuum.xiaomi_vacuum_cleaner
-
-    - id: RunNeato
-      alias: RunNeato
-      trigger:
-        platform: state
-        entity_id: input_select.alarm
-        to: "Arm Away"
-        for:
+            photo:
+              url: !secret outdoorcamerastream
+      - delay:
           minutes: 5
-      action:
-        # - condition: state
-        #   entity_id: input_boolean.runvacuum
-        #   state: "on"
-        - service: vacuum.start
-          entity_id: vacuum.neato
-
-    ################
-    ##  Arm Home  ##
-    ################
-
-    #Bytte til group her
-
-    # - id: arm_night
-    #   alias: arm_night
-    #   condition:
-    #     condition: and
-    #     conditions:
-    #     # Erlend is either away or asleep
-    #     - condition: or
-    #       conditions:
-    #       - condition: state
-    #         entity_id: input_boolean.easleep
-    #         state: 'on'
-    #       - condition: state
-    #         entity_id: group.erlend
-    #         state: not_home
-    #     #Caroline is either away or asleep
-    #     - condition: or
-    #       conditions:
-    #       - condition: state
-    #         entity_id: input_boolean.casleep
-    #         state: 'on'
-    #       - condition: state
-    #         entity_id: group.caroline
-    #         state: not_home
-    #     # Someone is asleep
-    #     - condition: or
-    #       conditions:
-    #       - condition: state
-    #         entity_id: input_boolean.easleep
-    #         state: 'on'
-    #       - condition: state
-    #         entity_id: input_boolean.casleep
-    #         state: 'on'
-    #     # One is home
-    #     - condition: or
-    #       conditions:
-    #       - condition: state
-    #         entity_id: group.caroline
-    #         state: home
-    #       - condition: state
-    #         entity_id: group.erlend
-    #         state: home
-    #     # Guestmode is off
-    #     - condition: state
-    #       entity_id: input_boolean.guestmode
-    #       state: 'off'
-    #   trigger:
-    #   - platform: state
-    #     entity_id: group.erlend
-    #     to: not_home
-    #   - platform: state
-    #     entity_id: group.caroline
-    #     to: not_home
-    #   - platform: state
-    #     entity_id: input_boolean.easleep
-    #     to: 'on'
-    #   - platform: state
-    #     entity_id: input_boolean.casleep
-    #     to: 'on'
-    #   - platform: state
-    #     entity_id: group.erlend
-    #     to: not_home
-    #     for:
-    #       minutes: 5
-    #   - platform: state
-    #     entity_id: group.caroline
-    #     to: not_home
-    #     for:
-    #       minutes: 5
-    #   - platform: state
-    #     entity_id: input_boolean.easleep
-    #     to: 'on'
-    #     for:
-    #       minutes: 5
-    #   - platform: state
-    #     entity_id: input_boolean.casleep
-    #     to: 'on'
-    #     for:
-    #       minutes: 5
-    #   action:
-    #   - service: input_select.select_option
-    #     data:
-    #       entity_id: input_select.alarm
-    #       option: Arm Home
-
-    - alias: "Arm Home alarm by Input Select"
-      trigger:
-        - platform: state
+      - condition: template
+        value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed)) / 60) | round(0)) > 5) and (states.lock.ytterdor.state == 'unlocked')}}"
+      - service: script.turn_on
+        entity_id: script.lockdoor
+      - service: camera.snapshot
+        data:
+          entity_id: camera.driveway
+          filename: "/tmp/snapshot.jpg"
+      - service: notify.erlendpush
+        data:
+          title: "door locked"
+          message: "The door was locked since no one opened it. Garage is {{states.cover.garage_door.state}}"
+          data:
+            file: /tmp/snapshot.jpg
+      - condition: template
+        value_template: "{{states.input_boolean.guestmode.state == 'off' and states.sensor.alarm.state != 'Disarm' }}"
+      - service: input_select.select_option
+        data_template:
           entity_id: input_select.alarm
-          to: "Arm Home"
-      action:
-        - service: alarm_control_panel.alarm_arm_home
-          data:
-            code: !secret alarm_code
-            entity_id: alarm_control_panel.home_alarm
+          option: "{{ states.sensor.alarm.state }}"
 
-    #This does not work right.
-    - alias: AlarmHome
-      trigger:
-        - entity_id: input_select.alarm
-          platform: state
-          to: "Arm Home"
-      action:
-        # - service: notify.me
-        #   data_template:
-        #     message: 'Arm Home'
-        - service: script.turn_on
-          entity_id: script.lockdoor
-        - entity_id: script.alllightsoff
-          service: script.turn_on
-        - entity_id: script.alllightsoff
-          service: script.turn_on
-        - service: media_player.turn_off
-          entity_id: media_player.tv_stua
-        - service: switch.turn_off
-          entity_id: switch.nexa3 #Fan Heater
-        - service: light.turn_on
-          entity_id: light.trym_balloon
-          data:
-            brightness: 1
-        - service: light.turn_on
-          entity_id: light.tyra_ball
-          data:
-            brightness: 1
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: Alarmen ble aktivert for natten
-        - delay:
-            seconds: 10
-        # - service: light.turn_off
-        #   entity_id: light.gateway_light_7c49eb1c2d6b
-        - service: script.turn_on
-          entity_id: script.lockdoor
-
-    - id: Turnalarmhome3
-      alias: Turn Alarm home After 3
-      trigger:
-        - entity_id: input_select.alarm
-          platform: state
-          to: "Arm Home"
-          for:
-            minutes: 3
-      condition:
-        condition: state
+  - alias: Close Garage When someone leaves
+    id: CloseGarageWhensomeoneleaves
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.erlendhome
+        to: "off"
+      - platform: state
+        entity_id: binary_sensor.carolinehome
+        to: "off"
+        #Also do this when garage has been open for some time? Should be safe, as motion is not detected anymore.
+    condition:
+      - condition: state
         entity_id: cover.garage_door
         state: "open"
-      action:
-        - service: cover.close_cover
-          entity_id: cover.garage_door
-      # - service: script.turn_on
-      #   entity_id: script.notify
+    action:
+      #When motion in driveway has been off for 1 minutes. Lets wait 15 minutes as a timeout.
+      - wait_template: >-
+          {{ (states.binary_sensor.motion_driveway.state == 'off')
+          and 
+          ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 1}}
+        timeout: "0:15:00"
+        #And if timed out, abort with the same logic
+      - condition: template
+        value_template: >-
+          {{ (states.binary_sensor.motion_driveway.state == 'off')
+          and 
+          ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 1}}
+      # - service: notify.mobile_app_oneplus
       #   data_template:
-      #     variables:
-      #       title: Garage closed since it was open when Armed Home.
-      #       message: Garage closed since it was open when Armed Home.
+      #     title: Garage closed since someone left.
+      #     message: Garage closed since someone left.
+      #     data:
+      #       image: 'https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}'
+      - service: cover.close_cover
+        entity_id: cover.garage_door
 
-    - alias: RunVacuumAtNight
-      mode: single
-      trigger:
-        - entity_id: input_select.alarm
-          platform: state
-          to: "Arm Home"
-          for:
-            hours: 3
-        - platform: time
-          at: 03:00:00
-      condition:
+  - alias: Open Garage and unlock when home
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.erlendhome
+        to: "on"
+        from: "off"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.garage_occupied
+        state: "off"
+      - condition: state
+        entity_id: cover.garage_door
+        state: "closed"
+    action:
+      - service: cover.open_cover
+        entity_id: cover.garage_door
+      - service: script.turn_on
+        entity_id: script.notify
+        data_template:
+          variables:
+            title: Garage opened because Erlend came home.
+            message: Garage opened because Erlend came home.
+
+  - alias: Open Garage and unlock when Caroline home
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.carolinehome
+        to: "on"
+        from: "off"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.garage_occupied
+        state: "off"
+      - condition: state
+        entity_id: cover.garage_door
+        state: "closed"
+    action:
+      - service: cover.open_cover
+        entity_id: cover.garage_door
+      - service: script.turn_on
+        entity_id: script.notify
+        data_template:
+          variables:
+            title: Garage opened because Caroline came home.
+            message: Garage opened because Caroline came home.
+
+  - alias: Open Garage and unlock when Caroline home from Work
+    id: Open Garage and unlock when Caroline home from Work
+    trigger:
+      platform: zone
+      entity_id: person.caroline
+      zone: zone.sykehuset
+      # Event is either enter or leave
+      event: leave
+    action:
+      - wait_for_trigger:
+          - platform: state
+            entity_id: binary_sensor.carolinehome
+            to: "on"
+            from: "off"
+        timeout: "00:45:00"
+        continue_on_timeout: false
+      - service: cover.open_cover
+        entity_id: cover.garage_door
+      - service: script.turn_on
+        entity_id: script.notify
+        data_template:
+          variables:
+            title: Garage opened because Caroline came home from Work.
+            message: Garage opened because Caroline came home Work.
+
+  - id: waterLeakage
+    alias: waterLeakage
+    trigger:
+      platform: state
+      entity_id:
+        - binary_sensor.water_bathroom_upstairs
+        - binary_sensor.water_dishwasher
+        - binary_sensor.water_kitchen
+        - binary_sensor.water_laundry_room
+      to: "on"
+    action:
+      - service: notify.erlendpush
+        data_template:
+          title: "ALARM!"
+          message: "Vannlekkasje på {{ trigger.from_state.name }}!"
+      - service: notify.carolinepush
+        data_template:
+          title: "ALARM!"
+          message: "Vannlekkasje på {{ trigger.from_state.name }}!"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: 1
+      - service: tts.google_say
+        entity_id: media_player.minis
+        data_template:
+          message: "Alarm! Vannlekkasje på {{ trigger.from_state.name }}!"
+      - delay:
+          seconds: 3
+      - service: tts.google_say
+        entity_id: media_player.minis
+        data_template:
+          message: "Alarm! Vannlekkasje på {{ trigger.from_state.name }}!"
+      - delay:
+          seconds: 10
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: "{{states.sensor.speakervolume.state}}"
+
+  - alias: "DisarmByGuestModeOrGuests"
+    trigger:
+      - platform: state
+        entity_id: input_boolean.guestmode
+        to: "on"
+    action:
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.alarm
+          option: Disarm
+
+  - alias: "ArmByGuestMode"
+    trigger:
+      - platform: state
+        entity_id: input_boolean.guestmode
+        to: "off"
+    condition:
+      condition: and
+      conditions:
+        - condition: state
+          entity_id: input_boolean.easleep
+          state: "off"
+        - condition: state
+          entity_id: input_boolean.casleep
+          state: "off"
+          #group.people problem
+        - condition: state
+          entity_id: group.people
+          state: "not_home"
+    action:
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.alarm
+          option: Arm Away
+
+  ################
+  ##  Arm Away  ##
+  ################
+
+  # - id: arm_away2
+  #   alias: arm_away2
+  #   condition:
+  #     condition: and
+  #     conditions:
+  #     - condition: state
+  #       entity_id: group.people
+  #       state: 'not_home'
+  #     - condition: state
+  #       entity_id: input_boolean.guestmode
+  #       state: 'off'
+  #     - condition: and
+  #       conditions:
+  #       # Should have this, but if someone is asleep,we should arm home.
+  #       # - condition: state
+  #       #   entity_id: input_boolean.casleep
+  #       #   state: 'off'
+  #       - condition: state
+  #         entity_id: binary_sensor.carolinehome
+  #         state: 'off'
+  #       # - condition: state
+  #       #   entity_id: group.caroline
+  #       #   state: not_home
+  #     - condition: and
+  #       conditions:
+  #       # - condition: state
+  #       #   entity_id: input_boolean.easleep
+  #       #   state: 'off'
+  #       - condition: state
+  #         entity_id: binary_sensor.erlendhome
+  #         state: 'off'
+  #         # entity_id: group.erlend
+  #         # state: not_home
+  #   trigger:
+  #   - platform: state
+  #     entity_id: group.people
+  #     to: 'not_home'
+  #   - platform: state
+  #     entity_id: group.people
+  #     to: 'not_home'
+  #     for:
+  #       minutes: 5
+  #   - platform: state
+  #     entity_id: lock.ytterdor
+  #     to: 'locked'
+  #     for:
+  #       minutes: 5
+  #   - platform: state
+  #     entity_id: binary_sensor.carolinehome
+  #     to: 'off'
+  #   - platform: state
+  #     entity_id: binary_sensor.erlendhome
+  #     to: 'off'
+  #   action:
+  #   - service: input_select.select_option
+  #     data:
+  #       entity_id: input_select.alarm
+  #       option: Arm Away
+  - id: Turnalarmawayminutes10
+    alias: Turn Alarm away for 10 minutes
+    trigger:
+      platform: state
+      entity_id: input_select.alarm
+      to: "Arm Away"
+      for:
+        minutes: 10
+    action:
+      - service: script.turn_on
+        entity_id: script.lockdoor
+
+  - id: Turnalarmaway
+    alias: Turn Alarm away
+    trigger:
+      platform: state
+      entity_id: input_select.alarm
+      to: "Arm Away"
+    action:
+      # - service: notify.me
+      #   data_template:
+      #     message: 'Arm Away'
+      - service: script.turn_on
+        entity_id: script.lockdoor
+      - service: script.turn_on
+        entity_id: script.alllightsoff
+      - delay:
+          seconds: 20
+      - service: script.turn_on
+        entity_id: script.alllightsoff
+      - service: script.turn_on
+        entity_id: script.alllightsoff
+      - service: script.turn_on
+        entity_id: script.lockdoor
+
+    # - delay:
+    #     seconds: 20
+
+  - id: closegarageAlarmAway
+    alias: closegarageAlarmAway
+    trigger:
+      platform: state
+      entity_id: input_select.alarm
+      to: "Arm Away"
+      for:
+        seconds: 10
+    condition:
+      condition: state
+      entity_id: cover.garage_door
+      state: "open"
+    action:
+      - service: cover.close_cover
+        entity_id: cover.garage_door
+    # - service: script.turn_on
+    #   entity_id: script.notify
+    #   data_template:
+    #     variables:
+    #       title: Garage closed because Armed away.
+    #       message: Garage closed because Armed away.
+
+  - id: Turnalarmaway10seconds
+    alias: Turn Alarm Away After 10 seconds
+    trigger:
+      platform: state
+      entity_id: input_select.alarm
+      to: "Arm Away"
+      for:
+        seconds: 10
+    action:
+      - service: media_player.turn_off
+        entity_id: media_player.tv_stua
+      - service: switch.turn_off
+        entity_id: switch.nexa3 #Fan Heater
+      - condition: state
+        entity_id: input_boolean.runvacuum
+        state: "on"
+      - service: vacuum.set_fan_speed
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+        data:
+          fan_speed: Turbo
+      - service: vacuum.start
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+
+  - id: RunNeato
+    alias: RunNeato
+    trigger:
+      platform: state
+      entity_id: input_select.alarm
+      to: "Arm Away"
+      for:
+        minutes: 5
+    action:
+      # - condition: state
+      #   entity_id: input_boolean.runvacuum
+      #   state: "on"
+      - service: vacuum.start
+        entity_id: vacuum.neato
+
+  ################
+  ##  Arm Home  ##
+  ################
+
+  #Bytte til group her
+
+  # - id: arm_night
+  #   alias: arm_night
+  #   condition:
+  #     condition: and
+  #     conditions:
+  #     # Erlend is either away or asleep
+  #     - condition: or
+  #       conditions:
+  #       - condition: state
+  #         entity_id: input_boolean.easleep
+  #         state: 'on'
+  #       - condition: state
+  #         entity_id: group.erlend
+  #         state: not_home
+  #     #Caroline is either away or asleep
+  #     - condition: or
+  #       conditions:
+  #       - condition: state
+  #         entity_id: input_boolean.casleep
+  #         state: 'on'
+  #       - condition: state
+  #         entity_id: group.caroline
+  #         state: not_home
+  #     # Someone is asleep
+  #     - condition: or
+  #       conditions:
+  #       - condition: state
+  #         entity_id: input_boolean.easleep
+  #         state: 'on'
+  #       - condition: state
+  #         entity_id: input_boolean.casleep
+  #         state: 'on'
+  #     # One is home
+  #     - condition: or
+  #       conditions:
+  #       - condition: state
+  #         entity_id: group.caroline
+  #         state: home
+  #       - condition: state
+  #         entity_id: group.erlend
+  #         state: home
+  #     # Guestmode is off
+  #     - condition: state
+  #       entity_id: input_boolean.guestmode
+  #       state: 'off'
+  #   trigger:
+  #   - platform: state
+  #     entity_id: group.erlend
+  #     to: not_home
+  #   - platform: state
+  #     entity_id: group.caroline
+  #     to: not_home
+  #   - platform: state
+  #     entity_id: input_boolean.easleep
+  #     to: 'on'
+  #   - platform: state
+  #     entity_id: input_boolean.casleep
+  #     to: 'on'
+  #   - platform: state
+  #     entity_id: group.erlend
+  #     to: not_home
+  #     for:
+  #       minutes: 5
+  #   - platform: state
+  #     entity_id: group.caroline
+  #     to: not_home
+  #     for:
+  #       minutes: 5
+  #   - platform: state
+  #     entity_id: input_boolean.easleep
+  #     to: 'on'
+  #     for:
+  #       minutes: 5
+  #   - platform: state
+  #     entity_id: input_boolean.casleep
+  #     to: 'on'
+  #     for:
+  #       minutes: 5
+  #   action:
+  #   - service: input_select.select_option
+  #     data:
+  #       entity_id: input_select.alarm
+  #       option: Arm Home
+
+  - alias: "Arm Home alarm by Input Select"
+    trigger:
+      - platform: state
+        entity_id: input_select.alarm
+        to: "Arm Home"
+    action:
+      - service: alarm_control_panel.alarm_arm_home
+        data:
+          code: !secret alarm_code
+          entity_id: alarm_control_panel.home_alarm
+
+  #This does not work right.
+  - alias: AlarmHome
+    trigger:
+      - entity_id: input_select.alarm
+        platform: state
+        to: "Arm Home"
+    action:
+      # - service: notify.me
+      #   data_template:
+      #     message: 'Arm Home'
+      - service: script.turn_on
+        entity_id: script.lockdoor
+      - entity_id: script.alllightsoff
+        service: script.turn_on
+      - entity_id: script.alllightsoff
+        service: script.turn_on
+      - service: media_player.turn_off
+        entity_id: media_player.tv_stua
+      - service: switch.turn_off
+        entity_id: switch.nexa3 #Fan Heater
+      - service: light.turn_on
+        entity_id: light.trym_balloon
+        data:
+          brightness: 1
+      - service: light.turn_on
+        entity_id: light.tyra_ball
+        data:
+          brightness: 1
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: Alarmen ble aktivert for natten
+      - delay:
+          seconds: 10
+      # - service: light.turn_off
+      #   entity_id: light.gateway_light_7c49eb1c2d6b
+      - service: script.turn_on
+        entity_id: script.lockdoor
+
+  - id: Turnalarmhome3
+    alias: Turn Alarm home After 3
+    trigger:
+      - entity_id: input_select.alarm
+        platform: state
+        to: "Arm Home"
+        for:
+          minutes: 3
+    condition:
+      condition: state
+      entity_id: cover.garage_door
+      state: "open"
+    action:
+      - service: cover.close_cover
+        entity_id: cover.garage_door
+    # - service: script.turn_on
+    #   entity_id: script.notify
+    #   data_template:
+    #     variables:
+    #       title: Garage closed since it was open when Armed Home.
+    #       message: Garage closed since it was open when Armed Home.
+
+  - alias: RunVacuumAtNight
+    mode: single
+    trigger:
+      - entity_id: input_select.alarm
+        platform: state
+        to: "Arm Home"
+        for:
+          hours: 3
+      - platform: time
+        at: 03:00:00
+    condition:
+      - condition: state
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+        state: "docked"
+      - condition: state
+        entity_id: input_boolean.runvacuum
+        state: "on"
+    action:
+      - service: vacuum.set_fan_speed
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+        data:
+          fan_speed: Silent
+      - service: vacuum.start
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+      - delay:
+          hours: 5
+
+  - alias: updateMailToday
+    trigger:
+      platform: time
+      at: 02:00:00
+    action:
+      - service: homeassistant.update_entity
+        entity_id: sensor.mailtoday
+
+  - alias: VacuumDoneForTheDay
+    trigger:
+      - platform: state
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+        to: "cleaning"
+        for:
+          minutes: 30
+    #condition:
+    # - condition: template
+    #   value_template: "{{ states.input_select.alarm.state != 'Arm Home' }}"
+    action:
+      - service: notify.me
+        data:
+          message: "The Vacuum has cleaned for 45 minutes, so it won't clean more today."
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.runvacuum
+
+  - alias: resetVacuumDoneForTheDay
+    trigger:
+      - platform: time
+        at: "10:00:00"
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.runvacuum
+
+  ################
+  ##   Disarm   ##
+  ################
+
+  #Removed lock to unlocked as a trigger, and changed to door opened as a trigger.
+  # The conditions still has to be met, ig the door has to be unlocked when the door is opened.
+
+  #Bytte til group
+
+  - alias: disarmByDoor
+    trigger:
+      # - platform: state
+      #   entity_id: binary_sensor.hoveddor
+      #   to: 'on'
+      - platform: state
+        entity_id: lock.ytterdor
+        to: "unlocked"
+        from: "locked"
+    # condition:
+    # - condition: state
+    #   entity_id: binary_sensor.motion_vindfang
+    #   state: 'off'
+    # - condition: template
+    #   value_template: >-
+    #       {%-set alarmNotJustSet = (((as_timestamp(utcnow()) - as_timestamp(states.sensor.alarm.last_changed)) / 60) | round(0)) > 4 -%}
+    #       {%-set notDisarmedAndGarageClosed = states.input_select.alarm.state != 'Disarm' and states.cover.garage_door.state == 'closed' -%}
+    #       {%-set notmotionvindfang = states.binary_sensor.motion_vindfang.state == 'off' -%}
+    #       {{alarmNotJustSet and notDisarmedAndGarageClosed and notmotionvindfang}}
+    action:
+      - delay:
+          seconds: 1
+      - condition: template
+        value_template: "{{states.lock.ytterdor.state == 'unlocked'}}"
+      - service: light.turn_on
+        entity_id: light.hyperion
+        data_template:
+          rgb_color: [0, 255, 0]
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
+      - service: notify.me
+        data_template:
+          title: "door unlocked"
+          message: "The door was unlocked by {{states.sensor.unlockedby.state}}. The alarm is {{states.input_select.alarm.state}} and the time is {{ now().hour }}:{{ now().minute }}."
+      # - service: notify.me
+      #   data:
+      #     title: 'door unlocked'
+      #     message: 'The door was unlocked by someone.'
+      #     # data:
+      #     #   photo:
+      #     #     url: !secret outdoorcamerastream
+      #Turn on guest mode instead?
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.alarm
+          option: Disarm
+      - delay:
+          seconds: 10
+      - service: light.turn_off
+        entity_id: light.hyperion
+      - delay:
+          minutes: 5
+      # If the door has not been opened in the last 3 minutes, set the previous Alarm state..
+      - condition: template
+        value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed)) / 60) | round(0)) > 6)}}"
+      # - condition: templa= 'Disarm' }}"
+      - service: lock.lock
+        entity_id: lock.ytterdor
+        data:
+          code: !secret lock_code
+      - service: notify.me
+        data:
+          title: "door unlocked"
+          message: "The door was locked again since no one opened it within the time frame.."
+      - service: notify.me
+        data:
+          title: "door unlocked"
+          message: "The door was locked again since no one opened it within the time frame.."
+          data:
+            photo:
+              url: !secret outdoorcamerastream
+      - condition: state
+        entity_id: input_boolean.guestmode
+        state: "off"
+      - service: input_select.select_option
+        data_template:
+          entity_id: input_select.alarm
+          option: "{{states.sensor.alarm.state}}"
+  # - id: disarm
+  #   alias: disarm
+  #   condition:
+  #   #Disarm when people are home, and one is awake.
+  #     condition: and
+  #     conditions:
+  #       #group.people problem
+  #     - condition: state
+  #       entity_id: group.people
+  #       state: 'home'
+  #     - condition: template
+  #       value_template:   "{{ (states.input_boolean.easleep.state == off) or (states.input_boolean.casleep.state == off)}}"
+  #     # condition: or
+  #     # conditions:
+  #     # #This is not true
+  #     # - condition: and
+  #     #   conditions:
+  #     #   # When device reconnects to wifi/BT when armed home, it will disarm.
+  #     #   - condition: state
+  #     #     entity_id: binary_sensor.erlendhome
+  #     #     state: 'on'
+  #     #   - condition: state
+  #     #     entity_id: input_boolean.easleep
+  #     #     state: 'off'
+  #     # #This is not true
+  #     # - condition: and
+  #     #   conditions:
+  #     #   - condition: state
+  #     #     entity_id: binary_sensor.carolinehome
+  #     #     state: 'on'
+  #     #   - condition: state
+  #     #     entity_id: input_boolean.casleep
+  #     #     state: 'off'
+  #     #     # If the phone reconnects when we are asleep
+  #     #     #and door is unlocked or people are home, it may trigger.
+  #     #     # Remove these conditions? Or set the asleep as a condition which must be true.
+  #     # #This is true
+  #     # - condition: and
+  #     #   conditions:
+  #     #   #group.people problem
+  #     #   - condition: state
+  #     #     entity_id: group.people
+  #     #     state: 'home'
+  #     # - condition: template
+  #     #   value_template:   "{{ (states.input_boolean.easleep.state == off) and (states.input_boolean.casleep.state == off)}}"
+  #     # # - condition: template
+  #     # #   value_template: "{{ states.input_select.alarm.state != 'Arm Away' }}"
+  #   trigger:
+  #   - platform: state
+  #     entity_id: binary_sensor.erlendhome
+  #     to: 'on'
+  #   - platform: state
+  #     entity_id: binary_sensor.carolinehome
+  #     to: 'on'
+  #   - platform: state
+  #     entity_id: group.people
+  #     to: 'on'
+  #   - platform: state
+  #     entity_id: input_boolean.easleep
+  #     to: 'off'
+  #   - platform: state
+  #     entity_id: input_boolean.casleep
+  #     to: 'off'
+  #   # - platform: state
+  #   #   entity_id: binary_sensor.hoveddor
+  #   #   to: 'on'
+  #   #   for:
+  #   #     seconds: 10
+  #   # - platform: state
+  #   #   entity_id: lock.ytterdor
+  #   #   to: 'unlocked'
+  #   action:
+  #   - condition: template
+  #     value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
+  #   - service: input_select.select_option
+  #     data:
+  #       entity_id: input_select.alarm
+  #       option: Disarm
+  #   - service: notify.html5_p30
+  #     data_template:
+  #       message: "Alarm turned off by {{trigger.entity_id}} from {{ trigger.from_state.state }} to {{trigger.to_state.state }}"
+
+  - id: returntoDock
+    alias: Return To Dock
+    trigger:
+      - entity_id: input_select.alarm
+        platform: state
+        to: "Disarm"
+        from: "Arm Away"
+    action:
+      - service: vacuum.return_to_base
+        entity_id:
+          - vacuum.xiaomi_vacuum_cleaner
+          - vacuum.neato
+      - delay:
+          seconds: 5
+      - service: vacuum.return_to_base
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+
+  - id: turnalarmmoff
+    alias: Turn Alarm off
+    trigger:
+      - entity_id: input_select.alarm
+        platform: state
+        to: Disarm
+    action:
+      - service: script.turn_off
+        entity_id: script.alarmtriggered
+      - service: vacuum.set_fan_speed
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+        data:
+          fan_speed: Silent
+    # - service: notify.me
+    #   data_template:
+    #     message: 'Alarm deaktivert.'
+
+  - alias: WarningAlarmStillArmed
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.door_livingroom, binary_sensor.door_kitchen
+        to: "on"
+      - platform: state
+        entity_id:
+          - binary_sensor.motion_livingroom
+          - binary_sensor.motion_sokkel
+          #- binary_sensor.motion_vindfang
+        to: "on"
+    condition:
+      condition: and
+      conditions:
+        - condition: state
+          entity_id: input_select.alarm
+          state: "Arm Home"
+        - condition: template
+          value_template: "{{ states.vacuum.xiaomi_vacuum_cleaner.state != 'Cleaning' }}"
+    action:
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: "0.3"
+      - service: tts.google_say
+        entity_id: media_player.minis
+        data_template:
+          message: "Alarmen er fortsatt aktivert!"
+      - delay:
+          seconds: 10
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: "{{states.sensor.speakervolume.state}}"
+  #####
+  ###  Custom Alarm
+  ####
+
+  - alias: "Trigger Alarm but not when robot running"
+    id: triggerarmhomenotrobot
+    trigger:
+      - platform: state
+        # Alarm Sensors include every motion and door sensor. Hallway, toilet, vindfang, main door and veranda.
+        entity_id: group.awaysensorswhenrobotnotrunning
+        to: "on"
+        from: "off"
+    condition:
+      condition: and
+      conditions:
         - condition: state
           entity_id: vacuum.xiaomi_vacuum_cleaner
           state: "docked"
         - condition: state
-          entity_id: input_boolean.runvacuum
-          state: "on"
-      action:
-        - service: vacuum.set_fan_speed
-          entity_id: vacuum.xiaomi_vacuum_cleaner
-          data:
-            fan_speed: Silent
-        - service: vacuum.start
-          entity_id: vacuum.xiaomi_vacuum_cleaner
-        - delay:
-            hours: 5
-
-    - alias: updateMailToday
-      trigger:
-        platform: time
-        at: 02:00:00
-      action:
-        - service: homeassistant.update_entity
-          entity_id: sensor.mailtoday
-
-    - alias: VacuumDoneForTheDay
-      trigger:
-        - platform: state
-          entity_id: vacuum.xiaomi_vacuum_cleaner
-          to: "cleaning"
-          for:
-            minutes: 30
-      #condition:
-      # - condition: template
-      #   value_template: "{{ states.input_select.alarm.state != 'Arm Home' }}"
-      action:
-        - service: notify.me
-          data:
-            message: "The Vacuum has cleaned for 45 minutes, so it won't clean more today."
-        - service: input_boolean.turn_off
-          entity_id: input_boolean.runvacuum
-
-    - alias: resetVacuumDoneForTheDay
-      trigger:
-        - platform: time
-          at: "10:00:00"
-      action:
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.runvacuum
-
-    ################
-    ##   Disarm   ##
-    ################
-
-    #Removed lock to unlocked as a trigger, and changed to door opened as a trigger.
-    # The conditions still has to be met, ig the door has to be unlocked when the door is opened.
-
-    #Bytte til group
-
-    - alias: disarmByDoor
-      trigger:
-        # - platform: state
-        #   entity_id: binary_sensor.hoveddor
-        #   to: 'on'
-        - platform: state
-          entity_id: lock.ytterdor
-          to: "unlocked"
-          from: "locked"
-      # condition:
-      # - condition: state
-      #   entity_id: binary_sensor.motion_vindfang
-      #   state: 'off'
-      # - condition: template
-      #   value_template: >-
-      #       {%-set alarmNotJustSet = (((as_timestamp(utcnow()) - as_timestamp(states.sensor.alarm.last_changed)) / 60) | round(0)) > 4 -%}
-      #       {%-set notDisarmedAndGarageClosed = states.input_select.alarm.state != 'Disarm' and states.cover.garage_door.state == 'closed' -%}
-      #       {%-set notmotionvindfang = states.binary_sensor.motion_vindfang.state == 'off' -%}
-      #       {{alarmNotJustSet and notDisarmedAndGarageClosed and notmotionvindfang}}
-      action:
-        - delay:
-            seconds: 1
-        - condition: template
-          value_template: "{{states.lock.ytterdor.state == 'unlocked'}}"
-        - service: light.turn_on
-          entity_id: light.hyperion
-          data_template:
-            rgb_color: [0, 255, 0]
-        - condition: template
-          value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
-        - service: notify.me
-          data_template:
-            title: "door unlocked"
-            message: "The door was unlocked by {{states.sensor.unlockedby.state}}. The alarm is {{states.input_select.alarm.state}} and the time is {{ now().hour }}:{{ now().minute }}."
-        # - service: notify.me
-        #   data:
-        #     title: 'door unlocked'
-        #     message: 'The door was unlocked by someone.'
-        #     # data:
-        #     #   photo:
-        #     #     url: !secret outdoorcamerastream
-        #Turn on guest mode instead?
-        - service: input_select.select_option
-          data:
-            entity_id: input_select.alarm
-            option: Disarm
-        - delay:
-            seconds: 10
-        - service: light.turn_off
-          entity_id: light.hyperion
-        - delay:
-            minutes: 5
-        # If the door has not been opened in the last 3 minutes, set the previous Alarm state..
-        - condition: template
-          value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed)) / 60) | round(0)) > 6)}}"
-        # - condition: templa= 'Disarm' }}"
-        - service: lock.lock
-          entity_id: lock.ytterdor
-          data:
-            code: !secret lock_code
-        - service: notify.me
-          data:
-            title: "door unlocked"
-            message: "The door was locked again since no one opened it within the time frame.."
-        - service: notify.me
-          data:
-            title: "door unlocked"
-            message: "The door was locked again since no one opened it within the time frame.."
-            data:
-              photo:
-                url: !secret outdoorcamerastream
-        - condition: state
-          entity_id: input_boolean.guestmode
-          state: "off"
-        - service: input_select.select_option
-          data_template:
-            entity_id: input_select.alarm
-            option: "{{states.sensor.alarm.state}}"
-    # - id: disarm
-    #   alias: disarm
-    #   condition:
-    #   #Disarm when people are home, and one is awake.
-    #     condition: and
-    #     conditions:
-    #       #group.people problem
-    #     - condition: state
-    #       entity_id: group.people
-    #       state: 'home'
-    #     - condition: template
-    #       value_template:   "{{ (states.input_boolean.easleep.state == off) or (states.input_boolean.casleep.state == off)}}"
-    #     # condition: or
-    #     # conditions:
-    #     # #This is not true
-    #     # - condition: and
-    #     #   conditions:
-    #     #   # When device reconnects to wifi/BT when armed home, it will disarm.
-    #     #   - condition: state
-    #     #     entity_id: binary_sensor.erlendhome
-    #     #     state: 'on'
-    #     #   - condition: state
-    #     #     entity_id: input_boolean.easleep
-    #     #     state: 'off'
-    #     # #This is not true
-    #     # - condition: and
-    #     #   conditions:
-    #     #   - condition: state
-    #     #     entity_id: binary_sensor.carolinehome
-    #     #     state: 'on'
-    #     #   - condition: state
-    #     #     entity_id: input_boolean.casleep
-    #     #     state: 'off'
-    #     #     # If the phone reconnects when we are asleep
-    #     #     #and door is unlocked or people are home, it may trigger.
-    #     #     # Remove these conditions? Or set the asleep as a condition which must be true.
-    #     # #This is true
-    #     # - condition: and
-    #     #   conditions:
-    #     #   #group.people problem
-    #     #   - condition: state
-    #     #     entity_id: group.people
-    #     #     state: 'home'
-    #     # - condition: template
-    #     #   value_template:   "{{ (states.input_boolean.easleep.state == off) and (states.input_boolean.casleep.state == off)}}"
-    #     # # - condition: template
-    #     # #   value_template: "{{ states.input_select.alarm.state != 'Arm Away' }}"
-    #   trigger:
-    #   - platform: state
-    #     entity_id: binary_sensor.erlendhome
-    #     to: 'on'
-    #   - platform: state
-    #     entity_id: binary_sensor.carolinehome
-    #     to: 'on'
-    #   - platform: state
-    #     entity_id: group.people
-    #     to: 'on'
-    #   - platform: state
-    #     entity_id: input_boolean.easleep
-    #     to: 'off'
-    #   - platform: state
-    #     entity_id: input_boolean.casleep
-    #     to: 'off'
-    #   # - platform: state
-    #   #   entity_id: binary_sensor.hoveddor
-    #   #   to: 'on'
-    #   #   for:
-    #   #     seconds: 10
-    #   # - platform: state
-    #   #   entity_id: lock.ytterdor
-    #   #   to: 'unlocked'
-    #   action:
-    #   - condition: template
-    #     value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
-    #   - service: input_select.select_option
-    #     data:
-    #       entity_id: input_select.alarm
-    #       option: Disarm
-    #   - service: notify.html5_p30
-    #     data_template:
-    #       message: "Alarm turned off by {{trigger.entity_id}} from {{ trigger.from_state.state }} to {{trigger.to_state.state }}"
-
-    - id: returntoDock
-      alias: Return To Dock
-      trigger:
-        - entity_id: input_select.alarm
-          platform: state
-          to: "Disarm"
-          from: "Arm Away"
-      action:
-        - service: vacuum.return_to_base
-          entity_id:
-            - vacuum.xiaomi_vacuum_cleaner
-            - vacuum.neato
-        - delay:
-            seconds: 5
-        - service: vacuum.return_to_base
-          entity_id: vacuum.xiaomi_vacuum_cleaner
-
-    - id: turnalarmmoff
-      alias: Turn Alarm off
-      trigger:
-        - entity_id: input_select.alarm
-          platform: state
-          to: Disarm
-      action:
-        - service: script.turn_off
-          entity_id: script.alarmtriggered
-        - service: vacuum.set_fan_speed
-          entity_id: vacuum.xiaomi_vacuum_cleaner
-          data:
-            fan_speed: Silent
-      # - service: notify.me
-      #   data_template:
-      #     message: 'Alarm deaktivert.'
-
-    - alias: WarningAlarmStillArmed
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.door_livingroom, binary_sensor.door_kitchen
-          to: "on"
-        - platform: state
-          entity_id:
-            - binary_sensor.motion_livingroom
-            - binary_sensor.motion_sokkel
-            #- binary_sensor.motion_vindfang
-          to: "on"
-      condition:
-        condition: and
-        conditions:
-          - condition: state
-            entity_id: input_select.alarm
-            state: "Arm Home"
-          - condition: template
-            value_template: "{{ states.vacuum.xiaomi_vacuum_cleaner.state != 'Cleaning' }}"
-      action:
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "0.3"
-        - service: tts.google_say
-          entity_id: media_player.minis
-          data_template:
-            message: "Alarmen er fortsatt aktivert!"
-        - delay:
-            seconds: 10
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state}}"
-    #####
-    ###  Custom Alarm
-    ####
-
-    - alias: "Trigger Alarm but not when robot running"
-      id: triggerarmhomenotrobot
-      trigger:
-        - platform: state
-          # Alarm Sensors include every motion and door sensor. Hallway, toilet, vindfang, main door and veranda.
-          entity_id: group.awaysensorswhenrobotnotrunning
-          to: "on"
-          from: "off"
-      condition:
-        condition: and
-        conditions:
-          - condition: state
-            entity_id: vacuum.xiaomi_vacuum_cleaner
-            state: "docked"
-          - condition: state
-            entity_id: alarm_control_panel.home_alarm
-            state: "armed_away"
-      action:
-        service: alarm_control_panel.alarm_trigger
-        entity_id: alarm_control_panel.home_alarm
-
-    #This will sound the alarm when the alarm is Armed Away.
-    # Also need one for arm home
-    - alias: "Trigger alarm while armed away"
-      id: triggerarmaway
-      trigger:
-        - platform: state
-          entity_id:
-            #Magnet:
-            - binary_sensor.hoveddor
-            - binary_sensor.veranda
-            - binary_sensor.veranda_open
-            - binary_sensor.door_livingroom
-            - binary_sensor.door_kitchen
-            - binary_sensor.grind
-            - binary_sensor.door_downstairs
-            - binary_sensor.lilleveranda
-            - binary_sensor.trym_door
-            #- binary_sensor.trym_window
-            #- binary_sensor.tyra_window
-            - binary_sensor.tyra_door
-            - binary_sensor.bedroom_window
-            - binary_sensor.door_bathroom
-            # - binary_sensor.motion_bedroom
-            #Motion:
-            # - binary_sensor.motion_kitchen #kitchen
-            #- binary_sensor.motion_toilet
-            #- binary_sensor.motion_sokkel
-            #- binary_sensor.motion_hallway
-            #- binary_sensor.motion_vindfang #Vindfang
-            - binary_sensor.motion_downstairs_office
-            - binary_sensor.garage_backdoor
-          to: "on"
-          from: "off"
-      condition:
-        - condition: state
           entity_id: alarm_control_panel.home_alarm
           state: "armed_away"
-          #Condition trigger != motion kitchen OR robot running?
-      action:
-        - service: alarm_control_panel.alarm_trigger
-          entity_id: alarm_control_panel.home_alarm
-      # - service: notify.html5_p30
-      #   data_template:
-      #     message: "Alarm triggered by {{trigger.entity_id}}"
+    action:
+      service: alarm_control_panel.alarm_trigger
+      entity_id: alarm_control_panel.home_alarm
 
-    - alias: "Trigger alarm while armed home"
-      id: triggerarmhome
-      trigger:
-        - platform: state
-          # Alarm Sensors include every motion and door sensor. Hallway, toilet, vindfang, main door and veranda.
-          entity_id:
-            - binary_sensor.hoveddor
-            - binary_sensor.veranda
-            - binary_sensor.veranda_open
-            - binary_sensor.door_downstairs
-            - binary_sensor.lilleveranda
-          to: "on"
-          from: "off"
-      condition:
-        - condition: state
-          entity_id: alarm_control_panel.home_alarm
-          state: "armed_home"
-      action:
-        - service: alarm_control_panel.alarm_trigger
-          entity_id: alarm_control_panel.home_alarm
+  #This will sound the alarm when the alarm is Armed Away.
+  # Also need one for arm home
+  - alias: "Trigger alarm while armed away"
+    id: triggerarmaway
+    trigger:
+      - platform: state
+        entity_id:
+          #Magnet:
+          - binary_sensor.hoveddor
+          - binary_sensor.veranda
+          - binary_sensor.veranda_open
+          - binary_sensor.door_livingroom
+          - binary_sensor.door_kitchen
+          - binary_sensor.grind
+          - binary_sensor.door_downstairs
+          - binary_sensor.lilleveranda
+          - binary_sensor.trym_door
+          #- binary_sensor.trym_window
+          #- binary_sensor.tyra_window
+          - binary_sensor.tyra_door
+          - binary_sensor.bedroom_window
+          - binary_sensor.door_bathroom
+          # - binary_sensor.motion_bedroom
+          #Motion:
+          # - binary_sensor.motion_kitchen #kitchen
+          #- binary_sensor.motion_toilet
+          #- binary_sensor.motion_sokkel
+          #- binary_sensor.motion_hallway
+          #- binary_sensor.motion_vindfang #Vindfang
+          - binary_sensor.motion_downstairs_office
+          - binary_sensor.garage_backdoor
+        to: "on"
+        from: "off"
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.home_alarm
+        state: "armed_away"
+        #Condition trigger != motion kitchen OR robot running?
+    action:
+      - service: alarm_control_panel.alarm_trigger
+        entity_id: alarm_control_panel.home_alarm
+    # - service: notify.html5_p30
+    #   data_template:
+    #     message: "Alarm triggered by {{trigger.entity_id}}"
 
-    #What to do when the alarm triggers. Make Xiaomi Gateway play alarm sound and the G Home
-    - alias: "Send notification when alarm triggered"
-      trigger:
-        - platform: state
-          entity_id: alarm_control_panel.home_alarm
-          to: "triggered"
-      action:
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: 1
-        - service: tts.google_say
+  - alias: "Trigger alarm while armed home"
+    id: triggerarmhome
+    trigger:
+      - platform: state
+        # Alarm Sensors include every motion and door sensor. Hallway, toilet, vindfang, main door and veranda.
+        entity_id:
+          - binary_sensor.hoveddor
+          - binary_sensor.veranda
+          - binary_sensor.veranda_open
+          - binary_sensor.door_downstairs
+          - binary_sensor.lilleveranda
+        to: "on"
+        from: "off"
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.home_alarm
+        state: "armed_home"
+    action:
+      - service: alarm_control_panel.alarm_trigger
+        entity_id: alarm_control_panel.home_alarm
+
+  #What to do when the alarm triggers. Make Xiaomi Gateway play alarm sound and the G Home
+  - alias: "Send notification when alarm triggered"
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.home_alarm
+        to: "triggered"
+    action:
+      - service: media_player.volume_set
+        data_template:
           entity_id: media_player.minis
-          data_template:
-            message: "Inntrenger oppdaget. Deaktiver alarmen innen 30 sekunder for å unngå utrykning!"
-        - service: notify.erlendpush
-          data:
-            message: "Alarmen er i ferd med å utløses!"
-            title: "Alarm"
-        - delay:
-            seconds: 30
-        - condition: template
-          value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
-        - service: notify.erlendpush
-          data:
-            message: "ALARM! The alarm has been triggered"
-        - service: notify.erlendpush
-          data:
-            message: "ALARM! The alarm has been triggered"
-        - service: script.turn_on
-          entity_id: script.alarmtriggered
+          volume_level: 1
+      - service: tts.google_say
+        entity_id: media_player.minis
+        data_template:
+          message: "Inntrenger oppdaget. Deaktiver alarmen innen 30 sekunder for å unngå utrykning!"
+      - service: notify.erlendpush
+        data:
+          message: "Alarmen er i ferd med å utløses!"
+          title: "Alarm"
+      - delay:
+          seconds: 30
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
+      - service: notify.erlendpush
+        data:
+          message: "ALARM! The alarm has been triggered"
+      - service: notify.erlendpush
+        data:
+          message: "ALARM! The alarm has been triggered"
+      - service: script.turn_on
+        entity_id: script.alarmtriggered
 
-    #post_pending_state: triggered for å varsle om at alarmen er på vei.
+  #post_pending_state: triggered for å varsle om at alarmen er på vei.
 
-    - alias: "Disarm by Input Select"
-      mode: restart
-      trigger:
-        - platform: state
-          entity_id: input_select.alarm
-          to: "Disarm"
-        - platform: state
-          entity_id: sensor.alarm
-          to: "Disarm"
-      action:
-        - service: alarm_control_panel.alarm_disarm
+  - alias: "Disarm by Input Select"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_select.alarm
+        to: "Disarm"
+      - platform: state
+        entity_id: sensor.alarm
+        to: "Disarm"
+    action:
+      - service: alarm_control_panel.alarm_disarm
+        entity_id: alarm_control_panel.home_alarm
+        data:
+          code: !secret alarm_code
           entity_id: alarm_control_panel.home_alarm
-          data:
-            code: !secret alarm_code
-            entity_id: alarm_control_panel.home_alarm
-        - service: script.turn_on
-          entity_id: script.alarmdone
-        - service: script.turn_on
-          entity_id: script.warmupmorning
+      - service: script.turn_on
+        entity_id: script.alarmdone
+      - service: script.turn_on
+        entity_id: script.warmupmorning
 
-    - alias: "Arm alarm by Input Select"
-      trigger:
-        - platform: state
-          entity_id: input_select.alarm
-          to: "Arm Away"
-          for:
-            seconds: 10
-      action:
-        - service: alarm_control_panel.alarm_arm_away
-          data:
-            code: !secret alarm_code
-            entity_id: alarm_control_panel.home_alarm
-        - service: script.turn_on
-          entity_id: script.lockdoor
+  - alias: "Arm alarm by Input Select"
+    trigger:
+      - platform: state
+        entity_id: input_select.alarm
+        to: "Arm Away"
+        for:
+          seconds: 10
+    action:
+      - service: alarm_control_panel.alarm_arm_away
+        data:
+          code: !secret alarm_code
+          entity_id: alarm_control_panel.home_alarm
+      - service: script.turn_on
+        entity_id: script.lockdoor
 
-    #Takes a lot of space. Must send the video, and then delete it or something?
-    # - alias: Savedoorbellvideo
-    #   trigger:
-    #     - platform: state
-    #       entity_id: sensor.front_door_last_activity
-    #   action:
-    #   - service: downloader.download_file
-    #     data_template:
-    #       url: "{{ state_attr('camera.front_door', 'video_url') }}"
-    #       subdir: "{{state_attr('camera.front_door', 'friendly_name')}}"
-    #       filename: "{{now().day}}-{{now().month}}-{{now().year}} {{now().hour}}:{{now().minute}}.mp4"
-    - id: varsleOmÅpenDørNårDetBlirLåst
-      alias: varsleOmÅpenDørNårDetBlirLåst
-      trigger:
-        - platform: template
-          value_template: "{{states.input_select.alarm.state != 'Disarm'}}"
-      condition:
-        condition: state
-        entity_id: group.nightsensors
-        state: "on"
-      action:
-        - service: script.turn_on
-          entity_id: script.notifyboth
-          data_template:
-            variables:
-              title: Ytterdører er åpne!
-              message: >-
-                {% for entity_id in states.group.nightsensors.attributes.entity_id %}
-                {%set state = states[entity_id] %}
-                  {% if state.state == 'on' %}
-                    - {{state.attributes.friendly_name}} \n
-                  {% endif %}
-                {% endfor %}
-
-  script:
-    alarmtriggered:
-      alias: Alarm Triggered
-      sequence:
-        - service: notify.erlendpush
-          data_template:
-            title: Alarmen er utløst!
+  #Takes a lot of space. Must send the video, and then delete it or something?
+  # - alias: Savedoorbellvideo
+  #   trigger:
+  #     - platform: state
+  #       entity_id: sensor.front_door_last_activity
+  #   action:
+  #   - service: downloader.download_file
+  #     data_template:
+  #       url: "{{ state_attr('camera.front_door', 'video_url') }}"
+  #       subdir: "{{state_attr('camera.front_door', 'friendly_name')}}"
+  #       filename: "{{now().day}}-{{now().month}}-{{now().year}} {{now().hour}}:{{now().minute}}.mp4"
+  - id: varsleOmÅpenDørNårDetBlirLåst
+    alias: varsleOmÅpenDørNårDetBlirLåst
+    trigger:
+      - platform: template
+        value_template: "{{states.input_select.alarm.state != 'Disarm'}}"
+    condition:
+      condition: state
+      entity_id: group.nightsensors
+      state: "on"
+    action:
+      - service: script.turn_on
+        entity_id: script.notifyboth
+        data_template:
+          variables:
+            title: Ytterdører er åpne!
             message: >-
-              Utløste sensorer:
+              {% for entity_id in states.group.nightsensors.attributes.entity_id %}
+              {%set state = states[entity_id] %}
+                {% if state.state == 'on' %}
+                  - {{state.attributes.friendly_name}} \n
+                {% endif %}
+              {% endfor %}
 
-              {%for entity_id in states.group.awaysensors.attributes.entity_id%}
-              {%- set state = states[entity_id]%}
-              {%-if state.state == 'on'%}
-              - {{state.attributes.friendly_name}}
-              {%- endif -%}
-              {%endfor %}
-        - service: notify.carolinepush
-          data_template:
-            title: Alarmen er utløst!
-            message: >-
-              Utløste sensorer:
+script:
+  alarmtriggered:
+    alias: Alarm Triggered
+    sequence:
+      - service: notify.erlendpush
+        data_template:
+          title: Alarmen er utløst!
+          message: >-
+            Utløste sensorer:
 
-              {%for entity_id in states.group.awaysensors.attributes.entity_id%}
-              {%- set state = states[entity_id]%}
-              {%-if state.state == 'on'%}
-              - {{state.attributes.friendly_name}}
-              {%- endif -%}
-              {%endfor %}
-        - service: vacuum.set_fan_speed
-          entity_id: vacuum.xiaomi_vacuum_cleaner
-          data:
-            fan_speed: Turbo
-        - service: vacuum.start
-          entity_id: vacuum.xiaomi_vacuum_cleaner
-        - service: script.turn_on
-          entity_id: script.lightsoff
-        - service: script.turn_on
-          entity_id: script.blink_lights_danger
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.living_room_speaker
-            volume_level: 1
-        - service: tts.google_say
-          entity_id: media_player.minis, media_player.clock
-          data:
-            message: "Alarm! Husalarm utløst!."
-        - delay:
-            seconds: 2
-        - service: script.airraid
-        - delay:
-            seconds: 30
-        - service: script.airraid
+            {%for entity_id in states.group.awaysensors.attributes.entity_id%}
+            {%- set state = states[entity_id]%}
+            {%-if state.state == 'on'%}
+            - {{state.attributes.friendly_name}}
+            {%- endif -%}
+            {%endfor %}
+      - service: notify.carolinepush
+        data_template:
+          title: Alarmen er utløst!
+          message: >-
+            Utløste sensorer:
 
-    alarmdone:
-      alias: "alarm done"
-      sequence:
-        - service: script.stopplyd
-        # - service: light.turn_off
-        #   entity_id: light.gateway_light_7c49eb1c2d6b
-        # - service: xiaomi_aqara.stop_ringtone
-        #   data:
-        #     gw_mac: 7C:49:EB:1C:2D:6B
-        # - service: xiaomi_aqara.stop_ringtone
-        #   data:
-        #     gw_mac: 7C:49:EB:1C:2D:6B
+            {%for entity_id in states.group.awaysensors.attributes.entity_id%}
+            {%- set state = states[entity_id]%}
+            {%-if state.state == 'on'%}
+            - {{state.attributes.friendly_name}}
+            {%- endif -%}
+            {%endfor %}
+      - service: vacuum.set_fan_speed
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+        data:
+          fan_speed: Turbo
+      - service: vacuum.start
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+      - service: script.turn_on
+        entity_id: script.lightsoff
+      - service: script.turn_on
+        entity_id: script.blink_lights_danger
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.living_room_speaker
+          volume_level: 1
+      - service: tts.google_say
+        entity_id: media_player.minis, media_player.clock
+        data:
+          message: "Alarm! Husalarm utløst!."
+      - delay:
+          seconds: 2
+      - service: script.airraid
+      - delay:
+          seconds: 30
+      - service: script.airraid
 
-    lockdoor:
-      alias: "Lock door"
-      sequence:
-        - condition: template
-          value_template: "{{ states.lock.ytterdor.state != 'locked' }}"
-        - service: lock.lock
-          entity_id: lock.ytterdor
-          data:
-            code: !secret lock_code
+  alarmdone:
+    alias: "alarm done"
+    sequence:
+      - service: script.stopplyd
+      # - service: light.turn_off
+      #   entity_id: light.gateway_light_7c49eb1c2d6b
+      # - service: xiaomi_aqara.stop_ringtone
+      #   data:
+      #     gw_mac: 7C:49:EB:1C:2D:6B
+      # - service: xiaomi_aqara.stop_ringtone
+      #   data:
+      #     gw_mac: 7C:49:EB:1C:2D:6B
 
-    unlockdoor:
-      alias: "Unlock door"
-      sequence:
-        - service: lock.unlock
-          entity_id: lock.ytterdor
-          data:
-            code: !secret lock_code
+  lockdoor:
+    alias: "Lock door"
+    sequence:
+      - condition: template
+        value_template: "{{ states.lock.ytterdor.state != 'locked' }}"
+      - service: lock.lock
+        entity_id: lock.ytterdor
+        data:
+          code: !secret lock_code
 
-    sendvideodriveway:
-      alias: Send Video Test
-      sequence:
-        - service: camera.record
+  unlockdoor:
+    alias: "Unlock door"
+    sequence:
+      - service: lock.unlock
+        entity_id: lock.ytterdor
+        data:
+          code: !secret lock_code
+
+  sendvideodriveway:
+    alias: Send Video Test
+    sequence:
+      - service: camera.record
+        data:
+          entity_id: camera.driveway_stream
+          filename: "/config/www/snapshot.mp4"
+          duration: 5
+      - delay:
+          seconds: 15
+      - service: notify.me
+        data:
+          title: "Test video"
+          message: "Test video."
           data:
-            entity_id: camera.driveway_stream
-            filename: "/config/www/snapshot.mp4"
-            duration: 5
-        - delay:
-            seconds: 15
-        - service: notify.me
-          data:
-            title: "Test video"
-            message: "Test video."
-            data:
-              video:
-                file: /config/www/snapshot.mp4
+            video:
+              file: /config/www/snapshot.mp4

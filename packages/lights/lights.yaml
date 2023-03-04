@@ -1,791 +1,790 @@
-lights:
-  automation:
-    - alias: AdjustLightProfile
-      trigger:
-        - platform: state
-          entity_id: input_select.light_profile
-      condition:
-        condition: or
-        conditions:
-          - condition: state
-            entity_id: light.tv
-            state: "on"
-          - condition: state
-            entity_id: light.chillsofa
-            state: "on"
-      action:
-        - service: light.turn_on
-          data_template:
-            entity_id: light.tv, light.chillsofa
-            profile: "{{ trigger.to_state.state }}"
-            brightness_pct: "{{ states.input_number.brightness.state | int(default=0) }}"
-
-    # - alias: Set Light profile
-    #   trigger:
-    #   - platform: state
-    #     entity_id: sensor.peoplehome
-    #   action:
-    #   - service: input_select.select_option
-    #     data_template:
-    #       entity_id: input_select.light_profile
-    #       option: >-
-    #           {% if(trigger.to_state.state == 'Erlend') %}
-    #           energize
-    #           {% else %}
-    #           reading
-    #           {% endif %}
-
-    - id: turnOnKitchenLightByMotion
-      alias: turnOnKitchenLightByMotion
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_kitchen, binary_sensor.door_kitchen
-          to: "on"
-      condition:
-        condition: and
-        conditions:
-          - condition: template
-            value_template: "{{ states.vacuum.xiaomi_vacuum_cleaner.state != 'Cleaning' }}"
-          - condition: template
-            value_template: "{{ states.input_select.alarm.state != 'Arm Away' }}"
-      action:
-        - service: light.turn_on
-          entity_id:
-            - light.kitchen
-            - light.table_lamp
-            - light.kitchen_ceiling_led
-          data:
-            brightness_pct: 100
-        - service: light.turn_on
-          entity_id:
-            - light.ledstrip_kitchen
-          data_template:
-            brightness_pct: 100
-            rgb_color: [255, 182, 218]
-
-    - id: turnoffKitchenLightByMotion
-      alias: turnoffKitchenLightByMotion
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_kitchen
-          to: "off"
-          for:
-            minutes: 5
-      condition:
-        condition: and
-        conditions:
-          - condition: template
-            value_template: "{{ states.vacuum.xiaomi_vacuum_cleaner.state != 'Cleaning' }}"
-          - condition: state
-            entity_id: light.kjokkenbord
-            state: "off"
-      action:
-        - service: light.turn_off
-          entity_id:
-            - light.kitchen
-            - light.table_lamp
-            - light.ledstrip_kitchen
-            - light.kitchen_ceiling_led
-
-      # - service: switch.turn_on
-      #   entity_id: switch.table_lamp
-
-      # - service: light.turn_on
-      #   entity_id: light.upstairs
-      #   data_template:
-      #     brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
-    # #delay and then turn off?
-    # - alias: notifyPlayLights
-    #   trigger:
-    #     platform: state
-    #     entity_id: light.play
-    #     to: 'on'
-    #     for:
-    #       minutes: 10
-    #   condition:
-    #     condition: state
-    #     entity_id: binary_sensor.motion_downstairs_office
-    #     state: 'off'
-    #   action:
-    #   - service: script.turn_on
-    #     entity_id: script.notify
-    #     data_template:
-    #       variables:
-    #         title: Play turned on.
-    #         message: Play Turned on.
-    - alias: TurnOnOfficeLight
-      trigger:
-        platform: state
-        entity_id: binary_sensor.motion_downstairs_office
-        to: "on"
-      condition:
+automation:
+  - alias: AdjustLightProfile
+    trigger:
+      - platform: state
+        entity_id: input_select.light_profile
+    condition:
+      condition: or
+      conditions:
         - condition: state
-          entity_id: input_boolean.guestmode
-          state: "off"
-      action:
-        - service: light.turn_on
-          entity_id:
-            # - light.office_light
-            - light.play
-      # - service: light.turn_on
-      #   entity_id: light.sokkel
+          entity_id: light.tv
+          state: "on"
+        - condition: state
+          entity_id: light.chillsofa
+          state: "on"
+    action:
+      - service: light.turn_on
+        data_template:
+          entity_id: light.tv, light.chillsofa
+          profile: "{{ trigger.to_state.state }}"
+          brightness_pct: "{{ states.input_number.brightness.state | int(default=0) }}"
 
-    - alias: TurnOffOfficeLight
-      trigger:
-        platform: state
-        entity_id: binary_sensor.motion_downstairs_office
+  # - alias: Set Light profile
+  #   trigger:
+  #   - platform: state
+  #     entity_id: sensor.peoplehome
+  #   action:
+  #   - service: input_select.select_option
+  #     data_template:
+  #       entity_id: input_select.light_profile
+  #       option: >-
+  #           {% if(trigger.to_state.state == 'Erlend') %}
+  #           energize
+  #           {% else %}
+  #           reading
+  #           {% endif %}
+
+  - id: turnOnKitchenLightByMotion
+    alias: turnOnKitchenLightByMotion
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_kitchen, binary_sensor.door_kitchen
+        to: "on"
+    condition:
+      condition: and
+      conditions:
+        - condition: template
+          value_template: "{{ states.vacuum.xiaomi_vacuum_cleaner.state != 'Cleaning' }}"
+        - condition: template
+          value_template: "{{ states.input_select.alarm.state != 'Arm Away' }}"
+    action:
+      - service: light.turn_on
+        entity_id:
+          - light.kitchen
+          - light.table_lamp
+          - light.kitchen_ceiling_led
+        data:
+          brightness_pct: 100
+      - service: light.turn_on
+        entity_id:
+          - light.ledstrip_kitchen
+        data_template:
+          brightness_pct: 100
+          rgb_color: [255, 182, 218]
+
+  - id: turnoffKitchenLightByMotion
+    alias: turnoffKitchenLightByMotion
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_kitchen
         to: "off"
         for:
           minutes: 5
-      condition:
+    condition:
+      condition: and
+      conditions:
+        - condition: template
+          value_template: "{{ states.vacuum.xiaomi_vacuum_cleaner.state != 'Cleaning' }}"
         - condition: state
-          entity_id: input_boolean.guestmode
+          entity_id: light.kjokkenbord
           state: "off"
-      action:
-        - service: light.turn_off
-          entity_id: light.office_light, light.play
+    action:
+      - service: light.turn_off
+        entity_id:
+          - light.kitchen
+          - light.table_lamp
+          - light.ledstrip_kitchen
+          - light.kitchen_ceiling_led
 
-    - alias: turnonbedroomlightMorningWakeuplight
-      trigger:
-        # - platform: time
-        #   at: '06:00:00'
-        - platform: template
-          value_template: >-
-            {{ ((((as_timestamp(now()) + (15*60) | int(default=0))) | timestamp_custom("%Y-%m-%dT%H:%M+0200",true,0))
-            == 
-            states.sensor.next_alarm.state) 
-            and
-            states.sensor.date_time.state == states.sensor.date_time.state}}
-      condition:
-        condition: and
-        conditions:
-          # - condition: time
-          #   weekday:
-          #   - mon
-          #   - tue
-          #   - wed
-          #   - thu
-          #   - fri
-          # - condition: state
-          #   entity_id: input_boolean.casleep
-          #   state: 'off'
-          - condition: state
-            entity_id: input_boolean.alarmclock
-            state: "on"
-          - condition: state
-            entity_id: input_boolean.easleep
-            state: "on"
-          - condition: state
-            entity_id: person.erlend
-            state: "home"
-      action:
-        - service: light.turn_on
-          entity_id: light.erlend_bedroom, light.caroline_bedroom
-          data:
-            brightness_pct: 1
-        - service: light.turn_on
-          entity_id: light.erlend_bedroom, light.caroline_bedroom
-          data:
-            brightness_pct: 100
-            transition: 600
-        - delay:
-            seconds: 610
-        - service: light.turn_on
-          entity_id: light.bedroom
+    # - service: switch.turn_on
+    #   entity_id: switch.table_lamp
 
-    - alias: BedroomLightSwitchSync
-      trigger:
-        platform: state
+    # - service: light.turn_on
+    #   entity_id: light.upstairs
+    #   data_template:
+    #     brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
+  # #delay and then turn off?
+  # - alias: notifyPlayLights
+  #   trigger:
+  #     platform: state
+  #     entity_id: light.play
+  #     to: 'on'
+  #     for:
+  #       minutes: 10
+  #   condition:
+  #     condition: state
+  #     entity_id: binary_sensor.motion_downstairs_office
+  #     state: 'off'
+  #   action:
+  #   - service: script.turn_on
+  #     entity_id: script.notify
+  #     data_template:
+  #       variables:
+  #         title: Play turned on.
+  #         message: Play Turned on.
+  - alias: TurnOnOfficeLight
+    trigger:
+      platform: state
+      entity_id: binary_sensor.motion_downstairs_office
+      to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.guestmode
+        state: "off"
+    action:
+      - service: light.turn_on
+        entity_id:
+          # - light.office_light
+          - light.play
+    # - service: light.turn_on
+    #   entity_id: light.sokkel
+
+  - alias: TurnOffOfficeLight
+    trigger:
+      platform: state
+      entity_id: binary_sensor.motion_downstairs_office
+      to: "off"
+      for:
+        minutes: 5
+    condition:
+      - condition: state
+        entity_id: input_boolean.guestmode
+        state: "off"
+    action:
+      - service: light.turn_off
+        entity_id: light.office_light, light.play
+
+  - alias: turnonbedroomlightMorningWakeuplight
+    trigger:
+      # - platform: time
+      #   at: '06:00:00'
+      - platform: template
+        value_template: >-
+          {{ ((((as_timestamp(now()) + (15*60) | int(default=0))) | timestamp_custom("%Y-%m-%dT%H:%M+0200",true,0))
+          == 
+          states.sensor.next_alarm.state) 
+          and
+          states.sensor.date_time.state == states.sensor.date_time.state}}
+    condition:
+      condition: and
+      conditions:
+        # - condition: time
+        #   weekday:
+        #   - mon
+        #   - tue
+        #   - wed
+        #   - thu
+        #   - fri
+        # - condition: state
+        #   entity_id: input_boolean.casleep
+        #   state: 'off'
+        - condition: state
+          entity_id: input_boolean.alarmclock
+          state: "on"
+        - condition: state
+          entity_id: input_boolean.easleep
+          state: "on"
+        - condition: state
+          entity_id: person.erlend
+          state: "home"
+    action:
+      - service: light.turn_on
+        entity_id: light.erlend_bedroom, light.caroline_bedroom
+        data:
+          brightness_pct: 1
+      - service: light.turn_on
+        entity_id: light.erlend_bedroom, light.caroline_bedroom
+        data:
+          brightness_pct: 100
+          transition: 600
+      - delay:
+          seconds: 610
+      - service: light.turn_on
+        entity_id: light.bedroom
+
+  - alias: BedroomLightSwitchSync
+    trigger:
+      platform: state
+      entity_id:
+        - switch.bedroomlight_switch
+        - switch.bedroom
+    action:
+      - service: switch.turn_{{trigger.to_state.state}}
         entity_id:
           - switch.bedroomlight_switch
           - switch.bedroom
-      action:
-        - service: switch.turn_{{trigger.to_state.state}}
-          entity_id:
-            - switch.bedroomlight_switch
-            - switch.bedroom
 
-    - alias: TurnOnBedroomLight
-      trigger:
-        platform: state
-        entity_id: binary_sensor.motion_bedroom
-        to: "on"
-      condition:
-        condition: and
-        conditions:
-          # - condition: state
-          #   entity_id: input_boolean.trymasleep
-          #   state: 'off'
-          # - condition: state
-          #   entity_id: input_boolean.tyraasleep
-          #   state: 'off'
-          - condition: state
-            entity_id: light.bedroom
-            state: "off"
-          - condition: state
-            entity_id: input_boolean.easleep
-            state: "off"
-          - condition: state
-            entity_id: input_boolean.casleep
-            state: "off"
-          - condition: or
-            conditions:
-              - condition: state
-                entity_id: group.caroline
-                state: not_home
-              - condition: state
-                entity_id: binary_sensor.ccharging
-                state: "off"
-          - condition: template
-            value_template: "{{ states.media_player.tv_soverommet.state  != 'on'}}"
-
-      action:
-        - service: light.turn_on
-          entity_id: group.bedroomlights
-          data_template:
-            brightness_pct: "{{ states.sensor.brightnessforbedroomlights.state }}"
-            # Only turn on roof light if daytime.
-      # - condition: template
-      #   value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
-
-    - alias: TurnOffBedroomLight
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_bedroom
-          to: "off"
-          for:
-            minutes: 2
-        - platform: state
-          entity_id:
-            - input_boolean.casleep
-            - input_boolean.easleep
-          to: "on"
-      condition:
-        condition: or
-        conditions:
-          - condition: state
-            entity_id: light.bedroom
-            state: "on"
-          - condition: state
-            entity_id: light.erlend_bedroom
-            state: "on"
-          - condition: state
-            entity_id: light.caroline_bedroom
-            state: "on"
-      action:
-        - service: light.turn_off
-          entity_id: group.bedroomlights
-
-    #Light bedroom is set up in HA as the switch by the door, so we'll turn on all lights when this is pressed.
-    # Should map it so that
-    # - alias: TurnOnSmallBedroomLightsWhenBedroomTurnsOn
-    #   trigger:
-    #     platform: state
-    #     entity_id: light.bedroom
-    #     to: "on"
-    #   action:
-    #     - service: light.turn_on
-    #       entity_id:
-    #         - light.erlend_bedroom
-    #         - light.caroline_bedroom
-
-    # - alias: TurnOnSmallBedroomLightsWhenBedroomTurnsOn
-    #   trigger:
-    #     platform: state
-    #     entity_id: light.bedroom
-    #     to: "off"
-    #   action:
-    #     - service: light.turn_off
-    #       entity_id:
-    #         - light.erlend_bedroom
-    #         - light.caroline_bedroom
-
-    # - alias: TurnOnBedroomLight
-    #   trigger:
-    #     - platform: state
-    #       entity_id: input_boolean.casleep
-    #       to: 'off'
-    #     - platform: state
-    #       entity_id: input_boolean.easleep
-    #       to: 'off'
-    #   condition:
-    #     condition: and
-    #     conditions:
-    #     - condition: state
-    #       entity_id: input_boolean.easleep
-    #       state: 'off'
-    #     - condition: state
-    #       entity_id: input_boolean.casleep
-    #       state: 'off'
-    #   action:
-    #   - service: switch.turn_on
-    #     entity_id: switch.bedroomlight
-    #   - service: light.turn_on
-    #     entity_id: light.erlend_bedroom, light.caroline_bedroom
-    #     data_template:
-    #       brightness_pct: 100
-
-    #living switch off turns off IKEA trådfri lights
-    - id: turnOffLivingLights
-      alias: TurnOffLivingLights
-      trigger:
-        - platform: state
-          entity_id: switch.livingswitch
-          #to: 'off'
-      action:
-        - service: light.toggle
-          entity_id: light.vindfang
-
-    # - id: turnOnLivingLights
-    #   alias: TurnOnLivingLights
-    #   trigger:
-    #   - platform: state
-    #     entity_id: switch.livingswitch
-    #     to: 'on'
-    #   action:
-    #   - service: light.turn_on
-    #     data_template:
-    #       entity_id: group.living
-    #       brightness_pct: '{{ states.input_number.brightness.state | int(default=0) }}'
-    #       profile: '{{ states.input_number.light_profile.state }}'
-
-    # - service: light.turn_on
-    #   entity_id: light.kjokkenbord
-    # - service: switch.turn_on
-    #   entity_id: switch.cabinet
-    # - service: switch.turn_on
-    #   entity_id:
-    #     - switch.kitchen
-    #     - switch.table_lamp
-
-    - alias: TurnOnLightsWhenWeGetHome
-      id: TurnOnLightsWhenWeGetHome
-      trigger:
-        - platform: state
-          entity_id: input_select.alarm
-          to: "Disarm"
-      condition:
-        # Somewhat before the sun sets.
-        - condition: template
-          value_template: "{{ states.sensor.illuminance_living.state | float(default=0)< 40}}"
-      action:
-        - service: script.turn_on
-          entity_id: script.lightson
-
-    - alias: AdjustUteSpotter
-      id: AdjustUteSpotter
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.sun_above_horizon
-      action:
-        - service: >
-            {% if trigger.to_state.state == 'on' %}
-              light.turn_off
-            {% else %}
-              light.turn_on
-            {% endif %}
-          entity_id:
-            - light.utespotter
-            - light.lily
-
-    - alias: TurnOnDriveWayLight
-      id: turnOnDrivewayLight
-      mode: restart #parallel single queued
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.drivewaylightshouldbeon
-      action:
-        - service: light.turn_{{trigger.to_state.state}}
-          entity_id:
-            - light.driveway
-
-    - alias: TurnOnGarageLight
-      id: TurnOnGarageLight
-      mode: restart #parallel single queued
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.garagelightshouldbeon
-      action:
-        - service: light.turn_{{trigger.to_state.state}}
-          entity_id: light.garage
-
-    - alias: turnOnGarageLights
-      id: turnOnGarageLights
-      trigger:
-        - platform: state
-          entity_id: light.garage
-      action:
-        - service: light.turn_{{trigger.to_state.state}}
-          entity_id:
-            - light.garage_bulb
-            - light.garage_led_strip
-
-  script:
-    lightson:
-      sequence:
-        - service: light.turn_on
-          data_template:
-            entity_id: group.living
-            brightness_pct: 100
-            #profile: '{{ states.input_number.light_profile.state }}'
-        - service: light.turn_on
-          data_template:
-            entity_id: light.tvsone
-            brightness_pct: "{{ max([states.input_number.brightness.state | int(default=0) ,20]) }}"
-        - service: script.turn_on
-          entity_id: script.restorelivingcolor
-        - service: logbook.log
-          data_template:
-            name: Lights
-            message: were automatically turned on
-
-    lightsoff:
-      sequence:
-        - service: light.turn_off
-          entity_id: group.living
-        - service: logbook.log
-          data_template:
-            name: Lights
-            message: were automatically turned off
-
-    alllightson:
-      sequence:
-        - service: light.turn_on
-          entity_id: group.lights
-        - service: logbook.log
-          data_template:
-            name: Lights
-            message: were automatically turned on
-
-    alllightsoff:
-      mode: restart
-      sequence:
-        - service: light.turn_off
-          entity_id: group.lights
-        - service: logbook.log
-          data_template:
-            name: Lights
-            message: were automatically turned off
-
-    restorelightcolor:
-      sequence:
-        - service: script.turn_on
-          entity_id: script.restorelivingcolor
-        - service: script.turn_on
-          entity_id: script.restoreofficecolor
-
-    restorelivingcolor:
-      sequence:
-        - service: light.turn_on
-          entity_id: light.peis
-          data_template:
-            brightness_pct: "100"
-            #light.peis.color
-            #rgb_color: [255,128,25]
-            rgb_color: [255, 128, 25] #caroline liker
-        - service: light.turn_on
-          entity_id: light.kitchen_ceiling_led
-          data_template:
-            brightness_pct: "100"
-            color_temp: "235"
-        - service: light.turn_on
-          entity_id: light.ledstrip_kitchen
-          data_template:
-            brightness_pct: "100"
-            rgb_color: [255, 182, 218]
-        - service: light.turn_on
-          entity_id: light.hyperion
-          data_template:
-            brightness_pct: 100
-            rgb_color: [255, 226, 217]
-        - service: script.turn_on
-          entity_id: script.restoreofficecolor
-        - condition: template
-          value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
-        - service: light.turn_off
-          entity_id: group.colorlightsliving
-
-    restoreofficecolor:
-      sequence:
-        - service: light.turn_on
-          entity_id: light.play
-          data_template:
-            brightness_pct: "30"
-            color_temp: 500
-        - delay:
-            seconds: 10
-        - condition: template
-          value_template: "{{ states.binary_sensor.motion_downstairs_office.state  == 'off'}}"
-        - service: light.turn_off
-          entity_id: light.play
-
-    blink_livingroom_lights:
-      alias: Blink Livingroom Lights
-      sequence:
-        - service: light.turn_on
-          entity_id: group.living
-        - delay:
-            seconds: 1
-        - service: light.turn_off
-          entity_id: group.living
-        - delay:
-            seconds: 1
-        - service: light.turn_on
-          entity_id: group.Living
-        - delay:
-            seconds: 1
-        # - service: light.turn_off
-        #   entity_id: group.living
-        # - delay:
-        #    seconds: 1
-        # - service: light.turn_on
-        #   entity_id: group.Living
-        # - delay:
-        #    seconds: 1
-        - service: light.turn_off
-          entity_id: group.living
+  - alias: TurnOnBedroomLight
+    trigger:
+      platform: state
+      entity_id: binary_sensor.motion_bedroom
+      to: "on"
+    condition:
+      condition: and
+      conditions:
+        # - condition: state
+        #   entity_id: input_boolean.trymasleep
+        #   state: 'off'
+        # - condition: state
+        #   entity_id: input_boolean.tyraasleep
+        #   state: 'off'
         - condition: state
-          entity_id: input_select.alarm
-          state: "Disarm"
-        - delay:
-            seconds: 1
-        - service: light.turn_on
-          entity_id: group.Living
-
-    blink_lights_danger:
-      alias: Blink Hue Lamps
-      sequence:
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
-          data:
-            color_name: red
-        - delay:
-            seconds: 1
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
-        - delay:
-            seconds: 1
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
-          data:
-            color_name: red
-        - delay:
-            seconds: 1
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
-        - delay:
-            seconds: 1
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
-          data:
-            color_name: red
-        - delay:
-            seconds: 1
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
-        - delay:
-            seconds: 1
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
-          data:
-            color_name: red
-        - delay:
-            seconds: 1
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
-        - delay:
-            seconds: 1
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
-        - delay:
-            seconds: 1
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
-          data:
-            color_name: red
-        - delay:
-            seconds: 1
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
-        - delay:
-            seconds: 1
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
-          data:
-            color_name: red
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
-        - delay:
-            seconds: 1
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
-          data:
-            color_name: red
-
-    blink_lights_doorbell:
-      alias: Blink Hue Lamps
-      sequence:
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-          data:
-            color_name: red
-        - delay:
-            seconds: 0.5
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-        - delay:
-            seconds: 0.5
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-          data:
-            color_name: red
-        - delay:
-            seconds: 0.5
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-        - delay:
-            seconds: 0.5
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-          data:
-            color_name: red
-        - delay:
-            seconds: 0.5
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-        - delay:
-            seconds: 0.5
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-          data:
-            color_name: red
-        - delay:
-            seconds: 0.5
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-        - delay:
-            seconds: 0.5
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-        - delay:
-            seconds: 0.5
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-          data:
-            color_name: red
-        - delay:
-            seconds: 0.5
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-        - delay:
-            seconds: 0.5
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-          data:
-            color_name: red
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-        - delay:
-            seconds: 0.5
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-          data:
-            color_name: red
-        - delay:
-            seconds: 0.5
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-        - delay:
-            seconds: 0.5
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-          data:
-            color_name: red
-        - delay:
-            seconds: 0.5
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-        - delay:
-            seconds: 0.5
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-          data:
-            color_name: red
-        - delay:
-            seconds: 0.5
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-        - delay:
-            seconds: 0.5
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-          data:
-            color_name: red
-        - delay:
-            seconds: 0.5
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-        - delay:
-            seconds: 0.5
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-        - delay:
-            seconds: 0.5
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-          data:
-            color_name: red
-        - delay:
-            seconds: 0.5
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-        - delay:
-            seconds: 0.5
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-          data:
-            color_name: red
-        - service: light.turn_off
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-        - delay:
-            seconds: 0.5
+          entity_id: light.bedroom
+          state: "off"
+        - condition: state
+          entity_id: input_boolean.easleep
+          state: "off"
+        - condition: state
+          entity_id: input_boolean.casleep
+          state: "off"
+        - condition: or
+          conditions:
+            - condition: state
+              entity_id: group.caroline
+              state: not_home
+            - condition: state
+              entity_id: binary_sensor.ccharging
+              state: "off"
         - condition: template
-          value_template: "{{ states.binary_sensor.motion_downstairs_office.state == 'on' }}"
-        - service: light.turn_on
-          entity_id: light.play, light.peis, light.ledstrip_kitchen
-          data:
-            color_name: blue
-        - service: script.turn_on
-          entity_id: script.restorelightcolor
+          value_template: "{{ states.media_player.tv_soverommet.state  != 'on'}}"
 
-    turnoffvindfanglights:
-      alias: Turn off vindfang lights
-      sequence:
-        - condition: template
-          value_template: "{{ states.binary_sensor.motion_vindfang.state == 'off'}}"
-        - service: light.turn_off
-          entity_id: light.vindfang
+    action:
+      - service: light.turn_on
+        entity_id: group.bedroomlights
+        data_template:
+          brightness_pct: "{{ states.sensor.brightnessforbedroomlights.state }}"
+          # Only turn on roof light if daytime.
+    # - condition: template
+    #   value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
 
-    blinkliving:
-      alias: Blink Lights in livingroom
-      sequence:
-        - condition: template
-          value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
-        - service: light.turn_on
-          entity_id: group.colorlightsliving
-          data:
-            color_name: "{{color}}"
-        - delay:
-            seconds: 5
-        - service: light.turn_off
-          entity_id: group.colorlightsliving
-        - delay:
-            seconds: 2
-        - service: light.turn_on
-          entity_id: group.colorlightsliving
-          data:
-            color_name: "{{color}}"
-        - delay:
-            seconds: 5
-        - service: script.turn_on
-          entity_id: script.restorelightcolor
+  - alias: TurnOffBedroomLight
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_bedroom
+        to: "off"
+        for:
+          minutes: 2
+      - platform: state
+        entity_id:
+          - input_boolean.casleep
+          - input_boolean.easleep
+        to: "on"
+    condition:
+      condition: or
+      conditions:
+        - condition: state
+          entity_id: light.bedroom
+          state: "on"
+        - condition: state
+          entity_id: light.erlend_bedroom
+          state: "on"
+        - condition: state
+          entity_id: light.caroline_bedroom
+          state: "on"
+    action:
+      - service: light.turn_off
+        entity_id: group.bedroomlights
+
+  #Light bedroom is set up in HA as the switch by the door, so we'll turn on all lights when this is pressed.
+  # Should map it so that
+  # - alias: TurnOnSmallBedroomLightsWhenBedroomTurnsOn
+  #   trigger:
+  #     platform: state
+  #     entity_id: light.bedroom
+  #     to: "on"
+  #   action:
+  #     - service: light.turn_on
+  #       entity_id:
+  #         - light.erlend_bedroom
+  #         - light.caroline_bedroom
+
+  # - alias: TurnOnSmallBedroomLightsWhenBedroomTurnsOn
+  #   trigger:
+  #     platform: state
+  #     entity_id: light.bedroom
+  #     to: "off"
+  #   action:
+  #     - service: light.turn_off
+  #       entity_id:
+  #         - light.erlend_bedroom
+  #         - light.caroline_bedroom
+
+  # - alias: TurnOnBedroomLight
+  #   trigger:
+  #     - platform: state
+  #       entity_id: input_boolean.casleep
+  #       to: 'off'
+  #     - platform: state
+  #       entity_id: input_boolean.easleep
+  #       to: 'off'
+  #   condition:
+  #     condition: and
+  #     conditions:
+  #     - condition: state
+  #       entity_id: input_boolean.easleep
+  #       state: 'off'
+  #     - condition: state
+  #       entity_id: input_boolean.casleep
+  #       state: 'off'
+  #   action:
+  #   - service: switch.turn_on
+  #     entity_id: switch.bedroomlight
+  #   - service: light.turn_on
+  #     entity_id: light.erlend_bedroom, light.caroline_bedroom
+  #     data_template:
+  #       brightness_pct: 100
+
+  #living switch off turns off IKEA trådfri lights
+  - id: turnOffLivingLights
+    alias: TurnOffLivingLights
+    trigger:
+      - platform: state
+        entity_id: switch.livingswitch
+        #to: 'off'
+    action:
+      - service: light.toggle
+        entity_id: light.vindfang
+
+  # - id: turnOnLivingLights
+  #   alias: TurnOnLivingLights
+  #   trigger:
+  #   - platform: state
+  #     entity_id: switch.livingswitch
+  #     to: 'on'
+  #   action:
+  #   - service: light.turn_on
+  #     data_template:
+  #       entity_id: group.living
+  #       brightness_pct: '{{ states.input_number.brightness.state | int(default=0) }}'
+  #       profile: '{{ states.input_number.light_profile.state }}'
+
+  # - service: light.turn_on
+  #   entity_id: light.kjokkenbord
+  # - service: switch.turn_on
+  #   entity_id: switch.cabinet
+  # - service: switch.turn_on
+  #   entity_id:
+  #     - switch.kitchen
+  #     - switch.table_lamp
+
+  - alias: TurnOnLightsWhenWeGetHome
+    id: TurnOnLightsWhenWeGetHome
+    trigger:
+      - platform: state
+        entity_id: input_select.alarm
+        to: "Disarm"
+    condition:
+      # Somewhat before the sun sets.
+      - condition: template
+        value_template: "{{ states.sensor.illuminance_living.state | float(default=0)< 40}}"
+    action:
+      - service: script.turn_on
+        entity_id: script.lightson
+
+  - alias: AdjustUteSpotter
+    id: AdjustUteSpotter
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.sun_above_horizon
+    action:
+      - service: >
+          {% if trigger.to_state.state == 'on' %}
+            light.turn_off
+          {% else %}
+            light.turn_on
+          {% endif %}
+        entity_id:
+          - light.utespotter
+          - light.lily
+
+  - alias: TurnOnDriveWayLight
+    id: turnOnDrivewayLight
+    mode: restart #parallel single queued
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.drivewaylightshouldbeon
+    action:
+      - service: light.turn_{{trigger.to_state.state}}
+        entity_id:
+          - light.driveway
+
+  - alias: TurnOnGarageLight
+    id: TurnOnGarageLight
+    mode: restart #parallel single queued
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.garagelightshouldbeon
+    action:
+      - service: light.turn_{{trigger.to_state.state}}
+        entity_id: light.garage
+
+  - alias: turnOnGarageLights
+    id: turnOnGarageLights
+    trigger:
+      - platform: state
+        entity_id: light.garage
+    action:
+      - service: light.turn_{{trigger.to_state.state}}
+        entity_id:
+          - light.garage_bulb
+          - light.garage_led_strip
+
+script:
+  lightson:
+    sequence:
+      - service: light.turn_on
+        data_template:
+          entity_id: group.living
+          brightness_pct: 100
+          #profile: '{{ states.input_number.light_profile.state }}'
+      - service: light.turn_on
+        data_template:
+          entity_id: light.tvsone
+          brightness_pct: "{{ max([states.input_number.brightness.state | int(default=0) ,20]) }}"
+      - service: script.turn_on
+        entity_id: script.restorelivingcolor
+      - service: logbook.log
+        data_template:
+          name: Lights
+          message: were automatically turned on
+
+  lightsoff:
+    sequence:
+      - service: light.turn_off
+        entity_id: group.living
+      - service: logbook.log
+        data_template:
+          name: Lights
+          message: were automatically turned off
+
+  alllightson:
+    sequence:
+      - service: light.turn_on
+        entity_id: group.lights
+      - service: logbook.log
+        data_template:
+          name: Lights
+          message: were automatically turned on
+
+  alllightsoff:
+    mode: restart
+    sequence:
+      - service: light.turn_off
+        entity_id: group.lights
+      - service: logbook.log
+        data_template:
+          name: Lights
+          message: were automatically turned off
+
+  restorelightcolor:
+    sequence:
+      - service: script.turn_on
+        entity_id: script.restorelivingcolor
+      - service: script.turn_on
+        entity_id: script.restoreofficecolor
+
+  restorelivingcolor:
+    sequence:
+      - service: light.turn_on
+        entity_id: light.peis
+        data_template:
+          brightness_pct: "100"
+          #light.peis.color
+          #rgb_color: [255,128,25]
+          rgb_color: [255, 128, 25] #caroline liker
+      - service: light.turn_on
+        entity_id: light.kitchen_ceiling_led
+        data_template:
+          brightness_pct: "100"
+          color_temp: "235"
+      - service: light.turn_on
+        entity_id: light.ledstrip_kitchen
+        data_template:
+          brightness_pct: "100"
+          rgb_color: [255, 182, 218]
+      - service: light.turn_on
+        entity_id: light.hyperion
+        data_template:
+          brightness_pct: 100
+          rgb_color: [255, 226, 217]
+      - service: script.turn_on
+        entity_id: script.restoreofficecolor
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
+      - service: light.turn_off
+        entity_id: group.colorlightsliving
+
+  restoreofficecolor:
+    sequence:
+      - service: light.turn_on
+        entity_id: light.play
+        data_template:
+          brightness_pct: "30"
+          color_temp: 500
+      - delay:
+          seconds: 10
+      - condition: template
+        value_template: "{{ states.binary_sensor.motion_downstairs_office.state  == 'off'}}"
+      - service: light.turn_off
+        entity_id: light.play
+
+  blink_livingroom_lights:
+    alias: Blink Livingroom Lights
+    sequence:
+      - service: light.turn_on
+        entity_id: group.living
+      - delay:
+          seconds: 1
+      - service: light.turn_off
+        entity_id: group.living
+      - delay:
+          seconds: 1
+      - service: light.turn_on
+        entity_id: group.Living
+      - delay:
+          seconds: 1
+      # - service: light.turn_off
+      #   entity_id: group.living
+      # - delay:
+      #    seconds: 1
+      # - service: light.turn_on
+      #   entity_id: group.Living
+      # - delay:
+      #    seconds: 1
+      - service: light.turn_off
+        entity_id: group.living
+      - condition: state
+        entity_id: input_select.alarm
+        state: "Disarm"
+      - delay:
+          seconds: 1
+      - service: light.turn_on
+        entity_id: group.Living
+
+  blink_lights_danger:
+    alias: Blink Hue Lamps
+    sequence:
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
+        data:
+          color_name: red
+      - delay:
+          seconds: 1
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
+      - delay:
+          seconds: 1
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
+        data:
+          color_name: red
+      - delay:
+          seconds: 1
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
+      - delay:
+          seconds: 1
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
+        data:
+          color_name: red
+      - delay:
+          seconds: 1
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
+      - delay:
+          seconds: 1
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
+        data:
+          color_name: red
+      - delay:
+          seconds: 1
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
+      - delay:
+          seconds: 1
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
+      - delay:
+          seconds: 1
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
+        data:
+          color_name: red
+      - delay:
+          seconds: 1
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
+      - delay:
+          seconds: 1
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
+        data:
+          color_name: red
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
+      - delay:
+          seconds: 1
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.kitchen_ceiling_led, light.hyperion
+        data:
+          color_name: red
+
+  blink_lights_doorbell:
+    alias: Blink Hue Lamps
+    sequence:
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+        data:
+          color_name: red
+      - delay:
+          seconds: 0.5
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+      - delay:
+          seconds: 0.5
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+        data:
+          color_name: red
+      - delay:
+          seconds: 0.5
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+      - delay:
+          seconds: 0.5
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+        data:
+          color_name: red
+      - delay:
+          seconds: 0.5
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+      - delay:
+          seconds: 0.5
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+        data:
+          color_name: red
+      - delay:
+          seconds: 0.5
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+      - delay:
+          seconds: 0.5
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+      - delay:
+          seconds: 0.5
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+        data:
+          color_name: red
+      - delay:
+          seconds: 0.5
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+      - delay:
+          seconds: 0.5
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+        data:
+          color_name: red
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+      - delay:
+          seconds: 0.5
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+        data:
+          color_name: red
+      - delay:
+          seconds: 0.5
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+      - delay:
+          seconds: 0.5
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+        data:
+          color_name: red
+      - delay:
+          seconds: 0.5
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+      - delay:
+          seconds: 0.5
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+        data:
+          color_name: red
+      - delay:
+          seconds: 0.5
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+      - delay:
+          seconds: 0.5
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+        data:
+          color_name: red
+      - delay:
+          seconds: 0.5
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+      - delay:
+          seconds: 0.5
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+      - delay:
+          seconds: 0.5
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+        data:
+          color_name: red
+      - delay:
+          seconds: 0.5
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+      - delay:
+          seconds: 0.5
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+        data:
+          color_name: red
+      - service: light.turn_off
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+      - delay:
+          seconds: 0.5
+      - condition: template
+        value_template: "{{ states.binary_sensor.motion_downstairs_office.state == 'on' }}"
+      - service: light.turn_on
+        entity_id: light.play, light.peis, light.ledstrip_kitchen
+        data:
+          color_name: blue
+      - service: script.turn_on
+        entity_id: script.restorelightcolor
+
+  turnoffvindfanglights:
+    alias: Turn off vindfang lights
+    sequence:
+      - condition: template
+        value_template: "{{ states.binary_sensor.motion_vindfang.state == 'off'}}"
+      - service: light.turn_off
+        entity_id: light.vindfang
+
+  blinkliving:
+    alias: Blink Lights in livingroom
+    sequence:
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+      - service: light.turn_on
+        entity_id: group.colorlightsliving
+        data:
+          color_name: "{{color}}"
+      - delay:
+          seconds: 5
+      - service: light.turn_off
+        entity_id: group.colorlightsliving
+      - delay:
+          seconds: 2
+      - service: light.turn_on
+        entity_id: group.colorlightsliving
+        data:
+          color_name: "{{color}}"
+      - delay:
+          seconds: 5
+      - service: script.turn_on
+        entity_id: script.restorelightcolor

@@ -1,280 +1,279 @@
-garminwebhookscaroline:
-  input_select:
-    garmincontrolcaroline:
-      name: Garmin Control
-      options:
-        - None
-        - Lights
-        - Media
-        - Cover
-        - KitchenLights
-        - SofaLight
-      initial: None
-      icon: mdi:watch
+input_select:
+  garmincontrolcaroline:
+    name: Garmin Control
+    options:
+      - None
+      - Lights
+      - Media
+      - Cover
+      - KitchenLights
+      - SofaLight
+    initial: None
+    icon: mdi:watch
 
-  automation:
-    - alias: "reset garmincontrolcaroline"
-      id: resetgarmincontrolcaroline
-      trigger:
-        platform: state
-        entity_id: input_select.garmincontrolcaroline
-      action:
-        - delay:
-            seconds: 5
-        - service: input_select.select_option
-          data:
-            entity_id: input_select.garmincontrolcaroline
-            option: "None"
+automation:
+  - alias: "reset garmincontrolcaroline"
+    id: resetgarmincontrolcaroline
+    trigger:
+      platform: state
+      entity_id: input_select.garmincontrolcaroline
+    action:
+      - delay:
+          seconds: 5
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.garmincontrolcaroline
+          option: "None"
 
-    - alias: "GarminWebHookUpCaroline"
-      id: "GarminWebHookUpCaroline"
-      mode: restart
-      trigger:
-        - platform: webhook
-          webhook_id: !secret garmincontrolcarolineup
-      action:
-        - choose:
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'None'}}"
-              sequence:
-                - service: input_select.select_option
-                  data:
-                    entity_id: input_select.garmincontrolcaroline
-                    option: "Media"
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Lights'}}"
-              sequence:
-                - service: input_number.set_value
-                  data:
-                    entity_id: input_number.brightness
-                    value: "{{[[states.input_number.brightness.state | float(default=0)- 1, 100] | min,0] | max}}"
-                - service: input_number.set_value
-                  data:
-                    entity_id: input_number.brightness
-                    value: "{{[states.input_number.brightness.state | float(default=0)+ 20, 100] | min}}"
-                - service: light.turn_on
-                  entity_id: light.peis
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'KitchenLights'}}"
-              sequence:
-                - service: light.turn_on
-                  entity_id: light.kitchensone
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'SofaLight'}}"
-              sequence:
-                - service: light.turn_on
-                  entity_id: light.sofa
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Media'}}"
-              sequence:
-                - choose:
-                    - conditions:
-                        - condition: state
-                          entity_id: input_boolean.casleep
-                          state: "on"
-                      sequence:
-                        - service: media_player.media_play_pause
-                          entity_id: media_player.google_tv
-                    - conditions:
-                        - condition: template
-                          value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.nvidia_shield.state != 'paused' and states.media_player.nvidia_shield.state != 'playing'))}}"
-                      sequence:
-                        - service: media_player.media_play_pause
-                          entity_id: media_player.musikkstua
-                    - conditions:
-                        - condition: state
-                          entity_id: input_boolean.casleep
-                          state: "off"
-                      sequence:
-                        - service: media_player.media_play_pause
-                          entity_id: media_player.nvidia_shield
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
-              sequence:
-                - service: cover.open_cover
-                  entity_id: cover.veranda_curtains
+  - alias: "GarminWebHookUpCaroline"
+    id: "GarminWebHookUpCaroline"
+    mode: restart
+    trigger:
+      - platform: webhook
+        webhook_id: !secret garmincontrolcarolineup
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'None'}}"
+            sequence:
+              - service: input_select.select_option
+                data:
+                  entity_id: input_select.garmincontrolcaroline
+                  option: "Media"
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Lights'}}"
+            sequence:
+              - service: input_number.set_value
+                data:
+                  entity_id: input_number.brightness
+                  value: "{{[[states.input_number.brightness.state | float(default=0)- 1, 100] | min,0] | max}}"
+              - service: input_number.set_value
+                data:
+                  entity_id: input_number.brightness
+                  value: "{{[states.input_number.brightness.state | float(default=0)+ 20, 100] | min}}"
+              - service: light.turn_on
+                entity_id: light.peis
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'KitchenLights'}}"
+            sequence:
+              - service: light.turn_on
+                entity_id: light.kitchensone
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'SofaLight'}}"
+            sequence:
+              - service: light.turn_on
+                entity_id: light.sofa
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Media'}}"
+            sequence:
+              - choose:
+                  - conditions:
+                      - condition: state
+                        entity_id: input_boolean.casleep
+                        state: "on"
+                    sequence:
+                      - service: media_player.media_play_pause
+                        entity_id: media_player.google_tv
+                  - conditions:
+                      - condition: template
+                        value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.nvidia_shield.state != 'paused' and states.media_player.nvidia_shield.state != 'playing'))}}"
+                    sequence:
+                      - service: media_player.media_play_pause
+                        entity_id: media_player.musikkstua
+                  - conditions:
+                      - condition: state
+                        entity_id: input_boolean.casleep
+                        state: "off"
+                    sequence:
+                      - service: media_player.media_play_pause
+                        entity_id: media_player.nvidia_shield
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
+            sequence:
+              - service: cover.open_cover
+                entity_id: cover.veranda_curtains
 
-    - alias: "GarminWebHookDownCaroline"
-      id: "GarminWebHookDownCaroline"
-      trigger:
-        - platform: webhook
-          webhook_id: !secret garmincontrolcarolinedown
-      action:
-        - choose:
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'None'}}"
-              sequence:
-                - service: input_select.select_option
-                  data:
-                    entity_id: input_select.garmincontrolcaroline
-                    option: "Cover"
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Lights'}}"
-              sequence:
-                # - service: input_number.set_value
-                #   data:
-                #     entity_id: input_number.brightness
-                #     value: "{{[[states.input_number.brightness.state | float(default=0)+ 1, 0] | max,100] | max}}"
-                - service: input_number.set_value
-                  data:
-                    entity_id: input_number.brightness
-                    value: "{{[states.input_number.brightness.state | float(default=0)- 20, 0] | max}}"
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'KitchenLights'}}"
-              sequence:
-                - service: light.turn_off
-                  entity_id: light.kitchensone
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'SofaLight'}}"
-              sequence:
-                - service: light.turn_off
-                  entity_id: light.sofa
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
-              sequence:
-                - service: script.verandahalfway
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Media'}}"
-              sequence:
-                - service: script.notifyblanketcaroline
-                # - choose:
-                #   - conditions:
-                #     - condition: template
-                #       value_template: >-
-                #           "{{ states.switch.mower.state == 'off' and
-                #               states.binary_sensor.robot_charging == 'off'}}"
-                #     sequence:
-                #       - service: switch.toggle
-                #         entity_id: switch.mower
-                #   default:
-                #     - service: switch.toggle
-                #       entity_id: switch.mower
+  - alias: "GarminWebHookDownCaroline"
+    id: "GarminWebHookDownCaroline"
+    trigger:
+      - platform: webhook
+        webhook_id: !secret garmincontrolcarolinedown
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'None'}}"
+            sequence:
+              - service: input_select.select_option
+                data:
+                  entity_id: input_select.garmincontrolcaroline
+                  option: "Cover"
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Lights'}}"
+            sequence:
+              # - service: input_number.set_value
+              #   data:
+              #     entity_id: input_number.brightness
+              #     value: "{{[[states.input_number.brightness.state | float(default=0)+ 1, 0] | max,100] | max}}"
+              - service: input_number.set_value
+                data:
+                  entity_id: input_number.brightness
+                  value: "{{[states.input_number.brightness.state | float(default=0)- 20, 0] | max}}"
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'KitchenLights'}}"
+            sequence:
+              - service: light.turn_off
+                entity_id: light.kitchensone
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'SofaLight'}}"
+            sequence:
+              - service: light.turn_off
+                entity_id: light.sofa
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
+            sequence:
+              - service: script.verandahalfway
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Media'}}"
+            sequence:
+              - service: script.notifyblanketcaroline
+              # - choose:
+              #   - conditions:
+              #     - condition: template
+              #       value_template: >-
+              #           "{{ states.switch.mower.state == 'off' and
+              #               states.binary_sensor.robot_charging == 'off'}}"
+              #     sequence:
+              #       - service: switch.toggle
+              #         entity_id: switch.mower
+              #   default:
+              #     - service: switch.toggle
+              #       entity_id: switch.mower
 
-    - alias: "GarminWebHookOkCaroline"
-      id: "GarminWebHookOkCaroline"
-      trigger:
-        - platform: webhook
-          webhook_id: !secret garmincontrolcarolineok
-      action:
-        - choose:
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'None'}}"
-              sequence:
-                - service: input_select.select_option
-                  data:
-                    entity_id: input_select.garmincontrolcaroline
-                    option: "Lights"
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Lights'}}"
-              sequence:
-                - service: input_select.select_option
-                  data:
-                    entity_id: input_select.garmincontrolcaroline
-                    option: "KitchenLights"
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'KitchenLights'}}"
-              sequence:
-                - service: input_select.select_option
-                  data:
-                    entity_id: input_select.garmincontrolcaroline
-                    option: "SofaLight"
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'SofaLight'}}"
-              sequence:
-                - service: input_select.select_option
-                  data:
-                    entity_id: input_select.garmincontrolcaroline
-                    option: "KitchenLights"
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Media'}}"
-              sequence:
-                - choose:
-                    - conditions:
-                        - condition: state
-                          entity_id: input_boolean.casleep
-                          state: "off"
-                      sequence:
-                        # - service: media_player.toggle
-                        #   entity_id: media_player.nvidia_shield
-                        - service: media_player.toggle
-                          entity_id: media_player.tv_stua
-                    - conditions:
-                        - condition: state
-                          entity_id: input_boolean.casleep
-                          state: "on"
-                        - condition: state
-                          entity_id: media_player.tv_soverommet
-                          state: "off"
-                      sequence:
-                        - service: media_player.turn_on
-                          entity_id: media_player.google_tv
-                    - conditions:
-                        - condition: state
-                          entity_id: input_boolean.casleep
-                          state: "on"
-                        - condition: state
-                          entity_id: media_player.tv_soverommet
-                          state: "on"
-                      sequence:
-                        - service: media_player.turn_off
-                          entity_id: media_player.tv_soverommet
+  - alias: "GarminWebHookOkCaroline"
+    id: "GarminWebHookOkCaroline"
+    trigger:
+      - platform: webhook
+        webhook_id: !secret garmincontrolcarolineok
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'None'}}"
+            sequence:
+              - service: input_select.select_option
+                data:
+                  entity_id: input_select.garmincontrolcaroline
+                  option: "Lights"
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Lights'}}"
+            sequence:
+              - service: input_select.select_option
+                data:
+                  entity_id: input_select.garmincontrolcaroline
+                  option: "KitchenLights"
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'KitchenLights'}}"
+            sequence:
+              - service: input_select.select_option
+                data:
+                  entity_id: input_select.garmincontrolcaroline
+                  option: "SofaLight"
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'SofaLight'}}"
+            sequence:
+              - service: input_select.select_option
+                data:
+                  entity_id: input_select.garmincontrolcaroline
+                  option: "KitchenLights"
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Media'}}"
+            sequence:
+              - choose:
+                  - conditions:
+                      - condition: state
+                        entity_id: input_boolean.casleep
+                        state: "off"
+                    sequence:
+                      # - service: media_player.toggle
+                      #   entity_id: media_player.nvidia_shield
+                      - service: media_player.toggle
+                        entity_id: media_player.tv_stua
+                  - conditions:
+                      - condition: state
+                        entity_id: input_boolean.casleep
+                        state: "on"
+                      - condition: state
+                        entity_id: media_player.tv_soverommet
+                        state: "off"
+                    sequence:
+                      - service: media_player.turn_on
+                        entity_id: media_player.google_tv
+                  - conditions:
+                      - condition: state
+                        entity_id: input_boolean.casleep
+                        state: "on"
+                      - condition: state
+                        entity_id: media_player.tv_soverommet
+                        state: "on"
+                    sequence:
+                      - service: media_player.turn_off
+                        entity_id: media_player.tv_soverommet
 
-            - conditions:
-                - condition: template
-                  value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
-              sequence:
-                - service: cover.toggle
-                  entity_id: cover.garage_door
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
+            sequence:
+              - service: cover.toggle
+                entity_id: cover.garage_door
 
-    # - alias: 'GarminWebHookBack'
-    #   id: 'GarminWebHookBack'
-    #   trigger:
-    #   - platform: webhook
-    #     webhook_id: !secret garmincontrolcarolineback
-    #   action:
-    #   - choose:
-    #     - conditions:
-    #       - condition: template
-    #         value_template: "{{ states.input_select.garmincontrolcaroline.state == 'None'}}"
-    #       sequence:
-    #         - service: input_select.select_option
-    #           data:
-    #             entity_id: input_select.garmincontrolcaroline
-    #             option: 'Back'
-    #     - conditions:
-    #       - condition: template
-    #         value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Back'}}"
-    #       sequence:
-    #       - service: input_number.set_value
-    #         data:
-    #           entity_id: input_number.brightness
-    #           value: 99
-    #       - service: input_number.set_value
-    #         data:
-    #           entity_id: input_number.brightness
-    #           value: 100
-    #       - service: light.turn_on
-    #         entity_id: light.peis
-    #     - conditions:
-    #       - condition: template
-    #         value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Lights'}}"
-    #       sequence:
-    #         - service: light.toggle
-    #           entity_id: light.kitchensone
+  # - alias: 'GarminWebHookBack'
+  #   id: 'GarminWebHookBack'
+  #   trigger:
+  #   - platform: webhook
+  #     webhook_id: !secret garmincontrolcarolineback
+  #   action:
+  #   - choose:
+  #     - conditions:
+  #       - condition: template
+  #         value_template: "{{ states.input_select.garmincontrolcaroline.state == 'None'}}"
+  #       sequence:
+  #         - service: input_select.select_option
+  #           data:
+  #             entity_id: input_select.garmincontrolcaroline
+  #             option: 'Back'
+  #     - conditions:
+  #       - condition: template
+  #         value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Back'}}"
+  #       sequence:
+  #       - service: input_number.set_value
+  #         data:
+  #           entity_id: input_number.brightness
+  #           value: 99
+  #       - service: input_number.set_value
+  #         data:
+  #           entity_id: input_number.brightness
+  #           value: 100
+  #       - service: light.turn_on
+  #         entity_id: light.peis
+  #     - conditions:
+  #       - condition: template
+  #         value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Lights'}}"
+  #       sequence:
+  #         - service: light.toggle
+  #           entity_id: light.kitchensone

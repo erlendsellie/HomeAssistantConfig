@@ -1,76 +1,75 @@
-puck_trym_action:
-  automation:
-    - alias: puck_trym_action
-      id: puck_trym_action
-      mode: restart
-      trigger:
-        - platform: state
-          entity_id: sensor.puck_trym_action
-      condition:
-        - condition: template
-          value_template: "{{trigger.to_state.state != ''}}"
-        - condition: template
-          value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
-      action:
-        - variables:
-            action: "{{trigger.to_state.state}}"
-            middle: "toggle"
-            up: "brightness_up_click"
-            down: "brightness_down_click"
-            right: "arrow_right_click"
-            left: "arrow_left_click"
-        - choose:
-            - conditions:
-                - condition: template
-                  value_template: "{{ action == middle}}"
-              sequence:
-                - service: light.toggle
-                  entity_id: light.trym_roof
-            - conditions:
-                - condition: template
-                  value_template: "{{ action == up}}"
-              sequence:
-                - service: light.turn_on
-                  entity_id: light.trym_roof
-                  data:
-                    brightness_pct: 100
-                    transition: 2
-            - conditions:
-                - condition: template
-                  value_template: "{{ action == down}}"
-              sequence:
-                - service: light.turn_on
-                  entity_id: light.trym_roof
-                  data:
-                    brightness_pct: 1
-                    transition: 2
-            - conditions:
-                - condition: template
-                  value_template: "{{ action == right}}"
-              sequence:
-                - service: light.turn_on
-                  entity_id: light.trym_balloon
-                  data_template:
-                    hs_color:
-                      - "{{ (30 + (state_attr('light.trym_balloon', 'hs_color')[0] or 0)) % 360 }}"
-                      - 100
-                    brightness_pct: 100
-                    transition: 0
-            - conditions:
-                - condition: template
-                  value_template: "{{ action == left}}"
-              sequence:
-                - service: light.turn_on
-                  entity_id: light.trym_balloon
-                  data_template:
-                    hs_color:
-                      - "{{ (-30 + (state_attr('light.trym_balloon', 'hs_color')[0] or 0)) % 360 }}"
-                      - 100
-                    brightness_pct: 100
-                    transition: 0
-        # - delay:
-        #     seconds: 1
-        # default:
-        #   - service: notify.me
-        #     data:
-        #       message: Triggered unregistered event on {{trigger.to_state.entity_id}} remote {{action}}"
+automation:
+  - alias: puck_trym_action
+    id: puck_trym_action
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: sensor.puck_trym_action
+    condition:
+      - condition: template
+        value_template: "{{trigger.to_state.state != ''}}"
+      - condition: template
+        value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
+    action:
+      - variables:
+          action: "{{trigger.to_state.state}}"
+          middle: "toggle"
+          up: "brightness_up_click"
+          down: "brightness_down_click"
+          right: "arrow_right_click"
+          left: "arrow_left_click"
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ action == middle}}"
+            sequence:
+              - service: light.toggle
+                entity_id: light.trym_roof
+          - conditions:
+              - condition: template
+                value_template: "{{ action == up}}"
+            sequence:
+              - service: light.turn_on
+                entity_id: light.trym_roof
+                data:
+                  brightness_pct: 100
+                  transition: 2
+          - conditions:
+              - condition: template
+                value_template: "{{ action == down}}"
+            sequence:
+              - service: light.turn_on
+                entity_id: light.trym_roof
+                data:
+                  brightness_pct: 1
+                  transition: 2
+          - conditions:
+              - condition: template
+                value_template: "{{ action == right}}"
+            sequence:
+              - service: light.turn_on
+                entity_id: light.trym_balloon
+                data_template:
+                  hs_color:
+                    - "{{ (30 + (state_attr('light.trym_balloon', 'hs_color')[0] or 0)) % 360 }}"
+                    - 100
+                  brightness_pct: 100
+                  transition: 0
+          - conditions:
+              - condition: template
+                value_template: "{{ action == left}}"
+            sequence:
+              - service: light.turn_on
+                entity_id: light.trym_balloon
+                data_template:
+                  hs_color:
+                    - "{{ (-30 + (state_attr('light.trym_balloon', 'hs_color')[0] or 0)) % 360 }}"
+                    - 100
+                  brightness_pct: 100
+                  transition: 0
+      # - delay:
+      #     seconds: 1
+      # default:
+      #   - service: notify.me
+      #     data:
+      #       message: Triggered unregistered event on {{trigger.to_state.entity_id}} remote {{action}}"

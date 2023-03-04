@@ -1,18 +1,17 @@
-solar_forecast:
-  automation:
-    - id: updatesolarforecast
-      alias: updatesolarforecast
-      trigger:
-        - platform: time_pattern
-          minutes: "/10"
-      condition:
-        - condition: state
-          entity_id: sun.sun
-          state: above_horizon
-      action:
-        - service: homeassistant.update_entity
-          data:
-            entity_id: sensor.power_production_now
-        - service: homeassistant.update_entity
-          data:
-            entity_id: sensor.power_production_now_2
+automation:
+  - id: updatesolarforecast
+    alias: updatesolarforecast
+    trigger:
+      - platform: time_pattern
+        minutes: "/10"
+    condition:
+      - condition: state
+        entity_id: sun.sun
+        state: above_horizon
+    action:
+      - service: homeassistant.update_entity
+        data:
+          entity_id: sensor.power_production_now
+      - service: homeassistant.update_entity
+        data:
+          entity_id: sensor.power_production_now_2

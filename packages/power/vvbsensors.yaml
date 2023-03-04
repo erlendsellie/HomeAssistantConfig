@@ -1,110 +1,109 @@
-vvbsensors:
-  sensor:
-    # Beregner antall kWh det tar å varme bereder til settpunkt temperatur-
-    # t1 = settpunkt temperatur
-    # t2 = temperatur bereder
-    # l = tankstørrelse (200L)
-    # 4.186 = 4186 er konstanten for varmekapasiteten til vann
-    # 3600 = sekunder i en time
-    #sensor.vvb_temp
+sensor:
+  # Beregner antall kWh det tar å varme bereder til settpunkt temperatur-
+  # t1 = settpunkt temperatur
+  # t2 = temperatur bereder
+  # l = tankstørrelse (200L)
+  # 4.186 = 4186 er konstanten for varmekapasiteten til vann
+  # 3600 = sekunder i en time
+  #sensor.vvb_temp
 
-    - platform: template
-      sensors:
-        vvb_kwh_diff_til_max:
-          friendly_name: "VVB Kwh Diff Til Max"
-          icon_template: "mdi:lightning-bolt-outline"
-          unit_of_measurement: "kWh"
-          value_template: >-
-            {% set t1 = 70 | float %}
-            {% set l = 200 %}
-            {% set k = 4.186 %}
-            {% set kt = 3600 %}
-            {% set t2 = states('sensor.vvb_average') | float(default=0) %}
-            {{ (k * l * (t1 - t2) /kt) | round(2) }}
+  - platform: template
+    sensors:
+      vvb_kwh_diff_til_max:
+        friendly_name: "VVB Kwh Diff Til Max"
+        icon_template: "mdi:lightning-bolt-outline"
+        unit_of_measurement: "kWh"
+        value_template: >-
+          {% set t1 = 70 | float %}
+          {% set l = 200 %}
+          {% set k = 4.186 %}
+          {% set kt = 3600 %}
+          {% set t2 = states('sensor.vvb_average') | float(default=0) %}
+          {{ (k * l * (t1 - t2) /kt) | round(2) }}
 
-    # Energi lagret i bereder
-    # kx = 40 graders varmtvann
-    - platform: template
-      sensors:
-        energi_i_vvb:
-          friendly_name: "Lagret energi i VVB"
-          icon_template: "mdi:lightning-bolt-outline"
-          unit_of_measurement: "kWh"
-          value_template: >-
-            {% set l = 200 %}
-            {% set k = 4.186 %}
-            {% set kt = 3600 %}
-            {% set kx = 40 %}
-            {% set t2 = states('sensor.vvb_average') | float(default=0) %}
-            {{ (k * l * (t2 - kx) /kt) | round(2) }}
+  # Energi lagret i bereder
+  # kx = 40 graders varmtvann
+  - platform: template
+    sensors:
+      energi_i_vvb:
+        friendly_name: "Lagret energi i VVB"
+        icon_template: "mdi:lightning-bolt-outline"
+        unit_of_measurement: "kWh"
+        value_template: >-
+          {% set l = 200 %}
+          {% set k = 4.186 %}
+          {% set kt = 3600 %}
+          {% set kx = 40 %}
+          {% set t2 = states('sensor.vvb_average') | float(default=0) %}
+          {{ (k * l * (t2 - kx) /kt) | round(2) }}
 
-    # Beregning av hvor mye energi som kan lagres ved satt temperatur
-    - platform: template
-      sensors:
-        energi_i_vvb_max:
-          friendly_name: "Max Lagret energi i VVB"
-          icon_template: "mdi:lightning-bolt-outline"
-          unit_of_measurement: "kWh"
-          value_template: >-
-            {% set tx = 70 | float %}
-            {% set l = 200 %}
-            {% set k = 4.186 %}
-            {% set kt = 3600 %}
-            {% set kx = 40 %}
-            {{ (k * l * (tx - kx) /kt) | round(2) }}
+  # Beregning av hvor mye energi som kan lagres ved satt temperatur
+  - platform: template
+    sensors:
+      energi_i_vvb_max:
+        friendly_name: "Max Lagret energi i VVB"
+        icon_template: "mdi:lightning-bolt-outline"
+        unit_of_measurement: "kWh"
+        value_template: >-
+          {% set tx = 70 | float %}
+          {% set l = 200 %}
+          {% set k = 4.186 %}
+          {% set kt = 3600 %}
+          {% set kx = 40 %}
+          {{ (k * l * (tx - kx) /kt) | round(2) }}
 
-    # Beregner tid det tar for å varme bereder til settpunkt temperatur-
-    # p = bereder element i kW
-    # kWh = energi for å verme til settpunkt
+  # Beregner tid det tar for å varme bereder til settpunkt temperatur-
+  # p = bereder element i kW
+  # kWh = energi for å verme til settpunkt
 
-    - platform: template
-      sensors:
-        vvb_tid_til_70:
-          friendly_name: "Tid varme til 70"
-          icon_template: "mdi:lightning-bolt-outline"
-          unit_of_measurement: "t"
-          value_template: >-
-            {% set p = 2 %}
-            {% set kwh = states('sensor.vvb_kwh_diff_til_max') | float(default=0) %}
-            {{ (kwh / p) | round(2) }}
+  - platform: template
+    sensors:
+      vvb_tid_til_70:
+        friendly_name: "Tid varme til 70"
+        icon_template: "mdi:lightning-bolt-outline"
+        unit_of_measurement: "t"
+        value_template: >-
+          {% set p = 2 %}
+          {% set kwh = states('sensor.vvb_kwh_diff_til_max') | float(default=0) %}
+          {{ (kwh / p) | round(2) }}
 
-    # Beregner kostnad for å varme bereder til settpunkt temperatur-
-    # kr = spotpris og nettleie uten strømstøtte
-    # kWh = energi for å verme til settpunkt
+  # Beregner kostnad for å varme bereder til settpunkt temperatur-
+  # kr = spotpris og nettleie uten strømstøtte
+  # kWh = energi for å verme til settpunkt
 
-    - platform: template
-      sensors:
-        vvb_kostnad_70:
-          friendly_name: "Kostnad varme til settpunkt"
-          icon_template: "mdi:lightning-bolt-outline"
-          unit_of_measurement: "kr"
-          value_template: >-
-            {% set kwh = states('sensor.vvb_kwh_diff_til_max') | float(default=0) %}
-            {% set kr = states('sensor.price_now_with_subsidy') | float(default=0) %}
-            {{ (kwh * kr) | round(2) }}
+  - platform: template
+    sensors:
+      vvb_kostnad_70:
+        friendly_name: "Kostnad varme til settpunkt"
+        icon_template: "mdi:lightning-bolt-outline"
+        unit_of_measurement: "kr"
+        value_template: >-
+          {% set kwh = states('sensor.vvb_kwh_diff_til_max') | float(default=0) %}
+          {% set kr = states('sensor.price_now_with_subsidy') | float(default=0) %}
+          {{ (kwh * kr) | round(2) }}
 
-    - platform: template
-      sensors:
-        vvb_desimaltid_til_klokketid:
-          friendly_name: "Omgjøring av desimaltid til klokketid"
-          icon_template: "mdi:store-24-hour"
-          unit_of_measurement: "t"
-          value_template: >
-            {% set m = states('sensor.vvb_tid_til_70') | float(default=0) %}
-            {{ '%02i:%02i'%(m/60,(60*m)%60) }}
+  - platform: template
+    sensors:
+      vvb_desimaltid_til_klokketid:
+        friendly_name: "Omgjøring av desimaltid til klokketid"
+        icon_template: "mdi:store-24-hour"
+        unit_of_measurement: "t"
+        value_template: >
+          {% set m = states('sensor.vvb_tid_til_70') | float(default=0) %}
+          {{ '%02i:%02i'%(m/60,(60*m)%60) }}
 
-    # Fyllingsgrad i bereder avhangig av setpunkt temperatur
-    - platform: template
-      sensors:
-        fyllingsgrad_vvb:
-          friendly_name: "Fyllingsgrad i % vvb"
-          icon_template: "mdi:lightning-bolt-outline"
-          unit_of_measurement: "%"
-          value_template: >-
-            {% set kwha = states('sensor.energi_i_vvb') | float(default=0) %}       
-            {% set kwhs = states('sensor.energi_i_vvb_max') | float(default=0) %}
-            {% set l = 200 %}
-            {% set k = 4.186 %}
-            {% set kt = 3600 %}
-            {% set kx = 40 %}
-            {{ 100-(((kwhs-kwha)*100))*10/100 | round(2) }}
+  # Fyllingsgrad i bereder avhangig av setpunkt temperatur
+  - platform: template
+    sensors:
+      fyllingsgrad_vvb:
+        friendly_name: "Fyllingsgrad i % vvb"
+        icon_template: "mdi:lightning-bolt-outline"
+        unit_of_measurement: "%"
+        value_template: >-
+          {% set kwha = states('sensor.energi_i_vvb') | float(default=0) %}       
+          {% set kwhs = states('sensor.energi_i_vvb_max') | float(default=0) %}
+          {% set l = 200 %}
+          {% set k = 4.186 %}
+          {% set kt = 3600 %}
+          {% set kx = 40 %}
+          {{ 100-(((kwhs-kwha)*100))*10/100 | round(2) }}

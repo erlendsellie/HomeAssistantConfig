@@ -1,0 +1,141 @@
+mqtt:
+  binary_sensor:
+    - name: "Server - Connected"
+      state_topic: "iotlink/workgroup/server/lwt"
+      value_template: "{{ value }}"
+      payload_on: "ON"
+      payload_off: "OFF"
+      device_class: "connectivity"
+      qos: 1
+
+switch:
+  - platform: template
+    switches:
+      server:
+        friendly_name: "Server"
+        value_template: "{{ is_state('binary_sensor.server_connected', 'on') }}"
+        turn_on:
+          service: script.server_wake
+        turn_off:
+          service: script.server_shutdown
+        icon_template: mdi:server
+script:
+  server_wake:
+    # To enable see https://www.home-assistant.io/components/wake_on_lan/
+    alias: "Server - Wake"
+    sequence:
+      - service: wake_on_lan.send_magic_packet
+        data:
+          mac: "38:60:77:4C:C0:D6"
+
+  server_shutdown:
+    alias: "Server - Shutdown"
+    sequence:
+    # - service: mqtt.publish
+    #   data:
+    #     topic: "iotlink/workgroup/server/commands/shutdown"
+    #     payload: ""
+
+  server_suspend:
+    alias: "Server - Suspend"
+    sequence:
+    # - service: mqtt.publish
+    #   data:
+    #     topic: "iotlink/workgroup/server/commands/suspend"
+    #     payload: ""
+
+  server_hibernate:
+    alias: "Server - Hibernate"
+    sequence:
+    # - service: mqtt.publish
+    #   data:
+    #     topic: "iotlink/workgroup/server/commands/hibernate"
+    #     payload: ""
+
+  server_reboot:
+    alias: "Server - Reboot"
+    sequence:
+      - service: mqtt.publish
+        data:
+          topic: "iotlink/workgroup/server/commands/reboot"
+          payload: ""
+
+  server_lock:
+    alias: "Server - Lock"
+    sequence:
+      - service: mqtt.publish
+        data:
+          topic: "iotlink/workgroup/server/commands/lock"
+          payload: ""
+
+  server_logoff:
+    alias: "Server - Logoff"
+    sequence:
+      # - service: mqtt.publish
+      #   data:
+      #     topic: "iotlink/workgroup/server/commands/logoff"
+      #     payload: ""
+
+  server_vol_mute:
+    alias: "Server - Toggle Mute"
+    sequence:
+      - service: mqtt.publish
+        data:
+          topic: "iotlink/workgroup/server/commands/volume/mute"
+          payload: ""
+
+  server_vol_max:
+    alias: "Server - Vol Max"
+    sequence:
+      - service: mqtt.publish
+        data:
+          topic: "iotlink/workgroup/server/commands/volume/set"
+          payload: "100"
+
+  server_displays_on:
+    alias: "Server - Displays ON"
+    sequence:
+      - service: mqtt.publish
+        data:
+          topic: "iotlink/workgroup/server/commands/displays/on"
+          payload: ""
+
+  server_displays_off:
+    alias: "Server - Displays OFF"
+    sequence:
+      - service: mqtt.publish
+        data:
+          topic: "iotlink/workgroup/server/commands/displays/off"
+          payload: ""
+
+  server_refresh:
+    alias: "Server - Refresh"
+    sequence:
+      - service: mqtt.publish
+        data:
+          topic: "iotlink/workgroup/server/refresh"
+          payload: ""
+
+  server_notify:
+    alias: "Server - Notify"
+    sequence:
+      - service: mqtt.publish
+        data:
+          topic: "iotlink/workgroup/server/commands/notify"
+          payload: '{ "title": "My Notification Title", "message": "This is an example of notification using IOT Link", "launchParams": "toast://open/https://iotlink.gitlab.io" }'
+
+  server_run_chrome:
+    alias: "Server - Run Chrome"
+    sequence:
+      - service: mqtt.publish
+        data:
+          topic: "iotlink/workgroup/server/commands/run"
+          payload: '{ "command": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe", "args": "https://iotlink.gitlab.io", "path": "C:\\Program Files (x86)\\Google\\Chrome\\Application", "user": "", "visible": true, "fallback": true }'
+
+  server_run_ccleaner:
+    alias: "Server - Run CCleaner"
+    sequence:
+      - service: mqtt.publish
+        data:
+          topic: "iotlink/workgroup/server/commands/run"
+          payload: '{ "command": "C:\\Program Files\\CCleaner\\CCleaner64.exe", "args": "/AUTO", "path": "C:\\Program Files\\CCleaner\\", "user": "", "visible": true, "fallback": true }'

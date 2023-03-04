@@ -1,46 +1,45 @@
-fingerprint:
-  automation:
-    - id: fingerprint_garage_door
-      alias: fingerprint_garage_door
-      trigger:
-        - platform: state
-          entity_id: sensor.garage_fingerprint_state
-          to: "Authorized finger"
-      condition:
-        - condition: template
-          value_template: >-
-            {% set id = states('sensor.garage_fingerprint_last_finger_id') | int(default=-1) %}
-            {% set stian_finger = 21 %}
-            {{id == 0 or id == 10 or id == stian_finger}}
-      action:
-        - service: cover.toggle
-          entity_id: cover.garage_door
+automation:
+  - id: fingerprint_garage_door
+    alias: fingerprint_garage_door
+    trigger:
+      - platform: state
+        entity_id: sensor.garage_fingerprint_state
+        to: "Authorized finger"
+    condition:
+      - condition: template
+        value_template: >-
+          {% set id = states('sensor.garage_fingerprint_last_finger_id') | int(default=-1) %}
+          {% set stian_finger = 21 %}
+          {{id == 0 or id == 10 or id == stian_finger}}
+    action:
+      - service: cover.toggle
+        entity_id: cover.garage_door
 
-    - id: fingerprint_ytterdor
-      alias: fingerprint_ytterdor
-      trigger:
-        - platform: state
-          entity_id: sensor.garage_fingerprint_state
-          to: "Authorized finger"
-      condition:
-        - condition: template
-          value_template: >-
-            {% set id = states('sensor.garage_fingerprint_last_finger_id') | int(default=-1) %}
-            {% set stian_finger = 22 %}
-            {{id == 2 or id == 11 or id == stian_finger}}
-      action:
-        - service: script.unlockdoor
-  template:
-    - sensor:
-        - name: "Last fingerprint scanned"
-          state: >-
-            {% set personid = states('sensor.garage_fingerprint_last_finger_id') | int(default=-1) %}
-            {% if personid > 0 and personid < 10 %}
-              Erlend
-            {% elif personid > 9 and personid < 20 %}
-              Caroline
-            {% elif personid == 21 %}
-              Stian
-            {% else %}
-              Unknown
-            {% endif %}
+  - id: fingerprint_ytterdor
+    alias: fingerprint_ytterdor
+    trigger:
+      - platform: state
+        entity_id: sensor.garage_fingerprint_state
+        to: "Authorized finger"
+    condition:
+      - condition: template
+        value_template: >-
+          {% set id = states('sensor.garage_fingerprint_last_finger_id') | int(default=-1) %}
+          {% set stian_finger = 22 %}
+          {{id == 2 or id == 11 or id == stian_finger}}
+    action:
+      - service: script.unlockdoor
+template:
+  - sensor:
+      - name: "Last fingerprint scanned"
+        state: >-
+          {% set personid = states('sensor.garage_fingerprint_last_finger_id') | int(default=-1) %}
+          {% if personid > 0 and personid < 10 %}
+            Erlend
+          {% elif personid > 9 and personid < 20 %}
+            Caroline
+          {% elif personid == 21 %}
+            Stian
+          {% else %}
+            Unknown
+          {% endif %}

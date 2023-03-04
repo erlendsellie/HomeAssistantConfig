@@ -1,150 +1,149 @@
-mower:
-  sensor:
+sensor:
 
-  binary_sensor:
-    - platform: template
-      scan_interval: 10
-      sensors:
-        robot_charging:
-          device_class: battery_charging
-          value_template: "{{ is_state('sensor.esteban_status_friendly', 'Charging') }}"
-          friendly_name: "Robot Charging"
-        # robot_problem:
-        #   device_class: problem
-        #   value_template: >-
-        #     {{false and states.sensor.mowed_since_docked.state | float(default=0)> 1.8}}
-        #   friendly_name: "Robot Stuck"
-        robot_should_stop:
-          friendly_name: "Robot Should Stop"
-          #device_class: moving
-          value_template: >-
-            {% set verandaOpen = is_state('binary_sensor.veranda_open','on') or is_state('binary_sensor.veranda','on') or is_state('binary_sensor.garage_backdoor','on') or is_state('binary_sensor.door_downstairs','on')%}
-            {% set isMowing = is_state('binary_sensor.robot_is_mowing','on')%}
-            {% if verandaOpen%}
-              true
-            {%else%}
-              false
-            {% endif %}
-        mowed_enough:
-          friendly_name: "Mowed Enough"
-          value_template: >-
-            {% set mowedEnough = states.sensor.mowed_today.state | float(default=0) >= states.input_number.mowingtime.state | float(default=0)%}
-            {{mowedEnough}}
-          # delay_on:
-          #   minutes: 5
-        robot_is_mowing:
-          friendly_name: "Robot is mowing"
-          device_class: power
-          value_template: >-
-            {{is_state('sensor.esteban_status_friendly', 'Mowing')
-              and states('sensor.esteban_stopped') == 'false'}}
-          # value_template: >-
-          #   {{states.binary_sensor.mower_dock.state == 'on' and states.switch.mower.state == 'on' and states.binary_sensor.robot_problem.state == 'off'}}
-        # justrained:
-        #   friendly_name: "Just Rained"
-        #   device_class: moisture
-        #   value_template: "{{(states.sensor.netatmo_home_rain_last_hour.state | float) > 1}}"
-        #   delay_off:
-        #     hours: 5
+binary_sensor:
+  - platform: template
+    scan_interval: 10
+    sensors:
+      robot_charging:
+        device_class: battery_charging
+        value_template: "{{ is_state('sensor.esteban_status_friendly', 'Charging') }}"
+        friendly_name: "Robot Charging"
+      # robot_problem:
+      #   device_class: problem
+      #   value_template: >-
+      #     {{false and states.sensor.mowed_since_docked.state | float(default=0)> 1.8}}
+      #   friendly_name: "Robot Stuck"
+      robot_should_stop:
+        friendly_name: "Robot Should Stop"
+        #device_class: moving
+        value_template: >-
+          {% set verandaOpen = is_state('binary_sensor.veranda_open','on') or is_state('binary_sensor.veranda','on') or is_state('binary_sensor.garage_backdoor','on') or is_state('binary_sensor.door_downstairs','on')%}
+          {% set isMowing = is_state('binary_sensor.robot_is_mowing','on')%}
+          {% if verandaOpen%}
+            true
+          {%else%}
+            false
+          {% endif %}
+      mowed_enough:
+        friendly_name: "Mowed Enough"
+        value_template: >-
+          {% set mowedEnough = states.sensor.mowed_today.state | float(default=0) >= states.input_number.mowingtime.state | float(default=0)%}
+          {{mowedEnough}}
+        # delay_on:
+        #   minutes: 5
+      robot_is_mowing:
+        friendly_name: "Robot is mowing"
+        device_class: power
+        value_template: >-
+          {{is_state('sensor.esteban_status_friendly', 'Mowing')
+            and states('sensor.esteban_stopped') == 'false'}}
+        # value_template: >-
+        #   {{states.binary_sensor.mower_dock.state == 'on' and states.switch.mower.state == 'on' and states.binary_sensor.robot_problem.state == 'off'}}
+      # justrained:
+      #   friendly_name: "Just Rained"
+      #   device_class: moisture
+      #   value_template: "{{(states.sensor.netatmo_home_rain_last_hour.state | float) > 1}}"
+      #   delay_off:
+      #     hours: 5
 
-  input_number:
-    mowingtime:
-      name: Daily Mowing Time
-      icon: mdi:clock
-      min: 0
-      max: 12
-      step: 1
-      mode: box
-      unit_of_measurement: "hours"
+input_number:
+  mowingtime:
+    name: Daily Mowing Time
+    icon: mdi:clock
+    min: 0
+    max: 12
+    step: 1
+    mode: box
+    unit_of_measurement: "hours"
 
-  automation:
-    - alias: "MowingProblem"
-      id: "mowingproblem"
-      trigger:
-        - platform: state
-          entity_id: sensor.esteban_status_friendly
-          to: "Error"
-      condition:
-        - condition: state
-          entity_id: sensor.esteban_status_friendly
-          state: "Error"
-      action:
-        - service: script.turn_on
-          entity_id: script.notifycarolinehome
-          data_template:
-            variables:
-              title: Gressklipper sitter fast
-              message: Gressklipper sitter fast
-        - service: script.turn_on
-          entity_id: script.notify
-          data_template:
-            variables:
-              title: Gressklipper sitter fast
-              message: Gressklipper sitter fast
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: "Gressklipperen sitter fast."
+automation:
+  - alias: "MowingProblem"
+    id: "mowingproblem"
+    trigger:
+      - platform: state
+        entity_id: sensor.esteban_status_friendly
+        to: "Error"
+    condition:
+      - condition: state
+        entity_id: sensor.esteban_status_friendly
+        state: "Error"
+    action:
+      - service: script.turn_on
+        entity_id: script.notifycarolinehome
+        data_template:
+          variables:
+            title: Gressklipper sitter fast
+            message: Gressklipper sitter fast
+      - service: script.turn_on
+        entity_id: script.notify
+        data_template:
+          variables:
+            title: Gressklipper sitter fast
+            message: Gressklipper sitter fast
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "Gressklipperen sitter fast."
 
-    - alias: "StopMowing"
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.robot_should_stop
-          to: "on"
-      action:
-        - service: switch.turn_off
-          entity_id: switch.esteban_switch
+  - alias: "StopMowing"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.robot_should_stop
+        to: "on"
+    action:
+      - service: switch.turn_off
+        entity_id: switch.esteban_switch
 
-    - alias: "StartMowing"
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.robot_should_stop
-          to: "off"
-      action:
-        - service: switch.turn_on
-          entity_id: switch.esteban_switch
-        # - delay:
-        #     seconds: 1
-        # - service: switch.turn_on
-        #   entity_id: switch.esteban_switch
+  - alias: "StartMowing"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.robot_should_stop
+        to: "off"
+    action:
+      - service: switch.turn_on
+        entity_id: switch.esteban_switch
+      # - delay:
+      #     seconds: 1
+      # - service: switch.turn_on
+      #   entity_id: switch.esteban_switch
 
-    - alias: "MowedEnough"
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.mowed_enough
-          to: "on"
-      action:
-        - service: input_select.select_option
-          data:
-            entity_id: input_select.esteban_mode
-            option: eod
+  - alias: "MowedEnough"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.mowed_enough
+        to: "on"
+    action:
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.esteban_mode
+          option: eod
 
-    - alias: "NotMowedEnough"
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.mowed_enough
-          to: "off"
-      action:
-        - service: input_select.select_option
-          data:
-            entity_id: input_select.esteban_mode
-            option: auto
+  - alias: "NotMowedEnough"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.mowed_enough
+        to: "off"
+    action:
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.esteban_mode
+          option: auto
 
-    # - alias: "warnMowing"
-    #   id: "warnMowing"
-    #   trigger:
-    #     - platform: state
-    #       entity_id: binary_sensor.veranda
-    #       to: "off"
-    #   action:
-    #     - delay:
-    #         seconds: 1
-    #     - condition: state
-    #       entity_id: binary_sensor.robot_is_mowing
-    #       state: "on"
-    #     - service: script.turn_on
-    #       entity_id: script.playsound
-    #       data_template:
-    #         variables:
-    #           sound: "https://hjem.sellie.no/local/sounds/item.mp3"
+  # - alias: "warnMowing"
+  #   id: "warnMowing"
+  #   trigger:
+  #     - platform: state
+  #       entity_id: binary_sensor.veranda
+  #       to: "off"
+  #   action:
+  #     - delay:
+  #         seconds: 1
+  #     - condition: state
+  #       entity_id: binary_sensor.robot_is_mowing
+  #       state: "on"
+  #     - service: script.turn_on
+  #       entity_id: script.playsound
+  #       data_template:
+  #         variables:
+  #           sound: "https://hjem.sellie.no/local/sounds/item.mp3"

@@ -1,129 +1,128 @@
-vacuum_xiaomi:
-  input_boolean:
-    vacuum_just_emptied:
-      name: Vacuum just emptied
+input_boolean:
+  vacuum_just_emptied:
+    name: Vacuum just emptied
 
-  automation:
-    - alias: "cleandustbin"
-      trigger:
-        platform: webhook
-        webhook_id: !secret cleanthedustbin
-      action:
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.cleandustbin
+automation:
+  - alias: "cleandustbin"
+    trigger:
+      platform: webhook
+      webhook_id: !secret cleanthedustbin
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.cleandustbin
 
-    - alias: SendToKitchen
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_kitchen
-          to: "on"
-      condition:
-        condition: and
-        conditions:
-          - condition: time
-            weekday:
-              - mon
-              - thu
-              - sat
-          - condition: state
-            entity_id: input_boolean.vacuum_just_emptied
-            state: "off"
-          - condition: template
-            value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
-          - condition: template
-            value_template: "{{ states.media_player.nvidia_shield.state  != 'playing'}}"
-          - condition: time
-            after: "12:00:00"
-      action:
-        - service: vacuum.stop
-          entity_id: vacuum.xiaomi_vacuum_cleaner
-        - service: script.turn_on
-          entity_id: script.sendvacuumtokitchen
-        # - service: vacuum.send_command
-        #   data:
-        #     entity_id: vacuum.xiaomi_vacuum_cleaner
-        #     command: app_goto_target
-        #     params: [25000,32800]
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.vacuum_just_emptied
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            message: "Tøm Svetlana."
-
-    - alias: VaccumJustEmptiedNot
-      trigger:
-        - platform: time
-          at: "12:00:00"
-      condition:
+  - alias: SendToKitchen
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_kitchen
+        to: "on"
+    condition:
+      condition: and
+      conditions:
+        - condition: time
+          weekday:
+            - mon
+            - thu
+            - sat
         - condition: state
           entity_id: input_boolean.vacuum_just_emptied
-          state: "on"
-      action:
-        - service: input_boolean.turn_off
-          entity_id: input_boolean.vacuum_just_emptied
+          state: "off"
+        - condition: template
+          value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+        - condition: template
+          value_template: "{{ states.media_player.nvidia_shield.state  != 'playing'}}"
+        - condition: time
+          after: "12:00:00"
+    action:
+      - service: vacuum.stop
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+      - service: script.turn_on
+        entity_id: script.sendvacuumtokitchen
+      # - service: vacuum.send_command
+      #   data:
+      #     entity_id: vacuum.xiaomi_vacuum_cleaner
+      #     command: app_goto_target
+      #     params: [25000,32800]
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.vacuum_just_emptied
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          message: "Tøm Svetlana."
 
-  sensor:
-    - platform: template
-      sensors:
-        vacuum_battery:
-          friendly_name: "Vacuum Battery"
-          unit_of_measurement: "%"
-          value_template: "{{states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level}}"
+  - alias: VaccumJustEmptiedNot
+    trigger:
+      - platform: time
+        at: "12:00:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.vacuum_just_emptied
+        state: "on"
+    action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.vacuum_just_emptied
 
-  script:
-    sendvacuumtokitchen:
-      alias: "Send Svetlana to kitchen"
-      sequence:
-        - service: vacuum.stop
+sensor:
+  - platform: template
+    sensors:
+      vacuum_battery:
+        friendly_name: "Vacuum Battery"
+        unit_of_measurement: "%"
+        value_template: "{{states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level}}"
+
+script:
+  sendvacuumtokitchen:
+    alias: "Send Svetlana to kitchen"
+    sequence:
+      - service: vacuum.stop
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+      - service: vacuum.send_command
+        data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
-        - service: vacuum.send_command
-          data:
-            entity_id: vacuum.xiaomi_vacuum_cleaner
-            command: app_goto_target
-            params: [24350, 21900]
+          command: app_goto_target
+          params: [24350, 21900]
 
-    dockvacuum:
-      alias: "Send Svetlana to Dock"
-      sequence:
-        - service: vacuum.return_to_base
+  dockvacuum:
+    alias: "Send Svetlana to Dock"
+    sequence:
+      - service: vacuum.return_to_base
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+
+  vacuum_living_room:
+    alias: "Vacuum the Living Room"
+    sequence:
+      - service: vacuum.send_command
+        data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
+          command: app_zoned_clean
+          params: [[16119, 22490, 26169, 32190, 2]]
 
-    vacuum_living_room:
-      alias: "Vacuum the Living Room"
-      sequence:
-        - service: vacuum.send_command
-          data:
-            entity_id: vacuum.xiaomi_vacuum_cleaner
-            command: app_zoned_clean
-            params: [[16119, 22490, 26169, 32190, 2]]
+  vacuum_kitchen:
+    alias: "Vacuum the Kitchen"
+    sequence:
+      - service: vacuum.send_command
+        data:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
+          command: app_zoned_clean
+          params: [[25099, 28207, 29799, 31207, 2]]
 
-    vacuum_kitchen:
-      alias: "Vacuum the Kitchen"
-      sequence:
-        - service: vacuum.send_command
-          data:
-            entity_id: vacuum.xiaomi_vacuum_cleaner
-            command: app_zoned_clean
-            params: [[25099, 28207, 29799, 31207, 2]]
+  #with broadlink remote on old Roomba
+  startroomba:
+    sequence:
+      # - service: switch.turn_on
+      #   entity_id: switch.roomba
+      - service: switch.broadlink_send_packet_192_168_1_239
+        data:
+          packet:
+            - "JgCkAFsgHF0cXRxdWiEcXRtdHAACfVsgHFseXRxdWiEcXRxcHAACfVshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxcHAACfVsgHF0cXRxcWyEcXBxdHAACfVsgHF0cXBxdWyAcXRxdHAACfVohHF0cXBxdWyAcXRxdHIwNAA0FAAAAAA=="
+      - service: logbook.log
+        data_template:
+          name: Roomba
+          message: Started cleaning the house
 
-    #with broadlink remote on old Roomba
-    startroomba:
-      sequence:
-        # - service: switch.turn_on
-        #   entity_id: switch.roomba
-        - service: switch.broadlink_send_packet_192_168_1_239
-          data:
-            packet:
-              - "JgCkAFsgHF0cXRxdWiEcXRtdHAACfVsgHFseXRxdWiEcXRxcHAACfVshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxcHAACfVsgHF0cXRxcWyEcXBxdHAACfVsgHF0cXBxdWyAcXRxdHAACfVohHF0cXBxdWyAcXRxdHIwNAA0FAAAAAA=="
-        - service: logbook.log
-          data_template:
-            name: Roomba
-            message: Started cleaning the house
-
-    stoproomba:
-      sequence:
-        - service: switch.broadlink_send_packet_192_168_1_239
-          data:
-            packet:
-              - "JgCiAFohHF0cXRxcHVtcIB1cWwACRlohHF0cXRxcHVxbIRxcWwACRlohHF0cXB1cHF1bIBxdWwACRVsgHF0cXRxdHFpdIRxcWwACRVsgHVwcWx5dHFxbIRxcWwACRVsgHVwcXRxdHFxbIRxcWwACRVsgHVwcXRxcHVxbIB1cWwACRVohHF0cXRxcHF1bIBxdWwACRVsgHF0cXRxcHVxbIB1cWwANBQAAAAAAAA=="
+  stoproomba:
+    sequence:
+      - service: switch.broadlink_send_packet_192_168_1_239
+        data:
+          packet:
+            - "JgCiAFohHF0cXRxcHVtcIB1cWwACRlohHF0cXRxcHVxbIRxcWwACRlohHF0cXB1cHF1bIBxdWwACRVsgHF0cXRxdHFpdIRxcWwACRVsgHVwcWx5dHFxbIRxcWwACRVsgHVwcXRxdHFxbIRxcWwACRVsgHVwcXRxcHVxbIB1cWwACRVohHF0cXRxcHF1bIBxdWwACRVsgHF0cXRxcHVxbIB1cWwANBQAAAAAAAA=="

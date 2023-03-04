@@ -1,46 +1,45 @@
-pass:
-  sensor:
-    - platform: rest
-      name: Next Available Passport Appointment
-      scan_interval: 20
-      json_attributes:
-        - value_json
-      #finn din stasjon via inspect i devtools, og se id-attributtet på span-elementet i HTML'en når du velger politistasjonen under timebestilling.
-      # bytt ut a5cb8090ab3cadc95b8e94fc2f90c7700e391b9fc0d2a1a31cbd54157d86eff1 med din stasjon.
-      #fjern ;servicePublicId=d1b043c75655a6756852ba9892255243c08688a071e3b58b64c892524f58d098 om du ikke skal ha pass
-      #fjern ;servicePublicId=8e859bd4c1752249665bf2363ea231e1678dbb7fc4decff862d9d41975a9a95a om du ikke skal ha ID-kort.
-      resource: https://pass-og-id.politiet.no/qmaticwebbooking/rest/schedule/branches/a5cb8090ab3cadc95b8e94fc2f90c7700e391b9fc0d2a1a31cbd54157d86eff1/dates;servicePublicId=8e859bd4c1752249665bf2363ea231e1678dbb7fc4decff862d9d41975a9a95a;servicePublicId=d1b043c75655a6756852ba9892255243c08688a071e3b58b64c892524f58d098;customSlotLength=20
-      value_template: >-
-        {%-set next_available = (value_json[0].date | as_datetime) -%}
-        {{next_available}}
-      force_update: true
+sensor:
+  - platform: rest
+    name: Next Available Passport Appointment
+    scan_interval: 20
+    json_attributes:
+      - value_json
+    #finn din stasjon via inspect i devtools, og se id-attributtet på span-elementet i HTML'en når du velger politistasjonen under timebestilling.
+    # bytt ut a5cb8090ab3cadc95b8e94fc2f90c7700e391b9fc0d2a1a31cbd54157d86eff1 med din stasjon.
+    #fjern ;servicePublicId=d1b043c75655a6756852ba9892255243c08688a071e3b58b64c892524f58d098 om du ikke skal ha pass
+    #fjern ;servicePublicId=8e859bd4c1752249665bf2363ea231e1678dbb7fc4decff862d9d41975a9a95a om du ikke skal ha ID-kort.
+    resource: https://pass-og-id.politiet.no/qmaticwebbooking/rest/schedule/branches/a5cb8090ab3cadc95b8e94fc2f90c7700e391b9fc0d2a1a31cbd54157d86eff1/dates;servicePublicId=8e859bd4c1752249665bf2363ea231e1678dbb7fc4decff862d9d41975a9a95a;servicePublicId=d1b043c75655a6756852ba9892255243c08688a071e3b58b64c892524f58d098;customSlotLength=20
+    value_template: >-
+      {%-set next_available = (value_json[0].date | as_datetime) -%}
+      {{next_available}}
+    force_update: true
 
-  template:
-    - binary_sensor:
-        - name: "Passport Available this month"
-          delay_off:
-            minutes: 5
-            # 1 måned = 2592000 sekunder.
-            # 1 uke = 604800 sekunder.
-          state: >-
-            {%- set next_available = states.sensor.next_available_passport_appointment.state -%}
-            {{(as_timestamp(next_available) - as_timestamp(now())) < 1209600}}
-  automation:
-    - id: passportappointmentavailable
-      alias: passportappointmentavailable
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.passport_available_this_month
-          to: "on"
-      action:
-        - service: notify.mobile_app_oneplus
-          data_template:
-            title: Passtime er tilgjengelig i løpet av en måned!
-            message: >-
-              Neste ledige dag er {{states.sensor.next_available_passport_appointment.state}}.
-              Trykk for å bestille time på Heimdal Politistasjon
-            data:
-              ttl: 0
-              priority: high
-              #bruk samme branch som du gjorde i sensor over.
-              clickAction: "https://pass-og-id.politiet.no/timebestilling/index.html#/preselect/branch/a5cb8090ab3cadc95b8e94fc2f90c7700e391b9fc0d2a1a31cbd54157d86eff1?preselectFilters=off"
+template:
+  - binary_sensor:
+      - name: "Passport Available this month"
+        delay_off:
+          minutes: 5
+          # 1 måned = 2592000 sekunder.
+          # 1 uke = 604800 sekunder.
+        state: >-
+          {%- set next_available = states.sensor.next_available_passport_appointment.state -%}
+          {{(as_timestamp(next_available) - as_timestamp(now())) < 1209600}}
+automation:
+  - id: passportappointmentavailable
+    alias: passportappointmentavailable
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.passport_available_this_month
+        to: "on"
+    action:
+      - service: notify.mobile_app_oneplus
+        data_template:
+          title: Passtime er tilgjengelig i løpet av en måned!
+          message: >-
+            Neste ledige dag er {{states.sensor.next_available_passport_appointment.state}}.
+            Trykk for å bestille time på Heimdal Politistasjon
+          data:
+            ttl: 0
+            priority: high
+            #bruk samme branch som du gjorde i sensor over.
+            clickAction: "https://pass-og-id.politiet.no/timebestilling/index.html#/preselect/branch/a5cb8090ab3cadc95b8e94fc2f90c7700e391b9fc0d2a1a31cbd54157d86eff1?preselectFilters=off"

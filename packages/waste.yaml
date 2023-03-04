@@ -1,139 +1,138 @@
-waste:
-  template:
-    - sensor:
-        - name: "Waste"
-          state: >
-            {%set rest = states.sensor.restavfall%}
-            {%set plast = states.sensor.papir%}
-            {%set papir = states.sensor.plastemballasje%}
-            {%set next = rest%}
-            {%if plast.attributes.next_pickup_week != None and plast.attributes.next_pickup_week < next.attributes.next_pickup_week%}
-              {%set next = plast%}
-            {%elif papir.attributes.next_pickup_week != None and papir.attributes.next_pickup_week < next.attributes.next_pickup_week%}
-              {%set papir = plast%}
-            {%endif%}
-            {{next.attributes.friendly_name}} tømmes {{next.state | lower | regex_replace(find='uke', replace='tirsdag', ignorecase=True) | regex_replace(find='uken', replace='tirsdag', ignorecase=True)}}
-  multiscrape:
-    - resource: https://trv.no/plan/1edf022a-1b8f-4297-aea9-0e916919e386/
-      scan_interval: 14400 #4 hours
-      sensor:
-        - name: "TRV
-          select: "tbody tr:not(.tommefri-uke) a"
-          icon: mdi:trash-can
-          attributes:
-            - name: Date
-              select: "tbody tr:not(.tommefri-uke) .date"
-            - name: IsoDate
-              select: "tbody tr:not(.tommefri-uke) .date"
-              value_template: >
-                {%set year = now().year | string%}
-                {%set date = value + '.' + year + ' 11:00:00'%}
-                {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
-                {{dt}}
-            - name: RelativeTime
-              select: "tbody tr:not(.tommefri-uke) .date"
-              value_template: >
-                {%set year = now().year | string%}
-                {%set date = value + '.' + year + ' 11:00:00'%}
-                {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
-                {{relative_time(dt)}}
-            - name: TimedeltaDays
-              select: "tbody tr:not(.tommefri-uke) .date"
-              value_template: >
-                {%set year = now().year | string%}
-                {%set date = value + '.' + year + ' 23:59:00'%}
-                {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
-                {{timedelta((as_timestamp(dt) - as_timestamp(now()))/60/60/24).days}}
+template:
+  - sensor:
+      - name: "Waste"
+        state: >
+          {%set rest = states.sensor.restavfall%}
+          {%set plast = states.sensor.papir%}
+          {%set papir = states.sensor.plastemballasje%}
+          {%set next = rest%}
+          {%if plast.attributes.next_pickup_week != None and plast.attributes.next_pickup_week < next.attributes.next_pickup_week%}
+            {%set next = plast%}
+          {%elif papir.attributes.next_pickup_week != None and papir.attributes.next_pickup_week < next.attributes.next_pickup_week%}
+            {%set papir = plast%}
+          {%endif%}
+          {{next.attributes.friendly_name}} tømmes {{next.state | lower | regex_replace(find='uke', replace='tirsdag', ignorecase=True) | regex_replace(find='uken', replace='tirsdag', ignorecase=True)}}
+multiscrape:
+  - resource: https://trv.no/plan/1edf022a-1b8f-4297-aea9-0e916919e386/
+    scan_interval: 14400 #4 hours
+    sensor:
+      - name: "TRV"
+        select: "tbody tr:not(.tommefri-uke) a"
+        icon: "mdi:trash-can"
+        attributes:
+          - name: Date
+            select: "tbody tr:not(.tommefri-uke) .date"
+          - name: IsoDate
+            select: "tbody tr:not(.tommefri-uke) .date"
+            value_template: >
+              {%set year = now().year | string%}
+              {%set date = value + '.' + year + ' 11:00:00'%}
+              {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
+              {{dt}}
+          - name: RelativeTime
+            select: "tbody tr:not(.tommefri-uke) .date"
+            value_template: >
+              {%set year = now().year | string%}
+              {%set date = value + '.' + year + ' 11:00:00'%}
+              {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
+              {{relative_time(dt)}}
+          - name: TimedeltaDays
+            select: "tbody tr:not(.tommefri-uke) .date"
+            value_template: >
+              {%set year = now().year | string%}
+              {%set date = value + '.' + year + ' 23:59:00'%}
+              {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
+              {{timedelta((as_timestamp(dt) - as_timestamp(now()))/60/60/24).days}}
 
-  automation:
-    - alias: Søppel denne uken
-      trigger:
-        - platform: time
-          at: "18:00:00"
-      condition:
-        - condition: time
-          weekday:
-            - mon
-      action:
-        - choose:
-            - conditions:
-                - condition: state
-                  entity_id: sensor.restavfall
-                  state: "I morgen"
-              sequence:
-                - service: script.turn_on
-                  entity_id: script.say
-                  data_template:
-                    variables:
-                      message: Restavfall tømmes i morgen
-                - service: script.turn_on
-                  entity_id: script.notifyboth
-                  data_template:
-                    variables:
-                      title: Restavfall
-                      message: tømmes i morgen
-                - delay:
-                    hours: 14
-                - service: script.turn_on
-                  entity_id: script.notifyboth
-                  data_template:
-                    variables:
-                      title: Restavfall
-                      message: tømmes i dag
-            - conditions:
-                - condition: state
-                  entity_id: sensor.papir
-                  state: "I morgen"
-              sequence:
-                - service: script.turn_on
-                  entity_id: script.say
-                  data_template:
-                    variables:
-                      title: Papir
-                      message: Papir tømmes i morgen
-                - delay:
-                    hours: 14
-                - service: script.turn_on
-                  entity_id: script.notifyboth
-                  data_template:
-                    variables:
-                      title: Papir
-                      message: tømmes i dag
-                - service: script.turn_on
-                  entity_id: script.notifyboth
-                  data_template:
-                    variables:
-                      title: Papir
-                      message: tømmes i morgen
-                - delay:
-                    hours: 14
-                - service: script.turn_on
-                  entity_id: script.notifyboth
-                  data_template:
-                    variables:
-                      title: Papir
-                      message: tømmes i dag
-            - conditions:
-                - condition: state
-                  entity_id: sensor.plastemballasje
-                  state: "I morgen"
-              sequence:
-                - service: script.turn_on
-                  entity_id: script.say
-                  data_template:
-                    variables:
-                      message: Plastemballasje tømmes i morgen
-                - service: script.turn_on
-                  entity_id: script.notifyboth
-                  data_template:
-                    variables:
-                      title: Plastemballasje
-                      message: tømmes i morgen
-                - delay:
-                    hours: 14
-                - service: script.turn_on
-                  entity_id: script.notifyboth
-                  data_template:
-                    variables:
-                      title: Plastemballasje
-                      message: tømmes i dag
+automation:
+  - alias: Søppel denne uken
+    trigger:
+      - platform: time
+        at: "18:00:00"
+    condition:
+      - condition: time
+        weekday:
+          - mon
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: sensor.restavfall
+                state: "I morgen"
+            sequence:
+              - service: script.turn_on
+                entity_id: script.say
+                data_template:
+                  variables:
+                    message: Restavfall tømmes i morgen
+              - service: script.turn_on
+                entity_id: script.notifyboth
+                data_template:
+                  variables:
+                    title: Restavfall
+                    message: tømmes i morgen
+              - delay:
+                  hours: 14
+              - service: script.turn_on
+                entity_id: script.notifyboth
+                data_template:
+                  variables:
+                    title: Restavfall
+                    message: tømmes i dag
+          - conditions:
+              - condition: state
+                entity_id: sensor.papir
+                state: "I morgen"
+            sequence:
+              - service: script.turn_on
+                entity_id: script.say
+                data_template:
+                  variables:
+                    title: Papir
+                    message: Papir tømmes i morgen
+              - delay:
+                  hours: 14
+              - service: script.turn_on
+                entity_id: script.notifyboth
+                data_template:
+                  variables:
+                    title: Papir
+                    message: tømmes i dag
+              - service: script.turn_on
+                entity_id: script.notifyboth
+                data_template:
+                  variables:
+                    title: Papir
+                    message: tømmes i morgen
+              - delay:
+                  hours: 14
+              - service: script.turn_on
+                entity_id: script.notifyboth
+                data_template:
+                  variables:
+                    title: Papir
+                    message: tømmes i dag
+          - conditions:
+              - condition: state
+                entity_id: sensor.plastemballasje
+                state: "I morgen"
+            sequence:
+              - service: script.turn_on
+                entity_id: script.say
+                data_template:
+                  variables:
+                    message: Plastemballasje tømmes i morgen
+              - service: script.turn_on
+                entity_id: script.notifyboth
+                data_template:
+                  variables:
+                    title: Plastemballasje
+                    message: tømmes i morgen
+              - delay:
+                  hours: 14
+              - service: script.turn_on
+                entity_id: script.notifyboth
+                data_template:
+                  variables:
+                    title: Plastemballasje
+                    message: tømmes i dag

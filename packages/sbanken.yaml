@@ -1,60 +1,59 @@
-sbanken:
-  template:
-    - sensor:
-        - name: "Rammelån balance"
-          unit_of_measurement: NOK
-          device_class: monetary
-          state: >-
-            {{ states.sensor.rammelan.attributes.balance }}
-        - name: Rammelån Last transaction
-          state: >-
-            {%set last = states.sensor.rammelan.attributes.transactions[0]%}
-            {{last.amount}} på {{last.text}}
-        - name: Felleskortet Last transaction
-          state: >-
-            {%set last = states.sensor.felleskortet.attributes.transactions[0]%}
-            {{last.amount}} på {{last.text}}
-        - name: Regningskonto Last transaction
-          state: >-
-            {%set last = states.sensor.regningskonto.attributes.transactions[0]%}
-            {{last.amount}} på {{last.text}}
+template:
+  - sensor:
+      - name: "Rammelån balance"
+        unit_of_measurement: NOK
+        device_class: monetary
+        state: >-
+          {{ states.sensor.rammelan.attributes.balance }}
+      - name: Rammelån Last transaction
+        state: >-
+          {%set last = states.sensor.rammelan.attributes.transactions[0]%}
+          {{last.amount}} på {{last.text}}
+      - name: Felleskortet Last transaction
+        state: >-
+          {%set last = states.sensor.felleskortet.attributes.transactions[0]%}
+          {{last.amount}} på {{last.text}}
+      - name: Regningskonto Last transaction
+        state: >-
+          {%set last = states.sensor.regningskonto.attributes.transactions[0]%}
+          {{last.amount}} på {{last.text}}
 
-  automation:
-    - id: updaterammelansheets
-      alias: updaterammelansheets
-      trigger:
-        # - platform: state
-        #   entity_id: sensor.rammelan_last_transaction
-        - platform: template
-          value_template: "{{ states.sensor.rammelan.attributes.transactions[0] }}"
-      condition:
-        - condition: template
-          value_template: "{{trigger.to_state.state != ''}}"
-        - condition: template
-          value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
-      action:
-        - service: google_sheets.append_sheet
+automation:
+  - id: updaterammelansheets
+    alias: updaterammelansheets
+    trigger:
+      # - platform: state
+      #   entity_id: sensor.rammelan_last_transaction
+      - platform: template
+        value_template: "{{ states.sensor.rammelan.attributes.transactions[0] }}"
+    condition:
+      - condition: template
+        value_template: "{{trigger.to_state.state != ''}}"
+      - condition: template
+        value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
+    action:
+      - service: google_sheets.append_sheet
+        data:
+          config_entry: c24dd893a5b4a2667d24610dc5b5577a
+          worksheet: Rammelånbevegelser
           data:
-            config_entry: c24dd893a5b4a2667d24610dc5b5577a
-            worksheet: Rammelånbevegelser
-            data:
-              Dato: "{{states.sensor.rammelan.attributes.transactions[0].accountingDate}}"
-              Sum: "{{states.sensor.rammelan.attributes.transactions[0].amount}}"
-              Årsak: "{{states.sensor.rammelan.attributes.transactions[0].text}}"
-              Fra: Home Assistant - Endre meg
+            Dato: "{{states.sensor.rammelan.attributes.transactions[0].accountingDate}}"
+            Sum: "{{states.sensor.rammelan.attributes.transactions[0].amount}}"
+            Årsak: "{{states.sensor.rammelan.attributes.transactions[0].text}}"
+            Fra: Home Assistant - Endre meg
 
-  #   - alias: NotifyFelleskortet
-  #     trigger:
-  #       - platform: state
-  #         entity_id: sensor.felleskortet_last_transaction
-  #     condition:
-  #       - condition: template
-  #         value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
-  #     action:
-  #       - service: notify.mobile_app_oneplus
-  #         data_template:
-  #           title: Nytt trekk på felleskortet
-  #           message: "{{states('sensor.felleskortet_last_transaction')}}"
-  #           data:
-  #             ttl: 0
-  #             priority: high
+#   - alias: NotifyFelleskortet
+#     trigger:
+#       - platform: state
+#         entity_id: sensor.felleskortet_last_transaction
+#     condition:
+#       - condition: template
+#         value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
+#     action:
+#       - service: notify.mobile_app_oneplus
+#         data_template:
+#           title: Nytt trekk på felleskortet
+#           message: "{{states('sensor.felleskortet_last_transaction')}}"
+#           data:
+#             ttl: 0
+#             priority: high

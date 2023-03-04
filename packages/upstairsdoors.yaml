@@ -1,88 +1,87 @@
-upstairsdoors:
-  automation:
-    - alias: UpstairsDoorLeftOpen
-      trigger:
-        # - platform: state
-        #   entity_id: binary_sensor.trymdoorleftopen
-        #   to: "on"
-        - platform: state
-          entity_id: binary_sensor.bathroomleftopen
-          to: "on"
-        # - platform: state
-        #   entity_id: binary_sensor.tyradoorleftopen
-        #   to: "on"
-      condition:
-        - condition: state
-          entity_id: person.caroline
-          state: "home"
-        - condition: numeric_state
-          entity_id: sensor.ute_temperature
-          below: 3
-      action:
-        repeat:
-          while:
-            - condition: template
-              value_template: "{{states[trigger.entity_id].state  == 'on'}}"
-            - condition: state
-              entity_id: input_select.alarm
-              state: "Disarm"
-          sequence:
-            - service: script.turn_on
-              entity_id: script.notifyhome
-              data_template:
-                variables:
-                  title: Dør åpen
-                  message: "{{trigger.from_state.name}}"
-            - condition: template
-              value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
-            # - service: media_player.volume_set
-            #   data_template:
-            #     entity_id: media_player.hallway_speaker
-            #     volume_level: "{{0.4}}"
-            # - service: media_player.volume_set
-            #   data_template:
-            #     entity_id: media_player.living_room_speaker
-            #     volume_level: "{{0.4}}"
-            - service: media_player.play_media
-              data:
-                entity_id: media_player.minis
-                media_content_id: "https://hjem.sellie.no/local/sounds/korok.mp3"
-                media_content_type: "music"
-            - delay:
-                seconds: 3
-            - service: media_player.volume_set
-              data_template:
-                entity_id: media_player.minis
-                volume_level: "{{states.sensor.speakervolume.state}}"
-            - delay:
-                minutes: 10
+automation:
+  - alias: UpstairsDoorLeftOpen
+    trigger:
+      # - platform: state
+      #   entity_id: binary_sensor.trymdoorleftopen
+      #   to: "on"
+      - platform: state
+        entity_id: binary_sensor.bathroomleftopen
+        to: "on"
+      # - platform: state
+      #   entity_id: binary_sensor.tyradoorleftopen
+      #   to: "on"
+    condition:
+      - condition: state
+        entity_id: person.caroline
+        state: "home"
+      - condition: numeric_state
+        entity_id: sensor.ute_temperature
+        below: 3
+    action:
+      repeat:
+        while:
+          - condition: template
+            value_template: "{{states[trigger.entity_id].state  == 'on'}}"
+          - condition: state
+            entity_id: input_select.alarm
+            state: "Disarm"
+        sequence:
+          - service: script.turn_on
+            entity_id: script.notifyhome
+            data_template:
+              variables:
+                title: Dør åpen
+                message: "{{trigger.from_state.name}}"
+          - condition: template
+            value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
+          # - service: media_player.volume_set
+          #   data_template:
+          #     entity_id: media_player.hallway_speaker
+          #     volume_level: "{{0.4}}"
+          # - service: media_player.volume_set
+          #   data_template:
+          #     entity_id: media_player.living_room_speaker
+          #     volume_level: "{{0.4}}"
+          - service: media_player.play_media
+            data:
+              entity_id: media_player.minis
+              media_content_id: "https://hjem.sellie.no/local/sounds/korok.mp3"
+              media_content_type: "music"
+          - delay:
+              seconds: 3
+          - service: media_player.volume_set
+            data_template:
+              entity_id: media_player.minis
+              volume_level: "{{states.sensor.speakervolume.state}}"
+          - delay:
+              minutes: 10
 
-  binary_sensor:
-    - platform: template
-      sensors:
-        bathroomleftopen:
-          device_class: opening
-          friendly_name: "Baderomsdøren ble ikke lukket"
-          delay_on:
-            minutes: 5
-          value_template: >-
-            {{states.binary_sensor.motionupstairs.state == 'off' and
-            states.binary_sensor.door_bathroom.state == 'on'}}
-        trymdoorleftopen:
-          device_class: opening
-          friendly_name: "Trym dør ble ikke lukket"
-          delay_on:
-            minutes: 5
-          value_template: >-
-            {{states.binary_sensor.motionupstairs.state == 'off' and
-            states.binary_sensor.trym_door.state == 'on' and
-            states.input_boolean.trymasleep.state == 'off'}}
-        tyradoorleftopen:
-          device_class: opening
-          friendly_name: "Tyra dør ble ikke lukket"
-          delay_on:
-            minutes: 5
-          value_template: >-
-            {{states.binary_sensor.motionupstairs.state == 'off' and
-            states.binary_sensor.tyra_door.state == 'on' and
-            states.input_boolean.tyraasleep.state == 'off'}}
+binary_sensor:
+  - platform: template
+    sensors:
+      bathroomleftopen:
+        device_class: opening
+        friendly_name: "Baderomsdøren ble ikke lukket"
+        delay_on:
+          minutes: 5
+        value_template: >-
+          {{states.binary_sensor.motionupstairs.state == 'off' and
+          states.binary_sensor.door_bathroom.state == 'on'}}
+      trymdoorleftopen:
+        device_class: opening
+        friendly_name: "Trym dør ble ikke lukket"
+        delay_on:
+          minutes: 5
+        value_template: >-
+          {{states.binary_sensor.motionupstairs.state == 'off' and
+          states.binary_sensor.trym_door.state == 'on' and
+          states.input_boolean.trymasleep.state == 'off'}}
+      tyradoorleftopen:
+        device_class: opening
+        friendly_name: "Tyra dør ble ikke lukket"
+        delay_on:
+          minutes: 5
+        value_template: >-
+          {{states.binary_sensor.motionupstairs.state == 'off' and
+          states.binary_sensor.tyra_door.state == 'on' and
+          states.input_boolean.tyraasleep.state == 'off'}}

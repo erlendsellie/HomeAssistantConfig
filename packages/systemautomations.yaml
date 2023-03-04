@@ -1,0 +1,696 @@
+automation:
+  # - alias: "Update Available Notifications"
+  #   trigger:
+  #     platform: state
+  #     entity_id: binary_sensor.updater
+  #   action:
+  #     - service: notify.me
+  #       data:
+  #         title: "Update for Home Assistant is available."
+  #         message: |
+  #           Version **{{ trigger.to_state.attributes.newest_version }}**:
+
+  #           - [GitHub](https://github.com/home-assistant/core/releases/tag/{{ trigger.to_state.attributes.newest_version }})
+  #           - [home-assistant.io]({{ trigger.to_state.attributes.release_notes }})
+  #     - service: persistent_notification.create
+  #       data:
+  #         title: New version of Home Assistant is available
+  #         message: |
+  #           Version **{{ trigger.to_state.attributes.newest_version }}**:
+
+  #           - [GitHub](https://github.com/home-assistant/core/releases/tag/{{ trigger.to_state.attributes.newest_version }})
+  #           - [home-assistant.io]({{ trigger.to_state.attributes.release_notes }})
+
+  - alias: "System - Set Custom Theme at Startup"
+    trigger:
+      platform: homeassistant
+      event: start
+    action:
+      service: frontend.set_theme
+      data:
+        name: ios-dark-mode
+        mode: dark
+
+  - alias: Restart Home Assistant When High Memory
+    trigger:
+      - platform: time
+        at: "03:20:00"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.memory_use_percent
+        above: 90
+    action:
+      - service: notify.me
+        data_template:
+          message: "Restarted Home Assistant due to high Memory Usage at {{states.sensor.memory_use_percent.state}}"
+      - service: homeassistant.restart
+
+  - alias: NotifyLowDiskSpace
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.disk_use_percent
+        above: 90
+    action:
+      - service: notify.me
+        data_template:
+          message: "Disk usage of Ubuntu VM is at {{states.sensor.disk_use_percent.state}}"
+
+  - alias: NotifySlowNetwork
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.speedtest_download
+        below: 100
+    action:
+      - service: notify.me
+        data_template:
+          message: "The last Speedtest had a download speed of {{states.sensor.speedtest_download.state}}"
+
+  - alias: NotifyDoorBellLow
+    trigger:
+      - platform: state
+        entity_id: person.erlend
+        to: "home"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.front_door_battery
+        below: 20
+    action:
+      - service: notify.me
+        data_template:
+          message: "The Door bell battery is getting low: {{states.sensor.front_door_battery.state}}"
+
+  - alias: NotifyImportantDevicesDown
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.accumulated_consumption_current_hour_sivert_thonstads_vei_6b
+          - sensor.accumulated_consumption_current_hour
+          - sensor.modely
+          - sensor.stua_temperature
+          - climate.varmepumpe
+          - switch.varmepumpe
+          - climate.sokkel
+          - sensor.netatmo_home_temperature
+          - vacuum.xiaomi_vacuum_cleaner
+          - switch.garage_esp32
+          - binary_sensor.vindfang_door
+          - sensor.nordpool
+          - media_player.nvidia_shield
+          - lock.ytterdor
+          - switch.garage_esp32
+          - device_tracker.oneplus
+          - device_tracker.caroline_app
+          - sensor.nordpool
+          - sensor.stua_temperature
+          - binary_sensor.front_door_ding
+          - light.trym_balloon
+          - light.tyra_ball
+          - light.trym_roof
+          - switch.varmtvannsbereder
+          - light.tv
+          - sensor.priceanalyzer
+          - sensor.pricecorrection
+          - switch.toilet_heater
+          - climate.tyra_heater
+          - climate.trym
+          - switch.office_heater
+          - switch.blanket
+          - light.tv
+          - light.sofa
+          - light.bathroom
+        to: "unavailable"
+        for:
+          minutes: 5
+      - platform: state
+        entity_id:
+          - sensor.accumulated_consumption_current_hour_sivert_thonstads_vei_6b
+          - sensor.accumulated_consumption_current_hour
+          - sensor.modely
+          - sensor.stua_temperature
+          - climate.varmepumpe
+          - switch.varmepumpe
+          - climate.sokkel
+          - sensor.netatmo_home_temperature
+          - vacuum.xiaomi_vacuum_cleaner
+          - switch.garage_esp32
+          - binary_sensor.vindfang_door
+          - sensor.nordpool
+          - media_player.nvidia_shield
+          - lock.ytterdor
+          - switch.garage_esp32
+          - device_tracker.oneplus
+          - device_tracker.caroline_app
+          - sensor.nordpool
+          - sensor.stua_temperature
+          - binary_sensor.front_door_ding
+          - light.trym_balloon
+          - light.tyra_ball
+          - light.trym_roof
+          - switch.varmtvannsbereder
+          - light.tv
+          - sensor.priceanalyzer
+          - sensor.pricecorrection
+          - switch.toilet_heater
+          - climate.tyra_heater
+          - climate.trym
+          - switch.office_heater
+          - switch.blanket
+        to: "unavailable"
+        for:
+          minutes: 30
+    action:
+      - service: notify.me
+        data_template:
+          title: Important device unavailable
+          message: "{{trigger.from_state.name}} is unavailable"
+
+  - alias: "Turn On Living Room TV with WakeOnLan"
+    trigger:
+      - platform: webostv.turn_on
+        entity_id: media_player.tv_stua
+    action:
+      - service: wake_on_lan.send_magic_packet
+        data:
+          mac: "14:C9:13:2C:44:1F"
+
+  - alias: NotifyGoogleWifiDown
+    mode: single
+    trigger:
+      - platform: template
+        value_template: "{{states.binary_sensor.google_wifi_connected.state != 'on' and states.binary_sensor.google_wifi_connected.state != 'off'}}"
+        for:
+          minutes: 5
+    action:
+      - service: notify.me
+        data_template:
+          message: "Google Wifi seems to be down. Try https://1q4u4bxleoi6poeenew920ecy5g1z4te.ui.nabu.casa"
+      - wait_for_trigger:
+          - platform: template
+            value_template: "{{states.binary_sensor.google_wifi_connected.state == 'on' or states.binary_sensor.google_wifi_connected.state == 'off'}}"
+        timeout: "10:00:00"
+        continue_on_timeout: false
+      - service: notify.me
+        data_template:
+          message: "Google Wifi is up again"
+
+  - alias: NotifyZWaveDown
+    mode: single
+    trigger:
+      - platform: template
+        value_template: "{{states.light.hallway.state != 'on' and states.light.hallway.state != 'off'}}"
+        for:
+          minutes: 15
+    action:
+      - service: notify.me
+        data_template:
+          message: "The Z-wave network seems to be down, restarting"
+      # - delay:
+      #     minutes: 2
+      - service: hassio.addon_restart
+        data:
+          #addon: addon_core_zwave_js
+          addon: addon_a0d7b954_zwavejs2mqtt
+      - wait_for_trigger:
+          - platform: template
+            value_template: "{{states.light.hallway.state == 'on' or states.light.hallway.state == 'off'}}"
+            for:
+              minutes: 2
+        timeout: "03:00:00"
+        continue_on_timeout: false
+      - service: notify.me
+        data_template:
+          message: "The Z-wave network is up again"
+      - delay:
+          minutes: 20
+
+  - alias: NotifyZigbeeDown
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.water_kitchen
+        to: "unavailable"
+        for:
+          minutes: 2
+    action:
+      - service: notify.me
+        data_template:
+          message: "The Zigbee network seems to be down"
+      - wait_for_trigger:
+          - platform: state
+            entity_id: binary_sensor.water_kitchen
+            to: "on"
+            for:
+              minutes: 2
+          - platform: state
+            entity_id: binary_sensor.water_kitchen
+            to: "off"
+            for:
+              minutes: 2
+        timeout: "03:00:00"
+        continue_on_timeout: false
+      - service: notify.me
+        data_template:
+          message: "The Zigbee network is up again"
+
+  # - alias: NotifyMqttDown
+  #   trigger:
+  #     - platform: time
+  #       at: "02:00:00"
+  #   action:
+  #     - service: switch.turn_on
+  #       entity_id: switch.bathroom_fan
+  #     - delay:
+  #         seconds: 10
+  #     - condition: template
+  #       value_template: "{{states.switch.bathroom_fan.state == 'off'}}"
+  #     - service: notify.me
+  #       data_template:
+  #         message: "The MQTT network seems to be down"
+
+  # - alias: NotifyMqttDownreset
+  #   trigger:
+  #     - platform: time
+  #       at: "02:00:40"
+  #   action:
+  #     - service: switch.turn_off
+  #       entity_id: switch.bathroom_fan
+
+  - alias: health check every 3 mins
+    trigger:
+      platform: time_pattern
+      minutes: /5
+    action:
+      - service: rest_command.healthcheck
+
+  - alias: Restart slave HA
+    trigger:
+      - platform: homeassistant
+        event: start
+    action:
+      - service: notify.me
+        data_template:
+          title: Home Asistant started
+          message: "{{ states.input_select.alarm.state }}"
+
+  - alias: NotifyAlarmState
+    trigger:
+      - platform: state
+        entity_id: input_select.alarm
+    action:
+      - service: notify.me
+        data_template:
+          title: "Alarm:"
+          message: "{{ states.input_select.alarm.state }}"
+
+  - alias: NotifyVVBOffLong
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.vvb_temp
+        below: 40
+        for:
+          hours: 13
+    action:
+      - service: notify.me
+        data_template:
+          title: "Alarm:"
+          message: "VVB har vært avslått i 13 timer nå, sjekk temp."
+
+  - alias: "Dismiss login failed notification"
+    trigger:
+      - platform: state
+        entity_id: persistent_notification.http_login
+        to: "notifying"
+    action:
+      - delay: "00:00:01"
+      - service: persistent_notification.dismiss
+        data:
+          notification_id: http-login
+
+  - alias: "Battery Alert"
+    trigger:
+      - platform: time
+        at: "19:15:00"
+    condition:
+      condition: or
+      conditions:
+        - condition: template
+          value_template: >-
+            {%- set threshold = 30 -%}
+            {%- for item in states.light if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
+            {%- if loop.first -%}
+            {{ true }}
+            {%- endif -%}
+            {%- endfor -%}
+        - condition: template
+          value_template: >-
+            {%- set threshold = 30 -%}
+            {%- for item in states.switch if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
+            {%- if loop.first -%}
+            {{ true }}
+            {%- endif -%}
+            {%- endfor -%}
+        - condition: template
+          value_template: >-
+            {%- set threshold = 30 -%}
+            {%- for item in states.sensor if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ("Body" not in item.name) and ("Leaf" not in item.name) and ("Battery Temperature" not in item.name) and ("Browser" | lower not in (item.name | lower)) and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
+            {%- if loop.first -%}
+            {{ true }}
+            {%- endif -%}
+            {%- endfor -%}
+        - condition: template
+          value_template: >-
+            {%- set threshold = 30 -%}
+            {%- for item in states.zwave if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
+            {%- if loop.first -%}
+            {{ true }}
+            {%- endif -%}
+            {%- endfor -%}
+        - condition: template
+          value_template: >-
+            {%- set threshold = 30 -%}
+            {%- for item in states.lock if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
+            {%- if loop.first -%}
+            {{ true }}
+            {%- endif -%}
+            {%- endfor -%}
+    action:
+      - service: notify.me
+        data_template:
+          message: >-
+            {%- set threshold = 30 -%}
+            {%- set domains = [states.light, states.switch, states.sensor, states.zwave, states.lock ] -%}
+            {%- for domain in domains -%}
+            {%- if loop.first -%}
+            The following devices have low battery levels:
+            {%- endif -%}
+            {%- for item in domain if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ("Body" not in item.name) and ("Browser" not in item.name) and ("Battery Temperature" not in item.name) and ("Leaf" not in item.name) and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
+            {%- if (item.attributes.battery_level is defined and ("Browser" | lower not in (item.name | lower)) and item.attributes['battery_level'] | int(default=0) < threshold) and item.attributes.battery_level != 'unknown' %}          {{ item.name }} ({{ item.attributes['battery_level'] }}),
+            {% endif -%}
+            {%- if "battery" in item.name | lower and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low") -%}
+            {{ item.name }} ({{ item.state }}),
+            {% endif -%}
+            {%- endfor -%}
+            {%- endfor -%}
+
+script:
+  # backup:
+  #   alias: Backup HA Configuration Files
+  #   sequence:
+  #     - service: shell_command.backup_configuration
+  #     - service: shell_command.backup_groups
+  #     - service: shell_command.backup_automations
+  #     - service: shell_command.backup_known_devices
+  #     - service: shell_command.backup_script
+  #     - service: shell_command.backup_media_player
+  #     - service: shell_command.backup_notify
+  #     - service: shell_command.backup_climate
+  #     - service: shell_command.backup_secrets
+  #     - service: shell_command.backup_cameras
+
+  restart:
+    alias: "Restart"
+    sequence:
+      - service: homeassistant.restart
+
+  reloadstuff:
+    alias: "Reload Stuff"
+    variables:
+      washer_emptied: input_boolean.turn_on
+    sequence:
+      - variables:
+          washer_emptied: >-
+            {% if states.input_boolean.washer_emptied.state == 'on' %}
+            input_boolean.turn_on
+            {% else %}
+            input_boolean.turn_off
+            {% endif %}
+      - service: template.reload
+      - service: homeassistant.reload_core_config
+      - service: zone.reload
+      - service: automation.reload
+      - service: script.reload
+      - delay:
+          seconds: 30
+      - service: "{{ washer_emptied }}"
+        entity_id: input_boolean.washer_emptied
+
+  reload:
+    alias: "Reload HA"
+    sequence:
+      - service: homeassistant.reload_core_config
+
+  requestlocation:
+    alias: Request Location
+    mode: restart
+    sequence:
+      - service: notify.mobile_app_caroline_pixel
+        data:
+          message: "request_location_update"
+      - service: notify.mobile_app_oneplus
+        data:
+          message: "request_location_update"
+
+  # testtabilde:
+  #   alias: testtabilde
+  #   sequence:
+  #     - service: shell_command.pb_send_image
+
+  restarthacontainer:
+    alias: Restart Ha Container
+    sequence:
+      - service: shell_command.restart_container
+
+  # php_lights_off:
+  #   alias: PHP Lights off
+  #   sequence:
+  #     - service: shell_command.lights_off_php
+
+  # php_lights_on:
+  #   alias: PHP Lights on
+  #   sequence:
+  #     - service: shell_command.lights_on_php
+
+sensor:
+  - platform: command_line
+    name: "HAstats YAML-line TOTAL count"
+    command: " find /config/ -name '*.yaml' | xargs cat | wc -l"
+  - platform: command_line
+    name: "HAstats YAML-line Dashboard count"
+    command: " find /config/dashboard -name '*.yaml' | xargs cat | wc -l"
+  - platform: command_line
+    name: "HAstats YAML-line Packages count"
+    command: " find /config/packages -name '*.yaml' | xargs cat | wc -l"
+
+template:
+  #  Count number of loaded Integrations
+  - sensor:
+      - name: HAstats integrations count
+        unique_id: hastats_integrations_count
+        state_class:
+          measurement
+          #{{ ns.count }} - {{attr}} {{states.sensor.start_time.attributes [attr] }}
+        state: >
+          {% set ns = namespace(count = 0) %}
+          {% for attr in states.sensor.start_time.attributes %}
+          {%- if not attr=="friendly_name" 
+              and not attr=="unit_of_measurement"     
+              and not attr=="icon" -%}
+          {%- set ns.count = ns.count+1 %}
+          {%- endif %}
+          {%- endfor %}
+          {{ns.count}}
+  #  EbD = Enteties by Domain  :)
+  - sensor:
+      # some groups to get right level reporting:
+      - unique_id: hastats_ebd_sum_sensors
+        name: HAstats EbD sum sensors
+        state_class: measurement
+        state: >
+          {{ states('sensor.hastats_ebd_sensors') | float(default=0)
+          + states('sensor.hastats_ebd_binary_sensors') | float(default=0)
+          }}
+        icon: mdi:case-sensitive-alt
+      - unique_id: hastats_ebd_sum_inputs2
+        name: HAstats EbD sum inputs
+        state_class: measurement
+        state: >
+          {{ states('sensor.hastats_ebd_input_booleans') | float(default=0)
+          + states('sensor.hastats_ebd_input_datetimes') | float(default=0)
+          + states('sensor.hastats_ebd_input_numbers') | float(default=0)
+          + states('sensor.hastats_ebd_input_selects') | float(default=0)
+          + states('sensor.hastats_ebd_input_texts') | float(default=0)
+          }}
+        icon: mdi:numeric-0
+
+      # then total and checksum:
+      - name: HAstats EbD total
+        unique_id: hastats_ebd_total
+        state_class: measurement
+        state: "{{'' ~ states | count }}"
+        icon: mdi:sigma
+      # Checksum to be able to verify of total = sum of defined domains ("are there new domains added?")
+      - name: HAstats EbD total checksum
+        unique_id: hastats_ebd_total_checksum
+        state_class: measurement
+        state: >-
+          {{states('sensor.hastats_ebd_total') | float(default=0)
+          - states('sensor.hastats_ebd_automations') | float(default=0)
+          - states('sensor.hastats_ebd_binary_sensors') | float(default=0)
+          - states('sensor.hastats_ebd_buttons') | float(default=0)
+          - states('sensor.hastats_ebd_calendars') | float(default=0)
+          - states('sensor.hastats_ebd_climates') | float(default=0)
+          - states('sensor.hastats_ebd_counters') | float(default=0)
+          - states('sensor.hastats_ebd_covers') | float(default=0) 
+          - states('sensor.hastats_ebd_device_trackers') | float(default=0)
+          - states('sensor.hastats_ebd_groups') | float(default=0)
+          - states('sensor.hastats_ebd_input_booleans') | float(default=0)
+          - states('sensor.hastats_ebd_input_datetimes') | float(default=0)
+          - states('sensor.hastats_ebd_input_numbers') | float(default=0)
+          - states('sensor.hastats_ebd_input_selects') | float(default=0)
+          - states('sensor.hastats_ebd_input_texts') | float(default=0)
+          - states('sensor.hastats_ebd_lights') | float(default=0)
+          - states('sensor.hastats_ebd_media_players') | float(default=0)
+          - states('sensor.hastats_ebd_numbers') | float(default=0)
+          - states('sensor.hastats_ebd_persistent_notifications') | float(default=0)
+          - states('sensor.hastats_ebd_persons') | float(default=0)
+          - states('sensor.hastats_ebd_remotes') | float(default=0)
+          - states('sensor.hastats_ebd_scenes') | float(default=0)
+          - states('sensor.hastats_ebd_scripts') | float(default=0)
+          - states('sensor.hastats_ebd_selects') | float(default=0)
+          - states('sensor.hastats_ebd_sensors') | float(default=0)
+          - states('sensor.hastats_ebd_sun') | float(default=0)
+          - states('sensor.hastats_ebd_switches') | float(default=0)
+          - states('sensor.hastats_ebd_timers') | float(default=0)
+          - states('sensor.hastats_ebd_updates') | float(default=0)
+          - states('sensor.hastats_ebd_weathers') | float(default=0)
+          - states('sensor.hastats_ebd_zones') | float(default=0)
+          - states('sensor.hastats_ebd_zwaves') | float(default=0)
+          }}
+      # then counters for each of the the actual domains:
+      - name: HAstats EbD automations
+        unique_id: hastats_ebd_automations
+        state_class: measurement
+        icon: mdi:play
+        state: "{{states.automation | count}}"
+      - name: HAstats EbD binary sensors
+        unique_id: hastats_ebd_binary_sensors
+        state_class: measurement
+        state: "{{states.binary_sensor | count}}"
+      - name: HAstats EbD buttons
+        unique_id: hastats_ebd_buttons
+        state_class: measurement
+        state: "{{states.button | count}}"
+      - name: hastats_ebd_calendars
+        unique_id: HAstats EbD calendars
+        state_class: measurement
+        state: "{{states.calendar | count}}"
+      - name: HAstats EbD climates
+        unique_id: hastats_ebd_climates
+        state_class: measurement
+        state: "{{states.climate | count}}"
+      - name: HAstats EbD counters
+        unique_id: hastats_ebd_counters
+        state_class: measurement
+        state: "{{states.counter | count}}"
+      - name: HAstats EbD Covers
+        unique_id: hastats_ebd_covers
+        state_class: measurement
+        state: "{{states.cover | count}}"
+      - name: HAstats EbD device trackers
+        unique_id: hastats_ebd_device_trackers
+        state_class: measurement
+        state: "{{states.device_tracker | count}}"
+      - name: HAstats EbD Groups
+        unique_id: hastats_ebd_groups
+        state_class: measurement
+        state: "{{states.group | count}}"
+      - name: HAstats EbD input booleans
+        unique_id: hastats_ebd_input_booleans
+        state_class: measurement
+        state: "{{states.input_boolean | count}}"
+      - name: HAstats EbD input datetimes
+        unique_id: hastats_ebd_input_datetimes
+        state_class: measurement
+        state: "{{states.input_datetime | count}}"
+      - name: HAstats EbD input numbers
+        unique_id: hastats_ebd_input_numbers
+        state_class: measurement
+        state: "{{states.input_number | count}}"
+      - name: HAstats EbD input selects
+        unique_id: hastats_ebd_input_selects
+        state_class: measurement
+        state: "{{states.input_select | count}}"
+      - name: HAstats EbD input texts
+        unique_id: hastats_ebd_input_texts
+        state_class: measurement
+        state: "{{states.input_text | count}}"
+      - name: HAstats EbD lights
+        unique_id: hastats_ebd_lights
+        state_class: measurement
+        icon: mdi:lightbulb
+        state: "{{states.light | count}}"
+      - name: HAstats EbD media players
+        unique_id: hastats_ebd_media_players
+        state_class: measurement
+        state: "{{states.media_player | count}}"
+      - name: HAstats EbD numbers
+        unique_id: hastats_ebd_numbers
+        state_class: measurement
+        state: "{{states.number | count}}"
+      - name: HAstats EbD persistent notifications
+        unique_id: hastats_ebd_persistent_notifications
+        state_class: measurement
+        state: "{{states.persistent_notification | count}}"
+      - name: HAstats EbD persons
+        unique_id: hastats_ebd_persons
+        state_class: measurement
+        state: "{{states.person | count}}"
+      - name: HAstats EbD remotes
+        unique_id: hastats_ebd_remotes
+        state_class: measurement
+        state: "{{states.remote | count}}"
+      - name: HAstats EbD scenes
+        unique_id: hastats_ebd_scenes
+        state_class: measurement
+        state: "{{states.scene | count}}"
+      - name: HAstats EbD scripts
+        unique_id: hastats_ebd_scripts
+        icon: mdi:script
+        state_class: measurement
+        state: "{{states.script | count}}"
+      - name: HAstats EbD selects
+        unique_id: hastats_ebd_selects
+        state_class: measurement
+        state: "{{states.select | count}}"
+      - name: HAstats EbD sensors
+        unique_id: hastats_ebd_sensors
+        state_class: measurement
+        icon: mdi:case-sensitive-alt
+        state: "{{states.sensor | count}}"
+      - name: HAstats EbD sun
+        unique_id: hastats_ebd_sun
+        state_class: measurement
+        state: "{{states.sun | count}}"
+      - name: HAstats EbD switches
+        unique_id: hastats_ebd_switches
+        state_class: measurement
+        state: "{{states.switch | count}}"
+      - name: HAstats EbD timers
+        unique_id: hastats_ebd_timers
+        state_class: measurement
+        state: "{{states.timer | count}}"
+      - name: HAstats EbD updates
+        unique_id: hastats_ebd_updates
+        state_class: measurement
+        state: "{{states.update | count}}"
+      - name: HAstats EbD weathers
+        unique_id: hastats_ebd_weathers
+        state_class: measurement
+        state: "{{states.weather | count}}"
+      - name: HAstats EbD zones
+        unique_id: hastats_ebd_zones
+        state_class: measurement
+        state: "{{states.zone | count}}"
+      - name: HAstats EbD zwaves
+        unique_id: hastats_ebd_zwaves
+        state_class: measurement
+        state: "{{states.zwave | count}}"

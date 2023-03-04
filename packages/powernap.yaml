@@ -1,13 +1,12 @@
-powernap:
-  automation:
-    - id: powernapoff
-      alias: powernapoff
-      trigger:
-        - platform: state
-          entity_id: input_boolean.powernap
-          to: "on"
-          for:
-            hours: 3
-      action:
-        service: input_boolean.turn_off
+automation:
+  - id: powernapoff
+    alias: powernapoff
+    trigger:
+      - platform: state
         entity_id: input_boolean.powernap
+        to: "on"
+        for:
+          hours: 3
+    action:
+      service: input_boolean.turn_off
+      entity_id: input_boolean.powernap

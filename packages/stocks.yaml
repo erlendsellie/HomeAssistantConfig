@@ -1,113 +1,112 @@
-stocks:
-  input_number:
-    # cheapgme:
-    #   name: Cheap GME
-    #   min: -0
-    #   max: 10000
-    #   step: 1
-    #   mode: box
-    #   unit_of_measurement: "USD"
-    # expensivegme:
-    #   name: Expensive GME
-    #   min: -0
-    #   max: 10000
-    #   step: 1
-    #   mode: box
-    #   unit_of_measurement: "USD"
+input_number:
+  # cheapgme:
+  #   name: Cheap GME
+  #   min: -0
+  #   max: 10000
+  #   step: 1
+  #   mode: box
+  #   unit_of_measurement: "USD"
+  # expensivegme:
+  #   name: Expensive GME
+  #   min: -0
+  #   max: 10000
+  #   step: 1
+  #   mode: box
+  #   unit_of_measurement: "USD"
 
-  automation:
-    # - alias: CheapStocksGME
-    #   mode: single
-    #   max_exceeded: silent
-    #   trigger:
-    #   - platform: template
-    #     value_template: "{{ (states.sensor.gme.state | int(default=0)) and (states.sensor.gme.state | int(default=0)  < states.input_number.cheapgme.state | int(default=0))}}"
-    #   action:
-    #   - service: script.turn_on
-    #     entity_id: script.notify
-    #     data_template:
-    #       variables:
-    #         title: GME below threshold
-    #         message: Now at {{states.sensor.gme.state}}.
-    #   - delay:
-    #       minutes: 15
+automation:
+  # - alias: CheapStocksGME
+  #   mode: single
+  #   max_exceeded: silent
+  #   trigger:
+  #   - platform: template
+  #     value_template: "{{ (states.sensor.gme.state | int(default=0)) and (states.sensor.gme.state | int(default=0)  < states.input_number.cheapgme.state | int(default=0))}}"
+  #   action:
+  #   - service: script.turn_on
+  #     entity_id: script.notify
+  #     data_template:
+  #       variables:
+  #         title: GME below threshold
+  #         message: Now at {{states.sensor.gme.state}}.
+  #   - delay:
+  #       minutes: 15
 
-    # - alias: ExpensiveStocksGME
-    #   mode: single
-    #   max_exceeded: silent
-    #   trigger:
-    #   - platform: template
-    #     value_template: "{{ (states.sensor.gme.state | int(default=0)) and (states.sensor.gme.state | int(default=0)  > states.input_number.expensivegme.state | int(default=0))}}"
-    #   action:
-    #   - service: script.turn_on
-    #     entity_id: script.notify
-    #     data_template:
-    #       variables:
-    #         title: GME over threshold
-    #         message: Now at {{states.sensor.gme.state}}.
-    #   - delay:
-    #       minutes: 15
+  # - alias: ExpensiveStocksGME
+  #   mode: single
+  #   max_exceeded: silent
+  #   trigger:
+  #   - platform: template
+  #     value_template: "{{ (states.sensor.gme.state | int(default=0)) and (states.sensor.gme.state | int(default=0)  > states.input_number.expensivegme.state | int(default=0))}}"
+  #   action:
+  #   - service: script.turn_on
+  #     entity_id: script.notify
+  #     data_template:
+  #       variables:
+  #         title: GME over threshold
+  #         message: Now at {{states.sensor.gme.state}}.
+  #   - delay:
+  #       minutes: 15
 
-    - alias: CheapStocks
-      mode: single
-      max_exceeded: silent
-      trigger:
-        - platform: template
-          value_template: "{{ (states.sensor.tsla.state | int(default=0)) and (states.sensor.tsla.state | int(default=0)  < states.input_number.stockprice.state | int(default=0))}}"
-      action:
-        - service: script.turn_on
-          entity_id: script.notify
-          data_template:
-            variables:
-              title: TSLA below threshold
-              message: Now at {{states.sensor.tsla.state}}.
-        - delay:
-            minutes: 15
+  - alias: CheapStocks
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - platform: template
+        value_template: "{{ (states.sensor.tsla.state | int(default=0)) and (states.sensor.tsla.state | int(default=0)  < states.input_number.stockprice.state | int(default=0))}}"
+    action:
+      - service: script.turn_on
+        entity_id: script.notify
+        data_template:
+          variables:
+            title: TSLA below threshold
+            message: Now at {{states.sensor.tsla.state}}.
+      - delay:
+          minutes: 15
 
-    - alias: ExpensiveStocks
-      mode: single
-      max_exceeded: silent
-      trigger:
-        - platform: template
-          value_template: "{{ (states.sensor.tsla.state | int(default=0)) and (states.sensor.tsla.state | int(default=0)  > states.input_number.expensive_stock_price.state | int(default=0))}}"
-      action:
-        - service: script.turn_on
-          entity_id: script.notify
-          data_template:
-            variables:
-              title: TSLA over threshold
-              message: Now at {{states.sensor.tsla.state}}.
-        - delay:
-            minutes: 15
+  - alias: ExpensiveStocks
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - platform: template
+        value_template: "{{ (states.sensor.tsla.state | int(default=0)) and (states.sensor.tsla.state | int(default=0)  > states.input_number.expensive_stock_price.state | int(default=0))}}"
+    action:
+      - service: script.turn_on
+        entity_id: script.notify
+        data_template:
+          variables:
+            title: TSLA over threshold
+            message: Now at {{states.sensor.tsla.state}}.
+      - delay:
+          minutes: 15
 
-    - alias: CheapStocksPLTR
-      mode: single
-      max_exceeded: silent
-      trigger:
-        - platform: template
-          value_template: "{{ (states.sensor.pltr.state | int(default=0)) and (states.sensor.pltr.state | int(default=0)  < states.input_number.cheap_pltr.state | int(default=0))}}"
-      action:
-        - service: script.turn_on
-          entity_id: script.notify
-          data_template:
-            variables:
-              title: PLTR below threshold
-              message: Now at {{states.sensor.pltr.state}}.
-        - delay:
-            minutes: 15
+  - alias: CheapStocksPLTR
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - platform: template
+        value_template: "{{ (states.sensor.pltr.state | int(default=0)) and (states.sensor.pltr.state | int(default=0)  < states.input_number.cheap_pltr.state | int(default=0))}}"
+    action:
+      - service: script.turn_on
+        entity_id: script.notify
+        data_template:
+          variables:
+            title: PLTR below threshold
+            message: Now at {{states.sensor.pltr.state}}.
+      - delay:
+          minutes: 15
 
-    - alias: ExpensiveStocksPLTR
-      mode: single
-      max_exceeded: silent
-      trigger:
-        - platform: template
-          value_template: "{{ (states.sensor.pltr.state | int(default=0)) and (states.sensor.pltr.state | int(default=0)  > states.input_number.expensive_pltr.state | int(default=0))}}"
-      action:
-        - service: script.turn_on
-          entity_id: script.notify
-          data_template:
-            variables:
-              title: PLTR over threshold
-              message: Now at {{states.sensor.pltr.state}}.
-        - delay:
-            minutes: 15
+  - alias: ExpensiveStocksPLTR
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - platform: template
+        value_template: "{{ (states.sensor.pltr.state | int(default=0)) and (states.sensor.pltr.state | int(default=0)  > states.input_number.expensive_pltr.state | int(default=0))}}"
+    action:
+      - service: script.turn_on
+        entity_id: script.notify
+        data_template:
+          variables:
+            title: PLTR over threshold
+            message: Now at {{states.sensor.pltr.state}}.
+      - delay:
+          minutes: 15

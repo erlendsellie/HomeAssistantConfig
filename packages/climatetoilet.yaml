@@ -1,58 +1,57 @@
-climatetoilet:
-  climate:
-    - platform: generic_thermostat
-      name: Toilet Heater
-      heater: switch.toilet_heater
-      target_sensor: sensor.toilet_temp
-      min_temp: 16
-      max_temp: 26
-      precision: 0.5
-      hot_tolerance: 0.2
-      keep_alive:
-        minutes: 30
+climate:
+  - platform: generic_thermostat
+    name: Toilet Heater
+    heater: switch.toilet_heater
+    target_sensor: sensor.toilet_temp
+    min_temp: 16
+    max_temp: 26
+    precision: 0.5
+    hot_tolerance: 0.2
+    keep_alive:
+      minutes: 30
 
-  automation:
-    - alias: ClimateToiletNotWorking
-      trigger:
-        - platform: template
-          value_template: >-
-            {{(states.climate.toilet_heater.attributes.current_temperature - 
-            states.climate.toilet_heater.attributes.temperature)
-            > 2}}
-      action:
-        - service: switch.turn_off
-          entity_id: switch.toilet_heater
+automation:
+  - alias: ClimateToiletNotWorking
+    trigger:
+      - platform: template
+        value_template: >-
+          {{(states.climate.toilet_heater.attributes.current_temperature - 
+          states.climate.toilet_heater.attributes.temperature)
+          > 2}}
+    action:
+      - service: switch.turn_off
+        entity_id: switch.toilet_heater
 
-    # - alias: ClimateToiletNotWorkingNotify
-    #   trigger:
-    #     - platform: numeric_state
-    #       entity_id: sensor.toilet_climate_temp
-    #       above: 25
-    #       for:
-    #         minutes: 10
-    #     - platform: template
-    #       value_template: >-
-    #         {{(states.climate.toilet_heater.attributes.current_temperature -
-    #           states.input_number.hjemmetemp.state | float)
-    #         > 2}}
-    #       for:
-    #         hours: 2
-    #   action:
-    #     - service: switch.turn_off
-    #       entity_id: switch.toilet_heater
-    #     - service: script.turn_on
-    #       entity_id: script.notify
-    #       data_template:
-    #         variables:
-    #           title: "Advarsel"
-    #           message: " Temperaturen på toalettet er {{states.climate.toilet_heater.attributes.current_temperature}}"
-  # template:
-  #   - sensor:
-  #       - name: "toilet_climate_temp"
-  #         unit_of_measurement: "°C"
-  #         state: >-
-  #           {{max
-  #             ([
-  #               states.sensor.motion_toilet_temperature.state | float(default=16),
-  #               states.sensor.toilet_temp.state | float(default=16)
-  #             ])}}
+  # - alias: ClimateToiletNotWorkingNotify
+  #   trigger:
+  #     - platform: numeric_state
+  #       entity_id: sensor.toilet_climate_temp
+  #       above: 25
+  #       for:
+  #         minutes: 10
+  #     - platform: template
+  #       value_template: >-
+  #         {{(states.climate.toilet_heater.attributes.current_temperature -
+  #           states.input_number.hjemmetemp.state | float)
+  #         > 2}}
+  #       for:
+  #         hours: 2
+  #   action:
+  #     - service: switch.turn_off
+  #       entity_id: switch.toilet_heater
+  #     - service: script.turn_on
+  #       entity_id: script.notify
+  #       data_template:
+  #         variables:
+  #           title: "Advarsel"
+  #           message: " Temperaturen på toalettet er {{states.climate.toilet_heater.attributes.current_temperature}}"
+# template:
+#   - sensor:
+#       - name: "toilet_climate_temp"
+#         unit_of_measurement: "°C"
+#         state: >-
+#           {{max
+#             ([
+#               states.sensor.motion_toilet_temperature.state | float(default=16),
+#               states.sensor.toilet_temp.state | float(default=16)
+#             ])}}

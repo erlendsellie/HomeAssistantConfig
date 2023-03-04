@@ -1,187 +1,186 @@
-doorbell:
-  automation:
-    - id: doorbell
-      alias: Door Bell
-      mode: restart
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.front_door_ding
-          to: "on"
-          from: "off"
-        - platform: state
-          entity_id: switch.doorbutton
-          to: "on"
-        # - platform: event
-        #   event_type: deconz_event
-        #   event_data:
-        #     id: smart_switch
-      action:
-        - service: script.turn_on
-          entity_id: script.doorbell
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.doorbelljustrang
-        - delay:
-            minutes: 4
-        - service: input_boolean.turn_off
-          entity_id: input_boolean.doorbelljustrang
-
-    - alias: stopDoorbell
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.hoveddor
-          to: "on"
-      condition:
-        - condition: template
-          value_template: "{{((as_timestamp(utcnow()) - as_timestamp(states.script.doorbell.last_changed)) / 60) | round(0) < 3}}"
-      action:
-        - service: script.turn_off
-          entity_id: script.doorbell
-        - service: script.turn_off
-          entity_id: script.blink_lights_doorbell
-        - service: script.turn_on
-          entity_id: script.restorelightcolor
-        - delay:
-            minutes: 2
-        - service: media_player.media_stop
-          entity_id: media_player.kitchen_display
-
-    - alias: Door Bell done turn off
-      trigger:
-        platform: state
+automation:
+  - id: doorbell
+    alias: Door Bell
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.front_door_ding
+        to: "on"
+        from: "off"
+      - platform: state
         entity_id: switch.doorbutton
         to: "on"
-        for:
-          minutes: 1
-      action:
-        - service: switch.turn_off
-          entity_id: switch.doorbutton
+      # - platform: event
+      #   event_type: deconz_event
+      #   event_data:
+      #     id: smart_switch
+    action:
+      - service: script.turn_on
+        entity_id: script.doorbell
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.doorbelljustrang
+      - delay:
+          minutes: 4
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.doorbelljustrang
 
-    - alias: Door Bell done
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.hoveddor, input_boolean.doorbelljustrang
-          to: "on"
-      condition:
-        - condition: state
-          entity_id: input_boolean.doorbelljustrang
-          state: "on"
-      action:
-        - service: media_player.turn_off
-          entity_id: media_player.kitchen_display
-        - service: switch.turn_off
-          entity_id: switch.doorbutton
-
-    - alias: doorbellShowCamera
-      trigger:
-        platform: state
-        entity_id: switch.doorbutton
+  - alias: stopDoorbell
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.hoveddor
         to: "on"
-      condition:
-        condition: state
-        entity_id: media_player.tv_stua
+    condition:
+      - condition: template
+        value_template: "{{((as_timestamp(utcnow()) - as_timestamp(states.script.doorbell.last_changed)) / 60) | round(0) < 3}}"
+    action:
+      - service: script.turn_off
+        entity_id: script.doorbell
+      - service: script.turn_off
+        entity_id: script.blink_lights_doorbell
+      - service: script.turn_on
+        entity_id: script.restorelightcolor
+      - delay:
+          minutes: 2
+      - service: media_player.media_stop
+        entity_id: media_player.kitchen_display
+
+  - alias: Door Bell done turn off
+    trigger:
+      platform: state
+      entity_id: switch.doorbutton
+      to: "on"
+      for:
+        minutes: 1
+    action:
+      - service: switch.turn_off
+        entity_id: switch.doorbutton
+
+  - alias: Door Bell done
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.hoveddor, input_boolean.doorbelljustrang
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.doorbelljustrang
         state: "on"
-      action:
-        - service: camera.play_stream
-          entity_id: camera.driveway
-          data:
-            format: hls
-            media_player: media_player.chromecast9350
+    action:
+      - service: media_player.turn_off
+        entity_id: media_player.kitchen_display
+      - service: switch.turn_off
+        entity_id: switch.doorbutton
 
-  script:
-    doorbell:
-      alias: Doorbell
-      mode: restart
-      sequence:
-        - service: switch.turn_off
-          entity_id: switch.doorbutton
-        # - service: light.turn_on
-        #   entity_id: light.gateway_light_7c49eb1c2d6b
-        #   data:
-        #     color_name: green
-        - service: script.turn_on
-          entity_id: script.blink_lights_doorbell
-        # - service: camera.play_stream
-        #   entity_id: camera.driveway_stream
-        #   data:
-        #     media_player: media_player.living_room
-        - service: camera.play_stream
-          entity_id: camera.driveway_stream
-          data:
-            media_player: media_player.kitchen_display
-        - service: media_player.volume_set
-          data:
-            entity_id: media_player.living_room_speaker
-            volume_level: 0.5
-        - service: script.turn_on
-          entity_id: script.notify_tts_max_if_home
-          data_template:
-            variables:
-              message: Ding Dong!
-        - service: notify.mobile_app_oneplus
-          data:
+  - alias: doorbellShowCamera
+    trigger:
+      platform: state
+      entity_id: switch.doorbutton
+      to: "on"
+    condition:
+      condition: state
+      entity_id: media_player.tv_stua
+      state: "on"
+    action:
+      - service: camera.play_stream
+        entity_id: camera.driveway
+        data:
+          format: hls
+          media_player: media_player.chromecast9350
+
+script:
+  doorbell:
+    alias: Doorbell
+    mode: restart
+    sequence:
+      - service: switch.turn_off
+        entity_id: switch.doorbutton
+      # - service: light.turn_on
+      #   entity_id: light.gateway_light_7c49eb1c2d6b
+      #   data:
+      #     color_name: green
+      - service: script.turn_on
+        entity_id: script.blink_lights_doorbell
+      # - service: camera.play_stream
+      #   entity_id: camera.driveway_stream
+      #   data:
+      #     media_player: media_player.living_room
+      - service: camera.play_stream
+        entity_id: camera.driveway_stream
+        data:
+          media_player: media_player.kitchen_display
+      - service: media_player.volume_set
+        data:
+          entity_id: media_player.living_room_speaker
+          volume_level: 0.5
+      - service: script.turn_on
+        entity_id: script.notify_tts_max_if_home
+        data_template:
+          variables:
             message: Ding Dong!
-            data:
-              image: "/api/camera_proxy/camera.driveway"
-        - condition: template
-          value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
-        - service: media_player.play_media
+      - service: notify.mobile_app_oneplus
+        data:
+          message: Ding Dong!
           data:
-            entity_id: media_player.minis
-            media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
-            #media_content_id: https://hjem.sellie.no/local/sounds/screams/goosebumps.mp3
-            media_content_type: "music"
-        - service: notify.mobile_app_oneplus
+            image: "/api/camera_proxy/camera.driveway"
+      - condition: template
+        value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.minis
+          media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
+          #media_content_id: https://hjem.sellie.no/local/sounds/screams/goosebumps.mp3
+          media_content_type: "music"
+      - service: notify.mobile_app_oneplus
+        data:
+          message: Motion in driveway when armed.
+          title: DingDong!
           data:
-            message: Motion in driveway when armed.
-            title: DingDong!
-            data:
-              image: "/api/camera_proxy/camera.driveway"
-        - service: notify.mobile_app_caroline_pixel
+            image: "/api/camera_proxy/camera.driveway"
+      - service: notify.mobile_app_caroline_pixel
+        data:
+          message: Motion in driveway when armed.
+          title: DingDong!
           data:
-            message: Motion in driveway when armed.
-            title: DingDong!
-            data:
-              image: "/api/camera_proxy/camera.driveway"
-        - service: script.turn_on
-          entity_id: script.sendvideodriveway
-        - delay:
-            seconds: 8
-        - service: media_player.play_media
-          data:
-            entity_id: media_player.minis
-            #            media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
-            media_content_id: https://hjem.sellie.no/local/sounds/screams/goosebumps.mp3
-            media_content_type: "music"
-        - delay:
-            seconds: 15
-        - service: media_player.media_stop
-          data:
-            entity_id: media_player.minis
-        - delay:
-            seconds: 5
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.living_room_speaker
-            volume_level: "{{states.sensor.speakervolume.state}}"
-        - service: logbook.log
-          data:
-            name: Doorbell
-            message: rang
-        # - service: light.turn_off
-        #   entity_id: light.gateway_light_7c49eb1c2d6b
-        #This is stupid. Make not stupid.
-        # - condition: template
-        #   value_template: "{{ states.media_player.living_room.state != 'Playing'}}"
-        # - service: media_player.turn_off
-        #   entity_id: media_player.tv_stua
+            image: "/api/camera_proxy/camera.driveway"
+      - service: script.turn_on
+        entity_id: script.sendvideodriveway
+      - delay:
+          seconds: 8
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.minis
+          #            media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
+          media_content_id: https://hjem.sellie.no/local/sounds/screams/goosebumps.mp3
+          media_content_type: "music"
+      - delay:
+          seconds: 15
+      - service: media_player.media_stop
+        data:
+          entity_id: media_player.minis
+      - delay:
+          seconds: 5
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.living_room_speaker
+          volume_level: "{{states.sensor.speakervolume.state}}"
+      - service: logbook.log
+        data:
+          name: Doorbell
+          message: rang
+      # - service: light.turn_off
+      #   entity_id: light.gateway_light_7c49eb1c2d6b
+      #This is stupid. Make not stupid.
+      # - condition: template
+      #   value_template: "{{ states.media_player.living_room.state != 'Playing'}}"
+      # - service: media_player.turn_off
+      #   entity_id: media_player.tv_stua
 
-        # - service: notify.carolinepush
-        #   data:
-        #     title: Ding Dong
-        #     message: Noen ringte på døra
-        #     data:
-        #       file: /tmp/snapshot.jpg
-        # - service: tts.google_say
-        #   entity_id: media_player.pi
-        #   data:
-        #     message: 'Ding dong! Someone is at the door'
+      # - service: notify.carolinepush
+      #   data:
+      #     title: Ding Dong
+      #     message: Noen ringte på døra
+      #     data:
+      #       file: /tmp/snapshot.jpg
+      # - service: tts.google_say
+      #   entity_id: media_player.pi
+      #   data:
+      #     message: 'Ding dong! Someone is at the door'

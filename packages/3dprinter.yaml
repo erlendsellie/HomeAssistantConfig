@@ -1,122 +1,121 @@
-3dprinter:
-  automation:
-    - id: Print_Almost_Done
-      alias: Print is almost done
-      trigger:
-        - platform: numeric_state
-          entity_id: sensor.octoprint_time_remaining
-          below: 30
-      action:
-        - service: notify.mobile_app_oneplus
-          data_template:
-            title: 3D Print is almost ready
-            message: The 3D print will be done in a minute
-            data:
-              image: "https://hjem.sellie.no{{states.camera.octoprint.attributes.entity_picture}}"
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: "3D-printeren er ferdig med å printe."
+automation:
+  - id: Print_Almost_Done
+    alias: Print is almost done
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.octoprint_time_remaining
+        below: 30
+    action:
+      - service: notify.mobile_app_oneplus
+        data_template:
+          title: 3D Print is almost ready
+          message: The 3D print will be done in a minute
+          data:
+            image: "https://hjem.sellie.no{{states.camera.octoprint.attributes.entity_picture}}"
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "3D-printeren er ferdig med å printe."
 
-    - id: 3dprinterlefton
-      alias: 3dprinterlefton
-      trigger:
-        - platform: state
+  - id: 3dprinterlefton
+    alias: 3dprinterlefton
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.octoprint_printing
+        to: "off"
+        for:
+          hours: 1
+    condition:
+      - condition: state
+        entity_id: switch.3d_printer_failsafe
+        state: "on"
+    action:
+      - service: notify.me
+        data_template:
+          message: "The 3D printer has been left on while not printing. Temp: {{ states.sensor.octoprint_target_tool0_temp.state }}"
+      - service: switch.turn_off
+        entity_id: switch.3d_printer_failsafe
+
+  - id: turnOff3DPrinter
+    alias: turnOff3DPrinter
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.octoprint_printing
+        to: "off"
+        for:
+          minutes: 10
+    action:
+      - service: switch.turn_off
+        entity_id: switch.3d_printer_failsafe
+
+  - alias: turnOff3DPrinterlight
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.octoprint_printing
+        to: "off"
+        for:
+          minutes: 10
+    condition:
+      - condition: state
+        entity_id: binary_sensor.motion_downstairs_office
+        state: "off"
+    action:
+      - service: light.turn_off
+        entity_id: light.office_light, light.play
+
+  # - id: TurnOnLightForTimelapse
+  #   alias: TurnOffLightForTimelapse
+  #   trigger:
+  #   - platform: state
+  #     entity_id:  sensor.octoprint_job_percentage
+  #   condition:
+  #   - condition: state
+  #     entity_id: binary_sensor.motion_downstairs_office
+  #     state: 'off'
+  #   action:
+  #   - service: light.turn_on
+  #     entity_id: light.office_light, light.play2
+  #     data:
+  #       color_name: white
+
+  - alias: 3DPrinterTempProblem
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.octoprint_actual_tool0_temp
+        below: 120
+    condition:
+      condition: and
+      conditions:
+        - condition: state
           entity_id: binary_sensor.octoprint_printing
-          to: "off"
-          for:
-            hours: 1
-      condition:
+          state: "on"
         - condition: state
           entity_id: switch.3d_printer_failsafe
           state: "on"
-      action:
-        - service: notify.me
-          data_template:
-            message: "The 3D printer has been left on while not printing. Temp: {{ states.sensor.octoprint_target_tool0_temp.state }}"
-        - service: switch.turn_off
-          entity_id: switch.3d_printer_failsafe
+    action:
+      - service: notify.erlendpush
+        data_template:
+          message: "The 3D-printer is printing, but reporting a temp of {{states.sensor.octoprint_actual_tool0_temp.state}}. Turning off the printer."
+      - service: switch.turn_off
+        entity_id: switch.3d_printer_failsafe
+        #Add smoketriggered script if this does not happen randomly.
 
-    - id: turnOff3DPrinter
-      alias: turnOff3DPrinter
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.octoprint_printing
-          to: "off"
-          for:
-            minutes: 10
-      action:
-        - service: switch.turn_off
-          entity_id: switch.3d_printer_failsafe
+script:
+  prepareprinter:
+    alias: "Prepare printer"
+    sequence:
+      - service: switch.turn_on
+        entity_id:
+          - switch.3d_printer_failsafe
+          - switch.preheatprintertool
+          - switch.preheatprinterbed
 
-    - alias: turnOff3DPrinterlight
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.octoprint_printing
-          to: "off"
-          for:
-            minutes: 10
-      condition:
-        - condition: state
-          entity_id: binary_sensor.motion_downstairs_office
-          state: "off"
-      action:
-        - service: light.turn_off
-          entity_id: light.office_light, light.play
-
-    # - id: TurnOnLightForTimelapse
-    #   alias: TurnOffLightForTimelapse
-    #   trigger:
-    #   - platform: state
-    #     entity_id:  sensor.octoprint_job_percentage
-    #   condition:
-    #   - condition: state
-    #     entity_id: binary_sensor.motion_downstairs_office
-    #     state: 'off'
-    #   action:
-    #   - service: light.turn_on
-    #     entity_id: light.office_light, light.play2
-    #     data:
-    #       color_name: white
-
-    - alias: 3DPrinterTempProblem
-      trigger:
-        - platform: numeric_state
-          entity_id: sensor.octoprint_actual_tool0_temp
-          below: 120
-      condition:
-        condition: and
-        conditions:
-          - condition: state
-            entity_id: binary_sensor.octoprint_printing
-            state: "on"
-          - condition: state
-            entity_id: switch.3d_printer_failsafe
-            state: "on"
-      action:
-        - service: notify.erlendpush
-          data_template:
-            message: "The 3D-printer is printing, but reporting a temp of {{states.sensor.octoprint_actual_tool0_temp.state}}. Turning off the printer."
-        - service: switch.turn_off
-          entity_id: switch.3d_printer_failsafe
-          #Add smoketriggered script if this does not happen randomly.
-
-  script:
-    prepareprinter:
-      alias: "Prepare printer"
-      sequence:
-        - service: switch.turn_on
-          entity_id:
-            - switch.3d_printer_failsafe
-            - switch.preheatprintertool
-            - switch.preheatprinterbed
-
-    stopprinter:
-      alias: "Stop Printer"
-      sequence:
-        - service: switch.turn_off
-          entity_id:
-            - switch.3d_printer_failsafe
-            - switch.preheatprintertool
-            - switch.preheatprinterbed
+  stopprinter:
+    alias: "Stop Printer"
+    sequence:
+      - service: switch.turn_off
+        entity_id:
+          - switch.3d_printer_failsafe
+          - switch.preheatprintertool
+          - switch.preheatprinterbed

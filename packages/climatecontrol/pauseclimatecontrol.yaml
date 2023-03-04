@@ -1,27 +1,26 @@
-pauseclimatecontrol:
-  input_boolean:
-    pauseclimatecontrol:
-      name: Pause Climate Control For Today
+input_boolean:
+  pauseclimatecontrol:
+    name: Pause Climate Control For Today
 
-  automation:
-    - id: ResetPauseclimatecontrolfortoday
-      alias: ResetPauseclimatecontrolfortoday
-      trigger:
-        - platform: time
-          at: "00:00:00"
-      condition:
-        - condition: state
+automation:
+  - id: ResetPauseclimatecontrolfortoday
+    alias: ResetPauseclimatecontrolfortoday
+    trigger:
+      - platform: time
+        at: "00:00:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.pauseclimatecontrol
+        state: "on"
+    action:
+      - service: input_boolean.turn_off
+        target:
           entity_id: input_boolean.pauseclimatecontrol
-          state: "on"
-      action:
-        - service: input_boolean.turn_off
-          target:
-            entity_id: input_boolean.pauseclimatecontrol
 
-  binary_sensor:
-    - platform: template
-      scan_interval: 3600
-      sensors:
-        usingspot:
-          value_template: >-
-            {{states('input_boolean.pauseclimatecontrol') == 'off'}}
+binary_sensor:
+  - platform: template
+    scan_interval: 3600
+    sensors:
+      usingspot:
+        value_template: >-
+          {{states('input_boolean.pauseclimatecontrol') == 'off'}}

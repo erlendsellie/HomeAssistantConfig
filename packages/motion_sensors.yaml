@@ -1,32 +1,31 @@
-motionsensors:
-  binary_sensor:
-    - platform: template
-      sensors:
-        motionupstairs:
-          device_class: motion
-          delay_off:
-            minutes: 5
-          value_template: >-
-            {{states.binary_sensor.motion_upstairs.state == 'on'
-            or states.binary_sensor.motion_bathroom.state == 'on'
-            or (states.binary_sensor.trym_motion.state == 'on' and states('input_boolean.trymasleep') == 'off')
-            or (states.binary_sensor.tyra_motion.state == 'on' and states('input_boolean.tyraasleep') == 'off')
-            or states.binary_sensor.motion_bedroom.state == 'on'}}
-        motionoffice:
-          device_class: motion
-          delay_off:
-            minutes: 10
-          value_template: >-
-            {{states.binary_sensor.motion_downstairs_office.state == 'on'}}
-        motionbathroom:
-          device_class: motion
-          delay_off:
-            minutes: 20
-          value_template: >-
-            {{states.binary_sensor.motion_bathroom.state == 'on'}}
-        toilet_door_left_open:
-          device_class: door
-          delay_on:
-            minutes: 5
-          value_template: >-
-            {{states.binary_sensor.door_toilet.state == 'on'}}
+binary_sensor:
+  - platform: template
+    sensors:
+      motionupstairs:
+        device_class: motion
+        delay_off:
+          minutes: 5
+        value_template: >-
+          {{states.binary_sensor.motion_upstairs.state == 'on'
+          or states.binary_sensor.motion_bathroom.state == 'on'
+          or (states.binary_sensor.trym_motion.state == 'on' and states('input_boolean.trymasleep') == 'off')
+          or (states.binary_sensor.tyra_motion.state == 'on' and states('input_boolean.tyraasleep') == 'off')
+          or states.binary_sensor.motion_bedroom.state == 'on'}}
+      motionoffice:
+        device_class: motion
+        delay_off:
+          minutes: 10
+        value_template: >-
+          {{states.binary_sensor.motion_downstairs_office.state == 'on'}}
+      motionbathroom:
+        device_class: motion
+        delay_off:
+          minutes: 20
+        value_template: >-
+          {{states.binary_sensor.motion_bathroom.state == 'on'}}
+      toilet_door_left_open:
+        device_class: door
+        delay_on:
+          minutes: 5
+        value_template: >-
+          {{states.binary_sensor.door_toilet.state == 'on'}}

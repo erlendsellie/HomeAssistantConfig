@@ -1,21 +1,20 @@
-adaptivebedroom:
-  automation:
-    - alias: adaptivebedroomsleeping
-      id: adaptivebedroomsleeping
-      trigger:
-        - platform: state
-          entity_id:
-            - input_boolean.easleep
-            - input_boolean.casleep
-      action:
-        - if:
-            - >-
-              {%set easleep = states('input_boolean.easleep') == 'on'%}
-              {%set casleep = states('input_boolean.casleep') == 'on'%}
-              {{easleep or casleep}}
-          then:
-            - service: switch.turn_on
-              entity_id: switch.adaptive_lighting_sleep_mode_bedroom
-          else:
-            - service: switch.turn_off
-              entity_id: switch.adaptive_lighting_sleep_mode_bedroom
+automation:
+  - alias: adaptivebedroomsleeping
+    id: adaptivebedroomsleeping
+    trigger:
+      - platform: state
+        entity_id:
+          - input_boolean.easleep
+          - input_boolean.casleep
+    action:
+      - if:
+          - >-
+            {%set easleep = states('input_boolean.easleep') == 'on'%}
+            {%set casleep = states('input_boolean.casleep') == 'on'%}
+            {{easleep or casleep}}
+        then:
+          - service: switch.turn_on
+            entity_id: switch.adaptive_lighting_sleep_mode_bedroom
+        else:
+          - service: switch.turn_off
+            entity_id: switch.adaptive_lighting_sleep_mode_bedroom

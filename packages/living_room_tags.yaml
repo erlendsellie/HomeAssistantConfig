@@ -1,59 +1,58 @@
-living_room_tags:
-  automation:
-    - alias: brikke scanned
-      trigger:
-        platform: tag
-        tag_id: brikke
-      action:
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: brikke scannet!
+automation:
+  - alias: brikke scanned
+    trigger:
+      platform: tag
+      tag_id: brikke
+    action:
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: brikke scannet!
 
-      # - service: media_extractor.play_media
-      #   data:
-      #     entity_id: media_player.nvidia_shield
-      #     media_content_id: "https://www.youtube.com/watch?v=84AJflQ8YRc"
-      #     media_content_type: video/youtube
+    # - service: media_extractor.play_media
+    #   data:
+    #     entity_id: media_player.nvidia_shield
+    #     media_content_id: "https://www.youtube.com/watch?v=84AJflQ8YRc"
+    #     media_content_type: video/youtube
 
-    - alias: PepppaPigLivingRoom
-      trigger:
-        platform: tag
-        tag_id: peppa_pig
-      action:
-        - service: media_player.turn_on
-          data:
-            entity_id: media_player.nvidia_shield
-        - service: media_player.select_source
-          data:
-            entity_id: media_player.nvidia_shield
-            source: "Plex"
-        - delay:
-            seconds: 2
-        - service: media_player.play_media
-          data:
-            media_content_type: playlist
-            media_content_id: '{ "playlist_name": "Peppa Pig", "shuffle": "1" }'
-          target:
-            entity_id: media_player.plex_plex_for_android_tv_shield_android_tv
+  - alias: PepppaPigLivingRoom
+    trigger:
+      platform: tag
+      tag_id: peppa_pig
+    action:
+      - service: media_player.turn_on
+        data:
+          entity_id: media_player.nvidia_shield
+      - service: media_player.select_source
+        data:
+          entity_id: media_player.nvidia_shield
+          source: "Plex"
+      - delay:
+          seconds: 2
+      - service: media_player.play_media
+        data:
+          media_content_type: playlist
+          media_content_id: '{ "playlist_name": "Peppa Pig", "shuffle": "1" }'
+        target:
+          entity_id: media_player.plex_plex_for_android_tv_shield_android_tv
 
-    - alias: MusikkTrymLivingRoom
-      trigger:
-        platform: tag
-        tag_id: musikk_trym
-      action:
-        - service: media_player.select_source
-          data:
-            source: "Musikk Stua"
-            entity_id: media_player.spotify_erlend_sellie
-        - service: media_player.shuffle_set
-          data:
-            entity_id: media_player.spotify_erlend_sellie
-            shuffle: true
-        - service: media_player.play_media
-          target:
-            entity_id: media_player.spotify_erlend_sellie
-          data:
-            media_content_id: "https://open.spotify.com/playlist/56czdk5JuKvv2NnHnGBlY6?si=UJMyEgRQRpiIT1CinEUudQ"
-            media_content_type: playlist
+  - alias: MusikkTrymLivingRoom
+    trigger:
+      platform: tag
+      tag_id: musikk_trym
+    action:
+      - service: media_player.select_source
+        data:
+          source: "Musikk Stua"
+          entity_id: media_player.spotify_erlend_sellie
+      - service: media_player.shuffle_set
+        data:
+          entity_id: media_player.spotify_erlend_sellie
+          shuffle: true
+      - service: media_player.play_media
+        target:
+          entity_id: media_player.spotify_erlend_sellie
+        data:
+          media_content_id: "https://open.spotify.com/playlist/56czdk5JuKvv2NnHnGBlY6?si=UJMyEgRQRpiIT1CinEUudQ"
+          media_content_type: playlist

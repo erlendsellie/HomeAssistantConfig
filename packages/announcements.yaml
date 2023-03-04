@@ -1,1074 +1,1073 @@
-announcements:
-  template:
-    - binary_sensor:
-        - name: "google_home_playing"
-          unique_id: 4afd0a31-efb0-49e0-9da8-ljasldjl2j
-          attributes:
-            musikkstua: "{{states.media_player.musikkstua.state}}"
-            livingroom: "{{states.media_player.living_room_speaker.state}}"
-            kitchen: "{{states.media_player.musikkstua.state}}"
-          state: >-
-            {{
-              (states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused')
-              and
-              (states.media_player.living_room_speaker.state == 'playing' or states.media_player.living_room_speaker.state == 'paused')
-              and
-              (states.media_player.kitchen_display.state == 'playing' or states.media_player.kitchen_display.state == 'paused')
-            }}
-  automation:
-    - alias: SetVolume
-      trigger:
-        - platform: state
-          entity_id: sensor.speakervolume
-      action:
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state | float(default=0)}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.hallway_speaker
-            volume_level: "{{states.sensor.speakervolume.state | float(default=0)}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.living_room_speaker
-            volume_level: "{{states.sensor.speakervolume.state | float(default=0.5)- 0.1}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state | float(default=0)}} "
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.hallway_speaker
-            volume_level: "{{states.sensor.speakervolume.state | float(default=0)}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.living_room_speaker
-            volume_level: "{{states.sensor.speakervolume.state | float(default=0)- 0.1}}"
+template:
+  - binary_sensor:
+      - name: "google_home_playing"
+        unique_id: 4afd0a31-efb0-49e0-9da8-ljasldjl2j
+        attributes:
+          musikkstua: "{{states.media_player.musikkstua.state}}"
+          livingroom: "{{states.media_player.living_room_speaker.state}}"
+          kitchen: "{{states.media_player.musikkstua.state}}"
+        state: >-
+          {{
+            (states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused')
+            and
+            (states.media_player.living_room_speaker.state == 'playing' or states.media_player.living_room_speaker.state == 'paused')
+            and
+            (states.media_player.kitchen_display.state == 'playing' or states.media_player.kitchen_display.state == 'paused')
+          }}
+automation:
+  - alias: SetVolume
+    trigger:
+      - platform: state
+        entity_id: sensor.speakervolume
+    action:
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: "{{states.sensor.speakervolume.state | float(default=0)}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.hallway_speaker
+          volume_level: "{{states.sensor.speakervolume.state | float(default=0)}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.living_room_speaker
+          volume_level: "{{states.sensor.speakervolume.state | float(default=0.5)- 0.1}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: "{{states.sensor.speakervolume.state | float(default=0)}} "
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.hallway_speaker
+          volume_level: "{{states.sensor.speakervolume.state | float(default=0)}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.living_room_speaker
+          volume_level: "{{states.sensor.speakervolume.state | float(default=0)- 0.1}}"
 
+        #### Media for door sensors
+  - id: PlayMediaWhenDoorOpens
+    alias: PlayMediaWhenDoorOpens
+    trigger:
+      - platform: state
+        entity_id:
+          #- binary_sensor.veranda
+          - binary_sensor.hoveddor
+          - binary_sensor.lilleveranda
+          - binary_sensor.door_downstairs
+        to: "on"
+        from: "off"
+    condition:
+      - condition: state
+        entity_id: group.stilletid
+        state: "off"
+    action:
+      - condition: template
+        value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.hallway_speaker
+          volume_level: "{{states.sensor.speakervolume.state | float(default=0)- 0.1}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.living_room_speaker
+          volume_level: "{{states.sensor.speakervolume.state | float(default=0)- 0.2}}"
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.minis
+          media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Secret.wav
+          #https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Cheerful+R2D2&filename=ot/OTg5MjI4MzAzOTg5Mzk1__2fUoxQxvD9yY.mp3
+          media_content_type: "music"
+      - delay:
+          seconds: 3
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: "{{states.sensor.speakervolume.state}}"
           #### Media for door sensors
-    - id: PlayMediaWhenDoorOpens
-      alias: PlayMediaWhenDoorOpens
-      trigger:
-        - platform: state
-          entity_id:
-            #- binary_sensor.veranda
-            - binary_sensor.hoveddor
-            - binary_sensor.lilleveranda
-            - binary_sensor.door_downstairs
-          to: "on"
-          from: "off"
-      condition:
+
+  - id: PlayMediaWhenDoorLocks
+    alias: PlayMediaWhenDoorLocks
+    trigger:
+      - platform: state
+        entity_id:
+          #- binary_sensor.veranda
+          - binary_sensor.hoveddor
+          - binary_sensor.lilleveranda
+          - binary_sensor.door_downstairs
+        to: "off"
+        from: "on"
+    condition:
+      - condition: state
+        entity_id: group.stilletid
+        state: "off"
+    action:
+      - condition: template
+        value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.hallway_speaker
+          volume_level: "{{states.sensor.speakervolume.state | float}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.living_room_speaker
+          volume_level: "{{states.sensor.speakervolume.state | float}}"
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.minis
+          #media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Secret.wav
+          media_content_id: https://hjem.sellie.no/local/sounds/sheikat_slate.mp3
+          #media_content_id: https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Cheerful+R2D2&filename=ot/OTg5MjI4MzAzOTg5Mzk1__2fUoxQxvD9yY.mp3
+          media_content_type: "music"
+      - delay:
+          seconds: 3
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: "{{states.sensor.speakervolume.state}}"
+          #### Media for door sensors
+
+  - alias: PlayMediaWhenVerandaOpenWhenCold
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.veranda_open
+        to: "on"
+        for:
+          minutes: 1
+      - platform: state
+        entity_id: binary_sensor.veranda_open
+        to: "on"
+        for:
+          minutes: 5
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.ute_temperature
+        below: 5
+    action:
+      - service: script.turn_on
+        entity_id: script.playsound
+        data_template:
+          variables:
+            sound: "https://hjem.sellie.no/local/sounds/item.mp3"
+            extraVolume: 0.3
+
+  - alias: PlaySoundMotionDriveway
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_driveway
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.front_door_motion
+        to: "on"
+    condition:
+      condition: and
+      conditions:
         - condition: state
-          entity_id: group.stilletid
-          state: "off"
-      action:
-        - condition: template
-          value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.hallway_speaker
-            volume_level: "{{states.sensor.speakervolume.state | float(default=0)- 0.1}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.living_room_speaker
-            volume_level: "{{states.sensor.speakervolume.state | float(default=0)- 0.2}}"
-        - service: media_player.play_media
-          data:
-            entity_id: media_player.minis
-            media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Secret.wav
-            #https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Cheerful+R2D2&filename=ot/OTg5MjI4MzAzOTg5Mzk1__2fUoxQxvD9yY.mp3
-            media_content_type: "music"
-        - delay:
-            seconds: 3
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state}}"
-            #### Media for door sensors
-
-    - id: PlayMediaWhenDoorLocks
-      alias: PlayMediaWhenDoorLocks
-      trigger:
-        - platform: state
-          entity_id:
-            #- binary_sensor.veranda
-            - binary_sensor.hoveddor
-            - binary_sensor.lilleveranda
-            - binary_sensor.door_downstairs
-          to: "off"
-          from: "on"
-      condition:
+          entity_id: cover.garage_door
+          state: "closed"
         - condition: state
-          entity_id: group.stilletid
-          state: "off"
-      action:
-        - condition: template
-          value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.hallway_speaker
-            volume_level: "{{states.sensor.speakervolume.state | float}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.living_room_speaker
-            volume_level: "{{states.sensor.speakervolume.state | float}}"
-        - service: media_player.play_media
-          data:
-            entity_id: media_player.minis
-            #media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Secret.wav
-            media_content_id: https://hjem.sellie.no/local/sounds/sheikat_slate.mp3
-            #media_content_id: https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Cheerful+R2D2&filename=ot/OTg5MjI4MzAzOTg5Mzk1__2fUoxQxvD9yY.mp3
-            media_content_type: "music"
-        - delay:
-            seconds: 3
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state}}"
-            #### Media for door sensors
-
-    - alias: PlayMediaWhenVerandaOpenWhenCold
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.veranda_open
-          to: "on"
-          for:
-            minutes: 1
-        - platform: state
-          entity_id: binary_sensor.veranda_open
-          to: "on"
-          for:
-            minutes: 5
-      condition:
-        - condition: numeric_state
-          entity_id: sensor.ute_temperature
-          below: 5
-      action:
-        - service: script.turn_on
-          entity_id: script.playsound
-          data_template:
-            variables:
-              sound: "https://hjem.sellie.no/local/sounds/item.mp3"
-              extraVolume: 0.3
-
-    - alias: PlaySoundMotionDriveway
-      mode: single
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_driveway
-          to: "on"
-        - platform: state
-          entity_id: binary_sensor.front_door_motion
-          to: "on"
-      condition:
-        condition: and
-        conditions:
-          - condition: state
-            entity_id: cover.garage_door
-            state: "closed"
-          - condition: state
-            entity_id: binary_sensor.hoveddor
-            state: "off"
-            for:
-              seconds: 30
-          - condition: state
-            entity_id: binary_sensor.motion_garage
-            state: "off"
-          - condition: state
-            entity_id: input_select.alarm
-            state: "Disarm"
-      action:
-        - condition: template
-          value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state | float(default=0)+ 0.1}}"
-        - service: media_player.play_media
-          data_template:
-            entity_id: media_player.minis
-            #media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Secret.wav
-            #media_content_id: https://hjem.sellie.no/local/sounds/OOT_Navi_Listen1.wav
-            media_content_id: https://hjem.sellie.no/local/sounds/mario_coin.mp3
-            #media_content_id: https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Cheerful+R2D2&filename=ot/OTg5MjI4MzAzOTg5Mzk1__2fUoxQxvD9yY.mp3
-            media_content_type: "music"
-        - service: script.notifymotionshield
-        - delay:
-            seconds: 3
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state}}"
-        - delay:
-            minutes: 3
-
-            #### Media for door sensors
-    - alias: NotifyMotionforLocalCamera
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.motion_driveway
-          to: "on"
-      condition:
-        - condition: template
-          value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
-      action:
-        # - service: notify.me
-        #   data:
-        #     title: 'Motion Driveway'
-        #     message: 'Motion in driveway when armed.'
-        #     data:
-        #       photo:
-        #         url: !secret outdoorcamerastream
-        - service: camera.snapshot
-          data:
-            entity_id: camera.driveway
-            filename: "/config/www/snapshot2.jpg"
-
-    - alias: Dogsafoot
-      trigger:
-        - platform: state
-          entity_id:
-            - binary_sensor.door_livingroom
-            - binary_sensor.door_kitchen
-          to: "on"
-      condition:
-        - condition: state
-          entity_id: binary_sensor.motion_upstairs
+          entity_id: binary_sensor.hoveddor
           state: "off"
           for:
-            minutes: 10
+            seconds: 30
         - condition: state
-          entity_id: input_select.alarm
-          state: "Arm Home"
-      action:
-        - service: tts.google_say
-          entity_id: media_player.clock
-          data_template:
-            message: Hundene har gått inn på stua
-        - service: light.turn_on
-          entity_id: light.bedroom
-        - delay:
-            seconds: 2
-        - service: light.turn_off
-          entity_id: light.bedroom
-        - delay:
-            seconds: 2
-        - service: light.turn_on
-          entity_id: light.bedroom
-        - delay:
-            seconds: 2
-        - service: light.turn_off
-          entity_id: light.bedroom
-        - delay:
-            seconds: 2
-        - service: light.turn_on
-          entity_id: light.bedroom
-
-    - alias: KidsAfoot
-      trigger:
-        - platform: state
-          entity_id:
-            - binary_sensor.trym_door
-            - binary_sensor.tyra_door
-            # Add living room, in case Virus does something?
-          to: "on"
-      condition:
-        - condition: state
-          entity_id: binary_sensor.motion_upstairs
+          entity_id: binary_sensor.motion_garage
           state: "off"
-          for:
-            minutes: 10
-        - condition: state
-          entity_id: input_select.alarm
-          state: "Arm Home"
-      action:
-        # Todo do this if some is asleep. Do it on speakers if someone is awake and home.
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.clock
-            volume_level: 0.5
-        - service: tts.google_say
-          entity_id: media_player.clock
-          data_template:
-            message: Trym eller Tyra har gått ut fra rommet sitt
-        - service: light.turn_on
-          entity_id: light.bedroom
-        - delay:
-            seconds: 2
-        - service: light.turn_off
-          entity_id: light.bedroom
-        - delay:
-            seconds: 2
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.clock
-            volume_level: 0.1
-        # - service: light.turn_on
-        #   entity_id: light.bedroom
-        # - delay:
-        #     seconds: 2
-        # - service: light.turn_off
-        #   entity_id: light.bedroom
-        # - delay:
-        #     seconds: 2
-        # - service: light.turn_on
-        #   entity_id: light.bedroom
-
-    - alias: grindOpen
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.stairsexposed
-          to: "on"
-          for:
-            seconds: 10
-      condition:
         - condition: state
           entity_id: input_select.alarm
           state: "Disarm"
-      action:
-        repeat:
-          while:
-            - condition: state
-              entity_id: binary_sensor.stairsexposed
-              state: "on"
-          sequence:
-            - service: script.turn_on
-              entity_id: script.notifyhome
-              data_template:
-                variables:
-                  title: Stairs Exposed
-                  message: Stairs are exposed!
-            - condition: template
-              value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
-            - service: media_player.volume_set
-              data_template:
-                entity_id: media_player.minis
-                volume_level: 0.4
-            - service: media_player.play_media
-              data:
-                entity_id: media_player.minis
-                media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Fanfare_Item.wav
-                media_content_type: "music"
-            - delay:
-                seconds: 3
-            - service: media_player.volume_set
-              data_template:
-                entity_id: media_player.minis
-                volume_level: "{{states.sensor.speakervolume.state}}"
-            - delay:
-                minutes: 4
-
-    - alias: GrindAndDoorOpen
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.hoveddor
-          to: "on"
-      condition:
-        - condition: state
-          entity_id: binary_sensor.grind
-          state: "on"
-        - condition: state
-          entity_id: binary_sensor.anykidshomeandawake
-          state: "on"
-      action:
-        - delay:
-            seconds: 3
-        - service: script.turn_on
-          entity_id: script.notifyhome
-          data_template:
-            variables:
-              title: Grinda og hoveddøra
-              message: er åpen!
-        - condition: template
-          value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: 0.4
-        - service: media_player.play_media
-          data:
-            entity_id: media_player.minis
-            media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Fanfare_Item.wav
-            media_content_type: "music"
-        - delay:
-            seconds: 3
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state}}"
-
-    - alias: GrindOppeOpenFor5minutes
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.upstairstairs
-          to: "on"
-          for:
-            minutes: 5
-      action:
-        repeat:
-          while:
-            - condition: state
-              entity_id: binary_sensor.upstairstairs
-              state: "on"
-          sequence:
-            - service: script.turn_on
-              entity_id: script.notifyhome
-              data_template:
-                variables:
-                  title: Stairs Exposed
-                  message: Grinda oppe ble ikke lukket
-            - condition: template
-              value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
-            - service: media_player.volume_set
-              data_template:
-                entity_id: media_player.minis
-                volume_level: "{{states.sensor.speakervolume.state}}"
-            - service: media_player.play_media
-              data:
-                entity_id: media_player.minis
-                media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Fanfare_Item.wav
-                media_content_type: "music"
-                #todo play one clock as well.
-            - delay:
-                minutes: 5
-
-    - alias: DogsCanFlee
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.garageanddooropen
-          to: "on"
-          for:
-            minutes: 3
-      action:
-        - service: script.turn_on
-          entity_id: script.notifyhome
-          data_template:
-            variables:
-              title: Hundene kan stikke av
-              message: Både garasjen og garasjedøra er åpen
-        - condition: template
-          value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
-
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state}}"
-        - service: media_player.play_media
-          data:
-            entity_id: media_player.minis
-            media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Fanfare_Item.wav
-            media_content_type: "music"
-
-    # - id: PlayMediaWhenDoorMagnetOn
-    #   alias: PlayMediaWhenDoorMagnetOn
-    #   trigger:
-    #   - platform: state
-    #     entity_id: binary_sensor.door_livingroom
-    #     to: 'on'
-    #   action:
-    #   - service: media_player.volume_set
-    #     data_template:
-    #       entity_id: media_player.minis
-    #       volume_level: 0.6
-    #   - service: tts.google_say
-    #     entity_id: media_player.minis
-    #     data:
-    #      message: 'Så søt du er, Caroline!'
-    #   - delay:
-    #       seconds: 3
-    #   - service: media_player.volume_set
-    #     data_template:
-    #       entity_id: media_player.minis
-    #       volume_level: 0.5
-
-    - alias: "SvetlanaPaused"
-      trigger:
-        platform: state
-        entity_id: vacuum.xiaomi_vacuum_cleaner
-        to: "paused"
-        from: "cleaning"
-      condition:
-        - condition: template
-          value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
-      action:
-        - service: notify.me
-          data_template:
-            title: "Svetlana was paused."
-            message: "Why?"
-
-    # - alias: 'SvetlanaDone'
-    #   trigger:
-    #     platform: state
-    #     entity_id: vacuum.xiaomi_vacuum_cleaner
-    #     to: 'idle'
-    #     from: 'cleaning'
-    #   action:
-    #   - service: script.turn_on
-    #     entity_id: script.say
-    #     data_template:
-    #       variables:
-    #         message: 'Svetlana er ferdig med å støvsuge.'
-
-    - alias: "WaterBonsai"
-      trigger:
-        platform: state
-        entity_id: binary_sensor.erlendhome
-        to: "on"
-        for:
-          minutes: 15
-      condition:
-        - condition: numeric_state
-          entity_id: sensor.bonsai2_moisture
-          below: 40
-      action:
-        - service: notify.me
-          data_template:
-            message: "Bonsai vil ha vann. Nåværende fuktighet er  {{ states.sensor.bonsai2_moisture.state }}"
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: "Bonsai vil ha vann. Nåværende fuktighet er  {{ states.sensor.bonsai2_moisture.state }}"
-
-    - alias: "WaterAvocado"
-      trigger:
-        platform: state
-        entity_id: binary_sensor.erlendhome
-        to: "on"
-        for:
-          minutes: 16
-      condition:
-        - condition: numeric_state
-          entity_id: sensor.efoy_moisture
-          below: 40
-      action:
-        - service: notify.me
-          data_template:
-            title: "Eføy"
-            message: "Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.efoy_moisture.state }}"
-        - service: script.turn_on
-          entity_id: script.playmessage
-          data_template:
-            message: "Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.efoy_moisture.state }}"
-
-    # - alias: 'WaterAvocado'
-    #   trigger:
-    #     platform: state
-    #     entity_id: plant.avocado
-    #     to: 'problem'
-    #   action:
-    #   - service: notify.me
-    #     data_template:
-    #       message: 'Avocado needs attention: {{ states.plant.avocado.attributes.problem }}'
-    #   - service: media_player.volume_set
-    #     data_template:
-    #       entity_id: media_player.minis
-    #       volume_level: 0.3
-    #   - service: tts.google_say
-    #     entity_id: media_player.minis
-    #     data:
-    #      message: 'Avokadoen vil ha vann!'
-    #   - delay:
-    #       seconds: 10
-    #   - service: media_player.volume_set
-    #     data_template:
-    #       entity_id: media_player.minis
-    #       volume_level: 0.5
-
-    - alias: "SvetlanaHasProblems"
-      trigger:
-        platform: state
-        entity_id: vacuum.xiaomi_vacuum_cleaner
-        to: "error"
-      action:
-        - service: notify.me
-          data_template:
-            message: "Something is wrong with Svetlana. Error message: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.error }}"
-            data:
-              inline_keyboard:
-                - "Start:/startSvetlana, Dock:/dockSvetLana"
-        - service: notify.tv_stua
-          data_template:
-            message: "Something is wrong with Svetlana. Error message: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.error }}"
-
-    #Add TTS for the same trigger, but with condition:
-    # condition:
-    #   - condition: state
-    #     entity_id: group.stilletid
-    #     state: 'off'
-
-    ########################################
-    ########                        ########
-    ########         Garage         ########
-    ########################################
-
-    - id: garageopened
-      alias: garageopened
-      trigger:
-        platform: state
-        entity_id: cover.garage_door
-        to: "open"
-        from: "closed"
-      action:
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: Garasjen ble åpnet
-
-    - id: garageclosed
-      alias: garageclosed
-      trigger:
-        platform: state
-        entity_id: cover.garage_door
-        to: "closed"
-        from: "open"
-      action:
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: Garasjen ble lukket
-
-    - id: garageportopenfor60
-      alias: Garageportopenfor60
-      trigger:
-        platform: state
-        entity_id: cover.garage_door
-        to: "open"
-        for:
-          minutes: 60
-      action:
-        - service: notify.mobile_app_oneplus
-          data_template:
-            title: "Garage has been open for 60 minutes"
-            message: "Close it?"
-            data:
-              actions:
-                - action: closegarage
-                  title: Close it
-                  destructive: true
-                - action: garageRemind
-                  title: Remind me in 5 minutes
-                  destructive: true
-        - service: notify.mobile_app_caroline_pixel
-          data_template:
-            title: "Garage has been open for 60 minutes"
-            message: "Close it?"
-            data:
-              actions:
-                - action: closegarage
-                  title: Close it
-                  destructive: true
-                - action: garageRemind
-                  title: Remind me in 5 minutes
-                  destructive: true
-        - service: notify.tv_stua
-          data:
-            message: The garageport has been open for 60 minutes
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: Garasjen har vært åpen i 60 minutter
-
-    - alias: WasherDone
-      trigger:
-        platform: state
-        entity_id: binary_sensor.washing
-        to: "off"
-        from: "on"
-      action:
-        - service: input_boolean.turn_off
-          entity_id: input_boolean.washer_emptied
-
-    - alias: WasherDoneNotify
-      mode: restart
-      trigger:
-        platform: state
-        entity_id: input_boolean.washer_emptied
-        to: "off"
-      action:
-        repeat:
-          while:
-            - condition: state
-              entity_id: input_boolean.washer_emptied
-              state: "off"
-          sequence:
-            # - condition: template
-            #   value_template: "{{ states.input_select.alarm.state == 'Disarm' }}"
-            - service: script.turn_on
-              entity_id: script.say
-              data_template:
-                variables:
-                  message: Vaskemaskinen er ferdig
-            - service: script.turn_on
-              entity_id: script.notifyhome
-              data_template:
-                variables:
-                  title: Vaskemaskinen er ferdig
-                  message: Vaskemaskinen er ferdig
-                  channel: "washing"
-            - delay:
-                minutes: 40
-
-    - alias: WasherEmptied
-      trigger:
-        - platform: state
-          entity_id:
-            - binary_sensor.grind
-            - binary_sensor.motion_sokkel
-          to: "on"
-          from: "off"
-      condition:
-        - condition: state
-          entity_id: input_boolean.washer_emptied
-          state: "off"
-      action:
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.washer_emptied
-        - service: script.turn_on
-          entity_id: script.notifyhome
-          data_template:
-            variables:
-              title: Vaskemaskinen ble kanskje tømt nå
-              message: Vaskemaskinen ble kanskje tømt nå
-
-    - alias: DryerDone
-      trigger:
-        platform: state
-        entity_id: binary_sensor.drying
-        to: "off"
-        from: "on"
-      action:
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: Tørketrommelen er ferdig
-        - service: script.turn_on
-          entity_id: script.notifyhome
-          data_template:
-            variables:
-              title: Tørketrommelen er ferdig
-              message: Tørketrommelen er ferdig
-
-    ########################################
-    ########                        ########
-    ########         Zoning         ########
-    ########################################
-    - id: CarolineLeavingWork
-      alias: Caroline Leaving Work
-      trigger:
-        - platform: zone
-          entity_id: person.caroline
-          zone: zone.sykehuset
-          # Event is either enter or leave
-          event: leave
-          # for:
-          #   minutes: 2
-        # - platform: zone
-        #   entity_id: person.caroline
-        #   zone: zone.ekra
-        #   event: leave
-        # - platform: zone
-        #   entity_id: person.caroline
-        #   zone: zone.havstein
-        #   event: leave
-        - platform: zone
-          entity_id: person.caroline
-          zone: zone.dalgard
-          event: leave
-        - platform: zone
-          entity_id: person.caroline
-          zone: zone.ugla
-          event: leave
-        # - platform: zone
-        #   entity_id: person.caroline
-        #   zone: zone.mcdonalds
-        #   event: leave
-        # - platform: zone
-        #   entity_id: person.caroline
-        #   zone: zone.nidaros
-        #   event: leave
-        - platform: zone
-          entity_id: person.caroline
-          zone: zone.maria
-          event: leave
-      action:
-        - service: script.turn_on
-          entity_id: script.warmupcominghome
-        - service: notify.me
-          data_template:
-            title: "Caroline is probably home within {{states.sensor.caroline_to_home.state	}} minutes."
-            message: "The time is {{ now().hour }}:{{ now().minute }}."
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: "Mamma er på vei hjem"
-        - service: script.turn_on
-          entity_id: script.blinkliving
-          data_template:
-            variables:
-              color: purple
-
-    - id: ErlendLeavingWork
-      alias: Erlend Leaving Work
-      trigger:
-        - platform: zone
-          entity_id: person.erlend
-          zone: zone.park_work
-          event: leave #or enter
-          # for:
-          #   minutes: 2
-          #This probably needs to be erlend to away from work for 2 minutes
-      condition:
-        - condition: time
-          after: "14:00:00"
-          before: "18:00:00"
-        - condition: template
-          value_template: "{{  states.person.erlend.state == 'away' }}"
-      action:
-        # - wait_for_trigger:
-        #   - platform: state
-        #     entity_id: sensor.erlenddirection
-        #     to: "towards"
-        #   timeout: 10
-        #   continue_on_timeout: false
-        - service: homeassistant.update_entity
-          entity_id: sensor.erlend_to_home, proximity.homeerlend
-        # - wait_for_trigger:
-        #     - platform: template
-        #       value_template: "{{states.sensor.erlenddirection.state == 'towards'}}"
-        #   timeout: "00:10:00"
-        #   continue_on_timeout: false
-        - service: script.turn_on
-          entity_id: script.warmupcominghome
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: >-
-                {%-set last_change = ((as_timestamp(now()) - as_timestamp(states.sensor.erlend_to_home.last_changed))/60) | round(0) %}
-                'Pappa er på vei hjem, og er hjemme om ca {{states.sensor.erlend_to_home.state}} minutter'
-        - service: script.turn_on
-          entity_id: script.blinkliving
-          data_template:
-            variables:
-              color: green
-        - service: notify.me
-          data:
-            title: >-
-              Left work at {{now().hour}}:{{now().minute}}.
-        - delay:
-            minutes: 8
-        - condition: state
-          entity_id: binary_sensor.mailtoday
-          state: "on"
-        - service: script.turn_on
-          entity_id: script.notify
-          data_template:
-            variables:
-              title: Post leveres i dag.
-              message: Post leveres i dag.
-
-    - alias: Erlend Leaving place
-      trigger:
-        - platform: zone
-          entity_id: person.erlend
-          zone: zone.ugla
-          event: leave #or enter
-        # - platform: zone
-        #   entity_id: person.erlend
-        #   zone: zone.work
-        #   event: leave #or enter
-        - platform: zone
-          entity_id: person.erlend
-          zone: zone.dalgard
-          event: leave #or enter
-        - platform: zone
-          entity_id: person.erlend
-          zone: zone.sentrum
-          event: leave #or enter
-        - platform: zone
-          entity_id: person.erlend
-          zone: zone.mcdonalds
-          event: leave
-        - platform: zone
-          entity_id: person.erlend
-          zone: zone.nidaros
-          event: leave
-      action:
-        - service: homeassistant.update_entity
-          entity_id: proximity.homeerlend
-        - wait_for_trigger:
-            - platform: state
-              entity_id: sensor.erlend_to_home
-          timeout: "00:10:00"
-          continue_on_timeout: false
-        - service: notify.me
-          data:
-            title: "left some place. ETA : {{ states.sensor.erlend_to_home.state	}} minutes"
-            message: The time is {{ now().hour }}:{{ now().minute }}
-        - service: script.turn_on
-          entity_id: script.warmupcominghome
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: "Pappa er på vei hjem"
-        - service: script.turn_on
-          entity_id: script.blinkliving
-          data_template:
-            variables:
-              color: green
-
-    - id: ErlendEnteringWork
-      alias: Erlend Entering Work
-      trigger:
-        platform: zone
-        entity_id: person.erlend
-        zone: zone.work
-        # Event is either enter or leave
-        event: enter
-      action:
-        - service: notify.me
-          data:
-            title: Erlend just got to work
-            message: The time is {{ now().hour }}:{{ now().minute }}.
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.alarmclock
-        - service: logbook.log
-          data_template:
-            name: Erlend
-            message: got to work
-        - condition: template
-          value_template: "{{ states.person.caroline.state == 'Sykehuset' and states.input_boolean.tryminkindergarden.state == 'off'}}"
-        - service: notify.me
-          data:
-            title: Forgot kids? Caroline at work, but kids is not in kindergarden.
-            message: Please check.
-
-    - alias: MailTodayNotify
-      trigger:
-        - platform: time
-          at: "13:00:00"
-      condition:
-        - condition: state
-          entity_id: binary_sensor.mailtoday
-          state: "on"
-      action:
-        - service: script.turn_on
-          entity_id: script.notify
-          data_template:
-            variables:
-              title: Post leveres i dag.
-              message: Post leveres i dag.
-        - service: script.turn_on
-          entity_id: script.say
-          data_template:
-            variables:
-              message: "Post leveres i dag."
-  script:
-    say:
-      alias: Announcement over Google Homes
-      mode: queued
-      sequence:
-        - service: tts.google_say
-          entity_id: media_player.mirror
-          data_template:
-            message: "{{message}}"
-        - condition: template
-          value_template: "{{ (states.media_player.living_room_speaker.state != 'playing' and states.media_player.hallway_speaker.state != 'playing') and states.media_player.living_room_speaker.state != 'paused' and states.media_player.hallway_speaker.state != 'paused'}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state}}"
-        - service: tts.google_say
+    action:
+      - condition: template
+        value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
+      - service: media_player.volume_set
+        data_template:
           entity_id: media_player.minis
-          data_template:
-            message: "{{message}}"
-        - delay:
-            seconds: 10
-      # - service: media_player.volume_set
-      #   data_template:
-      #     entity_id: media_player.minis
-      #     volume_level: "{{states.input_number.default_volume_level.state}}"
+          volume_level: "{{states.sensor.speakervolume.state | float(default=0)+ 0.1}}"
+      - service: media_player.play_media
+        data_template:
+          entity_id: media_player.minis
+          #media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Secret.wav
+          #media_content_id: https://hjem.sellie.no/local/sounds/OOT_Navi_Listen1.wav
+          media_content_id: https://hjem.sellie.no/local/sounds/mario_coin.mp3
+          #media_content_id: https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Cheerful+R2D2&filename=ot/OTg5MjI4MzAzOTg5Mzk1__2fUoxQxvD9yY.mp3
+          media_content_type: "music"
+      - service: script.notifymotionshield
+      - delay:
+          seconds: 3
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: "{{states.sensor.speakervolume.state}}"
+      - delay:
+          minutes: 3
 
-    playsound:
-      alias: Play Sound
-      sequence:
-        - condition: template
-          value_template: "{{ states.media_player.living_room_speaker.state != 'playing'}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.hallway_speaker
-            volume_level: "{{(0.2 + (extraVolume or 0.0) | float) | round(2)}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.living_room_speaker
-            volume_level: "{{(0.2 + (extraVolume or 0.0) | float) | round(2)}}"
-        - service: media_player.play_media
+          #### Media for door sensors
+  - alias: NotifyMotionforLocalCamera
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_driveway
+        to: "on"
+    condition:
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
+    action:
+      # - service: notify.me
+      #   data:
+      #     title: 'Motion Driveway'
+      #     message: 'Motion in driveway when armed.'
+      #     data:
+      #       photo:
+      #         url: !secret outdoorcamerastream
+      - service: camera.snapshot
+        data:
+          entity_id: camera.driveway
+          filename: "/config/www/snapshot2.jpg"
+
+  - alias: Dogsafoot
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.door_livingroom
+          - binary_sensor.door_kitchen
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.motion_upstairs
+        state: "off"
+        for:
+          minutes: 10
+      - condition: state
+        entity_id: input_select.alarm
+        state: "Arm Home"
+    action:
+      - service: tts.google_say
+        entity_id: media_player.clock
+        data_template:
+          message: Hundene har gått inn på stua
+      - service: light.turn_on
+        entity_id: light.bedroom
+      - delay:
+          seconds: 2
+      - service: light.turn_off
+        entity_id: light.bedroom
+      - delay:
+          seconds: 2
+      - service: light.turn_on
+        entity_id: light.bedroom
+      - delay:
+          seconds: 2
+      - service: light.turn_off
+        entity_id: light.bedroom
+      - delay:
+          seconds: 2
+      - service: light.turn_on
+        entity_id: light.bedroom
+
+  - alias: KidsAfoot
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.trym_door
+          - binary_sensor.tyra_door
+          # Add living room, in case Virus does something?
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.motion_upstairs
+        state: "off"
+        for:
+          minutes: 10
+      - condition: state
+        entity_id: input_select.alarm
+        state: "Arm Home"
+    action:
+      # Todo do this if some is asleep. Do it on speakers if someone is awake and home.
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.clock
+          volume_level: 0.5
+      - service: tts.google_say
+        entity_id: media_player.clock
+        data_template:
+          message: Trym eller Tyra har gått ut fra rommet sitt
+      - service: light.turn_on
+        entity_id: light.bedroom
+      - delay:
+          seconds: 2
+      - service: light.turn_off
+        entity_id: light.bedroom
+      - delay:
+          seconds: 2
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.clock
+          volume_level: 0.1
+      # - service: light.turn_on
+      #   entity_id: light.bedroom
+      # - delay:
+      #     seconds: 2
+      # - service: light.turn_off
+      #   entity_id: light.bedroom
+      # - delay:
+      #     seconds: 2
+      # - service: light.turn_on
+      #   entity_id: light.bedroom
+
+  - alias: grindOpen
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.stairsexposed
+        to: "on"
+        for:
+          seconds: 10
+    condition:
+      - condition: state
+        entity_id: input_select.alarm
+        state: "Disarm"
+    action:
+      repeat:
+        while:
+          - condition: state
+            entity_id: binary_sensor.stairsexposed
+            state: "on"
+        sequence:
+          - service: script.turn_on
+            entity_id: script.notifyhome
+            data_template:
+              variables:
+                title: Stairs Exposed
+                message: Stairs are exposed!
+          - condition: template
+            value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
+          - service: media_player.volume_set
+            data_template:
+              entity_id: media_player.minis
+              volume_level: 0.4
+          - service: media_player.play_media
+            data:
+              entity_id: media_player.minis
+              media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Fanfare_Item.wav
+              media_content_type: "music"
+          - delay:
+              seconds: 3
+          - service: media_player.volume_set
+            data_template:
+              entity_id: media_player.minis
+              volume_level: "{{states.sensor.speakervolume.state}}"
+          - delay:
+              minutes: 4
+
+  - alias: GrindAndDoorOpen
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.hoveddor
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.grind
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.anykidshomeandawake
+        state: "on"
+    action:
+      - delay:
+          seconds: 3
+      - service: script.turn_on
+        entity_id: script.notifyhome
+        data_template:
+          variables:
+            title: Grinda og hoveddøra
+            message: er åpen!
+      - condition: template
+        value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: 0.4
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.minis
+          media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Fanfare_Item.wav
+          media_content_type: "music"
+      - delay:
+          seconds: 3
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: "{{states.sensor.speakervolume.state}}"
+
+  - alias: GrindOppeOpenFor5minutes
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.upstairstairs
+        to: "on"
+        for:
+          minutes: 5
+    action:
+      repeat:
+        while:
+          - condition: state
+            entity_id: binary_sensor.upstairstairs
+            state: "on"
+        sequence:
+          - service: script.turn_on
+            entity_id: script.notifyhome
+            data_template:
+              variables:
+                title: Stairs Exposed
+                message: Grinda oppe ble ikke lukket
+          - condition: template
+            value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
+          - service: media_player.volume_set
+            data_template:
+              entity_id: media_player.minis
+              volume_level: "{{states.sensor.speakervolume.state}}"
+          - service: media_player.play_media
+            data:
+              entity_id: media_player.minis
+              media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Fanfare_Item.wav
+              media_content_type: "music"
+              #todo play one clock as well.
+          - delay:
+              minutes: 5
+
+  - alias: DogsCanFlee
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.garageanddooropen
+        to: "on"
+        for:
+          minutes: 3
+    action:
+      - service: script.turn_on
+        entity_id: script.notifyhome
+        data_template:
+          variables:
+            title: Hundene kan stikke av
+            message: Både garasjen og garasjedøra er åpen
+      - condition: template
+        value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
+
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: "{{states.sensor.speakervolume.state}}"
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.minis
+          media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Fanfare_Item.wav
+          media_content_type: "music"
+
+  # - id: PlayMediaWhenDoorMagnetOn
+  #   alias: PlayMediaWhenDoorMagnetOn
+  #   trigger:
+  #   - platform: state
+  #     entity_id: binary_sensor.door_livingroom
+  #     to: 'on'
+  #   action:
+  #   - service: media_player.volume_set
+  #     data_template:
+  #       entity_id: media_player.minis
+  #       volume_level: 0.6
+  #   - service: tts.google_say
+  #     entity_id: media_player.minis
+  #     data:
+  #      message: 'Så søt du er, Caroline!'
+  #   - delay:
+  #       seconds: 3
+  #   - service: media_player.volume_set
+  #     data_template:
+  #       entity_id: media_player.minis
+  #       volume_level: 0.5
+
+  - alias: "SvetlanaPaused"
+    trigger:
+      platform: state
+      entity_id: vacuum.xiaomi_vacuum_cleaner
+      to: "paused"
+      from: "cleaning"
+    condition:
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
+    action:
+      - service: notify.me
+        data_template:
+          title: "Svetlana was paused."
+          message: "Why?"
+
+  # - alias: 'SvetlanaDone'
+  #   trigger:
+  #     platform: state
+  #     entity_id: vacuum.xiaomi_vacuum_cleaner
+  #     to: 'idle'
+  #     from: 'cleaning'
+  #   action:
+  #   - service: script.turn_on
+  #     entity_id: script.say
+  #     data_template:
+  #       variables:
+  #         message: 'Svetlana er ferdig med å støvsuge.'
+
+  - alias: "WaterBonsai"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.erlendhome
+      to: "on"
+      for:
+        minutes: 15
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.bonsai2_moisture
+        below: 40
+    action:
+      - service: notify.me
+        data_template:
+          message: "Bonsai vil ha vann. Nåværende fuktighet er  {{ states.sensor.bonsai2_moisture.state }}"
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "Bonsai vil ha vann. Nåværende fuktighet er  {{ states.sensor.bonsai2_moisture.state }}"
+
+  - alias: "WaterAvocado"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.erlendhome
+      to: "on"
+      for:
+        minutes: 16
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.efoy_moisture
+        below: 40
+    action:
+      - service: notify.me
+        data_template:
+          title: "Eføy"
+          message: "Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.efoy_moisture.state }}"
+      - service: script.turn_on
+        entity_id: script.playmessage
+        data_template:
+          message: "Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.efoy_moisture.state }}"
+
+  # - alias: 'WaterAvocado'
+  #   trigger:
+  #     platform: state
+  #     entity_id: plant.avocado
+  #     to: 'problem'
+  #   action:
+  #   - service: notify.me
+  #     data_template:
+  #       message: 'Avocado needs attention: {{ states.plant.avocado.attributes.problem }}'
+  #   - service: media_player.volume_set
+  #     data_template:
+  #       entity_id: media_player.minis
+  #       volume_level: 0.3
+  #   - service: tts.google_say
+  #     entity_id: media_player.minis
+  #     data:
+  #      message: 'Avokadoen vil ha vann!'
+  #   - delay:
+  #       seconds: 10
+  #   - service: media_player.volume_set
+  #     data_template:
+  #       entity_id: media_player.minis
+  #       volume_level: 0.5
+
+  - alias: "SvetlanaHasProblems"
+    trigger:
+      platform: state
+      entity_id: vacuum.xiaomi_vacuum_cleaner
+      to: "error"
+    action:
+      - service: notify.me
+        data_template:
+          message: "Something is wrong with Svetlana. Error message: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.error }}"
           data:
-            entity_id: media_player.minis
-            media_content_id: "{{sound}}"
-            media_content_type: "music"
-        - delay:
-            seconds: 3
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state}}"
+            inline_keyboard:
+              - "Start:/startSvetlana, Dock:/dockSvetLana"
+      - service: notify.tv_stua
+        data_template:
+          message: "Something is wrong with Svetlana. Error message: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.error }}"
 
-    playmessageenglish:
-      alias: Play Message English
-      sequence:
-        # - condition: state
-        #   entity_id: input_boolean.trymasleep
-        #   state: 'off'
-        - condition: template
-          value_template: "{{ states.media_player.living_room_speaker.state != 'playing'}}"
-        - condition: template
-          value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: 0.4
-        - service: tts.cloud_say
-          data_template:
-            entity_id: media_player.minis
-            message: "{{message}}"
-        - delay:
-            seconds: 3
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state}}"
+  #Add TTS for the same trigger, but with condition:
+  # condition:
+  #   - condition: state
+  #     entity_id: group.stilletid
+  #     state: 'off'
 
-    playmessage:
-      alias: Play Message
-      sequence:
-        #  - condition: state
-        #    entity_id: input_boolean.trymasleep
-        #    state: 'off'
-        - condition: template
-          value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
-        - condition: template
-          value_template: "{{ states.media_player.living_room_speaker.state != 'playing'}}"
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: 0.4
-        - service: tts.google_say
-          data_template:
-            entity_id: media_player.minis
-            message: "{{message}}"
-            language: "no"
-        - delay:
-            seconds: 3
-        - service: media_player.volume_set
-          data_template:
-            entity_id: media_player.minis
-            volume_level: "{{states.sensor.speakervolume.state}}"
+  ########################################
+  ########                        ########
+  ########         Garage         ########
+  ########################################
+
+  - id: garageopened
+    alias: garageopened
+    trigger:
+      platform: state
+      entity_id: cover.garage_door
+      to: "open"
+      from: "closed"
+    action:
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: Garasjen ble åpnet
+
+  - id: garageclosed
+    alias: garageclosed
+    trigger:
+      platform: state
+      entity_id: cover.garage_door
+      to: "closed"
+      from: "open"
+    action:
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: Garasjen ble lukket
+
+  - id: garageportopenfor60
+    alias: Garageportopenfor60
+    trigger:
+      platform: state
+      entity_id: cover.garage_door
+      to: "open"
+      for:
+        minutes: 60
+    action:
+      - service: notify.mobile_app_oneplus
+        data_template:
+          title: "Garage has been open for 60 minutes"
+          message: "Close it?"
+          data:
+            actions:
+              - action: closegarage
+                title: Close it
+                destructive: true
+              - action: garageRemind
+                title: Remind me in 5 minutes
+                destructive: true
+      - service: notify.mobile_app_caroline_pixel
+        data_template:
+          title: "Garage has been open for 60 minutes"
+          message: "Close it?"
+          data:
+            actions:
+              - action: closegarage
+                title: Close it
+                destructive: true
+              - action: garageRemind
+                title: Remind me in 5 minutes
+                destructive: true
+      - service: notify.tv_stua
+        data:
+          message: The garageport has been open for 60 minutes
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: Garasjen har vært åpen i 60 minutter
+
+  - alias: WasherDone
+    trigger:
+      platform: state
+      entity_id: binary_sensor.washing
+      to: "off"
+      from: "on"
+    action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.washer_emptied
+
+  - alias: WasherDoneNotify
+    mode: restart
+    trigger:
+      platform: state
+      entity_id: input_boolean.washer_emptied
+      to: "off"
+    action:
+      repeat:
+        while:
+          - condition: state
+            entity_id: input_boolean.washer_emptied
+            state: "off"
+        sequence:
+          # - condition: template
+          #   value_template: "{{ states.input_select.alarm.state == 'Disarm' }}"
+          - service: script.turn_on
+            entity_id: script.say
+            data_template:
+              variables:
+                message: Vaskemaskinen er ferdig
+          - service: script.turn_on
+            entity_id: script.notifyhome
+            data_template:
+              variables:
+                title: Vaskemaskinen er ferdig
+                message: Vaskemaskinen er ferdig
+                channel: "washing"
+          - delay:
+              minutes: 40
+
+  - alias: WasherEmptied
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.grind
+          - binary_sensor.motion_sokkel
+        to: "on"
+        from: "off"
+    condition:
+      - condition: state
+        entity_id: input_boolean.washer_emptied
+        state: "off"
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.washer_emptied
+      - service: script.turn_on
+        entity_id: script.notifyhome
+        data_template:
+          variables:
+            title: Vaskemaskinen ble kanskje tømt nå
+            message: Vaskemaskinen ble kanskje tømt nå
+
+  - alias: DryerDone
+    trigger:
+      platform: state
+      entity_id: binary_sensor.drying
+      to: "off"
+      from: "on"
+    action:
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: Tørketrommelen er ferdig
+      - service: script.turn_on
+        entity_id: script.notifyhome
+        data_template:
+          variables:
+            title: Tørketrommelen er ferdig
+            message: Tørketrommelen er ferdig
+
+  ########################################
+  ########                        ########
+  ########         Zoning         ########
+  ########################################
+  - id: CarolineLeavingWork
+    alias: Caroline Leaving Work
+    trigger:
+      - platform: zone
+        entity_id: person.caroline
+        zone: zone.sykehuset
+        # Event is either enter or leave
+        event: leave
+        # for:
+        #   minutes: 2
+      # - platform: zone
+      #   entity_id: person.caroline
+      #   zone: zone.ekra
+      #   event: leave
+      # - platform: zone
+      #   entity_id: person.caroline
+      #   zone: zone.havstein
+      #   event: leave
+      - platform: zone
+        entity_id: person.caroline
+        zone: zone.dalgard
+        event: leave
+      - platform: zone
+        entity_id: person.caroline
+        zone: zone.ugla
+        event: leave
+      # - platform: zone
+      #   entity_id: person.caroline
+      #   zone: zone.mcdonalds
+      #   event: leave
+      # - platform: zone
+      #   entity_id: person.caroline
+      #   zone: zone.nidaros
+      #   event: leave
+      - platform: zone
+        entity_id: person.caroline
+        zone: zone.maria
+        event: leave
+    action:
+      - service: script.turn_on
+        entity_id: script.warmupcominghome
+      - service: notify.me
+        data_template:
+          title: "Caroline is probably home within {{states.sensor.caroline_to_home.state	}} minutes."
+          message: "The time is {{ now().hour }}:{{ now().minute }}."
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "Mamma er på vei hjem"
+      - service: script.turn_on
+        entity_id: script.blinkliving
+        data_template:
+          variables:
+            color: purple
+
+  - id: ErlendLeavingWork
+    alias: Erlend Leaving Work
+    trigger:
+      - platform: zone
+        entity_id: person.erlend
+        zone: zone.park_work
+        event: leave #or enter
+        # for:
+        #   minutes: 2
+        #This probably needs to be erlend to away from work for 2 minutes
+    condition:
+      - condition: time
+        after: "14:00:00"
+        before: "18:00:00"
+      - condition: template
+        value_template: "{{  states.person.erlend.state == 'away' }}"
+    action:
+      # - wait_for_trigger:
+      #   - platform: state
+      #     entity_id: sensor.erlenddirection
+      #     to: "towards"
+      #   timeout: 10
+      #   continue_on_timeout: false
+      - service: homeassistant.update_entity
+        entity_id: sensor.erlend_to_home, proximity.homeerlend
+      # - wait_for_trigger:
+      #     - platform: template
+      #       value_template: "{{states.sensor.erlenddirection.state == 'towards'}}"
+      #   timeout: "00:10:00"
+      #   continue_on_timeout: false
+      - service: script.turn_on
+        entity_id: script.warmupcominghome
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: >-
+              {%-set last_change = ((as_timestamp(now()) - as_timestamp(states.sensor.erlend_to_home.last_changed))/60) | round(0) %}
+              'Pappa er på vei hjem, og er hjemme om ca {{states.sensor.erlend_to_home.state}} minutter'
+      - service: script.turn_on
+        entity_id: script.blinkliving
+        data_template:
+          variables:
+            color: green
+      - service: notify.me
+        data:
+          title: >-
+            Left work at {{now().hour}}:{{now().minute}}.
+      - delay:
+          minutes: 8
+      - condition: state
+        entity_id: binary_sensor.mailtoday
+        state: "on"
+      - service: script.turn_on
+        entity_id: script.notify
+        data_template:
+          variables:
+            title: Post leveres i dag.
+            message: Post leveres i dag.
+
+  - alias: Erlend Leaving place
+    trigger:
+      - platform: zone
+        entity_id: person.erlend
+        zone: zone.ugla
+        event: leave #or enter
+      # - platform: zone
+      #   entity_id: person.erlend
+      #   zone: zone.work
+      #   event: leave #or enter
+      - platform: zone
+        entity_id: person.erlend
+        zone: zone.dalgard
+        event: leave #or enter
+      - platform: zone
+        entity_id: person.erlend
+        zone: zone.sentrum
+        event: leave #or enter
+      - platform: zone
+        entity_id: person.erlend
+        zone: zone.mcdonalds
+        event: leave
+      - platform: zone
+        entity_id: person.erlend
+        zone: zone.nidaros
+        event: leave
+    action:
+      - service: homeassistant.update_entity
+        entity_id: proximity.homeerlend
+      - wait_for_trigger:
+          - platform: state
+            entity_id: sensor.erlend_to_home
+        timeout: "00:10:00"
+        continue_on_timeout: false
+      - service: notify.me
+        data:
+          title: "left some place. ETA : {{ states.sensor.erlend_to_home.state	}} minutes"
+          message: The time is {{ now().hour }}:{{ now().minute }}
+      - service: script.turn_on
+        entity_id: script.warmupcominghome
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "Pappa er på vei hjem"
+      - service: script.turn_on
+        entity_id: script.blinkliving
+        data_template:
+          variables:
+            color: green
+
+  - id: ErlendEnteringWork
+    alias: Erlend Entering Work
+    trigger:
+      platform: zone
+      entity_id: person.erlend
+      zone: zone.work
+      # Event is either enter or leave
+      event: enter
+    action:
+      - service: notify.me
+        data:
+          title: Erlend just got to work
+          message: The time is {{ now().hour }}:{{ now().minute }}.
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.alarmclock
+      - service: logbook.log
+        data_template:
+          name: Erlend
+          message: got to work
+      - condition: template
+        value_template: "{{ states.person.caroline.state == 'Sykehuset' and states.input_boolean.tryminkindergarden.state == 'off'}}"
+      - service: notify.me
+        data:
+          title: Forgot kids? Caroline at work, but kids is not in kindergarden.
+          message: Please check.
+
+  - alias: MailTodayNotify
+    trigger:
+      - platform: time
+        at: "13:00:00"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.mailtoday
+        state: "on"
+    action:
+      - service: script.turn_on
+        entity_id: script.notify
+        data_template:
+          variables:
+            title: Post leveres i dag.
+            message: Post leveres i dag.
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "Post leveres i dag."
+script:
+  say:
+    alias: Announcement over Google Homes
+    mode: queued
+    sequence:
+      - service: tts.google_say
+        entity_id: media_player.mirror
+        data_template:
+          message: "{{message}}"
+      - condition: template
+        value_template: "{{ (states.media_player.living_room_speaker.state != 'playing' and states.media_player.hallway_speaker.state != 'playing') and states.media_player.living_room_speaker.state != 'paused' and states.media_player.hallway_speaker.state != 'paused'}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: "{{states.sensor.speakervolume.state}}"
+      - service: tts.google_say
+        entity_id: media_player.minis
+        data_template:
+          message: "{{message}}"
+      - delay:
+          seconds: 10
+    # - service: media_player.volume_set
+    #   data_template:
+    #     entity_id: media_player.minis
+    #     volume_level: "{{states.input_number.default_volume_level.state}}"
+
+  playsound:
+    alias: Play Sound
+    sequence:
+      - condition: template
+        value_template: "{{ states.media_player.living_room_speaker.state != 'playing'}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.hallway_speaker
+          volume_level: "{{(0.2 + (extraVolume or 0.0) | float) | round(2)}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.living_room_speaker
+          volume_level: "{{(0.2 + (extraVolume or 0.0) | float) | round(2)}}"
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.minis
+          media_content_id: "{{sound}}"
+          media_content_type: "music"
+      - delay:
+          seconds: 3
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: "{{states.sensor.speakervolume.state}}"
+
+  playmessageenglish:
+    alias: Play Message English
+    sequence:
+      # - condition: state
+      #   entity_id: input_boolean.trymasleep
+      #   state: 'off'
+      - condition: template
+        value_template: "{{ states.media_player.living_room_speaker.state != 'playing'}}"
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: 0.4
+      - service: tts.cloud_say
+        data_template:
+          entity_id: media_player.minis
+          message: "{{message}}"
+      - delay:
+          seconds: 3
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: "{{states.sensor.speakervolume.state}}"
+
+  playmessage:
+    alias: Play Message
+    sequence:
+      #  - condition: state
+      #    entity_id: input_boolean.trymasleep
+      #    state: 'off'
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+      - condition: template
+        value_template: "{{ states.media_player.living_room_speaker.state != 'playing'}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: 0.4
+      - service: tts.google_say
+        data_template:
+          entity_id: media_player.minis
+          message: "{{message}}"
+          language: "no"
+      - delay:
+          seconds: 3
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.minis
+          volume_level: "{{states.sensor.speakervolume.state}}"

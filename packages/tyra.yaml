@@ -1,297 +1,296 @@
-tyra:
-  template:
-    - sensor:
-        - name: "tyra_traffic_color"
-          state: >-
-            {%set hour = now().hour%}
-            {%set isWeekend = now().weekday() == 6 or now().weekday() == 7%}
-            {%set onlyErlendHome = states('sensor.peoplehome') == 'Erlend'%}
+template:
+  - sensor:
+      - name: "tyra_traffic_color"
+        state: >-
+          {%set hour = now().hour%}
+          {%set isWeekend = now().weekday() == 6 or now().weekday() == 7%}
+          {%set onlyErlendHome = states('sensor.peoplehome') == 'Erlend'%}
 
-            {%if isWeekend and onlyErlendHome%}
-              {%if hour > 21 or hour < 6%}
-                red
-              {%elif hour < 8%}
-                gold
-              {%elif hour >= 8%}
-                green
-              {%endif%}
-            {%else%}
-              {%if hour > 21 or hour < 6%}
-                red
-              {%elif hour < 7%}
-                gold
-              {%elif hour >= 7%}
-                green
-              {%endif%} 
+          {%if isWeekend and onlyErlendHome%}
+            {%if hour > 21 or hour < 6%}
+              red
+            {%elif hour < 8%}
+              gold
+            {%elif hour >= 8%}
+              green
             {%endif%}
-  binary_sensor:
-    - platform: template
-      sensors:
-        tyrasleepingoutside:
-          friendly_name: Tyra Probably sleeping outside
-          value_template: >
-            {{false}}
+          {%else%}
+            {%if hour > 21 or hour < 6%}
+              red
+            {%elif hour < 7%}
+              gold
+            {%elif hour >= 7%}
+              green
+            {%endif%} 
+          {%endif%}
+binary_sensor:
+  - platform: template
+    sensors:
+      tyrasleepingoutside:
+        friendly_name: Tyra Probably sleeping outside
+        value_template: >
+          {{false}}
 
-  automation:
-    - alias: "tyraSoverOff"
-      trigger:
-        platform: state
-        entity_id: input_boolean.tyraasleep
+automation:
+  - alias: "tyraSoverOff"
+    trigger:
+      platform: state
+      entity_id: input_boolean.tyraasleep
+      to: "off"
+    # condition:
+    # - condition: state
+    #   entity_id:  group.erlend
+    #   state: 'home'
+    action:
+      # - service: input_number.set_value
+      #   entity_id: input_number.tyraasleeptime
+      #   data_template:
+      #       value: "{{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveron.attributes.last_triggered)) / 60) | round(0)}}"
+      - service: script.turn_on
+        entity_id: script.notifyboth
+        data_template:
+          variables:
+            title: "Tyra sover ble slått av"
+            message: "Hun sov i {{states.sensor.tyrasleeptimeformatted.state}} minutter."
+
+  # - alias: 'askToTurnOnTyraSover'
+  #   trigger:
+  #     platform: state
+  #     entity_id: binary_sensor.motion_bedroom
+  #     to: 'on'
+  #   condition:
+  #     condition: and
+  #     conditions:
+  #     - condition: state
+  #       entity_id: input_boolean.tyraasleep
+  #       state: 'off'
+  #     - condition: time
+  #       after: '18:45:00'
+  #   action:
+  #   - service: notify.mobile_app_oneplus
+  #     data_template:
+  #       title: 'Slå på'
+  #       message: 'Tyra sover?'
+  #       data:
+  #         actions:
+  #           - action: tyrasoveron
+  #             title: Ja
+  #             destructive: true
+  #   - service: notify.mobile_app_caroline_pixel
+  #     data_template:
+  #       title: 'Slå på'
+  #       message: 'Tyra sover?'
+  #       data:
+  #         actions:
+  #           - action: tyrasoveron
+  #             title: Ja
+  #             destructive: true
+
+  - alias: "tyraSoverOn"
+    trigger:
+      platform: state
+      entity_id: input_boolean.tyraasleep
+      to: "on"
+    # condition:
+    # - condition: state
+    #   entity_id:  group.erlend
+    #   state: 'home'
+    action:
+      - service: script.turn_on
+        entity_id: script.notifyboth
+        data_template:
+          variables:
+            title: "Tyra sover ble slått på"
+            message: "Tyra sover ble slått på"
+
+  # - alias: 'turnOffTyraAsleepByCaroline'
+  #   trigger:
+  #   - platform: state
+  #     entity_id: input_boolean.casleep
+  #     to: 'off'
+  #   action:
+  #   - service: input_boolean.turn_off
+  #     entity_id: input_boolean.tyraasleep
+
+  # - alias: 'turnOnTyraAsleep'
+  #   trigger:
+  #   - platform: state
+  #     entity_id: input_boolean.casleep
+  #     to: 'on'
+  #   - platform: event
+  #     event_type: mobile_app_notification_action
+  #     event_data:
+  #       action: tyrasoveron
+  #   action:
+  #   - service: input_boolean.turn_on
+  #     entity_id: input_boolean.tyraasleep
+
+  - alias: "TurnOnTyraAsleepByLight"
+    trigger:
+      - platform: state
+        entity_id: light.tyra
         to: "off"
-      # condition:
-      # - condition: state
-      #   entity_id:  group.erlend
-      #   state: 'home'
-      action:
-        # - service: input_number.set_value
-        #   entity_id: input_number.tyraasleeptime
-        #   data_template:
-        #       value: "{{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveron.attributes.last_triggered)) / 60) | round(0)}}"
-        - service: script.turn_on
-          entity_id: script.notifyboth
-          data_template:
-            variables:
-              title: "Tyra sover ble slått av"
-              message: "Hun sov i {{states.sensor.tyrasleeptimeformatted.state}} minutter."
+    condition:
+      - condition: time
+        after: "11:30:00"
+        before: "12:45:00"
+      - condition: state
+        entity_id: binary_sensor.tyra_motion
+        state: "on"
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.tyraasleep
 
-    # - alias: 'askToTurnOnTyraSover'
-    #   trigger:
-    #     platform: state
-    #     entity_id: binary_sensor.motion_bedroom
-    #     to: 'on'
-    #   condition:
-    #     condition: and
-    #     conditions:
-    #     - condition: state
-    #       entity_id: input_boolean.tyraasleep
-    #       state: 'off'
-    #     - condition: time
-    #       after: '18:45:00'
-    #   action:
-    #   - service: notify.mobile_app_oneplus
-    #     data_template:
-    #       title: 'Slå på'
-    #       message: 'Tyra sover?'
-    #       data:
-    #         actions:
-    #           - action: tyrasoveron
-    #             title: Ja
-    #             destructive: true
-    #   - service: notify.mobile_app_caroline_pixel
-    #     data_template:
-    #       title: 'Slå på'
-    #       message: 'Tyra sover?'
-    #       data:
-    #         actions:
-    #           - action: tyrasoveron
-    #             title: Ja
-    #             destructive: true
+  - alias: "TurnOTyraAsleepByDoor"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.tyra_door
+        to: "off"
+      - platform: state
+        entity_id: binary_sensor.tyra_motion
+        to: "on"
+    condition:
+      - condition: time
+        after: "18:20:00"
+        before: "23:00:00"
+      - condition: state
+        entity_id: input_boolean.tyraasleep
+        state: "off"
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.tyraasleep
 
-    - alias: "tyraSoverOn"
-      trigger:
-        platform: state
+  - alias: "TurnOfftyraAsleepByDoor"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.tyra_door
+        to: "on"
+    condition:
+      # condition: time
+      # after: "04:10:00"
+      # before: "18:00:00"
+      - condition: template
+        value_template: "{{ states('sensor.tyra_traffic_color') != 'red'}}"
+    action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.tyraasleep
+
+  - alias: "TurnOntyraAsleepAtTime"
+    trigger:
+      - platform: time
+        at: "20:30:00"
+    # - platform: time
+    #   at: '20:15:00'
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.tyraasleep
+
+  # - alias: 'TurnOfftyraAsleepAtTime'
+  #   trigger:
+  #     platform: time
+  #     at: '09:30:00'
+  #   action:
+  #   - service: input_boolean.turn_off
+  #     entity_id: input_boolean.tyraasleep
+
+  - alias: turnOnNightLigthTyra
+    trigger:
+      - platform: state
         entity_id: input_boolean.tyraasleep
         to: "on"
-      # condition:
-      # - condition: state
-      #   entity_id:  group.erlend
-      #   state: 'home'
-      action:
-        - service: script.turn_on
-          entity_id: script.notifyboth
-          data_template:
-            variables:
-              title: "Tyra sover ble slått på"
-              message: "Tyra sover ble slått på"
+        # for:
+        #   seconds: 10
+      - platform: state
+        entity_id: input_select.alarm
+        to: "Arm Home"
+        for:
+          minutes: 30
+    condition:
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state != 'Arm Away' }}"
+    action:
+      - service: light.turn_on
+        data_template:
+          brightness_pct: "1"
+          entity_id:
+            - light.tyra_1
+      - service: light.turn_on
+        data_template:
+          brightness_pct: "1"
+          entity_id:
+            - light.tyra_ball
+          color_name: "DeepPink"
+      # - service: light.turn_on
+      #   entity_id: light.upstairs
+      #   data_template:
+      #     brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
+  # #delay and then turn off?
 
-    # - alias: 'turnOffTyraAsleepByCaroline'
-    #   trigger:
-    #   - platform: state
-    #     entity_id: input_boolean.casleep
-    #     to: 'off'
-    #   action:
-    #   - service: input_boolean.turn_off
-    #     entity_id: input_boolean.tyraasleep
+  - alias: TyraTemp
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - platform: state
+        entity_id: sensor.tyratemp
+      - platform: state
+        entity_id: input_boolean.tyraasleep
+    action:
+      - service: climate.set_temperature
+        entity_id: climate.tyra_heater
+        data_template:
+          temperature: "{{states.sensor.tyratemp.state | float}}"
 
-    # - alias: 'turnOnTyraAsleep'
-    #   trigger:
-    #   - platform: state
-    #     entity_id: input_boolean.casleep
-    #     to: 'on'
-    #   - platform: event
-    #     event_type: mobile_app_notification_action
-    #     event_data:
-    #       action: tyrasoveron
-    #   action:
-    #   - service: input_boolean.turn_on
-    #     entity_id: input_boolean.tyraasleep
+  - alias: "TyraHeaterOn"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.tyra_window
+        to: "off"
+    action:
+      - service: climate.turn_on
+        entity_id: climate.tyra_heater
 
-    - alias: "TurnOnTyraAsleepByLight"
-      trigger:
-        - platform: state
-          entity_id: light.tyra
-          to: "off"
-      condition:
-        - condition: time
-          after: "11:30:00"
-          before: "12:45:00"
-        - condition: state
-          entity_id: binary_sensor.tyra_motion
-          state: "on"
-      action:
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.tyraasleep
+  - alias: "TyraHeaterOff"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.tyra_window
+        to: "on"
+    action:
+      - service: climate.turn_off
+        entity_id: climate.tyra_heater
 
-    - alias: "TurnOTyraAsleepByDoor"
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.tyra_door
-          to: "off"
-        - platform: state
-          entity_id: binary_sensor.tyra_motion
-          to: "on"
-      condition:
-        - condition: time
-          after: "18:20:00"
-          before: "23:00:00"
-        - condition: state
-          entity_id: input_boolean.tyraasleep
-          state: "off"
-      action:
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.tyraasleep
-
-    - alias: "TurnOfftyraAsleepByDoor"
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.tyra_door
-          to: "on"
-      condition:
-        # condition: time
-        # after: "04:10:00"
-        # before: "18:00:00"
-        - condition: template
-          value_template: "{{ states('sensor.tyra_traffic_color') != 'red'}}"
-      action:
-        - service: input_boolean.turn_off
-          entity_id: input_boolean.tyraasleep
-
-    - alias: "TurnOntyraAsleepAtTime"
-      trigger:
-        - platform: time
-          at: "20:30:00"
-      # - platform: time
-      #   at: '20:15:00'
-      action:
-        - service: input_boolean.turn_on
-          entity_id: input_boolean.tyraasleep
-
-    # - alias: 'TurnOfftyraAsleepAtTime'
-    #   trigger:
-    #     platform: time
-    #     at: '09:30:00'
-    #   action:
-    #   - service: input_boolean.turn_off
-    #     entity_id: input_boolean.tyraasleep
-
-    - alias: turnOnNightLigthTyra
-      trigger:
-        - platform: state
-          entity_id: input_boolean.tyraasleep
-          to: "on"
-          # for:
-          #   seconds: 10
-        - platform: state
-          entity_id: input_select.alarm
-          to: "Arm Home"
-          for:
-            minutes: 30
-      condition:
-        - condition: template
-          value_template: "{{ states.input_select.alarm.state != 'Arm Away' }}"
-      action:
-        - service: light.turn_on
-          data_template:
-            brightness_pct: "1"
-            entity_id:
-              - light.tyra_1
-        - service: light.turn_on
-          data_template:
-            brightness_pct: "1"
-            entity_id:
-              - light.tyra_ball
-            color_name: "DeepPink"
-        # - service: light.turn_on
-        #   entity_id: light.upstairs
-        #   data_template:
-        #     brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
-    # #delay and then turn off?
-
-    - alias: TyraTemp
-      mode: single
-      max_exceeded: silent
-      trigger:
-        - platform: state
-          entity_id: sensor.tyratemp
-        - platform: state
-          entity_id: input_boolean.tyraasleep
-      action:
-        - service: climate.set_temperature
-          entity_id: climate.tyra_heater
-          data_template:
-            temperature: "{{states.sensor.tyratemp.state | float}}"
-
-    - alias: "TyraHeaterOn"
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.tyra_window
-          to: "off"
-      action:
-        - service: climate.turn_on
-          entity_id: climate.tyra_heater
-
-    - alias: "TyraHeaterOff"
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.tyra_window
-          to: "on"
-      action:
-        - service: climate.turn_off
-          entity_id: climate.tyra_heater
-
-    - alias: turnOnTyraLight
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.tyra_door
-          to: "on"
-        - platform: state
-          entity_id: binary_sensor.tyra_motion
-          to: "on"
-      condition:
-        - condition: state
-          entity_id: input_boolean.tyraasleep
-          state: "off"
-      action:
-        - service: light.turn_on
-          entity_id: light.tyra
-          data_template:
-            brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
-        - service: light.turn_on
-          data:
-            brightness_pct: "100"
-            entity_id: light.tyra_ball
-            color_name: "DeepPink"
-        - wait_for_trigger:
-            - platform: state
-              entity_id: binary_sensor.tyra_motion
-              to: "off"
-              for:
-                minutes: 4
-          timeout: "00:20:00"
-          continue_on_timeout: true
-        - condition: template
-          value_template: "{{ states.input_boolean.tyraasleep.state == 'off' }}"
-        - service: light.turn_off
-          entity_id: light.tyra
-        - service: light.turn_off
+  - alias: turnOnTyraLight
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.tyra_door
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.tyra_motion
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.tyraasleep
+        state: "off"
+    action:
+      - service: light.turn_on
+        entity_id: light.tyra
+        data_template:
+          brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
+      - service: light.turn_on
+        data:
+          brightness_pct: "100"
           entity_id: light.tyra_ball
+          color_name: "DeepPink"
+      - wait_for_trigger:
+          - platform: state
+            entity_id: binary_sensor.tyra_motion
+            to: "off"
+            for:
+              minutes: 4
+        timeout: "00:20:00"
+        continue_on_timeout: true
+      - condition: template
+        value_template: "{{ states.input_boolean.tyraasleep.state == 'off' }}"
+      - service: light.turn_off
+        entity_id: light.tyra
+      - service: light.turn_off
+        entity_id: light.tyra_ball

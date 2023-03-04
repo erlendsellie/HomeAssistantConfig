@@ -1,41 +1,40 @@
-zigbee2mqtt:
-  template:
-    - binary_sensor:
-        - name: "Z2M Devices Unavailable"
-          delay_off:
-            minutes: 5
-          state: >-
-            {% set found = namespace(found=false) %}
+template:
+  - binary_sensor:
+      - name: "Z2M Devices Unavailable"
+        delay_off:
+          minutes: 5
+        state: >-
+          {% set found = namespace(found=false) %}
+          {%-for item in states.sensor if (item.attributes.linkquality is defined)-%}
+          {%set name = item.attributes.friendly_name%}
+          {%-if item.attributes.linkquality | float(default=0) < 1
+          and 'Smoke' not in name
+          and 'Cube' not in name
+          and 'Water' not in name
+          -%}
+          {%set found.found = true%}
+          {%endif%}
+          {%- endfor -%}
+          {{found.found}}
+
+automation:
+  - alias: "Z2mDeviceUnavailable"
+    id: "Z2mDeviceUnavailable"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.z2m_devices_unavailable
+        to: "on"
+    action:
+      - service: notify.me
+        data_template:
+          message: >-
+            Zigbee Device unavailable?:  
             {%-for item in states.sensor if (item.attributes.linkquality is defined)-%}
             {%set name = item.attributes.friendly_name%}
             {%-if item.attributes.linkquality | float(default=0) < 1
             and 'Smoke' not in name
             and 'Cube' not in name
-            and 'Water' not in name
-            -%}
-            {%set found.found = true%}
+            and 'Water' not in name-%}
+              {{-item.attributes.friendly_name-}} , 
             {%endif%}
             {%- endfor -%}
-            {{found.found}}
-
-  automation:
-    - alias: "Z2mDeviceUnavailable"
-      id: "Z2mDeviceUnavailable"
-      trigger:
-        - platform: state
-          entity_id: binary_sensor.z2m_devices_unavailable
-          to: "on"
-      action:
-        - service: notify.me
-          data_template:
-            message: >-
-              Zigbee Device unavailable?:  
-              {%-for item in states.sensor if (item.attributes.linkquality is defined)-%}
-              {%set name = item.attributes.friendly_name%}
-              {%-if item.attributes.linkquality | float(default=0) < 1
-              and 'Smoke' not in name
-              and 'Cube' not in name
-              and 'Water' not in name-%}
-                {{-item.attributes.friendly_name-}} , 
-              {%endif%}
-              {%- endfor -%}

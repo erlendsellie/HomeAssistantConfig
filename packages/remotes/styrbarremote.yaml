@@ -1,48 +1,47 @@
-styrbarremote:
-  automation:
-    - alias: styrbarremote
-      id: styrbarremote
-      trigger:
-        - platform: event
-          event_type: deconz_event
-          event_data:
-            id: ikea_styrbar
-      action:
-        - variables:
-            button: "{{trigger.event.data.event}}"
-            up: 1002
-            down: 2002
-            left: 3002
-            right: 4002
-        - choose:
-            - conditions:
-                - condition: template
-                  value_template: "{{ button == up}}"
-              sequence:
-                - service: light.turn_on
-                  entity_id: light.play, light.office_light
-            - conditions:
-                - condition: template
-                  value_template: "{{ button == down}}"
-              sequence:
-                - service: light.turn_off
-                  entity_id: light.play, light.office_light
-            - conditions:
-                - condition: template
-                  value_template: "{{ button == left}}"
-              sequence:
-                - service: light.turn_on
-                  entity_id: light.play, light.office_light
-            - conditions:
-                - condition: template
-                  value_template: "{{ button == right}}"
-              sequence:
-                - service: light.turn_off
-                  entity_id: light.play, light.office_light
-          default:
-            - service: notify.me
-              data:
-                message: Triggered unregistered event on Styrbar remote {{trigger.event.data.event}}"
+automation:
+  - alias: styrbarremote
+    id: styrbarremote
+    trigger:
+      - platform: event
+        event_type: deconz_event
+        event_data:
+          id: ikea_styrbar
+    action:
+      - variables:
+          button: "{{trigger.event.data.event}}"
+          up: 1002
+          down: 2002
+          left: 3002
+          right: 4002
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ button == up}}"
+            sequence:
+              - service: light.turn_on
+                entity_id: light.play, light.office_light
+          - conditions:
+              - condition: template
+                value_template: "{{ button == down}}"
+            sequence:
+              - service: light.turn_off
+                entity_id: light.play, light.office_light
+          - conditions:
+              - condition: template
+                value_template: "{{ button == left}}"
+            sequence:
+              - service: light.turn_on
+                entity_id: light.play, light.office_light
+          - conditions:
+              - condition: template
+                value_template: "{{ button == right}}"
+            sequence:
+              - service: light.turn_off
+                entity_id: light.play, light.office_light
+        default:
+          - service: notify.me
+            data:
+              message: Triggered unregistered event on Styrbar remote {{trigger.event.data.event}}"
 
-              # ***1 når man holder, ***3 når man slipper.
-              # kan rolig incremente på noe vis da muligens i en while loop, og stoppe når slipp kommer?
+            # ***1 når man holder, ***3 når man slipper.
+            # kan rolig incremente på noe vis da muligens i en while loop, og stoppe når slipp kommer?

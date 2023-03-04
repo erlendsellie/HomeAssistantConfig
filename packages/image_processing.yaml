@@ -1,4 +1,3 @@
-# imageproccesing:
 #   image_processing:
 #     - platform: doods
 #       url: "http://localhost:8080"
@@ -48,4 +47,4 @@
 #   - platform: generic
 #     name: doods Tyra
 #     still_image_url: !secret doods_tyra
-    
+  

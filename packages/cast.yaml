@@ -1,4 +1,3 @@
-# cast:
 #   automation:
 #     - alias: 'cast to kitchen hub'
 #       action:        

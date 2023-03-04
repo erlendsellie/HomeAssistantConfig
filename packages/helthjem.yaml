@@ -1,72 +1,71 @@
-rest_commands:
-  sensor:
-    #sensor for checking total matces for a specific search from Norrøna Online Outlet.
-    - platform: rest
-      name: NorronaFalketind
-      scan_interval: 300
-      json_attributes:
-        - value_json.Products
-      resource: https://www.norrona.com/nb-NO/o/json?=cta&displaysize=M&Sex=Male&Category=Jackets&Concept=falketind&Property=Waterproof&page=1&size=6
-      value_template: >-
-        {{value_json.TotalMatching}}
-      force_update: true
+sensor:
+  #sensor for checking total matces for a specific search from Norrøna Online Outlet.
+  - platform: rest
+    name: NorronaFalketind
+    scan_interval: 300
+    json_attributes:
+      - value_json.Products
+    resource: https://www.norrona.com/nb-NO/o/json?=cta&displaysize=M&Sex=Male&Category=Jackets&Concept=falketind&Property=Waterproof&page=1&size=6
+    value_template: >-
+      {{value_json.TotalMatching}}
+    force_update: true
 
-    #sensor for checking last Tracking message from HeltHjem.
-    - platform: command_line
-      command: >-
-        curl 'https://services.helthjem.no/graphql' \
-          -H 'authority: services.helthjem.no' \
-          -H 'accept: */*' \
-          -H 'accept-language: en-US,en;q=0.9,nb-NO;q=0.8,nb;q=0.7,no;q=0.6' \
-          -H 'content-type: application/json' \
-          -H 'origin: https://helthjem.no' \
-          -H 'referer: https://helthjem.no/sporingv2?sporingsnummer=R-4CK4W' \
-          -H 'sec-ch-ua: "Chromium";v="104", " Not A;Brand";v="99", "Google Chrome";v="104"' \
-          -H 'sec-ch-ua-mobile: ?0' \
-          -H 'sec-ch-ua-platform: "Linux"' \
-          -H 'sec-fetch-dest: empty' \
-          -H 'sec-fetch-mode: cors' \
-          -H 'sec-fetch-site: same-site' \
-          -H 'user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36' \
-          --data-raw '{"variables":{},"query":"{\n  getTracking(parcelReference: \"R-4CK4W\") {\n    deliveryPoint {\n      postalCode\n      postalArea\n      type\n      __typename\n    }\n    events {\n      additionalInfoApiKey\n      apiKey\n      freightProduct\n      time\n      shipmentNumber\n      isHighlighted\n      location\n      messages {\n        message\n        title\n        additionalMessage\n        __typename\n      }\n      type\n      __typename\n    }\n    noticeData {\n      message\n      title\n      __typename\n    }\n    sender {\n      postalCode\n      postalArea\n      __typename\n    }\n    shipmentNumber\n    shopId\n    status\n    shop {\n      id\n      name\n      logoUrl\n      __typename\n    }\n    __typename\n  }\n}"}' \
-          --compressed
-      name: helthjem
-      # json_attributes:
-      #   - nextDeliveryDays
-      value_template: >-
-        {%set lastEvent = value_json.data.getTracking.events[0] %}
-        {{lastEvent.location}} : {{lastEvent.messages.title}} : {{lastEvent.messages.message}}
-      scan_interval: 300
-      command_timeout: 30
+  #sensor for checking last Tracking message from HeltHjem.
+  - platform: command_line
+    command: >-
+      curl 'https://services.helthjem.no/graphql' \
+        -H 'authority: services.helthjem.no' \
+        -H 'accept: */*' \
+        -H 'accept-language: en-US,en;q=0.9,nb-NO;q=0.8,nb;q=0.7,no;q=0.6' \
+        -H 'content-type: application/json' \
+        -H 'origin: https://helthjem.no' \
+        -H 'referer: https://helthjem.no/sporingv2?sporingsnummer=R-4CK4W' \
+        -H 'sec-ch-ua: "Chromium";v="104", " Not A;Brand";v="99", "Google Chrome";v="104"' \
+        -H 'sec-ch-ua-mobile: ?0' \
+        -H 'sec-ch-ua-platform: "Linux"' \
+        -H 'sec-fetch-dest: empty' \
+        -H 'sec-fetch-mode: cors' \
+        -H 'sec-fetch-site: same-site' \
+        -H 'user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36' \
+        --data-raw '{"variables":{},"query":"{\n  getTracking(parcelReference: \"R-4CK4W\") {\n    deliveryPoint {\n      postalCode\n      postalArea\n      type\n      __typename\n    }\n    events {\n      additionalInfoApiKey\n      apiKey\n      freightProduct\n      time\n      shipmentNumber\n      isHighlighted\n      location\n      messages {\n        message\n        title\n        additionalMessage\n        __typename\n      }\n      type\n      __typename\n    }\n    noticeData {\n      message\n      title\n      __typename\n    }\n    sender {\n      postalCode\n      postalArea\n      __typename\n    }\n    shipmentNumber\n    shopId\n    status\n    shop {\n      id\n      name\n      logoUrl\n      __typename\n    }\n    __typename\n  }\n}"}' \
+        --compressed
+    name: helthjem
+    # json_attributes:
+    #   - nextDeliveryDays
+    value_template: >-
+      {%set lastEvent = value_json.data.getTracking.events[0] %}
+      {{lastEvent.location}} : {{lastEvent.messages.title}} : {{lastEvent.messages.message}}
+    scan_interval: 300
+    command_timeout: 30
 
-  automation:
-    - alias: NotifyHeltHjem
-      trigger:
-        - platform: state
-          entity_id: sensor.helthjem
-      action:
-        - service: script.turn_on
-          entity_id: script.notify
+automation:
+  - alias: NotifyHeltHjem
+    trigger:
+      - platform: state
+        entity_id: sensor.helthjem
+    action:
+      - service: script.turn_on
+        entity_id: script.notify
+        data:
+          variables:
+            title: Klokka nærmer seg!
+            message: "{{ states('sensor.helthjem') }}"
+
+  - alias: NotifyNorrona
+    trigger:
+      - platform: state
+        entity_id: sensor.NorronaFalketind
+    condition:
+      - condition: template
+        value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
+      - condition: template
+        value_template: "{{trigger.to_state.state | float(default=0) > 0}}"
+    action:
+      - service: notify.mobile_app_oneplus
+        data_template:
+          title: Falketind på lager?
+          message: "{{ states('sensor.NorronaFalketind') }}"
           data:
-            variables:
-              title: Klokka nærmer seg!
-              message: "{{ states('sensor.helthjem') }}"
-
-    - alias: NotifyNorrona
-      trigger:
-        - platform: state
-          entity_id: sensor.NorronaFalketind
-      condition:
-        - condition: template
-          value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
-        - condition: template
-          value_template: "{{trigger.to_state.state | float(default=0) > 0}}"
-      action:
-        - service: notify.mobile_app_oneplus
-          data_template:
-            title: Falketind på lager?
-            message: "{{ states('sensor.NorronaFalketind') }}"
-            data:
-              clickAction: "https://www.norrona.com/nb-NO/o/?=cta&displaysize=M&Sex=Male&Category=Jackets&Concept=falketind&Property=Waterproof"
-              ttl: 0
-              priority: high
+            clickAction: "https://www.norrona.com/nb-NO/o/?=cta&displaysize=M&Sex=Male&Category=Jackets&Concept=falketind&Property=Waterproof"
+            ttl: 0
+            priority: high

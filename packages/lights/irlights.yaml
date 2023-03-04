@@ -1,85 +1,84 @@
-irlights:
-  automation:
-    - id: turnoffirlightswhenbright
-      alias: turnoffirlightswhenbright
-      trigger:
-        - platform: numeric_state
-          entity_id: sensor.illuminance_living
-          above: 20
-          # for:
-          #   minutes: 5
-      action:
-        service: light.turn_off
-        entity_id: light.irlights
+automation:
+  - id: turnoffirlightswhenbright
+    alias: turnoffirlightswhenbright
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.illuminance_living
+        above: 20
+        # for:
+        #   minutes: 5
+    action:
+      service: light.turn_off
+      entity_id: light.irlights
 
-  script:
-    turn_on_kubbelys:
-      sequence:
-        - service: remote.send_command
-          data:
-            entity_id: remote.broadlink_remote
-            device: kubbelys
-            command: turn_on
-    turn_on_kubbelys_8_hours:
-      sequence:
-        - service: remote.send_command
-          data:
-            entity_id: remote.broadlink_remote
-            device: kubbelys
-            command: turn_on_8_hours
-    turn_on_kubbelys_4_hours:
-      alias: Turn On Kubbelys
-      sequence:
-        - service: remote.send_command
-          data:
-            entity_id: remote.broadlink_remote
-            device: kubbelys
-            command: turn_on_4_hours
-    turn_off_kubbelys:
-      alias: Turn Off Kubbelys
-      sequence:
-        - service: remote.send_command
-          data:
-            entity_id: remote.broadlink_remote
-            device: kubbelys
-            command: turn_off
+script:
+  turn_on_kubbelys:
+    sequence:
+      - service: remote.send_command
+        data:
+          entity_id: remote.broadlink_remote
+          device: kubbelys
+          command: turn_on
+  turn_on_kubbelys_8_hours:
+    sequence:
+      - service: remote.send_command
+        data:
+          entity_id: remote.broadlink_remote
+          device: kubbelys
+          command: turn_on_8_hours
+  turn_on_kubbelys_4_hours:
+    alias: Turn On Kubbelys
+    sequence:
+      - service: remote.send_command
+        data:
+          entity_id: remote.broadlink_remote
+          device: kubbelys
+          command: turn_on_4_hours
+  turn_off_kubbelys:
+    alias: Turn Off Kubbelys
+    sequence:
+      - service: remote.send_command
+        data:
+          entity_id: remote.broadlink_remote
+          device: kubbelys
+          command: turn_off
 
-    dim_up_kubbelys:
-      sequence:
-        - service: remote.send_command
-          data:
-            entity_id: remote.broadlink_remote
-            device: kubbelys
-            command: dim_up
+  dim_up_kubbelys:
+    sequence:
+      - service: remote.send_command
+        data:
+          entity_id: remote.broadlink_remote
+          device: kubbelys
+          command: dim_up
 
-    dim_down_kubbelys:
-      sequence:
-        - service: remote.send_command
-          data:
-            entity_id: remote.broadlink_remote
-            device: kubbelys
-            command: dim_down
-    candle_mode_kubbelys:
-      sequence:
-        - service: remote.send_command
-          data:
-            entity_id: remote.broadlink_remote
-            device: kubbelys
-            command: candle_mode
-    light_mode_kubbelys:
-      sequence:
-        - service: remote.send_command
-          data:
-            entity_id: remote.broadlink_remote
-            device: kubbelys
-            command: light_mode
+  dim_down_kubbelys:
+    sequence:
+      - service: remote.send_command
+        data:
+          entity_id: remote.broadlink_remote
+          device: kubbelys
+          command: dim_down
+  candle_mode_kubbelys:
+    sequence:
+      - service: remote.send_command
+        data:
+          entity_id: remote.broadlink_remote
+          device: kubbelys
+          command: candle_mode
+  light_mode_kubbelys:
+    sequence:
+      - service: remote.send_command
+        data:
+          entity_id: remote.broadlink_remote
+          device: kubbelys
+          command: light_mode
 
-  light:
-    - platform: template
-      lights:
-        irlights:
-          friendly_name: "Kubbelys"
-          turn_on:
-            service: script.turn_on_kubbelys_4_hours
-          turn_off:
-            service: script.turn_off_kubbelys
+light:
+  - platform: template
+    lights:
+      irlights:
+        friendly_name: "Kubbelys"
+        turn_on:
+          service: script.turn_on_kubbelys_4_hours
+        turn_off:
+          service: script.turn_off_kubbelys
