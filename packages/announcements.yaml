@@ -602,34 +602,6 @@ automation:
   ########         Garage         ########
   ########################################
 
-  - id: garageopened
-    alias: garageopened
-    trigger:
-      platform: state
-      entity_id: cover.garage_door
-      to: "open"
-      from: "closed"
-    action:
-      - service: script.turn_on
-        entity_id: script.say
-        data_template:
-          variables:
-            message: Garasjen ble åpnet
-
-  - id: garageclosed
-    alias: garageclosed
-    trigger:
-      platform: state
-      entity_id: cover.garage_door
-      to: "closed"
-      from: "open"
-    action:
-      - service: script.turn_on
-        entity_id: script.say
-        data_template:
-          variables:
-            message: Garasjen ble lukket
-
   - id: garageportopenfor60
     alias: Garageportopenfor60
     trigger:
