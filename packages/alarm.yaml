@@ -165,13 +165,13 @@ automation:
         data_template:
           entity_id: media_player.minis
           volume_level: 1
-      - service: tts.google_say
+      - service: tts.google_cloud_say
         entity_id: media_player.minis
         data_template:
           message: "Alarm! Vannlekkasje på {{ trigger.from_state.name }}!"
       - delay:
           seconds: 3
-      - service: tts.google_say
+      - service: tts.google_cloud_say
         entity_id: media_player.minis
         data_template:
           message: "Alarm! Vannlekkasje på {{ trigger.from_state.name }}!"
@@ -586,10 +586,10 @@ automation:
           seconds: 1
       - condition: template
         value_template: "{{states.lock.ytterdor.state == 'unlocked'}}"
-      - service: light.turn_on
-        entity_id: light.hyperion
-        data_template:
-          rgb_color: [0, 255, 0]
+      # - service: light.turn_on
+      #   entity_id: light.hyperion
+      #   data_template:
+      #     rgb_color: [0, 255, 0]
       - condition: template
         value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
       - service: notify.me
@@ -610,8 +610,8 @@ automation:
           option: Disarm
       - delay:
           seconds: 10
-      - service: light.turn_off
-        entity_id: light.hyperion
+      # - service: light.turn_off
+      #   entity_id: light.hyperion
       - delay:
           minutes: 5
       # If the door has not been opened in the last 3 minutes, set the previous Alarm state..
@@ -778,7 +778,7 @@ automation:
         data_template:
           entity_id: media_player.minis
           volume_level: "0.3"
-      - service: tts.google_say
+      - service: tts.google_cloud_say
         entity_id: media_player.minis
         data_template:
           message: "Alarmen er fortsatt aktivert!"
@@ -890,7 +890,7 @@ automation:
         data_template:
           entity_id: media_player.minis
           volume_level: 1
-      - service: tts.google_say
+      - service: tts.google_cloud_say
         entity_id: media_player.minis
         data_template:
           message: "Inntrenger oppdaget. Deaktiver alarmen innen 30 sekunder for å unngå utrykning!"
@@ -1024,8 +1024,10 @@ script:
         data_template:
           entity_id: media_player.living_room_speaker
           volume_level: 1
-      - service: tts.google_say
-        entity_id: media_player.minis, media_player.clock
+      - service: tts.google_cloud_say
+        entity_id:
+          - media_player.minis
+          - media_player.clock
         data:
           message: "Alarm! Husalarm utløst!."
       - delay:

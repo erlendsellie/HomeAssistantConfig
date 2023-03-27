@@ -76,7 +76,7 @@ living:
   entities:
     - group.notdimmableliving
     - group.dimmableliving
-    - light.hyperion
+    #- light.hyperion
     - light.peis
     - light.kubbelys
 
@@ -205,7 +205,6 @@ bedroomlights:
 stilletid:
   name: stilletid
   entities:
-    - input_boolean.ammetid
     - input_boolean.tyraasleep
 
 #TODO ADd to these.

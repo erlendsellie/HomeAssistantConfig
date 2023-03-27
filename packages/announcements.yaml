@@ -14,6 +14,21 @@ template:
             and
             (states.media_player.kitchen_display.state == 'playing' or states.media_player.kitchen_display.state == 'paused')
           }}
+
+input_text:
+  openai:
+    name: openai
+    max: 255
+  openaikitchen:
+    name: openaikitchen
+    max: 255
+  openaisammendrag:
+    name: openaisammendrag
+    max: 255
+  openaisammendragresult:
+    name: openaisammendragresult
+    max: 255
+
 automation:
   - alias: SetVolume
     trigger:
@@ -241,7 +256,7 @@ automation:
         entity_id: input_select.alarm
         state: "Arm Home"
     action:
-      - service: tts.google_say
+      - service: tts.google_cloud_say
         entity_id: media_player.clock
         data_template:
           message: Hundene har gått inn på stua
@@ -287,7 +302,7 @@ automation:
         data_template:
           entity_id: media_player.clock
           volume_level: 0.5
-      - service: tts.google_say
+      - service: tts.google_cloud_say
         entity_id: media_player.clock
         data_template:
           message: Trym eller Tyra har gått ut fra rommet sitt
@@ -470,7 +485,7 @@ automation:
   #     data_template:
   #       entity_id: media_player.minis
   #       volume_level: 0.6
-  #   - service: tts.google_say
+  #   - service: tts.google_cloud_say
   #     entity_id: media_player.minis
   #     data:
   #      message: 'Så søt du er, Caroline!'
@@ -564,7 +579,7 @@ automation:
   #     data_template:
   #       entity_id: media_player.minis
   #       volume_level: 0.3
-  #   - service: tts.google_say
+  #   - service: tts.google_cloud_say
   #     entity_id: media_player.minis
   #     data:
   #      message: 'Avokadoen vil ha vann!'
@@ -670,7 +685,7 @@ automation:
           # - condition: template
           #   value_template: "{{ states.input_select.alarm.state == 'Disarm' }}"
           - service: script.turn_on
-            entity_id: script.say
+            entity_id: script.sayai
             data_template:
               variables:
                 message: Vaskemaskinen er ferdig
@@ -775,7 +790,7 @@ automation:
           title: "Caroline is probably home within {{states.sensor.caroline_to_home.state	}} minutes."
           message: "The time is {{ now().hour }}:{{ now().minute }}."
       - service: script.turn_on
-        entity_id: script.say
+        entity_id: script.sayai
         data_template:
           variables:
             message: "Mamma er på vei hjem"
@@ -818,7 +833,7 @@ automation:
       - service: script.turn_on
         entity_id: script.warmupcominghome
       - service: script.turn_on
-        entity_id: script.say
+        entity_id: script.sayai
         data_template:
           variables:
             message: >-
@@ -859,14 +874,14 @@ automation:
         entity_id: person.erlend
         zone: zone.dalgard
         event: leave #or enter
-      - platform: zone
-        entity_id: person.erlend
-        zone: zone.sentrum
-        event: leave #or enter
-      - platform: zone
-        entity_id: person.erlend
-        zone: zone.mcdonalds
-        event: leave
+      # - platform: zone
+      #   entity_id: person.erlend
+      #   zone: zone.sentrum
+      #   event: leave #or enter
+      # - platform: zone
+      #   entity_id: person.erlend
+      #   zone: zone.mcdonalds
+      #   event: leave
       - platform: zone
         entity_id: person.erlend
         zone: zone.nidaros
@@ -943,22 +958,56 @@ automation:
           variables:
             message: "Post leveres i dag."
 script:
+  sayaikitchen:
+    alias: Announcement over Google Nest Hub Kitchen with openAI
+    mode: queued
+    sequence:
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+      - service: input_text.set_value
+        entity_id: input_text.openaikitchen
+        data:
+          value: "Informer om at {{message}}"
+      - delay:
+          seconds: 50
+      - service: input_text.set_value
+        entity_id: input_text.openaikitchen
+        data:
+          value: ""
+  sayai:
+    alias: Announcement over Google Homes with openAI
+    mode: queued
+    sequence:
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+      - service: input_text.set_value
+        entity_id: input_text.openai
+        data:
+          value: "Informer om at {{message}}"
+      - delay:
+          seconds: 50
+      - service: input_text.set_value
+        entity_id: input_text.openai
+        data:
+          value: ""
   say:
     alias: Announcement over Google Homes
     mode: queued
     sequence:
-      - service: tts.google_say
-        entity_id: media_player.mirror
-        data_template:
-          message: "{{message}}"
+      # - service: tts.google_cloud_say
+      #   entity_id: media_player.mirror
+      #   data_template:
+      #     message: "{{message}}"
       - condition: template
         value_template: "{{ (states.media_player.living_room_speaker.state != 'playing' and states.media_player.hallway_speaker.state != 'playing') and states.media_player.living_room_speaker.state != 'paused' and states.media_player.hallway_speaker.state != 'paused'}}"
       - service: media_player.volume_set
         data_template:
           entity_id: media_player.minis
           volume_level: "{{states.sensor.speakervolume.state}}"
-      - service: tts.google_say
-        entity_id: media_player.minis
+      - service: tts.google_cloud_say
+        entity_id:
+          - media_player.minis
+          #- media_player.mirror
         data_template:
           message: "{{message}}"
       - delay:
@@ -1032,7 +1081,7 @@ script:
         data_template:
           entity_id: media_player.minis
           volume_level: 0.4
-      - service: tts.google_say
+      - service: tts.google_cloud_say
         data_template:
           entity_id: media_player.minis
           message: "{{message}}"

@@ -146,7 +146,7 @@ script:
   wakeup:
     sequence:
       - service: light.turn_on
-        entity_id: light.bedroomlights
+        entity_id: light.bedroom
         data:
           brightness_pct: 100
           transition: 100

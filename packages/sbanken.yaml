@@ -1,3 +1,10 @@
+homeassistant:
+  customize:
+    # Add state-class to enable long term statistics:
+    sensor.rammelan_balance:
+      state_class: measurement
+    sensor.rammelan:
+      state_class: measurement
 template:
   - sensor:
       - name: "Rammelån balance"
@@ -19,6 +26,20 @@ template:
           {{last.amount}} på {{last.text}}
 
 automation:
+  - id: felleskortetlow
+    alias: felleskortetlow
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.felleskortet
+        below: 750
+    action:
+      - service: script.turn_on
+        entity_id: script.notifyboth
+        data_template:
+          variables:
+            title: "Lite penger igjen på felleskortet"
+            message: "Disponibel saldo er {{states('sensor.felleskortet') | round(0)}} kroner"
+
   - id: updaterammelansheets
     alias: updaterammelansheets
     trigger:
@@ -41,7 +62,6 @@ automation:
             Sum: "{{states.sensor.rammelan.attributes.transactions[0].amount}}"
             Årsak: "{{states.sensor.rammelan.attributes.transactions[0].text}}"
             Fra: Home Assistant - Endre meg
-
 #   - alias: NotifyFelleskortet
 #     trigger:
 #       - platform: state

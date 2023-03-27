@@ -1,3 +1,14 @@
+template:
+  - binary_sensor:
+      - name: "forgot_printer"
+        unique_id: 200bb682-3a82-4000-bc33-2528ae235ec6
+        delay_on:
+          minutes: 30
+        state: >-
+          {%set power = states('switch.3d_printer_failsafe') == 'on'%}
+          {%set not_printing = states('binary_sensor.octoprint_printing') == 'off'%}
+          {{not_printing and power}}
+
 automation:
   - id: Print_Almost_Done
     alias: Print is almost done
@@ -26,6 +37,9 @@ automation:
         to: "off"
         for:
           hours: 1
+      - platform: state
+        entity_id: binary_sensor.forgot_printer
+        to: "on"
     condition:
       - condition: state
         entity_id: switch.3d_printer_failsafe

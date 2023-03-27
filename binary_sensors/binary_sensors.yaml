@@ -95,17 +95,21 @@
         states.media_player.google_tv.state == 'off')
         and states.media_player.tv_soverommet.state == 'on'}}
       delay_on:
-        minutes: 5
+        minutes: 30
     bedtvon:
       friendly_name: Bedroom TV is on
       value_template: >-
-        {{states.media_player.tv_soverommet.state == 'on'}}
+        {{states.media_player.google_tv.state != 'off'}}
       delay_off:
         minutes: 2
     eprobablyasleep:
       friendly_name: "Erlend Probably Asleep"
       value_template: >-
         {{states.sensor.oneplus_sleep_confidence.state | int(default=0) > 93}}
+    cprobablyasleep:
+      friendly_name: "Caroline Probably Asleep"
+      value_template: >-
+        {{states.sensor.caroline_sleep_confidence.state | int(default=0) > 93}}
     drivewaylightshouldbeon:
       friendly_name: "Driveway Light should be on"
       delay_off:

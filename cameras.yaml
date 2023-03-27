@@ -49,92 +49,93 @@
 #   still_image_url: !secret octoprint_still
 #   mjpeg_url: !secret octoprint_mjpeg
 #Garage
-- platform: generic
-  name: Garasje
-  still_image_url: !secret garage_still
-  stream_source: !secret garage_stream
+# - platform: generic
+#   name: Garasje
+#   still_image_url: !secret garage_still
+#   stream_source: !secret garage_stream
 
-  #Dogs
-- platform: generic
-  name: dogs_still
-  still_image_url: !secret dogs_still
-  authentication: basic
-  framerate: 24
-  username: root
-  password: !secret dafang_password
-  verify_ssl: false
+#   #Dogs
+# - platform: generic
+#   name: dogs_still
+#   still_image_url: !secret dogs_still
+#   authentication: basic
+#   framerate: 24
+#   username: root
+#   password: !secret dafang_password
+#   verify_ssl: false
 
-  #Trym
-- platform: generic
-  name: Trym_dafang
-  verify_ssl: false
-  username: root
-  password: !secret dafang_password
-  authentication: basic
-  still_image_url: !secret trym_dafang_still
-  stream_source: !secret trym_dafang_stream
-  scan_interval: 5
+#   #Trym
+# - platform: generic
+#   name: Trym_dafang
+#   verify_ssl: false
+#   username: root
+#   password: !secret dafang_password
+#   authentication: basic
+#   still_image_url: !secret trym_dafang_still
+#   stream_source: !secret trym_dafang_stream
+#   scan_interval: 5
 
-- platform: generic
-  name: Trym_still
-  framerate: 10
-  verify_ssl: false
-  still_image_url: !secret trym_dafang_still
-  authentication: basic
-  username: root
-  password: !secret dafang_password
+# - platform: generic
+#   name: Trym_still
+#   framerate: 10
+#   verify_ssl: false
+#   still_image_url: !secret trym_dafang_still
+#   authentication: basic
+#   username: root
+#   password: !secret dafang_password
 
-  ##Tyra
-- platform: generic
-  name: Tyra Tapo HQ
-  username: erlend
-  password: !secret dafang_password
-  authentication: basic
-  still_image_url: !secret tyra_picture_url
-  stream_source: !secret tyra_tapo_hq
-  verify_ssl: false
-  scan_interval: 5
+#   ##Tyra
+# - platform: generic
+#   name: Tyra Tapo HQ
+#   username: erlend
+#   password: !secret dafang_password
+#   authentication: basic
+#   still_image_url: !secret tyra_picture_url
+#   stream_source: !secret tyra_tapo_hq
+#   verify_ssl: false
+#   scan_interval: 5
 
-- platform: generic
-  name: Tyra Tapo
-  username: erlend
-  password: !secret dafang_password
-  authentication: basic
-  still_image_url: !secret tyra_picture_url
-  stream_source: !secret tyra_tapo_lq
-  verify_ssl: false
-  scan_interval: 5
+# - platform: generic
+#   name: Tyra Tapo
+#   username: erlend
+#   password: !secret dafang_password
+#   authentication: basic
+#   still_image_url: !secret tyra_picture_url
+#   stream_source: !secret tyra_tapo_lq
+#   verify_ssl: false
+#   scan_interval: 5
 
-  # Last picture
-- platform: generic
-  name: last_picture
-  still_image_url: !secret last_picture_url
+#   # Last picture
+# - platform: generic
+#   name: last_picture
+#   still_image_url: !secret last_picture_url
 
-- platform: generic
-  name: doods driveway
-  still_image_url: !secret doods_driveway
+# - platform: generic
+#   name: doods driveway
+#   still_image_url: !secret doods_driveway
 
-- platform: generic
-  name: doods Tyra
-  still_image_url: !secret doods_tyra
+# - platform: generic
+#   name: doods Tyra
+#   still_image_url: !secret doods_tyra
 
-  ## Driveway
-- platform: generic
-  name: driveway
-  still_image_url: !secret outdoorcamerastream
+#   ## Driveway
+# - platform: generic
+#   name: driveway
+#   still_image_url: !secret outdoorcamerastream
 
-- platform: generic
-  name: driveway_stream
-  still_image_url: !secret outdoorcamerastream
-  stream_source: !secret driveway_stream
+# - platform: generic
+#   name: driveway_stream
+#   still_image_url: !secret outdoorcamerastream
+#   stream_source: !secret driveway_stream
 
-- platform: generic
-  name: Meraker
-  still_image_url: https://metnet.no/custcams/merakeralpin1/laget/webcam_semihd.jpg?t=1636459159851
+# - platform: generic
+#   name: Meraker
+#   still_image_url: https://metnet.no/custcams/merakeralpin1/laget/webcam_semihd.jpg?t=1636459159851
 
-- platform: generic
-  name: meraker_day
-  still_image_url: !secret last_picture_url_meraker
+# - platform: generic
+#   name: meraker_day
+#   still_image_url: !secret last_picture_url_meraker
+
 # - platform: generic
 #   name: garden
 #   still_image_url: !secret garden_still

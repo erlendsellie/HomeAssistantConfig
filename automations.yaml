@@ -46,22 +46,7 @@
       sensor: sensor.vvbsensor
       climate: climate.varmtvannsbereder
   mode: single
-- id: "1669413053126"
-  alias: Turn off vvb at 12
-  description: ""
-  trigger:
-    - platform: time
-      at: 00:01:00
-  condition: []
-  action:
-    - service: input_boolean.turn_on
-      data: {}
-      target:
-        entity_id: input_boolean.vvb_off
-    - service: notify.mobile_app_oneplus
-      data:
-        message: Turning off vvb
-  mode: single
+
 - id: "1670796220883"
   alias: Reload Integration - Mill Trym
   description: ""
@@ -116,3 +101,28 @@
       sensor: sensor.pricecorrection
       number: sensor.tempsenttoheater
       climate: climate.living_heater
+- id: "1679003666458"
+  alias: ToggleOfficeLightsAqaraSwitch
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - sensor.office_aqara_switch_action
+      to: single
+  condition: []
+  action:
+    - if:
+        - condition: state
+          entity_id: light.office_light
+          state: "on"
+      then:
+        - service: light.turn_off
+          data: {}
+          target:
+            entity_id: light.office_lights
+      else:
+        - service: light.turn_on
+          data: {}
+          target:
+            entity_id: light.office_lights
+  mode: single

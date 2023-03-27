@@ -70,7 +70,12 @@ sensor.power_other_kwh:
   state_class: "total_increasing"
   device_class: energy
   unit_of_measurement: kWh
-
+sensor.ebattery:
+  state_class: measurement
+sensor.cbattery:
+  state_class: measurement
+sensor.snow:
+  state_class: measurement
 person.erlend:
   entity_picture: /local/CVbilde.jpg
 sensor.erlend:

@@ -49,11 +49,16 @@ automation:
         data_template:
           entity_id: media_player.kitchen_display
           volume_level: "{{states.sensor.speakervolume.state | float(default=0)+ 0.2}}"
-      - service: tts.google_say
-        entity_id: media_player.kitchen_display
+      - service: script.turn_on
+        entity_id: script.sayaikitchen
         data_template:
-          message: "Ta medisin"
-          language: "no"
+          variables:
+            message: Erlend må ta medisinen sin
+      # - service: tts.google_cloud_say
+      #   entity_id: media_player.kitchen_display
+      #   data_template:
+      #     message: "Ta medisin"
+      #     language: "no"
       - delay:
           seconds: 10
       - service: media_player.media_stop

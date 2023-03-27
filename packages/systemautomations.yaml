@@ -118,6 +118,7 @@ automation:
           - light.tv
           - light.sofa
           - light.bathroom
+          - light.toilet
         to: "unavailable"
         for:
           minutes: 5
@@ -155,6 +156,7 @@ automation:
           - climate.trym
           - switch.office_heater
           - switch.blanket
+          - light.toilet
         to: "unavailable"
         for:
           minutes: 30
@@ -314,16 +316,16 @@ automation:
           title: "Alarm:"
           message: "VVB har vært avslått i 13 timer nå, sjekk temp."
 
-  - alias: "Dismiss login failed notification"
-    trigger:
-      - platform: state
-        entity_id: persistent_notification.http_login
-        to: "notifying"
-    action:
-      - delay: "00:00:01"
-      - service: persistent_notification.dismiss
-        data:
-          notification_id: http-login
+  # - alias: "Dismiss login failed notification"
+  #   trigger:
+  #     - platform: state
+  #       entity_id: persistent_notification.http_login
+  #       to: "notifying"
+  #   action:
+  #     - delay: "00:00:01"
+  #     - service: persistent_notification.dismiss
+  #       data:
+  #         notification_id: http-login
 
   - alias: "Battery Alert"
     trigger:
@@ -351,7 +353,7 @@ automation:
         - condition: template
           value_template: >-
             {%- set threshold = 30 -%}
-            {%- for item in states.sensor if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ("Body" not in item.name) and ("Leaf" not in item.name) and ("Battery Temperature" not in item.name) and ("Browser" | lower not in (item.name | lower)) and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
+            {%- for item in states.sensor if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ('battery power' not in item.name | lower) and ("Body" not in item.name) and ("Leaf" not in item.name) and ("Battery Temperature" not in item.name) and ("Browser" | lower not in (item.name | lower)) and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
             {%- if loop.first -%}
             {{ true }}
             {%- endif -%}
@@ -383,9 +385,12 @@ automation:
             The following devices have low battery levels:
             {%- endif -%}
             {%- for item in domain if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ("Body" not in item.name) and ("Browser" not in item.name) and ("Battery Temperature" not in item.name) and ("Leaf" not in item.name) and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
-            {%- if (item.attributes.battery_level is defined and ("Browser" | lower not in (item.name | lower)) and item.attributes['battery_level'] | int(default=0) < threshold) and item.attributes.battery_level != 'unknown' %}          {{ item.name }} ({{ item.attributes['battery_level'] }}),
+
+            {%- if (item.attributes.battery_level is defined and ("Browser" | lower not in (item.name | lower)) and
+                (item.attributes['battery_level'] | int(default=0) < threshold) and item.attributes.battery_level != 'unknown')%}
+            {{ item.name }} ({{ item.attributes['battery_level'] }}),
             {% endif -%}
-            {%- if "battery" in item.name | lower and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low") -%}
+            {%- if "battery" in item.name | lower and ('battery power' not in item.name | lower) and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low") -%}  
             {{ item.name }} ({{ item.state }}),
             {% endif -%}
             {%- endfor -%}
@@ -405,6 +410,13 @@ script:
   #     - service: shell_command.backup_climate
   #     - service: shell_command.backup_secrets
   #     - service: shell_command.backup_cameras
+
+  speedtest:
+    alias: "Speedtest"
+    sequence:
+      - service: homeassistant.update_entity
+        target:
+          entity_id: sensor.speedtest_download
 
   restart:
     alias: "Restart"
@@ -479,6 +491,14 @@ sensor:
   - platform: command_line
     name: "HAstats YAML-line Packages count"
     command: " find /config/packages -name '*.yaml' | xargs cat | wc -l"
+binary_sensor:
+  - platform: command_line
+    name: Backup Database Done
+    command: 'if ssh -n -o UserKnownHostsFile=/config/.ssh/known_hosts -i /config/.ssh/id_rsa root@192.168.1.100 "find /var/lib/vz/dump_db -type f -mtime -1" | grep "vzdump"; then echo "ON"; else echo "OFF"; fi'
+
+  - platform: command_line
+    name: Backup HA Done
+    command: 'if ssh -n -o UserKnownHostsFile=/config/.ssh/known_hosts -i /config/.ssh/id_rsa root@192.168.1.100 "find /var/lib/vz/dump_ha -type f -mtime -1" | grep "vzdump"; then echo "ON"; else echo "OFF"; fi'
 
 template:
   #  Count number of loaded Integrations

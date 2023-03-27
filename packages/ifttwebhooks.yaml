@@ -90,22 +90,3 @@ automation:
     action:
       - service: script.turn_on
         entity_id: script.lightson
-
-  - alias: "CarHeateriftt"
-    trigger:
-      platform: webhook
-      webhook_id: !secret ifttcarheater
-    action:
-      - service: switch.turn_on
-        entity_id: switch.carheater
-      - service: notify.me
-        data:
-          message: "Car Heater turned on by Assistant."
-
-  - alias: "CarHeaterMountediftt"
-    trigger:
-      platform: webhook
-      webhook_id: !secret iftt_car_heater_mounted
-    action:
-      - service: script.turn_on
-        entity_id: input_boolean.carheatermounted

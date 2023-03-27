@@ -147,8 +147,8 @@ automation:
       platform: webhook
       webhook_id: !secret trym_woken
     action:
-      - service: input_boolean.turn_on
-        entity_id: input_boolean.trymawake
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.trymasleep
 
   #asleep
   - alias: "CarolineAwakeWebhook"

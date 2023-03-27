@@ -1,38 +1,38 @@
 template:
-  - binary_sensor:
-      - name: "vvb_on"
-        # delay_on:
-        #   minutes: 3
-        delay_off:
-          seconds: 10
-        state: >-
-          {%-set notUsingSpot = states.binary_sensor.usingspot.state == 'off' -%}
-          {%-set pause = states.input_boolean.vvb_on.state == 'on' -%}
-          {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
-          {%-set shouldNotBother = states.binary_sensor.pricedifferenceissmall.state == 'on' -%}
-          {%set pricelevel = states('sensor.pricelevel')%}
-          {%set pricecorrectionDown = states('sensor.pricecorrection') | int  < 0%}
-          {%set isCheap = pricelevel ==  'CHEAP' or pricelevel == 'VERY_CHEAP'%}
-          {%set current_hour = states.sensor.priceanalyzer.attributes.current_hour%}
-          {%set is_ten_cheapest = current_hour.is_ten_cheapest %}
-          {% if pause%}
-            {{true}}
-          {% elif shouldNotBother %}
-            {{true}}
-          {% elif notUsingSpot%}
-            {{true}}
-          {% elif is_ten_cheapest%}
-            {{true}}
-          {% else %}
-            {{isLowPrice or isCheap}}
-          {% endif %}
-      - name: "Using Hot Water"
-        delay_off:
-          seconds: 10
-        state: >-
-          {{
-            states.sensor.vvb_difference_statistics.state | float(default=0) < -0.5
-          }}
+  # - binary_sensor:
+  #     - name: "vvb_on"
+  #       # delay_on:
+  #       #   minutes: 3
+  #       delay_off:
+  #         seconds: 10
+  #       state: >-
+  #         {%-set notUsingSpot = states.binary_sensor.usingspot.state == 'off' -%}
+  #         {%-set pause = states.input_boolean.vvb_on.state == 'on' -%}
+  #         {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
+  #         {%-set shouldNotBother = states.binary_sensor.pricedifferenceissmall.state == 'on' -%}
+  #         {%set pricelevel = states('sensor.pricelevel')%}
+  #         {%set pricecorrectionDown = states('sensor.pricecorrection') | int  < 0%}
+  #         {%set isCheap = pricelevel ==  'CHEAP' or pricelevel == 'VERY_CHEAP'%}
+  #         {%set current_hour = states.sensor.priceanalyzer.attributes.current_hour%}
+  #         {%set is_ten_cheapest = current_hour.is_ten_cheapest %}
+  #         {% if pause%}
+  #           {{true}}
+  #         {% elif shouldNotBother %}
+  #           {{true}}
+  #         {% elif notUsingSpot%}
+  #           {{true}}
+  #         {% elif is_ten_cheapest%}
+  #           {{true}}
+  #         {% else %}
+  #           {{isLowPrice or isCheap}}
+  #         {% endif %}
+  #     - name: "Using Hot Water"
+  #       delay_off:
+  #         seconds: 10
+  #       state: >-
+  #         {{
+  #           states.sensor.vvb_difference_statistics.state | float(default=0) < -0.5
+  #         }}
 
   - sensor:
       - name: "vvb_temp"
@@ -160,6 +160,8 @@ input_boolean:
     name: VVB on for rest of today
   vvb_off:
     name: VVB off for rest of today
+  vvb_keep_state:
+    name: Keep VVB State
 
 automation:
   - id: ResetPauseVVBcontrolfortoday
@@ -167,12 +169,37 @@ automation:
     trigger:
       - platform: time
         at: "00:00:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.vvb_keep_state
+        state: "off"
     action:
       - service: input_boolean.turn_off
         target:
           entity_id:
             - input_boolean.vvb_on
             - input_boolean.vvb_off
+
+  - id: NotifyVVBKeepStateOn
+    alias: NotifyVVBKeepStateOn
+    trigger:
+      - platform: time
+        at: "00:00:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.vvb_keep_state
+        state: "on"
+    action:
+      - service: notify.me
+        data:
+          message: >-
+            Keep VVB State is Turned on. 
+            {%if states('input_boolean.vvb_off') == 'on'%}
+            Will keep VVB off
+            {%endif%}
+            {%if states('input_boolean.vvb_on') == 'on'%}
+            Will keep VVB on
+            {%endif%}
 
   - id: VVBToggle
     alias: VVBToggle

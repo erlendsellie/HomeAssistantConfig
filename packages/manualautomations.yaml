@@ -690,7 +690,9 @@ automation:
     action:
       - service: light.turn_off
         data_template:
-          entity_id: light.tvsone, light.peis
+          entity_id:
+            - light.tvsone
+            - light.peis
 
   # - id: Bathroom_Humidity_High_When_Not_Home
   #   alias: Bathroom_Humidity_High_When_Not_Home
@@ -788,7 +790,7 @@ automation:
           minutes: 60
     condition:
       - condition: state
-        entity_id: input_boolean.ccharging
+        entity_id: binary_sensor.ccharging
         state: "on"
       - condition: state
         entity_id: input_boolean.easleep
@@ -828,20 +830,20 @@ automation:
       - service: script.turn_on
         entity_id: script.bedtvoff
 
-  - alias: TvLightsWhenTVOff
-    trigger:
-      - platform: state
-        entity_id: media_player.nvidia_shield
-        to: "Off"
-        for:
-          seconds: 4
-    action:
-      - service: light.turn_on
-        entity_id: light.hyperion
-        data_template:
-          brightness_pct: "100"
-          #rgb_color: [255,162,71]
-          rgb_color: [255, 128, 25]
+  # - alias: TvLightsWhenTVOff
+  #   trigger:
+  #     - platform: state
+  #       entity_id: media_player.nvidia_shield
+  #       to: "Off"
+  #       for:
+  #         seconds: 4
+  #   action:
+  #     - service: light.turn_on
+  #       entity_id: light.hyperion
+  #       data_template:
+  #         brightness_pct: "100"
+  #         #rgb_color: [255,162,71]
+  #         rgb_color: [255, 128, 25]
 
   - id: tv2long
     alias: tv2long
@@ -1049,46 +1051,45 @@ automation:
     # - service: light.turn_off
     #   entity_id: light.gateway_light_7c49eb1c2d6b
 
+  - id: winteriscoming
+    alias: winteriscoming
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.snow
+        above: 5
+    action:
+      - service: notify.me
+        data_template:
+          title: "Snow is coming"
+          message: "Det er meldt {{ states.sensor.snow.state }} cm med snø de neste 8 timene."
+
   ########################################
   ########                        ########
   ########         Garage         ########
   ########################################
 
-  - id: lukkgarasjemedfjern
-    alias: lukkgarasjemedfjern
-    trigger:
-      platform: state
-      entity_id: switch.testportapner
-    action:
-      - service: homeassistant.toggle
-        entity_id: input_boolean.garageport
+  # - id: lukkgarasjemedfjern
+  #   alias: lukkgarasjemedfjern
+  #   trigger:
+  #     platform: state
+  #     entity_id: switch.testportapner
+  #   action:
+  #     - service: homeassistant.toggle
+  #       entity_id: input_boolean.garageport
 
-  - id: Garageport
-    alias: Garageport
-    trigger:
-      platform: state
-      entity_id: input_boolean.garageport
-    action:
-      - service: switch.toggle
-        entity_id: switch.garageswitch
+  # - id: Garageport
+  #   alias: Garageport
+  #   trigger:
+  #     platform: state
+  #     entity_id: input_boolean.garageport
+  #   action:
+  #     - service: switch.toggle
+  #       entity_id: switch.garageswitch
 
   ########################################
   ########                        ########
   ########         Wakeup         ########
   ########################################
-
-  # - alias: 'turnofftrymasleep'
-  #   trigger:
-  #   - platform: state
-  #     entity_id: input_boolean.casleep
-  #     to: 'off'
-  #     for:
-  #       minutes: 30
-  #   action:
-  #   - service: input_boolean.turn_off
-  #     entity_id: input_boolean.ammetid
-  #   - service: input_boolean.turn_off
-  #     entity_id: input_boolean.trymasleep
 
   # - id: "1613686499118"
   #   alias: Tvonwhenasleep

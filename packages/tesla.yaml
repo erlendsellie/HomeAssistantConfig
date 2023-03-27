@@ -161,47 +161,44 @@ automation:
           - service: switch.turn_on
             entity_id: switch.garage_is_enabled
 
-  - alias: "defrostTeslaWhenHome"
-    id: "defrostTeslaWhenHome"
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.easleep
-        to: "off"
-    condition:
-      - condition: state
-        entity_id: device_tracker.modely_location_tracker
-        state: "home"
-      - condition: time
-        weekday:
-          - mon
-          - tue
-          - wed
-          - thu
-          - fri
-      - condition: numeric_state
-        entity_id: sensor.ute_temperature
-        below: 6
-      - condition: template
-        value_template: >-
-          {{ states.binary_sensor.modely_charger_sensor.state == 'on' or states.sensor.modely.state | int(default=0) > 30 }}
-    action:
-      - delay:
-          minutes: 10
-      - service: script.defrostcar
-      - delay:
-          minutes: 1
-      - service: script.defrostcar
-      - delay:
-          minutes: 1
-      - condition: template
-        value_template: >-
-          {{ states.climate.modely.state == 'off'}}
-      - service: script.turn_on
-        entity_id: script.notify
-        data_template:
-          variables:
-            title: Error
-            message: Defrosting car failed.
+  # - alias: "defrostTeslaWhenHome"
+  #   id: "defrostTeslaWhenHome"
+  #   trigger:
+  #     - platform: state
+  #       entity_id: input_boolean.easleep
+  #       to: "off"
+  #   condition:
+  #     - condition: state
+  #       entity_id: device_tracker.modely_location_tracker
+  #       state: "home"
+  #     - condition: time
+  #       weekday:
+  #         - mon
+  #         - tue
+  #         - wed
+  #         - thu
+  #         - fri
+  #     - condition: numeric_state
+  #       entity_id: sensor.ute_temperature
+  #       below: 6
+  #     - condition: template
+  #       value_template: >-
+  #         {{ states.binary_sensor.modely_charger_sensor.state == 'on' or states.sensor.modely.state | int(default=0) > 70 }}
+  #   action:
+  #     - delay:
+  #         minutes: 10
+  #     - service: script.defrostcar
+  #     - delay:
+  #         minutes: 1
+  #     - condition: template
+  #       value_template: >-
+  #         {{ states.climate.modely.state == 'off'}}
+  #     - service: script.turn_on
+  #       entity_id: script.notify
+  #       data_template:
+  #         variables:
+  #           title: Error
+  #           message: Defrosting car failed.
 
   - alias: AskToTurnOnSleipnerWork
     id: AskToTurnOnSleipnerWork

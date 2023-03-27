@@ -136,7 +136,7 @@ automation:
       - platform: time_pattern
         minutes: "/2"
       - platform: state
-        entity_id: input_number.dynamic_limit
+        entity_id: input_number.easee_dynamic_limit
     condition:
       - condition: template
         value_template: "{{states('sensor.garage_power') | int(default=0) > 1}}"

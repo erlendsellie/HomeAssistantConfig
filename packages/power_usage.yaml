@@ -155,12 +155,11 @@ sensor:
     unit_prefix: k
     round: 2
 
-  - platform: integration
-    source: sensor.varmepumpe_w
-    name: Varmepumpe Kwh
-    unit_prefix: k
-    round: 2
-
+  # - platform: integration
+  #   source: sensor.varmepumpe_w
+  #   name: Varmepumpe Kwh
+  #   unit_prefix: k
+  #   round: 2
   - platform: integration
     source: sensor.power_other_filtered
     name: Power Other Kwh Raw

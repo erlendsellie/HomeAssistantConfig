@@ -12,6 +12,7 @@
 .storage
 .cloud
 .google.token
+.ssh
 themes
 broadlink_fan_codes
 broadlink_media_codes
@@ -97,6 +98,7 @@ home-assistant_v2.db-wal
 home-assistant.log.fault
 old_alarm_yamlarm.txt
 notify.yaml
+googlecloud.json
 
 
 

@@ -106,7 +106,7 @@ automation:
         to: "on"
     condition:
       - condition: time
-        after: "18:20:00"
+        after: "18:45:00"
         before: "23:00:00"
       - condition: state
         entity_id: input_boolean.trymasleep
@@ -121,6 +121,9 @@ automation:
         entity_id: binary_sensor.trym_door
         to: "on"
     condition:
+      - condition: time
+        after: "00:00:00"
+        before: "18:00:00"
       - condition: template
         value_template: "{{ states('sensor.trym_traffic_color') != 'red'}}"
     action:

@@ -1,3 +1,9 @@
+homeassistant:
+  customize:
+    # Add state-class to enable long term statistics:
+    sensor.tsla:
+      state_class: measurement
+
 input_number:
   # cheapgme:
   #   name: Cheap GME

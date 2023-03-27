@@ -62,22 +62,22 @@ script:
         value_template: "{{states.device_tracker.modely_location_tracker.state == 'home'}}"
       - service: button.press
         data:
-          entity_id: button.sleipner_flash_lights
+          entity_id: button.modely_flash_lights
       - delay:
           seconds: 2
       - service: button.press
         data:
-          entity_id: button.sleipner_flash_lights
+          entity_id: button.modely_flash_lights
       - delay:
           seconds: 2
       - service: button.press
         data:
-          entity_id: button.sleipner_flash_lights
+          entity_id: button.modely_flash_lights
       - delay:
           seconds: 2
       - service: button.press
         data:
-          entity_id: button.sleipner_flash_lights
+          entity_id: button.modely_flash_lights
 
   airraid:
     sequence:

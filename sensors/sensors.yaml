@@ -583,13 +583,13 @@
         {%-set trymasleep = states.input_boolean.trymasleep.state == 'on' -%}
         {%-set tyraasleep = states.input_boolean.tyraasleep.state == 'on' -%}
         {% if trymasleep or tyraasleep %}
-          0.3
+          0.5
         {% elif states.input_boolean.powernap.state == 'on' %} 
           0.0
         {% elif states.input_select.alarm.state == 'Disarm' %} 
-          0.6
+          0.7
         {% elif states.input_select.alarm.state == 'Arm Home'%}
-          0.1
+          0.2
         {% else %}
           0.0
         {% endif %}

@@ -48,7 +48,7 @@ logger:
     #homeassistant.components.websocket_api: debug
     #homeassistant.components: warning
     #homeassistant.components.switch.broadlink: info
-    homeassistant.components.verisure: info
+    homeassistant.components.verisure: debug
     homeassistant.components.camera.generic: warning
     #homeassistant.components.mqtt: notset
     #homeassistant.components.ffmpeg: debug
@@ -622,6 +622,19 @@ tts:
     language: "no"
     #base_url: !secret base_url
 
+  - platform: google_cloud
+    key_file: googlecloud.json
+    language: nb-NO
+    gender: female
+    voice: nb-NO-Standard-E
+    encoding: linear16
+    # speed: 1
+    # pitch: -2.5
+    # gain: -5.0
+    text_type: ssml
+    profiles:
+      - small-bluetooth-speaker-class-device
+      - medium-bluetooth-speaker-class-device
 script: !include script.yaml
 
 ffmpeg:

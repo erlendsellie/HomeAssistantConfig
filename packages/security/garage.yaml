@@ -19,7 +19,7 @@ cover:
         close_cover:
           - service: script.close_garage_door
           - delay:
-              seconds: 10
+              seconds: 20
           - condition: template
             value_template: "{{ states.cover.garage_door.state == 'open' }}"
           - service: script.turn_on

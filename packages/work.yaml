@@ -1,3 +1,9 @@
+homeassistant:
+  customize:
+    # Add state-class to enable long term statistics:
+    sensor.worked_today:
+      state_class: measurement
+
 sensor:
   - platform: history_stats
     name: Worked today

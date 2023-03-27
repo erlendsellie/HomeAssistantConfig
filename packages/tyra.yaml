@@ -133,7 +133,7 @@ automation:
     condition:
       - condition: time
         after: "11:30:00"
-        before: "12:45:00"
+        before: "13:45:00"
       - condition: state
         entity_id: binary_sensor.tyra_motion
         state: "on"
@@ -151,7 +151,7 @@ automation:
         to: "on"
     condition:
       - condition: time
-        after: "18:20:00"
+        after: "18:45:00"
         before: "23:00:00"
       - condition: state
         entity_id: input_boolean.tyraasleep
@@ -166,9 +166,9 @@ automation:
         entity_id: binary_sensor.tyra_door
         to: "on"
     condition:
-      # condition: time
-      # after: "04:10:00"
-      # before: "18:00:00"
+      - condition: time
+        after: "04:10:00"
+        before: "18:00:00"
       - condition: template
         value_template: "{{ states('sensor.tyra_traffic_color') != 'red'}}"
     action:

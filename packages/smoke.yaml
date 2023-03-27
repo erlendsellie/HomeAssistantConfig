@@ -127,34 +127,44 @@ script:
         data_template:
           entity_id: media_player.living_room_speaker
           volume_level: 1
-      - service: tts.google_say
-        entity_id: media_player.minis, media_player.clock
+      - service: tts.google_cloud_say
+        entity_id:
+          - media_player.minis
+          - media_player.clock
         data_template:
           message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
       - delay:
           seconds: 5
           #varsler bare en gang.
-      - service: tts.google_say
-        entity_id: media_player.minis, media_player.clock
+      - service: tts.google_cloud_say
+        entity_id:
+          - media_player.minis
+          - media_player.clock
         data_template:
           message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
       - delay:
           seconds: 5
-      - service: tts.google_say
-        entity_id: media_player.minis, media_player.clock
+      - service: tts.google_cloud_say
+        entity_id:
+          - media_player.minis
+          - media_player.clock
         data_template:
           message: "Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. "
       - delay:
           seconds: 5
-      - service: tts.google_say
-        entity_id: media_player.minis,  media_player.clock
+      - service: tts.google_cloud_say
+        entity_id:
+          - media_player.minis
+          - media_player.clock
         data_template:
           message: "Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. "
       - delay:
           seconds: 12
       - service: media_player.volume_set
         data_template:
-          entity_id: media_player.minis, media_player.clock
+          entity_id:
+            - media_player.minis
+            - media_player.clock
           volume_level: 0.5
       # - service: xiaomi_aqara.play_ringtone
       #   data:

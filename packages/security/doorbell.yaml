@@ -148,8 +148,8 @@ script:
       - service: media_player.play_media
         data:
           entity_id: media_player.minis
-          #            media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
-          media_content_id: https://hjem.sellie.no/local/sounds/screams/goosebumps.mp3
+          media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
+          #media_content_id: https://hjem.sellie.no/local/sounds/screams/goosebumps.mp3
           media_content_type: "music"
       - delay:
           seconds: 15
@@ -180,7 +180,7 @@ script:
       #     message: Noen ringte på døra
       #     data:
       #       file: /tmp/snapshot.jpg
-      # - service: tts.google_say
+      # - service: tts.google_cloud_say
       #   entity_id: media_player.pi
       #   data:
       #     message: 'Ding dong! Someone is at the door'
