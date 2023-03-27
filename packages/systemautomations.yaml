@@ -494,11 +494,16 @@ sensor:
 binary_sensor:
   - platform: command_line
     name: Backup Database Done
-    command: 'if ssh -n -o UserKnownHostsFile=/config/.ssh/known_hosts -i /config/.ssh/id_rsa root@192.168.1.100 "find /var/lib/vz/dump_db -type f -mtime -1" | grep "vzdump"; then echo "ON"; else echo "OFF"; fi'
+    command: 'ssh -n -o UserKnownHostsFile=/config/.ssh/known_hosts -i /config/.ssh/id_rsa root@192.168.1.100 "find /var/lib/vz/dump_db -type f -mtime -1" | wc -l'
+    payload_on: 1
+    payload_off: 0
 
   - platform: command_line
     name: Backup HA Done
-    command: 'if ssh -n -o UserKnownHostsFile=/config/.ssh/known_hosts -i /config/.ssh/id_rsa root@192.168.1.100 "find /var/lib/vz/dump_ha -type f -mtime -1" | grep "vzdump"; then echo "ON"; else echo "OFF"; fi'
+    command: 'ssh -n -o UserKnownHostsFile=/config/.ssh/known_hosts -i /config/.ssh/id_rsa root@192.168.1.100 "find /var/lib/vz/dump_ha -type f -mtime -1" | wc -l'
+    value_template: "{{value}}"
+    payload_on: 1
+    payload_off: 0
 
 template:
   #  Count number of loaded Integrations
