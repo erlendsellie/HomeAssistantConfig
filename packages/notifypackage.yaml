@@ -342,17 +342,17 @@ automation:
     #   data_template:
     #     message: 'Trym sover ble slått på'
 
-  - alias: "ByasenOffline"
-    trigger:
-      platform: state
-      entity_id: binary_sensor.byasen_duckdns
-      to: "off"
-      for:
-        minutes: 10
-    action:
-      - service: notify.me
-        data_template:
-          message: "Home Assistant på Byåsen er nede!"
+  # - alias: "ByasenOffline"
+  #   trigger:
+  #     platform: state
+  #     entity_id: binary_sensor.byasen_duckdns
+  #     to: "off"
+  #     for:
+  #       minutes: 10
+  #   action:
+  #     - service: notify.me
+  #       data_template:
+  #         message: "Home Assistant på Byåsen er nede!"
 
   - alias: incall
     id: incall

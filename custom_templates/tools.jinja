@@ -1,0 +1,22 @@
+
+"""welcome_home
+    - Person entity
+"""
+{% macro welcome_home(person) %}
+
+{%set name = state_attr(person, 'friendly_name')%}
+Velkommen hjem, {{name}}!
+{%-if name == 'Erlend'%}
+Strømforbruk hittil i dag er {{states('sensor.accumulated_consumption_current_day')}}
+{%endif%}
+
+{% endmacro %}
+
+"""hour - for testing
+""" TIPS: Remember to add '-' if you want to check the return statement,
+""" eg {%if hour() == '22' %}. Or cast to int like hour() | int. 
+""" Else there will a lot of new lines, which breaks the string-comparison
+"""
+{%- macro hour() -%}
+{{now().hour}}
+{%- endmacro -%}

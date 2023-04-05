@@ -118,6 +118,14 @@ binary_sensor:
           {% set effektledd = states('input_number.effektledd') | float(default=9.8) %}
           {%-set threshold = effektledd | float(default=0)-%}
           {{effect >= threshold and minutes > 18}}
+      effect_is_high_immidiate:
+        friendly_name: "Effect Is High Immidiate"
+        value_template: >-
+          {% set effect = states.sensor.effekt_denne_timen_trend.state | float(default=0)%}
+          {% set minutes = now().minute %}
+          {% set effektledd = states('input_number.effektledd') | float(default=9.8) %}
+          {%-set threshold = effektledd | float(default=0)-%}
+          {{effect >= threshold and minutes > 18}}
       effect_is_really_high:
         friendly_name: "Effect Is Really High"
         delay_off:
@@ -151,20 +159,20 @@ automation:
     mode: parallel
     trigger:
       - platform: state
-        entity_id: binary_sensor.effect_is_high
+        entity_id: binary_sensor.effect_is_high_immidiate
         to: "on"
       - platform: state
-        entity_id: binary_sensor.effect_is_high
+        entity_id: binary_sensor.effect_is_high_immidiate
         to: "on"
         for:
           minutes: 15
       - platform: state
-        entity_id: binary_sensor.effect_is_high
+        entity_id: binary_sensor.effect_is_high_immidiate
         to: "on"
         for:
           minutes: 30
       - platform: state
-        entity_id: binary_sensor.effect_is_high
+        entity_id: binary_sensor.effect_is_high_immidiate
         to: "on"
         for:
           minutes: 35
@@ -177,7 +185,7 @@ automation:
       - condition: template
         value_template: "{{ states.input_boolean.limit_power.state == 'on'}}"
       - condition: template
-        value_template: "{{ states.binary_sensor.effect_is_high.state == 'on'}}"
+        value_template: "{{ states.binary_sensor.effect_is_high_immidiate.state == 'on'}}"
     action:
       - choose:
           - conditions:

@@ -31,7 +31,7 @@ automation:
     trigger:
       - platform: numeric_state
         entity_id: sensor.felleskortet
-        below: 750
+        below: 1000
     action:
       - service: script.turn_on
         entity_id: script.notifyboth

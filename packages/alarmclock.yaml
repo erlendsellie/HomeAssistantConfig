@@ -7,6 +7,10 @@
 #   index: 0
 #   scan_interval: 900
 
+input_boolean:
+  waking_up:
+    name: "Waking Up"
+
 automation:
   - alias: AlarmTime
     id: alarmtime
@@ -30,9 +34,9 @@ automation:
         - condition: state
           entity_id: input_boolean.easleep
           state: "on"
-        - condition: state
-          entity_id: input_boolean.casleep
-          state: "off"
+        # - condition: state
+        #   entity_id: input_boolean.casleep
+        #   state: "off"
         # - condition: state
         #   entity_id: binary_sensor.ccharging
         #   state: 'off'
@@ -49,8 +53,12 @@ automation:
       # - service: notify.me
       #   data:
       #     message: 'Vekking av deg startet'
+      # - service: script.turn_on
+      #   entity_id: script.wakeup
+      # - delay:
+      #     minutes: 10
       - service: script.turn_on
-        entity_id: script.wakeup
+        entity_id: script.wakeupai
 
   # - alias: ErlendWakeup
   #   id: ErlendWakeup
@@ -142,6 +150,17 @@ automation:
       - service: script.turn_on
         entity_id: script.stilloverslept
 
+  - alias: TurnOffWakingUp
+    id: TurnOffWakingUp
+    trigger:
+      #todo, NFC trigger?
+      - platform: state
+        entity_id: input_boolean.easleep
+        to: "off"
+    action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.waking_up
+
 script:
   wakeup:
     sequence:
@@ -165,6 +184,62 @@ script:
       #   data:
       #     media_content_id: "{{states.sensor.podcast_smartere_paa.state}}"
       #     media_content_type: music
+  wakeupai:
+    sequence:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.waking_up
+      - variables:
+          nextAlarm: "{{ states.sensor.oneplus_next_alarm.state }}"
+      - repeat:
+          while:
+            - condition: state
+              entity_id: input_boolean.waking_up
+              state: "on"
+          sequence:
+            - service: light.turn_on
+              entity_id: light.bedroom
+              data:
+                brightness_pct: 100
+                transition: 100
+            - service: media_player.volume_set
+              data_template:
+                entity_id: media_player.clock
+                volume_level: "0.7"
+            - service: input_text.set_value
+              entity_id: input_text.openaibedroom
+              data:
+                value: ""
+            - service: input_text.set_value
+              entity_id: input_text.openaibedroom
+              data:
+                value: >-
+                  {%set time = now().hour | string + ':' + now().minute | string%}
+                  {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
+                  {%-set minutesBefore = 10 -%}
+                  {%set relativeAlarm = ((nextAlarmAsTimestamp - as_timestamp(utcnow())) / 60) | round (0) %}
+                  {%set vær = states('sensor.weather_norsk')%}
+                  Vekk meg med denne informasjonen på en behagelig måte:
+                  Klokken er {{time}}.
+                  {%-if relativeAlarm > 0%}
+                  Alarmen ringer om {{relativeAlarm}} minutter.
+                  {%-else -%}
+                  {%-set relativeAlarm = relativeAlarm * -1 | round (0) %}
+                  Alarmen ringte for {{relativeAlarm}} minutter siden.
+                  {%-endif %}
+                  Været er {{vær}}
+            - delay:
+                seconds: 10
+            - service: light.turn_off
+              entity_id: light.bedroom
+            - delay:
+                seconds: 5
+            - service: light.turn_on
+              entity_id: light.bedroom
+              data:
+                brightness_pct: 100
+                transition: 100
+            - delay:
+                minutes: 5
 
   overslept:
     sequence:

@@ -635,6 +635,21 @@ tts:
     profiles:
       - small-bluetooth-speaker-class-device
       - medium-bluetooth-speaker-class-device
+
+  # - platform: google_cloud
+  #   name: "google_cloud_british"
+  #   key_file: googlecloud.json
+  #   language: nb-NO
+  #   gender: female
+  #   voice: nb-NO-Standard-E
+  #   encoding: linear16
+  #   # speed: 1
+  #   # pitch: -2.5
+  #   # gain: -5.0
+  #   text_type: ssml
+  #   profiles:
+  #     - small-bluetooth-speaker-class-device
+  #     - medium-bluetooth-speaker-class-device
 script: !include script.yaml
 
 ffmpeg:

@@ -1,38 +1,38 @@
 template:
-  # - binary_sensor:
-  #     - name: "vvb_on"
-  #       # delay_on:
-  #       #   minutes: 3
-  #       delay_off:
-  #         seconds: 10
-  #       state: >-
-  #         {%-set notUsingSpot = states.binary_sensor.usingspot.state == 'off' -%}
-  #         {%-set pause = states.input_boolean.vvb_on.state == 'on' -%}
-  #         {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
-  #         {%-set shouldNotBother = states.binary_sensor.pricedifferenceissmall.state == 'on' -%}
-  #         {%set pricelevel = states('sensor.pricelevel')%}
-  #         {%set pricecorrectionDown = states('sensor.pricecorrection') | int  < 0%}
-  #         {%set isCheap = pricelevel ==  'CHEAP' or pricelevel == 'VERY_CHEAP'%}
-  #         {%set current_hour = states.sensor.priceanalyzer.attributes.current_hour%}
-  #         {%set is_ten_cheapest = current_hour.is_ten_cheapest %}
-  #         {% if pause%}
-  #           {{true}}
-  #         {% elif shouldNotBother %}
-  #           {{true}}
-  #         {% elif notUsingSpot%}
-  #           {{true}}
-  #         {% elif is_ten_cheapest%}
-  #           {{true}}
-  #         {% else %}
-  #           {{isLowPrice or isCheap}}
-  #         {% endif %}
-  #     - name: "Using Hot Water"
-  #       delay_off:
-  #         seconds: 10
-  #       state: >-
-  #         {{
-  #           states.sensor.vvb_difference_statistics.state | float(default=0) < -0.5
-  #         }}
+  - binary_sensor:
+      #     - name: "vvb_on"
+      #       # delay_on:
+      #       #   minutes: 3
+      #       delay_off:
+      #         seconds: 10
+      #       state: >-
+      #         {%-set notUsingSpot = states.binary_sensor.usingspot.state == 'off' -%}
+      #         {%-set pause = states.input_boolean.vvb_on.state == 'on' -%}
+      #         {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
+      #         {%-set shouldNotBother = states.binary_sensor.pricedifferenceissmall.state == 'on' -%}
+      #         {%set pricelevel = states('sensor.pricelevel')%}
+      #         {%set pricecorrectionDown = states('sensor.pricecorrection') | int  < 0%}
+      #         {%set isCheap = pricelevel ==  'CHEAP' or pricelevel == 'VERY_CHEAP'%}
+      #         {%set current_hour = states.sensor.priceanalyzer.attributes.current_hour%}
+      #         {%set is_ten_cheapest = current_hour.is_ten_cheapest %}
+      #         {% if pause%}
+      #           {{true}}
+      #         {% elif shouldNotBother %}
+      #           {{true}}
+      #         {% elif notUsingSpot%}
+      #           {{true}}
+      #         {% elif is_ten_cheapest%}
+      #           {{true}}
+      #         {% else %}
+      #           {{isLowPrice or isCheap}}
+      #         {% endif %}
+      - name: "Using Hot Water"
+        delay_off:
+          seconds: 10
+        state: >-
+          {{
+            states.sensor.vvb_difference_statistics.state | float(default=0) < -0.5
+          }}
 
   - sensor:
       - name: "vvb_temp"

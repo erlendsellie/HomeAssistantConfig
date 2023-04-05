@@ -22,6 +22,9 @@ input_text:
   openaikitchen:
     name: openaikitchen
     max: 255
+  openaibedroom:
+    name: openaibedroom
+    max: 255
   openaisammendrag:
     name: openaisammendrag
     max: 255
@@ -802,6 +805,8 @@ automation:
 
   - id: ErlendLeavingWork
     alias: Erlend Leaving Work
+    mode: single
+    max_exceeded: silent
     trigger:
       - platform: zone
         entity_id: person.erlend
@@ -830,8 +835,8 @@ automation:
       #       value_template: "{{states.sensor.erlenddirection.state == 'towards'}}"
       #   timeout: "00:10:00"
       #   continue_on_timeout: false
-      - service: script.turn_on
-        entity_id: script.warmupcominghome
+      # - service: script.turn_on
+      #   entity_id: script.warmupcominghome
       - service: script.turn_on
         entity_id: script.sayai
         data_template:
@@ -1016,6 +1021,22 @@ script:
     #   data_template:
     #     entity_id: media_player.minis
     #     volume_level: "{{states.input_number.default_volume_level.state}}"
+
+  saybedroom:
+    alias: Announcement over Google Homes Bedroom
+    mode: queued
+    sequence:
+      - condition: template
+        value_template: "{{ (states.media_player.clock.state != 'playing' and states.media_player.clock.state != 'paused')}}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.clock
+          volume_level: "0.7"
+      - service: tts.google_cloud_say
+        entity_id:
+          - media_player.clock
+        data_template:
+          message: "{{message}}"
 
   playsound:
     alias: Play Sound

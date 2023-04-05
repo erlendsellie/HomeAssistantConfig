@@ -482,6 +482,18 @@ script:
   #     - service: shell_command.lights_on_php
 
 sensor:
+  - platform: sql
+    name: mariadb
+    db_url: !secret external_db_url
+    scan_interval: 3600
+    queries:
+      - name: MariaDB database size
+        #query: 'SELECT table_schema AS "database", ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) "value" FROM information_schema.tables WHERE table_schema="homeassistant" GROUP BY table_schema;'
+        query: 'SELECT table_schema "homeassistant", Round(Sum(data_length + index_length) / POWER(1024,2), 0) "value" FROM information_schema.tables WHERE table_schema="homeassistant" GROUP BY table_schema;'
+        #queey: 'SELECT table_schema "database", Round(Sum(data_length + index_length) / 1048576, 2) "value" FROM information_schema.tables WHERE table_schema="homeassistant" GROUP BY table_schema'
+        column: "value"
+    unit_of_measurement: MB
+
   - platform: command_line
     name: "HAstats YAML-line TOTAL count"
     command: " find /config/ -name '*.yaml' | xargs cat | wc -l"
@@ -491,6 +503,47 @@ sensor:
   - platform: command_line
     name: "HAstats YAML-line Packages count"
     command: " find /config/packages -name '*.yaml' | xargs cat | wc -l"
+  # - platform: command_line
+  #   name: Kim Soppel
+  #   command: "curl 'https://norkartrenovasjon.azurewebsites.net/proxyserver.ashx?server=https://komteksky.norkart.no/komtek.renovasjonwebapi/api/tommekalender/?kommunenr=3021&gatenavn=Glimmerveien%20&gatekode=302102176&husnr=12' \ -H 'Kommunenr: 3021' \ -H 'RenovasjonAppKey: AE13DEEC-804F-4615-A74E-B4FAC11F0A30' --compressed"
+
+  - platform: rest
+    name: "KimRest"
+    scan_interval: 86400
+    resource_template: "https://norkartrenovasjon.azurewebsites.net/proxyserver.ashx?server=https://komteksky.norkart.no/komtek.renovasjonwebapi/api/tommekalender/?kommunenr=3021&gatenavn=Glimmerveien%20&gatekode=302102176&husnr=12"
+    headers:
+      Kommunenr: 3021
+      RenovasjonAppKey: "AE13DEEC-804F-4615-A74E-B4FAC11F0A30"
+    json_attributes_path: "$.[0]"
+    json_attributes:
+      - "Tommedatoer"
+    value_template: >
+      {%set next_pickup = value_json[0]%}
+      {%if next_pickup.FraksjonId == 1%}
+        {%set next_pickup_type = 'Restavfall'%}
+      {%elif next_pickup.FraksjonId == 2%}
+        {%set next_pickup_type = 'Papir'%}
+      {%endif%}
+      {{next_pickup_type}}
+
+  - platform: rest
+    name: "KimRestDato"
+    scan_interval: 86400
+    resource_template: "https://norkartrenovasjon.azurewebsites.net/proxyserver.ashx?server=https://komteksky.norkart.no/komtek.renovasjonwebapi/api/tommekalender/?kommunenr=3021&gatenavn=Glimmerveien%20&gatekode=302102176&husnr=12"
+    headers:
+      Kommunenr: 3021
+      RenovasjonAppKey: "AE13DEEC-804F-4615-A74E-B4FAC11F0A30"
+    json_attributes_path: "$.[0]"
+    json_attributes:
+      - "Tommedatoer"
+    value_template: >
+      {%set next_pickup = value_json[0]%}
+      {{next_pickup['Tommedatoer'][0]}}
+
+#{%set dato = states('sensor.kimrestdato')%}
+#Dager til tømming:
+#{{timedelta((as_timestamp(dato) - as_timestamp(now()))/60/60/24).days}}
+
 binary_sensor:
   - platform: command_line
     name: Backup Database Done
