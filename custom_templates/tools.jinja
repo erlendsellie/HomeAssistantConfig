@@ -1,3 +1,6 @@
+""" This extension-pack is nice to have when working with ninja-files in VS-code:
+""" https://open-vsx.org/extension/sugatoray/jinja-extension-pack
+
 
 """welcome_home
     - Person entity
@@ -12,11 +15,14 @@ Strømforbruk hittil i dag er {{states('sensor.accumulated_consumption_current_d
 
 {% endmacro %}
 
+
 """hour - for testing
 """ TIPS: Remember to add '-' if you want to check the return statement,
-""" eg {%if hour() == '22' %}. Or cast to int like hour() | int. 
+""" eg {# {%if hour() == '22' %} #}. Or cast to int like hour() | int. 
 """ Else there will a lot of new lines, which breaks the string-comparison
 """
 {%- macro hour() -%}
+
 {{now().hour}}
+
 {%- endmacro -%}
