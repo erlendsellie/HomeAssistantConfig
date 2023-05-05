@@ -62,6 +62,7 @@ automation:
           action: blankettvoff
       - platform: webhook
         webhook_id: !secret blankettiltvoff
+        local_only: false
     action:
       - service: script.blankettv
 
@@ -83,6 +84,7 @@ automation:
           action: blanket30min
       - platform: webhook
         webhook_id: !secret blanket30min
+        local_only: false
     action:
       - service: script.turn_on
         entity_id: script.blanket30minutes
@@ -95,6 +97,7 @@ automation:
           action: blanket60min
       - platform: webhook
         webhook_id: !secret blanket60min
+        local_only: false
     action:
       - service: script.turn_on
         entity_id: script.blanket60minutes
@@ -122,6 +125,7 @@ automation:
           action: blanketoff
       - platform: webhook
         webhook_id: !secret blanketoff
+        local_only: false
     action:
       - service: switch.turn_off
         entity_id: switch.blanket

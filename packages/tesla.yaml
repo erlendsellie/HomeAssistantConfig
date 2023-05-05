@@ -276,6 +276,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret tesla_open_trunk
+      local_only: false
     action:
       - service: cover.open_cover
         entity_id: cover.modely_trunk
@@ -293,6 +294,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret tesla_lock_trunk
+      local_only: false
     action:
       - service: cover.close_cover
         entity_id: cover.modely_trunk
@@ -310,6 +312,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret tesla_open_charger
+      local_only: false
     action:
       # - service: lock.unlock
       #   entity_id: lock.modely_charger_door_lock
@@ -327,6 +330,7 @@ automation:
     trigger:
       - platform: webhook
         webhook_id: !secret tesla_open_frunk
+        local_only: false
       - platform: event
         event_type: mobile_app_notification_action
         event_data:
@@ -348,6 +352,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret tesla_open_frunk_caroline
+      local_only: false
     action:
       - service: cover.open_cover
         entity_id: cover.modely_frunk
@@ -365,6 +370,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret tesla_lock_frunk
+      local_only: false
     action:
       - service: cover.close_cover
         entity_id: cover.modely_frunk
@@ -382,6 +388,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret tesla_22_degrees
+      local_only: false
     action:
       - service: script.climatecar
       - service: script.turn_on
@@ -396,6 +403,7 @@ automation:
     trigger:
       - platform: webhook
         webhook_id: !secret tesla_defrost
+        local_only: false
       - platform: event
         event_type: mobile_app_notification_action
         event_data:

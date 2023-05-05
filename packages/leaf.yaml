@@ -1,4 +1,3 @@
-
 #   # nissan_leaf_custom:
 #   #   username: !secret nissan_username
 #   #   password: !secret nissan_password
@@ -285,6 +284,7 @@
 #       trigger:
 #         platform: webhook
 #         webhook_id: !secret updatecarwebhook
+#        local_only: false
 #       # condition:
 #       # - condition: template
 #       #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
@@ -296,6 +296,7 @@
 #       trigger:
 #         platform: webhook
 #         webhook_id: !secret leaf_start_warmup
+#        local_only: false
 #       # condition:
 #       # - condition: template
 #       #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
@@ -308,6 +309,7 @@
 #       trigger:
 #         platform: webhook
 #         webhook_id: !secret leaf_stop_warmup
+#          local_only: false
 #       # condition:
 #       # - condition: template
 #       #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"

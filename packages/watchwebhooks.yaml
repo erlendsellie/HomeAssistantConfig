@@ -5,6 +5,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watch12
+      local_only: false
     condition:
       - condition: template
         value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off'}}"
@@ -37,6 +38,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watch9
+      local_only: false
     condition:
       - condition: template
         value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off'}}"
@@ -75,6 +77,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watch6
+      local_only: false
     condition:
       - condition: template
         value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
@@ -95,6 +98,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watch3
+      local_only: false
     condition:
       - condition: template
         value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
@@ -115,6 +119,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watchtime
+      local_only: false
     condition:
       - condition: template
         value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
@@ -134,6 +139,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watchtimecaroline
+      local_only: false
     condition:
       - condition: template
         value_template: "{{ states.person.caroline.state != 'Sykehuset' }}"
@@ -181,6 +187,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watchtemp
+      local_only: false
     condition:
       - condition: template
         value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
@@ -195,6 +202,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watchdate
+      local_only: false
     condition:
       - condition: template
         value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
@@ -224,6 +232,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watchleftbattery
+      local_only: false
     condition:
       - condition: template
         value_template: "{{states.binary_sensor.motion_downstairs_office.state == 'off'}}"
@@ -266,6 +275,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watchrightbattery
+      local_only: false
     condition:
       - condition: template
         value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
@@ -277,6 +287,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watch1
+      local_only: false
     condition:
       - condition: template
         value_template: "{{ states.group.erlend.state == 'home' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
@@ -316,6 +327,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watch11
+      local_only: false
     condition:
       - condition: template
         value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
@@ -327,6 +339,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watch5
+      local_only: false
     condition:
       - condition: template
         value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
@@ -338,6 +351,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watchmotion
+      local_only: false
     action:
       - service: notify.mobile_app_oneplus
         data_template:
@@ -371,6 +385,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watchmower
+      local_only: false
     condition:
       - condition: template
         value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
@@ -383,6 +398,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watchcarstartheating
+      local_only: false
     # condition:
     # - condition: template
     #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
@@ -394,6 +410,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret watchcarstopheating
+      local_only: false
     # condition:
     # - condition: template
     #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
@@ -404,6 +421,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret webhook_actions
+      local_only: false
     condition:
       - condition: template
         value_template: "{{ states.person.erlend.state != 'Work'}}"

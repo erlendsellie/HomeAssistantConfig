@@ -3,6 +3,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret ifttclosegarage
+      local_only: false
     action:
       - service: cover.close_cover
         entity_id: cover.garage_door
@@ -17,6 +18,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret ifttopengarage
+      local_only: false
     action:
       - service: cover.open_cover
         entity_id: cover.garage_door
@@ -31,6 +33,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret ifttbrigthness
+      local_only: false
     action:
       - service: input_number.set_value
         data_template:
@@ -45,6 +48,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret ifttturnofftv
+      local_only: false
     action:
       - service: media_player.turn_off
         entity_id: media_player.tv_stua
@@ -53,6 +57,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret pausetviftt
+      local_only: false
     action:
       - service: media_player.media_pause
         entity_id: media_player.tv_stua
@@ -61,6 +66,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret runvacuumiftt
+      local_only: false
     action:
       - service: vacuum.start
         entity_id: vacuum.xiaomi_vacuum_cleaner
@@ -69,6 +75,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret lockdooriftt
+      local_only: false
     action:
       - service: lock.lock
         entity_id: lock.ytterdor
@@ -79,6 +86,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret turnofflightsiftt
+      local_only: false
     action:
       - service: script.turn_on
         entity_id: script.lightsoff
@@ -87,6 +95,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret turnonlightsiftt
+      local_only: false
     action:
       - service: script.turn_on
         entity_id: script.lightson

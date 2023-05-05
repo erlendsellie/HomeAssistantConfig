@@ -31,6 +31,7 @@ automation:
     trigger:
       - platform: webhook
         webhook_id: !secret garmincontrolup
+        local_only: false
     action:
       - choose:
           - conditions:
@@ -88,6 +89,7 @@ automation:
     trigger:
       - platform: webhook
         webhook_id: !secret garmincontroldown
+        local_only: false
     action:
       - choose:
           - conditions:
@@ -155,6 +157,7 @@ automation:
     trigger:
       - platform: webhook
         webhook_id: !secret garmincontrolok
+        local_only: false
     action:
       - choose:
           - conditions:
@@ -207,6 +210,7 @@ automation:
   #   trigger:
   #   - platform: webhook
   #     webhook_id: !secret garmincontrolback
+        local_only: false
   #   action:
   #   - choose:
   #     - conditions:

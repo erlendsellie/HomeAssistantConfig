@@ -3,6 +3,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret turnonguestmode
+      local_only: false
     action:
       - service: input_boolean.turn_on
         entity_id: input_boolean.guestmode
@@ -11,6 +12,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret guestsleaving
+      local_only: false
     action:
       - service: input_boolean.turn_off
         entity_id: input_boolean.guestmode
@@ -20,6 +22,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret turnonlightwebhook
+      local_only: false
     action:
       - service: light.turn_on
         data_template:
@@ -30,6 +33,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret turnonradio
+      local_only: false
     action:
       - service: media_player.volume_set
         data_template:
@@ -56,6 +60,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret announcementhouse
+      local_only: false
     action:
       - service: script.turn_on
         entity_id: script.say
@@ -67,6 +72,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret wokenup
+      local_only: false
     #condition:
     #- condition: state
     #entity_id: input_boolean.casleep
@@ -88,6 +94,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret turnonlights
+      local_only: false
     action:
       - service: script.turn_on
         entity_id: script.lightson
@@ -96,6 +103,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret turnofflights
+      local_only: false
     action:
       - service: script.turn_on
         entity_id: script.lightsoff
@@ -104,6 +112,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret garagetogglewebhook
+      local_only: false
     action:
       - service: cover.toggle
         entity_id: cover.garage_door
@@ -118,6 +127,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret notifymegeneric
+      local_only: false
     action:
       service: notify.me
       data:
@@ -127,6 +137,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret notifymejson
+      local_only: false
       #event_data:
       #   action: call_service
     action:
@@ -138,6 +149,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret trymsleeping
+      local_only: false
     action:
       - service: input_boolean.turn_on
         entity_id: input_boolean.trymasleep
@@ -146,6 +158,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret trym_woken
+      local_only: false
     action:
       - service: input_boolean.turn_off
         entity_id: input_boolean.trymasleep
@@ -155,6 +168,7 @@ automation:
     trigger:
       - platform: webhook
         webhook_id: !secret caroline_woken
+        local_only: false
       - platform: state
         entity_id: binary_sensor.ccharging
         to: "off"
@@ -210,6 +224,7 @@ automation:
     trigger:
       - platform: webhook
         webhook_id: !secret caroline_sleeping
+        local_only: false
     condition:
       condition: and
       conditions:
@@ -230,6 +245,7 @@ automation:
   #   trigger:
   #   - platform: webhook
   #     webhook_id: !secret erlend_sleeping
+  #     local_only: false
   #   condition:
   #     condition: and
   #     conditions:
@@ -298,6 +314,7 @@ automation:
     trigger:
       - platform: webhook
         webhook_id: !secret erlend_sleeping
+        local_only: false
       - platform: state
         entity_id: binary_sensor.echarging
         to: "on"
@@ -323,6 +340,7 @@ automation:
     trigger:
       - platform: webhook
         webhook_id: !secret erlend_woken
+        local_only: false
       - platform: state
         entity_id: binary_sensor.echarging
         to: "off"
@@ -343,6 +361,7 @@ automation:
     trigger:
       platform: webhook
       webhook_id: !secret webhookservicecalltest
+      local_only: false
     action:
       - service_template: "{{ trigger.event.data.service }}"
         data_template:
