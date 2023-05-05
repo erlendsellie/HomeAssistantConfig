@@ -2,6 +2,47 @@
 ## Groups
 #################################################################
 
+important_devices:
+  name: Important Devices
+  entities:
+    - sensor.accumulated_consumption_current_hour_sivert_thonstads_vei_6b
+    - sensor.accumulated_consumption_current_hour
+    - sensor.modely
+    - sensor.stua_temperature
+    - climate.varmepumpe
+    - climate.sokkel
+    - sensor.netatmo_home_temperature
+    - vacuum.xiaomi_vacuum_cleaner
+    - switch.garage_esp32
+    - binary_sensor.vindfang_door
+    - sensor.nordpool
+    - sensor.priceanalyzer
+    #- media_player.nvidia_shield
+    - lock.ytterdor_verisure
+    - switch.garage_esp32
+    - device_tracker.oneplus
+    - device_tracker.caroline
+    - sensor.nordpool
+    - sensor.stua_temperature
+    - binary_sensor.front_door_ding
+    - light.trym_balloon
+    - light.tyra_ball
+    - light.trym_roof
+    - switch.varmtvannsbereder
+    - light.tv
+    - sensor.priceanalyzer
+    - sensor.pricecorrection
+    - switch.toilet_heater
+    - climate.tyra_heater
+    - climate.trym
+    - switch.office_heater
+    - switch.blanket
+    - light.tv
+    - light.sofa
+    - light.bathroom
+    - light.toilet
+    - binary_sensor.motion_livingroom
+
 garmin:
   name: Garmin
   entities:
@@ -112,7 +153,8 @@ dimmableliving:
   name: TV-krok
   icon: mdi:lightbulb
   entities:
-    light.tvsone
+    - light.tvsone
+    - light.go
     # - light.tv
     # - light.sofa
     # #- light.peis
@@ -158,6 +200,7 @@ andrelys:
     - group.bedroomlights
     - light.trym_roof
     - light.trym_balloon
+    - light.lavalamp
     - light.tyra_ball
     - light.tyra
     - light.bathroom
@@ -166,6 +209,7 @@ andrelys:
     - light.peis
     - light.play
     - light.driveway
+    - light.outdoor_led_strip
     - light.garage
     - light.garage_bulb
     - light.garage_led_strip

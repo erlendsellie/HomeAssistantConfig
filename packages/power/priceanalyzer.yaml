@@ -9,16 +9,16 @@ automation:
     action:
       - service: homeassistant.reload_config_entry
         entity_id: sensor.priceanalyzer
-      # - service: homeassistant.reload_config_entry
-      #   entity_id: sensor.priceanalyzer_se2
-      - service: homeassistant.reload_config_entry
-        entity_id: sensor.priceanalyzer_kr_sand
-      # - service: homeassistant.reload_config_entry
-      #   entity_id: sensor.priceanalyzer_no4
-      - service: homeassistant.reload_config_entry
-        entity_id: sensor.priceanalyzer_oslo
       - service: homeassistant.reload_config_entry
         entity_id: sensor.nordpool
+      # - service: homeassistant.reload_config_entry
+      #   entity_id: sensor.priceanalyzer_se2
+      # - service: homeassistant.reload_config_entry
+      #   entity_id: sensor.priceanalyzer_kr_sand
+      # - service: homeassistant.reload_config_entry
+      #   entity_id: sensor.priceanalyzer_no4
+      # - service: homeassistant.reload_config_entry
+      #   entity_id: sensor.priceanalyzer_oslo
 
   - id: tomorrow_valid_wrong
     alias: tomorrow_valid_wrong

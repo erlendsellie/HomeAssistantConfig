@@ -111,7 +111,7 @@ binary_sensor:
       effect_is_high:
         friendly_name: "Effect Is High"
         delay_off:
-          minutes: 3
+          minutes: 2
         value_template: >-
           {% set effect = states.sensor.effekt_denne_timen_trend.state | float(default=0)%}
           {% set minutes = now().minute %}
@@ -276,6 +276,8 @@ automation:
         entity_id: input_boolean.limit_heaters
       - service: input_boolean.turn_off
         entity_id: input_boolean.limit_water_heater
+      - condition: template
+        value_template: "{{ states.input_boolean.charging_was_paused.state == 'on'}}"
       - service: script.resumecharging
 
   - alias: chargerWasNotPaused
@@ -380,6 +382,10 @@ script:
         data:
           device_id: 6253823754803a08f0b3d8c4d7acbd30
           action_command: resume
+      # - service: easee.action_command
+      #   data:
+      #     device_id: 6253823754803a08f0b3d8c4d7acbd30
+      #     action_command: start
 
   limitcharging:
     alias: Limit Charging

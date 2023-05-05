@@ -29,7 +29,7 @@ cover:
                 title: Seems like the garage could not close
                 message: Seems like the garage could not close
         stop_cover:
-          service: script.close_garage_door
+          service: script.stop_garage_door
         icon_template: >-
           {% if is_state('binary_sensor.garage', 'on')%}
             mdi:garage-open
@@ -106,6 +106,28 @@ script:
               message: closed
           - delay:
               seconds: 10
+
+  stop_garage_door:
+    alias: stop_garage_door
+    mode: single
+    max_exceeded: silent
+    sequence:
+      - condition: template
+        value_template: "{{ states.cover.garage_door.state == 'open' }}"
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ states.input_boolean.tabletennis.state == 'on'}}"
+            sequence:
+              - service: script.turn_on
+                entity_id: script.notify
+                data_template:
+                  variables:
+                    title: Table tennis mode is turned on
+                    message: Garage will not close before turning it off.
+        default:
+          - service: switch.turn_on
+            entity_id: switch.garage_esp32
 
   garagetoggle:
     sequence:

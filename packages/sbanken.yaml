@@ -5,6 +5,23 @@ homeassistant:
       state_class: measurement
     sensor.rammelan:
       state_class: measurement
+    sensor.brukskonto:
+      state_class: measurement
+    sensor.bufferkonto:
+      state_class: measurement
+    sensor.felleskortet:
+      state_class: measurement
+    sensor.regningskonto:
+      state_class: measurement
+    sensor.sparekonto:
+      state_class: measurement
+    sensor.til_betaling:
+      state_class: measurement
+    sensor.sbanken_egen_cash:
+      state_class: measurement
+    sensor.sbanken_samlet_cash:
+      state_class: measurement
+
 template:
   - sensor:
       - name: "Rammelån balance"
@@ -24,6 +41,23 @@ template:
         state: >-
           {%set last = states.sensor.regningskonto.attributes.transactions[0]%}
           {{last.amount}} på {{last.text}}
+      - name: Sbanken Egen Cash
+        unit_of_measurement: NOK
+        state_class: measurement
+        state: >-
+          {%set brukskonto = states('sensor.brukskonto') | float(default=0)%}
+          {%set bufferkonto = states('sensor.bufferkonto') | float(default=0)%}
+          {%set sparekonto = states('sensor.sparekonto') | float(default=0)%}
+          {%set til_betaling = states('sensor.til_betaling') | float(default=0)%}
+          {{brukskonto + bufferkonto + sparekonto + til_betaling}}
+      - name: Sbanken Samlet Cash
+        unit_of_measurement: NOK
+        state_class: measurement
+        state: >-
+          {%set egne_kontoer = states('sensor.sbanken_egen_cash') | float(default=0)%}
+          {%set felleskortet = states('sensor.felleskortet') | float(default=0)%}
+          {%set rammelan = states('sensor.rammelan') | float(default=0)%}
+          {{egne_kontoer + felleskortet + rammelan}}
 
 automation:
   - id: felleskortetlow

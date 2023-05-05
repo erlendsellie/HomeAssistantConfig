@@ -111,6 +111,9 @@ automation:
       - condition: state
         entity_id: input_boolean.trymasleep
         state: "off"
+      - condition: state
+        entity_id: input_select.alarm
+        state: "Disarm"
     action:
       - service: input_boolean.turn_on
         entity_id: input_boolean.trymasleep
@@ -136,6 +139,10 @@ automation:
         at: "20:00:00"
     # - platform: time
     #   at: '20:15:00'
+    condition:
+      - condition: state
+        entity_id: input_select.alarm
+        state: "Disarm"
     action:
       - service: input_boolean.turn_on
         entity_id: input_boolean.trymasleep
@@ -212,27 +219,27 @@ automation:
   #   - service: light.turn_off
   #     entity_id: light.trym_roof
 
-  - alias: TrymAsleepOnLights
-    id: trymasleeponlights
-    trigger:
-      - platform: state
-        entity_id: input_boolean.trymasleep
-        to: "on"
-      - platform: state
-        entity_id: input_select.alarm
-        to: "Arm Home"
-        for:
-          seconds: 30
-      - platform: state
-        entity_id: input_select.alarm
-        to: "Arm Home"
-        for:
-          minutes: 10
-    action:
-      - service: light.turn_on
-        entity_id: light.trym_roof
-        data_template:
-          brightness_pct: "{{ states.sensor.brightnessfortrymlight.state }}"
+  # - alias: TrymAsleepOnLights
+  #   id: trymasleeponlights
+  #   trigger:
+  #     - platform: state
+  #       entity_id: input_boolean.trymasleep
+  #       to: "on"
+  #     - platform: state
+  #       entity_id: input_select.alarm
+  #       to: "Arm Home"
+  #       for:
+  #         seconds: 30
+  #     - platform: state
+  #       entity_id: input_select.alarm
+  #       to: "Arm Home"
+  #       for:
+  #         minutes: 10
+  #   action:
+  #     - service: light.turn_on
+  #       entity_id: light.trym_roof
+  #       data_template:
+  #         brightness_pct: "{{ states.sensor.brightnessfortrymlight.state }}"
 
   - alias: turnOffTrymLightBall
     trigger:
@@ -284,3 +291,4 @@ automation:
           color_name: white
           entity_id:
             - light.trym_balloon
+            - light.lavalamp

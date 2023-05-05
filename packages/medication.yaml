@@ -100,10 +100,12 @@ automation:
 
   - alias: medsTaken
     trigger:
-      platform: event
-      event_type: mobile_app_notification_action
-      event_data:
-        action: medstaken
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: medstaken
+      - platform: tag
+        tag_id: bffa609d-495b-447a-8a04-3df26bb9324b
     action:
       - service: input_boolean.turn_off
         entity_id: input_boolean.takemeds

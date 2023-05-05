@@ -28,7 +28,7 @@ automation:
     action:
       service: frontend.set_theme
       data:
-        name: ios-dark-mode
+        name: "Fluent Slate"
         mode: dark
 
   - alias: Restart Home Assistant When High Memory
@@ -165,6 +165,33 @@ automation:
         data_template:
           title: Important device unavailable
           message: "{{trigger.from_state.name}} is unavailable"
+
+  - alias: NotifyImportantDevicesDownNew
+    id: NotifyImportantDevicesDownNew
+    trigger:
+      - platform: time
+        at: "19:30:00"
+      - platform: template
+        value_template: >
+          {% from 'tools.jinja' import important_devices %} 
+          {% from 'tools.jinja' import low_battery %}
+          {{important_devices()}}
+    condition:
+      - condition: template
+        value_template: >
+          {% from 'tools.jinja' import important_devices %} 
+          {% from 'tools.jinja' import low_battery %}
+          {{important_devices()}}
+    action:
+      - service: script.turn_on
+        entity_id: script.notify
+        data_template:
+          variables:
+            title: Important Devices
+            message: >
+              {% from 'tools.jinja' import important_devices %} 
+              {% from 'tools.jinja' import low_battery %}
+              {{important_devices()}}
 
   - alias: "Turn On Living Room TV with WakeOnLan"
     trigger:
@@ -547,13 +574,13 @@ sensor:
 binary_sensor:
   - platform: command_line
     name: Backup Database Done
-    command: 'ssh -n -o UserKnownHostsFile=/config/.ssh/known_hosts -i /config/.ssh/id_rsa root@192.168.1.100 "find /var/lib/vz/dump_db -type f -mtime -1" | wc -l'
+    command: 'ssh -n -o UserKnownHostsFile=/config/.ssh/known_hosts -i /config/.ssh/id_rsa root@192.168.1.100 "find /var/lib/vz/dump_db -type f -mtime -2" | wc -l'
     payload_on: 1
     payload_off: 0
 
   - platform: command_line
     name: Backup HA Done
-    command: 'ssh -n -o UserKnownHostsFile=/config/.ssh/known_hosts -i /config/.ssh/id_rsa root@192.168.1.100 "find /var/lib/vz/dump_ha -type f -mtime -1" | wc -l'
+    command: 'ssh -n -o UserKnownHostsFile=/config/.ssh/known_hosts -i /config/.ssh/id_rsa root@192.168.1.100 "find /var/lib/vz/dump_ha -type f -mtime -2" | wc -l'
     value_template: "{{value}}"
     payload_on: 1
     payload_off: 0

@@ -1058,8 +1058,20 @@ script:
           entity_id: camera.driveway_stream
           filename: "/config/www/snapshot.mp4"
           duration: 5
-      - delay:
-          seconds: 15
+      # - delay:
+      #     seconds: 5
+
+      # - service: notify.mobile_app_oneplus
+      #   data:
+      #     message: "Test file"
+      #     data:
+      #       video: "/config/www/snapshot.mp4"
+      # - service: notify.mobile_app_oneplus
+      #   data:
+      #     message: "Test camera proxy"
+      #     data:
+      #       # the same works for video
+      #       video: "/api/camera_proxy/camera.driveway"
       - service: notify.me
         data:
           title: "Test video"

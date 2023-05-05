@@ -9,7 +9,9 @@ automation:
         from: "off"
     action:
       - service: light.turn_on
-        entity_id: light.driveway
+        entity_id:
+          - light.driveway
+          - light.outdoor_led_strip
         data:
           color_name: red
       - service: script.flashteslaifhome
@@ -17,7 +19,9 @@ automation:
           seconds: 10
       - service: light.turn_on
         data:
-          entity_id: light.driveway
+          entity_id:
+            - light.driveway
+            - light.outdoor_led_strip
           kelvin: 2400
 
   - id: bathroom_door_halloween

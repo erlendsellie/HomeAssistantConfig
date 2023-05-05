@@ -50,10 +50,7 @@
 #   unit_of_measurement: USD
 
 - platform: command_line
-  command: >-
-    curl 'https://www.posten.no/levering-av-post/_/component/main/1/leftRegion/11?postCode=7072' \
-      -H 'x-requested-with: XMLHttpRequest' \
-      --compressed
+  command: 'curl -X GET -H "Content-type: application/json" -H "kp-api-token: {{states.sensor.postenapikey.state}}"  https://www.posten.no/levering-av-post/_/service/no.posten.website/delivery-days?postalCode=7072'
   name: MailToday
   json_attributes:
     - nextDeliveryDays
@@ -531,18 +528,12 @@
       unit_of_measurement: Minutes
       value_template: >-
         {{((states.sensor.octoprint_time_remaining.state | int(default=0)) /60 )|round(0)}}
-    octoprint_time_ready:
+    octoprint_time_ready: #this works now.
       friendly_name: "OctoPrint ETA time"
-      unit_of_measurement: time
+      device_class: "timestamp"
       value_template: >-
         {%- set date = as_timestamp(now()) + states('sensor.octoprint_time_remaining')| float(default=0) -%}
-        {{(date|timestamp_local).split( )[1]}}
-    octoprint_day_ready:
-      friendly_name: "OctoPrint ETA day"
-      unit_of_measurement: time
-      value_template: >-
-        {%- set date = as_timestamp(now()) + states('sensor.octoprint_time_remaining')| float(default=0) -%}
-        {{(date|timestamp_local).split( )[0]}}
+        {{date | timestamp_local}}
 
     # realtargettemp:
     #   friendly_name: "Target"

@@ -10,6 +10,30 @@ utility_meter:
     unique_id: sensor.varmepumpe_energy_hourly
     cycle: hourly
 
+  easee_consumption_current_day:
+    source: sensor.garage_lifetime_energy
+    cycle: daily
+    name: Easee consumption current day
+    unique_id: sensor.easee_consumption_current_day
+
+  varmtvannsbereder_consumption_current_day:
+    source: sensor.varmtvannsbereder_consumed_kwh
+    cycle: daily
+    name: Varmtvannsbereder consumption current day
+    unique_id: sensor.varmtvannsbereder_consumption_current_day
+
+  bathroom_vk_consumption_current_day:
+    source: sensor.bathroom_consumption_kwh
+    cycle: daily
+    name: Bathroom VK consumption current day
+    unique_id: sensor.bathroom_vk_consumption_current_day
+
+  power_other_consumption_current_day:
+    source: sensor.power_other_kwh
+    cycle: daily
+    name: Power Other consumption current day
+    unique_id: sensor.power_other_consumption_current_day
+
 sensor:
   - platform: template
     sensors:

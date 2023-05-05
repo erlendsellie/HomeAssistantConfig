@@ -196,48 +196,53 @@ script:
               entity_id: input_boolean.waking_up
               state: "on"
           sequence:
-            - service: light.turn_on
-              entity_id: light.bedroom
-              data:
-                brightness_pct: 100
-                transition: 100
-            - service: media_player.volume_set
-              data_template:
-                entity_id: media_player.clock
-                volume_level: "0.7"
-            - service: input_text.set_value
-              entity_id: input_text.openaibedroom
-              data:
-                value: ""
-            - service: input_text.set_value
-              entity_id: input_text.openaibedroom
-              data:
-                value: >-
-                  {%set time = now().hour | string + ':' + now().minute | string%}
-                  {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
-                  {%-set minutesBefore = 10 -%}
-                  {%set relativeAlarm = ((nextAlarmAsTimestamp - as_timestamp(utcnow())) / 60) | round (0) %}
-                  {%set vær = states('sensor.weather_norsk')%}
-                  Vekk meg med denne informasjonen på en behagelig måte:
-                  Klokken er {{time}}.
-                  {%-if relativeAlarm > 0%}
-                  Alarmen ringer om {{relativeAlarm}} minutter.
-                  {%-else -%}
-                  {%-set relativeAlarm = relativeAlarm * -1 | round (0) %}
-                  Alarmen ringte for {{relativeAlarm}} minutter siden.
-                  {%-endif %}
-                  Været er {{vær}}
-            - delay:
-                seconds: 10
-            - service: light.turn_off
-              entity_id: light.bedroom
-            - delay:
-                seconds: 5
-            - service: light.turn_on
-              entity_id: light.bedroom
-              data:
-                brightness_pct: 100
-                transition: 100
+            - if:
+                - condition: state
+                  entity_id: input_boolean.casleep
+                  state: "off"
+              then:
+                - service: light.turn_on
+                  entity_id: light.bedroom
+                  data:
+                    brightness_pct: 100
+                    transition: 100
+                - service: media_player.volume_set
+                  data_template:
+                    entity_id: media_player.clock
+                    volume_level: "0.7"
+                - service: input_text.set_value
+                  entity_id: input_text.openaibedroom
+                  data:
+                    value: ""
+                - service: input_text.set_value
+                  entity_id: input_text.openaibedroom
+                  data:
+                    value: >-
+                      {%set time = now().hour | string + ':' + now().minute | string%}
+                      {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
+                      {%-set minutesBefore = 10 -%}
+                      {%set relativeAlarm = ((nextAlarmAsTimestamp - as_timestamp(utcnow())) / 60) | round (0) %}
+                      {%set vær = states('sensor.weather_norsk')%}
+                      Du er en vekkeklokke og skal vekke meg på en sarkastisk måte. Finn på en vits også.
+                      Klokken er {{time}}.
+                      {%-if relativeAlarm > 0%}
+                      Alarmen ringer om {{relativeAlarm}} minutter.
+                      {%-else -%}
+                      {%-set relativeAlarm = relativeAlarm * -1 | round (0) %}
+                      Alarmen ringte for {{relativeAlarm}} minutter siden.
+                      {%-endif %}
+                      Været er {{vær}}
+                - delay:
+                    seconds: 10
+                - service: light.turn_off
+                  entity_id: light.bedroom
+                - delay:
+                    seconds: 5
+                - service: light.turn_on
+                  entity_id: light.bedroom
+                  data:
+                    brightness_pct: 100
+                    transition: 100
             - delay:
                 minutes: 5
 

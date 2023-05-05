@@ -1,0 +1,9 @@
+multiscrape:
+  - name: PostenApiKey
+    resource: https://www.posten.no/levering-av-post
+    scan_interval: 3600
+    sensor:
+      - unique_id: PostenApiKey
+        name: PostenApiKey
+        select: 'script[data-react4xp-ref="parts_mailbox-delivery__main_1_leftRegion_11"]'
+        value_template: '{{ (value.split("apiKey\":\"")[1].split("\"")[0]) }}'

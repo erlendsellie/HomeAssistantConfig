@@ -444,11 +444,11 @@ sensor:
           {%-set trymtemp = states.input_number.trym_temp.state | float %}
 
           {% if away or trymaway or windowopen %}
-            {%-set temp = 13%}
+            {%-set temp = trymtemp - 5%}
           {% elif trymasleep or hour > 17 %}
             {%-set temp = trymtemp%}
           {% else %}
-            {%-set temp = 13%}
+            {%-set temp = trymtemp - 5%}
           {% endif %}
           {% set limit = states.input_boolean.limit_heaters.state == 'on' %}
           {% if limit %}
@@ -471,11 +471,11 @@ sensor:
           {%-set bedroomheateron = states.switch.bedroom_heater.state == 'on' %}
           {%-set tyratemp = states.input_number.tyra_temp.state | float %}
           {% if away or windowopen %}
-            {%-set temp = 13%}
+            {%-set temp = tyratemp - 5%}
           {% elif (tyraasleep)  or hour > 17 %}
             {%-set temp = tyratemp%}
           {% else %}
-            {%-set temp = 13%}
+            {%-set temp = tyratemp - 5%}
           {% endif %}
           {% set limit = states.input_boolean.limit_heaters.state == 'on' %}
           {% if limit %}
@@ -807,10 +807,10 @@ automation:
         data:
           name: Varmepumpe
           message: "set to {{ states.sensor.tempsenttoheater.state | int(default=0) }} degrees and {{states.input_select.operationmode.state}}"
-      - service: climate.set_temperature
-        data_template:
-          entity_id: climate.toilet_heater
-          temperature: "{{ (states.sensor.toilettemp.state | float) }}"
+      # - service: climate.set_temperature
+      #   data_template:
+      #     entity_id: climate.toilet_heater
+      #     temperature: "{{ (states.sensor.toilettemp.state | float) }}"
       - service: climate.set_temperature
         data_template:
           entity_id: climate.stua_heater
@@ -861,7 +861,7 @@ automation:
         data_template:
           entity_id:
             - climate.varmepumpe
-            - climate.toilet_heater
+            # - climate.toilet_heater
             - climate.stua_heater
       - service: script.turn_on
         entity_id: script.turnoffheaters
@@ -1179,14 +1179,14 @@ script:
         data_template:
           entity_id: climate.varmepumpe
           hvac_mode: "high"
-      - service: climate.set_hvac_mode
-        data_template:
-          entity_id: climate.toilet_heater
-          hvac_mode: "heat"
-      - service: climate.set_temperature
-        data_template:
-          entity_id: climate.toilet_heater
-          temperature: "{{ states.input_number.hjemmetemp.state | int(default=0)}}"
+      # - service: climate.set_hvac_mode
+      #   data_template:
+      #     entity_id: climate.toilet_heater
+      #     hvac_mode: "heat"
+      # - service: climate.set_temperature
+      #   data_template:
+      #     entity_id: climate.toilet_heater
+      #     temperature: "{{ states.input_number.hjemmetemp.state | int(default=0)}}"
       - wait_template: "{{(states.sensor.stua_temperature.state > states.input_number.hjemmetemp.state) or (states.input_select.alarm.state == 'Disarm')}}"
         timeout: "0:45:00"
       - service: climate.set_hvac_mode
@@ -1222,14 +1222,14 @@ script:
         data_template:
           entity_id: climate.varmepumpe
           temperature: 28
-      - service: climate.set_hvac_mode
-        data_template:
-          entity_id: climate.toilet_heater
-          hvac_mode: "heat"
-      - service: climate.set_temperature
-        data_template:
-          entity_id: climate.toilet_heater
-          temperature: "{{ states.input_number.hjemmetemp.state | int(default=0)}}"
+      # - service: climate.set_hvac_mode
+      #   data_template:
+      #     entity_id: climate.toilet_heater
+      #     hvac_mode: "heat"
+      # - service: climate.set_temperature
+      #   data_template:
+      #     entity_id: climate.toilet_heater
+      #     temperature: "{{ states.input_number.hjemmetemp.state | int(default=0)}}"
       - service: logbook.log
         data_template:
           name: House

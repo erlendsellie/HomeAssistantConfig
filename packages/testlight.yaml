@@ -1,0 +1,47 @@
+# template:
+#   - binary_sensor:
+#       - name: "should test light be on"
+#         state: >-
+#           {{
+#             states('binary_sensor.motion_downstairs_office') == 'on'
+#           }}
+#         delay_off:
+#           minutes: 4
+
+# input_number:
+#   arvesinkonesinkontorlysssetslider_ettereight:
+#     min: 0
+#     max: 100
+#     mode: slider
+
+#   arvesinkonesinkontorlysssetslider_foreight:
+#     min: 0
+#     max: 100
+#     mode: slider
+
+# automation:
+#   - id: 35989a25-6350-4676-85fc-66d861a23164
+#     alias: ToggleTestLightAtMotion
+#     trigger:
+#       - platform: state
+#         entity_id: binary_sensor.should_test_light_be_on
+#     condition:
+#       - alias: "Ikke slå på om lyset er på fra før av"
+#         condition: template
+#         value_template: "{{trigger.to_state.state == 'off' or states('light.office_lights') == 'off' }}"
+#     action:
+#       - alias: "Slå av/på lys"
+#         service: light.turn_{{trigger.to_state.state}}
+#         data:
+#           rgb_color:
+#             - 29
+#             - 43
+#             - 150
+#           brightness_pct: >-
+#             {%if now().hour > 20%}
+#               {{states.input_select.arvesinkonesinkontorlysssetslider_ettereight.state | float}}
+#             {%else%}
+#               {{states.input_select.arvesinkonesinkontorlysssetslider_foreight.state | float}}
+#             {%endif%}
+#         target:
+#           entity_id: light.office_lights

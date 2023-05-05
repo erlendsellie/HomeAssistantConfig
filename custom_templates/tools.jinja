@@ -3,14 +3,14 @@
 
 
 """welcome_home
-    - Person entity
+- Person entity
 """
 {% macro welcome_home(person) %}
 
 {%set name = state_attr(person, 'friendly_name')%}
-Velkommen hjem, {{name}}!
+    Velkommen hjem, {{name}}!
 {%-if name == 'Erlend'%}
-Strømforbruk hittil i dag er {{states('sensor.accumulated_consumption_current_day')}}
+    Strømforbruk hittil i dag er {{states('sensor.accumulated_consumption_current_day')}}
 {%endif%}
 
 {% endmacro %}
@@ -18,11 +18,77 @@ Strømforbruk hittil i dag er {{states('sensor.accumulated_consumption_current_d
 
 """hour - for testing
 """ TIPS: Remember to add '-' if you want to check the return statement,
-""" eg {# {%if hour() == '22' %} #}. Or cast to int like hour() | int. 
+""" eg {# {%if hour() == '22' %} #}. Or cast to int like hour() | int.
 """ Else there will a lot of new lines, which breaks the string-comparison
 """
 {%- macro hour() -%}
+    {{now().hour}}
+{%- endmacro -%}
 
-{{now().hour}}
+
+{%- macro full_strompris(spotpris) -%}
+    {%set hour = now().hour%}
+    {%set month = now().month %}
+    {%set extra = 0.01%}
+    {% if month <= 3%} 
+        {%if hour> 21 or hour < 6%} 
+            {%set price=extra + 0.2145 %} 
+        {%else%} 
+            {%set price=extra + 0.3020 %} 
+        {%endif %} 
+    {%else%} 
+        {%if hour> 21 or hour < 6%}
+            {%set price=extra + 0.2980 %}
+        {%else%}
+        {%set price=extra + 0.3855%}
+        {% endif %}
+    {% endif %}
+        {{price | round(4) + spotpris}}
+{%- endmacro -%}
+
+{%- macro important_devices() -%}
+    {% set unavailable_entities = states.group.important_devices.attributes.entity_id | reject('has_value') | list %}
+    {% for entity_id in unavailable_entities%}
+    {%- if loop.first -%}
+    These devices are unavailable:
+    {% endif %}
+    - {{entity_id}}
+    {%- endfor -%}
+{%- endmacro -%}
+
+
+
+{%- macro low_battery() -%}
+    {%- set threshold = 20 -%}
+    {%- set domains = [states.light, states.switch, states.sensor, states.zwave, states.lock ] -%}
+    {%- for domain in domains -%}
+    {%- if loop.first -%}
+The following devices have low battery levels: 
+    {%- endif -%}
+    {% for item in domain if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ("Body" not in item.name) and ("Browser" not in item.name) and ("Battery Temperature" not in item.name) and ("Leaf" not in item.name) and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) %}
+    {%- if (item.attributes.battery_level is defined and ("Browser" | lower not in (item.name | lower)) and
+        (item.attributes['battery_level'] | int(default=0) < threshold) and item.attributes.battery_level != 'unknown')-%}
+    {{ item.name }} ({{ item.attributes['battery_level'] }}),
+    {% endif %}
+    {% if "battery" in item.name | lower and ('battery power' not in item.name | lower) and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low") -%}
+    - {{ item.name }} ({{ item.state }})
+    {% endif -%}
+    {%- endfor -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+
+{%- macro get_entities_in_group(group,attr) -%}
+{# {% set entities =  expand(group)  | list %}
+{% for state in entities | list %}
+{{ state[attr] }}
+{% endfor %} #}
+
+{# {{ expand(group) | selectattr('state','eq','on') | rejectattr('attributes.brightness', '=<', 25) | map(attribute='entity_id') | list }} #}
+
+{{ expand(group)| map(attribute=attr) | list }}
 
 {%- endmacro -%}
+
+
+

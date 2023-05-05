@@ -29,15 +29,12 @@
   name: "ipad"
   host: 192.168.1.6
 
-# - platform: ping
-#   name: "XPS"
-#   host: 192.168.1.50
+- platform: ping
+  name: "XPS"
+  host: 192.168.1.50
 
 - platform: command_line
-  command: >-
-    curl 'https://www.posten.no/levering-av-post/_/component/main/1/leftRegion/11?postCode=7072' \
-      -H 'x-requested-with: XMLHttpRequest' \
-      --compressed
+  command: 'curl -X GET -H "Content-type: application/json" -H "kp-api-token: {{states.sensor.postenapikey.state}}"  https://www.posten.no/levering-av-post/_/service/no.posten.website/delivery-days?postalCode=7072'
   name: MailTodayBinary
   # json_attributes:
   #   - nextDeliveryDays

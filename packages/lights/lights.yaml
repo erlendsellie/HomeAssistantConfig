@@ -277,6 +277,15 @@ automation:
       - service: light.turn_off
         entity_id: group.bedroomlights
 
+  - id: toggleWardrobeLight
+    alias: toggleWardrobeLight
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bedroom_wardrobe
+    action:
+      service: light.turn_{{trigger.to_state.state}}
+      entity_id: light.bedroom_wardrobe_led_strip
+
   #Light bedroom is set up in HA as the switch by the door, so we'll turn on all lights when this is pressed.
   # Should map it so that
   # - alias: TurnOnSmallBedroomLightsWhenBedroomTurnsOn
@@ -399,6 +408,7 @@ automation:
       - service: light.turn_{{trigger.to_state.state}}
         entity_id:
           - light.driveway
+          - light.outdoor_led_strip
 
   - alias: TurnOnGarageLight
     id: TurnOnGarageLight
@@ -467,6 +477,13 @@ script:
         data_template:
           name: Lights
           message: were automatically turned off
+      - condition: template
+        value_template: "{{states.input_select.alarm.state == 'Arm Home'}}"
+      - service: light.turn_on
+        entity_id:
+          - light.trym_balloon
+          - light.trym_roof
+          - light.tyra_ball
 
   restorelightcolor:
     sequence:

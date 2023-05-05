@@ -550,7 +550,7 @@ script:
             intent_uri: "{{sound}}"
 
   notify_tts_max:
-    alias: notify_tts_max_if_home
+    alias: notify_tts_max
     sequence:
       - service: notify.mobile_app_oneplus
         data:

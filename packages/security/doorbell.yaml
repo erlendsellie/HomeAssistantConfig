@@ -8,6 +8,10 @@ automation:
         to: "on"
         from: "off"
       - platform: state
+        entity_id: binary_sensor.front_door_ding_mqtt
+        to: "on"
+        from: "off"
+      - platform: state
         entity_id: switch.doorbutton
         to: "on"
       # - platform: event
@@ -119,6 +123,13 @@ script:
       - service: notify.mobile_app_oneplus
         data:
           message: Ding Dong!
+          title: DingDong!
+          data:
+            image: "/api/camera_proxy/camera.driveway_stream"
+      - service: notify.mobile_app_caroline_pixel
+        data:
+          message: Ringeklokke!
+          title: DingDong!
           data:
             image: "/api/camera_proxy/camera.driveway"
       - condition: template
@@ -129,18 +140,6 @@ script:
           media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
           #media_content_id: https://hjem.sellie.no/local/sounds/screams/goosebumps.mp3
           media_content_type: "music"
-      - service: notify.mobile_app_oneplus
-        data:
-          message: Motion in driveway when armed.
-          title: DingDong!
-          data:
-            image: "/api/camera_proxy/camera.driveway"
-      - service: notify.mobile_app_caroline_pixel
-        data:
-          message: Motion in driveway when armed.
-          title: DingDong!
-          data:
-            image: "/api/camera_proxy/camera.driveway"
       - service: script.turn_on
         entity_id: script.sendvideodriveway
       - delay:

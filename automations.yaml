@@ -46,7 +46,6 @@
       sensor: sensor.vvbsensor
       climate: climate.varmtvannsbereder
   mode: single
-
 - id: "1670796220883"
   alias: Reload Integration - Mill Trym
   description: ""
@@ -123,6 +122,6 @@
       else:
         - service: light.turn_on
           data: {}
-          target:
-            entity_id: light.office_lights
+      target:
+        entity_id: light.office_lights
   mode: single

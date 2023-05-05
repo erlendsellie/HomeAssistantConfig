@@ -98,6 +98,8 @@ automation:
       - platform: numeric_state
         entity_id: sensor.octoprint_actual_tool0_temp
         below: 120
+        for:
+          minutes: 5
     condition:
       condition: and
       conditions:
