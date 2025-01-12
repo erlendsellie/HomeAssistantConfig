@@ -14,7 +14,7 @@ automation:
           entity_id: binary_sensor.erlendhome
           state: "on"
     action:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           title: "Turn on the blanket heater?"
           message: "Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom."

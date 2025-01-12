@@ -28,7 +28,7 @@ automation:
     action:
       - service: notify.me
         data_template:
-          message: "Mørningstimer1 er ferdig! Nåværende døgngrader er {{((states.input_number.gametimer1.state | int(default=0) / 24)) | round(1)}}"
+          message: "Mørningstimer er ferdig! Nåværende døgngrader er {{((states.input_number.gametimer1.state | int(default=0) / 24)) | round(1)}}"
 
   - alias: GarageCold
     trigger:
@@ -97,8 +97,9 @@ sensor:
           {% elif is_state("input_select.gametemp", "Sleipner Innside") %} {{states.sensor.modely_temperature_sensor_inside.state | float}}
           {% elif is_state("input_select.gametemp", "Garasje") %} {{states.sensor.garage_temperature.state | float}}
           {% elif is_state("input_select.gametemp", "Ute") %} {{states.sensor.ute_temperature.state | float}}
-          {% elif is_state("input_select.gametemp", "Bod") %} {{states.sensor.bthome_bod_temperature.state | float}}
-          {% elif is_state("input_select.gametemp", "Manuell") %} {{states.sensor.ute_temperature.state | float}}
+          {% elif is_state("input_select.gametemp", "Viltnett") %} {{states.sensor.viltnett_temperature.state | float}}
+          {% elif is_state("input_select.gametemp", "Manuell") %} {{states.input_number.gametemp_temp.state | float}}
+          {% elif is_state("input_select.gametemp", "Jaktbod") %} {{states.sensor.jaktbod_temp_temperature.state | float}}
           {% else %} 10
           {% endif %}
 
@@ -114,15 +115,16 @@ binary_sensor:
       huntingseason:
         friendly_name: "Hunting Season"
         value_template: >
-          {{states.sensor.date_time.state.split('-')[1] | int(default=0) > 8 or states.sensor.date_time.state.split('-')[1] | int(default=0) < 3}}
+          {{states.sensor.date_time.state.split('-')[1] | int(default=0) > 7 or states.sensor.date_time.state.split('-')[1] | int(default=0) < 3}}
 
 input_select:
   gametemp:
     name: "Mørningssted:"
     options:
+      - Viltnett
+      - Jaktbod
       - Sleipner Utside
       - Sleipner Innside
       - Garasje
       - Ute
-      - Bod
       - Manuell

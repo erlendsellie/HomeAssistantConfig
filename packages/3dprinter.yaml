@@ -17,7 +17,7 @@ automation:
         entity_id: sensor.octoprint_time_remaining
         below: 30
     action:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           title: 3D Print is almost ready
           message: The 3D print will be done in a minute
@@ -54,11 +54,10 @@ automation:
   - id: turnOff3DPrinter
     alias: turnOff3DPrinter
     trigger:
-      - platform: state
-        entity_id: binary_sensor.octoprint_printing
-        to: "off"
+      - platform: template
+        value_template: "{{states.binary_sensor.octoprint_printing.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
         for:
-          minutes: 10
+          minutes: 20
     action:
       - service: switch.turn_off
         entity_id: switch.3d_printer_failsafe
@@ -110,7 +109,7 @@ automation:
           entity_id: switch.3d_printer_failsafe
           state: "on"
     action:
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data_template:
           message: "The 3D-printer is printing, but reporting a temp of {{states.sensor.octoprint_actual_tool0_temp.state}}. Turning off the printer."
       - service: switch.turn_off

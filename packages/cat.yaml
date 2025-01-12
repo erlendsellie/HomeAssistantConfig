@@ -1,0 +1,48 @@
+automation:
+  - alias: Notify if Cat in Garage and Door Closed
+    description: Notify if the garage cat occupancy sensor is on while the garage door is closed
+    trigger:
+      - platform: template
+        value_template: >
+          {{ is_state('binary_sensor.garage_cat_occupancy', 'on') and is_state('cover.garage_door', 'closed') }}
+    action:
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          message: Oisann!
+          title: Er det en katt låst fast i garasjen?
+          data:
+            notification_icon: mdi:cctv
+            image: >-
+              /api/camera_proxy/camera.garage
+            ttl: 0
+            priority: high
+            actions:
+              - action: opengarage
+                title: "Åpne Garasjen"
+            tag: drive-motion
+      - service: notify.mobile_app_caroline_pixel
+        data:
+          message: Ringeklokke!
+          title: DingDong!
+          data:
+            message: Oisann!
+            title: Er det en katt låst fast i garasjen?
+            data:
+              notification_icon: mdi:cctv
+              image: >-
+                /api/camera_proxy/camera.garage
+            ttl: 0
+            priority: high
+            actions:
+              - action: opengarage
+                title: "Åpne Garasjen"
+    mode: single
+
+  - alias: opengaragebyaction
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: opengarage
+    action:
+      - service: script.open_garage_door

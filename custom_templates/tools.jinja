@@ -92,3 +92,26 @@ The following devices have low battery levels:
 
 
 
+
+{%- macro test(var) -%}
+{{ var }}
+{%- endmacro -%}
+
+
+# ### ### ### ### ###
+{% macro SpotTest0(hour, spot_markup, price, price_in_cents, output) %}
+  
+{% if price_in_cents == true %}
+  {% set price = price/100 %}
+{%endif%}
+
+{{ price }}
+
+{% endmacro %}
+
+
+{% macro PAtest(price) %}
+  
+{{ price * 1000 }}
+
+{% endmacro %}

@@ -16,7 +16,7 @@ automation:
     mode: restart
     trigger:
       - platform: state
-        entity_id: sensor.switch_living_room_action
+        entity_id: sensor.switch_living_room_action #z2m-problem
     condition:
       - condition: template
         value_template: "{{trigger.to_state.state != ''}}"
@@ -94,7 +94,7 @@ automation:
                 value_template: "{{ action == two_hold }}"
             sequence:
               - service: media_player.media_play_pause
-                entity_id: media_player.nvidia_shield
+                entity_id: media_player.living_room_tv
       - delay:
           seconds: 10
       - service: input_select.select_option
@@ -107,7 +107,7 @@ automation:
     mode: restart
     trigger:
       - platform: state
-        entity_id: sensor.switch_living_room_action
+        entity_id: sensor.switch_living_room_action #z2m-problem
     condition:
       - condition: template
         value_template: "{{trigger.to_state.state != ''}}"
@@ -186,7 +186,7 @@ automation:
     mode: restart
     trigger:
       - platform: state
-        entity_id: sensor.switch_living_room_action
+        entity_id: sensor.switch_living_room_action #z2m-problem
     condition:
       - condition: template
         value_template: "{{trigger.to_state.state != ''}}"

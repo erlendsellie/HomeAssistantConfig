@@ -1,91 +1,28 @@
 #custom component for additional data from tibber
 # https://github.com/Danielhiversen/home_assistant_tibber_data
-tibber_data:
-  email: !secret tibber_email
-  password: !secret tibber_password
 
-input_number:
-  average_price_rest_of_month:
-    name: Average Price Rest Of Month
-    min: 0
-    max: 800
-    step: 1
-    mode: box
-    unit_of_measurement: "Øre"
+#prøver å fjerne for å se om Tibber funker igjen
+tibber_data:
+#email: !secret tibber_email
+#password: !secret tibber_password
+
+# input_number:
+#   average_price_rest_of_month:
+#     name: Average Price Rest Of Month
+#     min: 0
+#     max: 800
+#     step: 1
+#     mode: box
+#     unit_of_measurement: "Øre"
 
 template:
-  - binary_sensor:
-      - name: "Is Price Under Subsidy"
-        state: >-
-          {%set price = (states.sensor.priceanalyzer.attributes.current_hour.value | float(default=0)) * 100%}
-          {%set subsidy = states('sensor.estimated_subsidy_for_month') | float(default=0) %}
-          {{price < subsidy}}
+  # - binary_sensor:
+  #     - name: "Is Price Under Subsidy"
+  #       state: >-
+  #         {%set price = (states.sensor.priceanalyzer.attributes.current_hour.value | float(default=0)) * 100%}
+  #         {%set subsidy = states('sensor.estimated_subsidy_for_month') | float(default=0) %}
+  #         {{price < subsidy}}
   - sensor:
-      - name: "Subsidy"
-        unit_of_measurement: "NOK"
-        state: >-
-          {%set subsidy = max(states('sensor.estimated_subsidy_sivert_thonstads_vei_6')| float,0) %}
-          {{subsidy | round(2)}}
-      - name: "Subsidy Øre"
-        unit_of_measurement: "NOK"
-        state: >-
-          {%set subsidy = max(states('sensor.subsidy')| float,0) %}
-          {{subsidy * 100| round(2)}}
-        attributes:
-          raw_today: >-
-            {%set hours = states.sensor.nordpool.attributes.raw_today%}
-            {%set subsidy = states.sensor.subsidy_ore.state | float%}
-            {%for hour in hours%}
-            {{hour.value | float * 100 - subsidy}}
-            {%endfor%}
-      - name: "Easee Average Price For Month"
-        unit_of_measurement: "NOK"
-        state: >-
-          {%set cost = states('sensor.garage_cost_month') | float(default=0)%}
-          {%set consumption = states('sensor.easee_cost_month') | float(default=0)%}
-          {{(cost / consumption) | round(4)}}
-      - name: "Customer Price With Subsidy"
-        unit_of_measurement: "NOK"
-        state: >-
-          {%set base_price = states('sensor.monthly_avg_customer_price_sivert_thonstads_vei_6') | float%}
-          {%set subsidy = states('sensor.subsidy')| float %}
-          {{(base_price - subsidy) | round(2)}}
-      - name: "Price With Subsidy"
-        unit_of_measurement: "NOK"
-        state: >-
-          {%set base_price = states('sensor.monthly_avg_price_sivert_thonstads_vei_6') | float%}
-          {%set subsidy = states('sensor.subsidy') | float%}
-          {{(base_price - subsidy) | round(2)}}
-      - name: "Price Now With Subsidy"
-        unit_of_measurement: "NOK"
-        state: >-
-          {%set base_price = states('sensor.nordpool') | float%}
-          {%set subsidy = states('sensor.subsidy') | float%}
-          {{(base_price - subsidy) | round(2)}}
-      - name: "Total Price Now With Estimated Subsidy For Month"
-        unit_of_measurement: "NOK"
-        state: >-
-          {%set totalPrice = states.sensor.priceanalyzer.attributes.current_hour.value | float(100) * 100%}
-          {%set totalEstimatedSubsidy = states.sensor.estimated_subsidy_for_month.state | float(100)%}
-          {{(totalPrice - totalEstimatedSubsidy) | round(2)}}
-      - name: "Customer Monthly Cost With Subsidy"
-        unit_of_measurement: "NOK"
-        state: >-
-          {%set price = states('sensor.customer_price_with_subsidy') | float%}
-          {%set kwh = states('sensor.monthly_net_consumption_sivert_thonstads_vei_6b') | float %}
-          {{(kwh * price) | round(2)}}
-      - name: "Monthly Cost With Subsidy"
-        unit_of_measurement: "NOK"
-        state: >-
-          {%set price = states('sensor.price_with_subsidy') | float%}
-          {%set kwh = states('sensor.monthly_net_consumption_sivert_thonstads_vei_6b') | float%}
-          {{(kwh * price) | round(2)}}
-      - name: "Monthly Saving Compared to Nordpool Average"
-        unit_of_measurement: "NOK"
-        state: >-
-          {%set nordpool_average_cost = states('sensor.monthly_cost_with_subsidy') | float(default=0)%}
-          {%set customer_cost = states('sensor.customer_monthly_cost_with_subsidy') | float(default=0)%}
-          {{(nordpool_average_cost - customer_cost) | round(2)}}
       - name: "Monthly Cost Nordpool Average"
         unit_of_measurement: "NOK"
         state: >-
@@ -113,6 +50,75 @@ template:
           {%set snitt = states('sensor.nordpool_daily_average') | float(default=0) %}
           {%set forbruk = states('sensor.accumulated_consumption_sivert_thonstads_vei_6b')|float(default=0) %}
           {{((snitt * forbruk) - (mitt_snitt * forbruk)) | round(2)}}
+      - name: "Easee Average Price For Month"
+        unit_of_measurement: "NOK"
+        state: >-
+          {%set cost = states('sensor.garage_cost_month') | float(default=0)%}
+          {%set consumption = states('sensor.easee_cost_month') | float(default=0)%}
+          {{(cost / consumption) | round(4)}}
+
+      #kanskjefjern:
+      - name: "Subsidy"
+        unit_of_measurement: "NOK"
+        state: >-
+          {%set subsidy = max(states('sensor.estimated_subsidy_sivert_thonstads_vei_6')| float,0) %}
+          {{subsidy | round(2)}}
+      - name: "Subsidy Øre"
+        unit_of_measurement: "NOK"
+        state: >-
+          {%set subsidy = max(states('sensor.subsidy')| float,0) %}
+          {{subsidy * 100| round(2)}}
+        attributes:
+          raw_today: >-
+            {%set hours = states.sensor.nordpool.attributes.raw_today%}
+            {%set subsidy = states.sensor.subsidy_ore.state | float%}
+            {%for hour in hours%}
+            {{hour.value | float * 100 - subsidy}}
+            {%endfor%}
+
+      # - name: "Customer Price With Subsidy"
+      #   unit_of_measurement: "NOK"
+      #   state: >-
+      #     {%set base_price = states('sensor.monthly_avg_customer_price_sivert_thonstads_vei_6') | float%}
+      #     {%set subsidy = states('sensor.subsidy')| float %}
+      #     {{(base_price - subsidy) | round(2)}}
+      # - name: "Price With Subsidy"
+      #   unit_of_measurement: "NOK"
+      #   state: >-
+      #     {%set base_price = states('sensor.monthly_avg_price_sivert_thonstads_vei_6') | float%}
+      #     {%set subsidy = states('sensor.subsidy') | float%}
+      #     {{(base_price - subsidy) | round(2)}}
+      - name: "Price Now With Subsidy"
+        unit_of_measurement: "NOK"
+        state: >-
+          {%set base_price = states('sensor.nordpool') | float%}
+          {%set subsidy = states('sensor.subsidy') | float%}
+          {{(base_price - subsidy) | round(2)}}
+      - name: "Total Price Now With Estimated Subsidy For Month"
+        unit_of_measurement: "NOK"
+        state: >-
+          {%set totalPrice = states.sensor.priceanalyzer.attributes.current_hour.value | float(100) * 100%}
+          {%set totalEstimatedSubsidy = states.sensor.estimated_subsidy_for_month.state | float(100)%}
+          {{(totalPrice - totalEstimatedSubsidy) | round(2)}}
+      - name: "Customer Monthly Cost"
+        unit_of_measurement: "NOK"
+        state: >-
+          {%set price = states('sensor.monthly_avg_customer_price_sivert_thonstads_vei_6') | float%}
+          {%set kwh = states('sensor.monthly_net_consumption_sivert_thonstads_vei_6b') | float %}
+          {{(kwh * price) | round(2)}}
+      - name: "Monthly Cost Nordpool"
+        unit_of_measurement: "NOK"
+        state: >-
+          {%set price = states('sensor.monthly_avg_price_sivert_thonstads_vei_6') | float%}
+          {%set kwh = states('sensor.monthly_net_consumption_sivert_thonstads_vei_6b') | float%}
+          {{(kwh * price) | round(2)}}
+      - name: "Monthly Saving Compared to Nordpool Average"
+        unit_of_measurement: "NOK"
+        state: >-
+          {%set nordpool_average_cost = states('sensor.monthly_cost_nordpool') | float(default=0)%}
+          {%set customer_cost = states('sensor.customer_monthly_cost') | float(default=0)%}
+          {{(nordpool_average_cost - customer_cost) | round(2)}}
+
       - name: "Estimated Subsidy For Month"
         unit_of_measurement: "Øre"
         state: >-
@@ -123,33 +129,17 @@ template:
           {%set averge_rest_of_month = states.input_number.average_price_rest_of_month.state | float(default=50)%}
           {{(((((averge_price * day_now) + (averge_rest_of_month * days_left)) / total_days) - 87.5) * 0.9) | round(2)}}
 
-sensor:
-  - platform: rest
-    name: stromstotte_compensation
-    scan_interval: 7200
-    unit_of_measurement: NOK
-    json_attributes:
-      - value_json[42]
-    resource: https://raw.githubusercontent.com/martinju/stromstotte/master/data/current_estimated_compensation.json
-    value_template: >-
-      {%set mean_pos = 31%}
-      {%set mean = value_json[mean_pos]%}
-      {{mean.compensation}}
-    force_update: false
+# sensor:
+#   - platform: rest
+#     name: stromstotte_compensation
+#     scan_interval: 7200
+#     unit_of_measurement: NOK
+#     json_attributes:
+#       - value_json[42]
+#     resource: https://raw.githubusercontent.com/martinju/stromstotte/master/data/current_estimated_compensation.json
+#     value_template: >-
+#       {%set mean_pos = 31%}
+#       {%set mean = value_json[mean_pos]%}
+#       {{mean.compensation}}
+#     force_update: false
 
-automation:
-  - id: free_power
-    alias: free_power
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.is_price_under_subsidy
-        to: "on"
-    action:
-      - service: notify.me
-        data_template:
-          title: "Gratis strøm!"
-          message: >-
-            Det ser ut til å være gratis strøm nå.
-            Pris med Nettleie: {{(states.sensor.priceanalyzer.attributes.current_hour.value | float(0) * 100) | round(2)}}
-            Estimert strømstøtte: {{states('sensor.estimated_subsidy_for_month')}}
-            Gitt gjennomsnittpris resten av måneden på: {{states('input_number.average_price_rest_of_month')}}

@@ -15,7 +15,7 @@ template:
         unit_of_measurement: "%"
         state: >-
           {% if states.input_select.alarm.state == 'Arm Home' %} 
-          10
+          50
           {% else %}
           100
           {% endif %}

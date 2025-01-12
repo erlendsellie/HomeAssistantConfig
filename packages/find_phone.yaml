@@ -16,7 +16,7 @@ script:
             intent_uri: "https://hjem.sellie.no/local/sounds/lost_woods.mp3"
   airraid_erlend:
     sequence:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data:
           title: "https://hjem.sellie.no/local/sounds/airraid.mp3"
           message: "command_activity"

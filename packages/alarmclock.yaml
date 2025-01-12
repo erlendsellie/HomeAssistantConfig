@@ -10,14 +10,49 @@
 input_boolean:
   waking_up:
     name: "Waking Up"
+  force_to_wake_up:
+    name: "Force to Wake Up"
 
 automation:
+  - alias: forcewakeup
+    id: forcewakeup
+    trigger:
+      platform: template
+      value_template: >-
+        {%-set nextAlarm = states.sensor.erlend_mobil_next_alarm.state -%}
+        {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
+        {{(nextAlarmAsTimestamp - as_timestamp(utcnow())) < 10}}
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.force_to_wake_up
+      - repeat:
+          while:
+            condition: and
+            conditions:
+              - condition: state
+                entity_id: input_boolean.force_to_wake_up
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.alarmclock
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.erlendhome
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.easleep
+                state: "on"
+          sequence:
+            - service: script.turn_on
+              entity_id: script.forcetowakeup
+            - delay:
+                minutes: 5
+
   - alias: AlarmTime
     id: alarmtime
     trigger:
       platform: template
       value_template: >-
-        {%-set nextAlarm = states.sensor.oneplus_next_alarm.state -%}
+        {%-set nextAlarm = states.sensor.erlend_mobil_next_alarm.state -%}
         {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
         {%-set minutesBefore = 10 -%}
         {{(nextAlarmAsTimestamp - as_timestamp(utcnow()) < (60 * minutesBefore))}}
@@ -189,12 +224,15 @@ script:
       - service: input_boolean.turn_on
         entity_id: input_boolean.waking_up
       - variables:
-          nextAlarm: "{{ states.sensor.oneplus_next_alarm.state }}"
+          nextAlarm: "{{ states.sensor.erlend_mobil_next_alarm.state }}"
       - repeat:
           while:
             - condition: state
               entity_id: input_boolean.waking_up
               state: "on"
+            - condition: state
+              entity_id: input_boolean.force_to_wake_up
+              state: "off"
           sequence:
             - if:
                 - condition: state
@@ -219,6 +257,7 @@ script:
                   data:
                     value: >-
                       {%set time = now().hour | string + ':' + now().minute | string%}
+                      {%set nextAlarm = states('sensor.erlend_mobil_next_alarm')%}
                       {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
                       {%-set minutesBefore = 10 -%}
                       {%set relativeAlarm = ((nextAlarmAsTimestamp - as_timestamp(utcnow())) / 60) | round (0) %}
@@ -231,7 +270,8 @@ script:
                       {%-set relativeAlarm = relativeAlarm * -1 | round (0) %}
                       Alarmen ringte for {{relativeAlarm}} minutter siden.
                       {%-endif %}
-                      Været er {{vær}}
+                      Været er {{vær}}, og temperaturen ute er {{states.sensor.ute_temperature.state}}
+                      Neste ting i kalenderen er: {{states.calendar.arbeid.attributes.message}}
                 - delay:
                     seconds: 10
                 - service: light.turn_off
@@ -245,14 +285,52 @@ script:
                     transition: 100
             - delay:
                 minutes: 5
+  forcetowakeup:
+    sequence:
+      - service: light.turn_on
+        entity_id: group.bedroomlights
+      - service: media_player.volume_set
+        data_template:
+          entity_id: media_player.clock
+          volume_level: "0.6"
+      - service: input_text.set_value
+        entity_id: input_text.openaibedroom
+        data:
+          value: ""
+      - service: input_text.set_value
+        entity_id: input_text.openaibedroom
+        data:
+          value: >-
+            {%-set nextAlarm = states.sensor.erlend_mobil_next_alarm.state -%}
+            {%set time = now().hour | string + ':' + now().minute | string%}
+            {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
+            {%-set minutesBefore = 10 -%}
+            {%set relativeAlarm = ((nextAlarmAsTimestamp - as_timestamp(utcnow())) / 60) | round (0) %}
+            {%set vær = states('sensor.weather_norsk')%}
+            Du er en vekkeklokke og skal vekke meg på en sarkastisk måte.
+            Klokken er {{time}}.
+            Alarmen ringte for {{relativeAlarm}} minutter siden.
+            Været er {{vær}}, og temperaturen ute er {{states.sensor.ute_temperature.state}}
+            Neste ting i kalenderen er: {{states.calendar.privat.attributes.message}}
+      - delay:
+          seconds: 30
+      - service: media_player.volume_set
+        data:
+          entity_id: media_player.clock
+          volume_level: "0.4"
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.clock
+          media_content_type: "audio/mp4"
+          media_content_id: "https://p4.p4groupaudio.com/P04_MH"
 
   overslept:
     sequence:
-      - service: notify.carolinepush
+      - service: script.notifycaroline
         data:
           title: Erlend har ikke stått opp enda.
           message: Han burde vekkes.!
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data:
           title: Erlend har ikke stått opp enda.
           message: Han burde vekkes!
@@ -273,11 +351,11 @@ script:
 
   stilloverslept:
     sequence:
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data:
           title: Erlend har ikke dratt på jobb enda
           message: Vekk han om han skal på jobb!
-      - service: notify.carolinepush
+      - service: script.notifycaroline
         data:
           title: Erlend har ikke dratt på jobb enda
           message: Vekk han om han skal på jobb!

@@ -2,8 +2,8 @@ automation:
   - id: reloadPowerStuff
     alias: reloadPowerStuff
     trigger:
-      # - platform: time
-      #   at: "18:00:00"
+      - platform: time
+        at: "14:00:00"
       # - platform: time
       #   at: "00:02:00"
     action:

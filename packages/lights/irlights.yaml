@@ -1,15 +1,15 @@
 automation:
-  - id: turnoffirlightswhenbright
-    alias: turnoffirlightswhenbright
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.illuminance_living
-        above: 20
-        # for:
-        #   minutes: 5
-    action:
-      service: light.turn_off
-      entity_id: light.irlights
+  # - id: turnoffirlightswhenbright
+  #   alias: turnoffirlightswhenbright
+  #   trigger:
+  #     - platform: numeric_state
+  #       entity_id: sensor.illuminance_living
+  #       above: 20
+  #       # for:
+  #       #   minutes: 5
+  #   action:
+  #     service: light.turn_off
+  #     entity_id: light.irlights
 
 script:
   turn_on_kubbelys:

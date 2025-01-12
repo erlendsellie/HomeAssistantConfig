@@ -1,3 +1,13 @@
+template:
+  - sensor:
+      - name: "Garmin Erlend Battery Level"
+        unique_id: "f8b12db9-e2fb-424f-9466-90eb11d00556"
+        device_class: "battery"
+        unit_of_measurement: "%"
+        state_class: "measurement"
+        state: "{{ states('sensor.garmin_erlend_battery_level') }}"
+        icon: "mdi:battery{% if is_state('binary_sensor.garmin_erlend_battery_is_charging', 'on') %}-charging{% endif %}{% if 0 < (states('sensor.garmin_erlend_battery_level') | float / 10 ) | round(0) * 10 < 100 %}-{{ (states('sensor.garmin_erlend_battery_level') | float / 10 ) | round(0) * 10 }}{% else %}{% if (states('sensor.garmin_erlend_battery_level') | float / 10 ) | round(0) * 10 == 0 %}-outline{% else %}{% if is_state('binary_sensor.garmin_erlend_battery_is_charging', 'on') %}-100{% endif %}{% endif %}{% endif %}"
+
 input_select:
   garmincontrol:
     name: Garmin Control
@@ -10,6 +20,25 @@ input_select:
       - SofaLight
     initial: None
     icon: mdi:watch
+script:
+  toggletv:
+    sequence:
+      - service: automation.trigger
+        entity_id: automation.watchleftbattery
+  dimdowntvsone:
+    sequence:
+      - service: light.turn_on
+        entity_id: light.tvsone
+        data:
+          brightness_step_pct: -20
+          transition: 1
+  dimuptvsone:
+    sequence:
+      - service: light.turn_on
+        entity_id: light.tvsone
+        data:
+          brightness_step_pct: 20
+          transition: 1
 
 automation:
   - alias: "reset garmincontrol"
@@ -157,6 +186,8 @@ automation:
     trigger:
       - platform: webhook
         webhook_id: !secret garmincontrolok
+        allowed_methods:
+          - POST
         local_only: false
     action:
       - choose:
@@ -205,12 +236,12 @@ automation:
               - service: cover.toggle
                 entity_id: cover.garage_door
 
-  # - alias: 'GarminWebHookBack'
-  #   id: 'GarminWebHookBack'
-  #   trigger:
-  #   - platform: webhook
-  #     webhook_id: !secret garmincontrolback
-        local_only: false
+        # - alias: 'GarminWebHookBack'
+        #   id: 'GarminWebHookBack'
+        #   trigger:
+        #   - platform: webhook
+        #     webhook_id: !secret garmincontrolback
+        #local_only: false
   #   action:
   #   - choose:
   #     - conditions:

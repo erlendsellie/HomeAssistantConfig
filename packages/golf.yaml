@@ -1,0 +1,228 @@
+template:
+  - binary_sensor:
+      - name: Forgot To Lock Golf
+        unique_id: forgot_to_lock_golf
+        delay_on:
+          minutes: 20
+        state: >-
+          {{
+            states.binary_sensor.e_golf_vehicle_moving.state == 'off' and
+            states.binary_sensor.e_golf_doors_locked.state == 'on'
+          }}
+      - name: ShouldKeepChargingGolf
+        unique_id: ShouldKeepChargingGolf
+        state: >-
+          {%set limit = states.input_number.golf_soc_limit.state | float(default=90)%}
+          {%set soc = states.sensor.e_golf_battery_level.state | float(default=10)%}
+          {%set charging = (states.binary_sensor.e_golf_charging_cable_connected.state == 'on' and states.device_tracker.e_golf_position.state == 'home') %}
+          {%set tesla_charging = states.binary_sensor.modely_charger_sensor.state == 'on'%}
+          {%set is_heating = states.switch.e_golf_auxiliary_climatisation.state == 'on' or states.switch.e_golf_window_heater == 'on'%}
+          {%if(is_heating == true and charging == true) %}
+            {{True}}
+          {% elif(tesla_charging == true) %}
+            {{True}} 
+          {% elif(charging == false) %}
+            {{True}} 
+          {% else %}
+            {{soc <= limit}}
+          {% endif %}
+      - name: Caroline Connected To Golf
+        unique_id: CarolineConnectedToGolf
+        state: >-
+          {% set c = state_attr('sensor.caroline_bluetooth_connection', 
+          'connected_paired_devices') %}
+          {{ c is not none and c is search('B8:9F:09:F9:F4:B0') }}
+
+  - sensor:
+      - name: "Golf Percent To Charge"
+        unit_of_measurement: "%"
+        state: >-
+          {%set soc = states('sensor.e_golf_battery_level') | int %}
+          {{90 - soc | float(default=0)}}
+      - name: "Golf kWh To Charge"
+        unit_of_measurement: "kWh"
+        state: >-
+          {{30 * ((states('sensor.golf_percent_to_charge') | float)/100) | round(3)}}
+      - name: "Car to charge"
+        state: >-
+          {%set tesla = states('sensor.modely_kwh_to_charge') | float%}
+          {%set tesla_soc = states('sensor.modely') | float%}
+          {%set golf_soc = states('sensor.e_golf_battery_level') | float%}
+          {%set golf = states('sensor.golf_kwh_to_charge') | float%}
+          {%if golf_soc < 40 and tesla_soc < 40%}
+          Both
+          {%elif golf_soc < 40%}
+          Golf
+          {%elif tesla_soc < 40%}
+          Tesla
+          {%elif tesla > golf%}
+          Tesla
+          {%else%}
+          Golf
+          {%endif%}
+      - name: "Car Charging"
+        state: >-
+          {%set tesla_soc = states('sensor.modely') | float%}
+          {%set golf_soc = states('sensor.e_golf_battery_level') | float%}
+          {%set car_to_charge = states('sensor.car_to_charge')%}
+          {%set tesla_charging = states('binary_sensor.modely_charger_sensor') == 'on' %}
+          {%set golf_charging = states('binary_sensor.e_golf_charging_cable_connected') == 'on' %}
+
+          {%if tesla_charging%}
+          {%if car_to_charge == 'Tesla'%}
+            {%set charging_car = 'Correct car is charging'%}
+          {%endif%}
+            {%set charging_car =  charging_car + ' (Tesla)'%}
+          {%elif golf_charging%}
+          {%if car_to_charge == 'Golf'%}
+            {%set charging_car = 'Correct car is charging'%}
+          {%endif%}
+            {%set charging_car =  charging_car + ' (Golf)'%}
+          {%else%}
+            {%set charging_car = 'No car is charging'%}
+          {%endif%}
+          {{charging_car}}
+          You should charge {{car_to_charge}} tonight. Tesla: {{tesla_soc}}%, Golf: {{golf_soc}}%
+
+  #     - name: ErHjemmeUke
+  #       unique_id: ErHjemmeUke
+  #       state: >-
+  #         {%set week_number = now().isocalendar()[1]%}
+  #         {{ ((week_number -1) // 2) % 2 == 0 }}
+  # - sensor:
+  #     - name: GuttaTemperatur
+  #       unique_id: GuttaTemperatur
+  #       state: >-
+  #         {%set hjemme_uke = states.binary_sensor.erhjemmeuke.state%}
+  #         {%if(hjemme_uke == 'on') %}
+  #           {%set temp = 18 if now().hour >= 23 else 22 if now().hour >= 16 else 10%}
+  #           {{temp}}
+  #         {% else %}
+  #           {{10}}
+  #         {% endif %}
+input_number:
+  golf_soc_limit:
+    name: E-Golf Soc Limit
+    initial: 90
+    min: 70
+    max: 100
+    step: 1
+
+automation:
+  - id: notifycartocharge
+    alias: notifycartocharge
+    trigger:
+      - platform: time
+        at: "21:00:00"
+    action:
+      - service: script.turn_on
+        entity_id: script.notifymehome
+        data_template:
+          variables:
+            title: "Car to charge tonight"
+            message: >-
+              {{state('sensor.car_charging')}}
+            channel: "cars"
+
+  - alias: ShouldKeepChargingGolf
+    id: ShouldKeepChargingGolf
+    trigger:
+      - platform: state
+        entity_id: sensor.garage_status
+      - platform: state
+        entity_id: sensor.e_golf_battery_level
+      - platform: state
+        entity_id: binary_sensor.shouldkeepcharginggolf
+      - platform: state
+        entity_id: input_number.golf_soc_limit
+    condition:
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: device_tracker.e_golf_position
+            state: "home"
+          - condition: state
+            entity_id: binary_sensor.e_golf_charging_cable_connected
+            state: "on"
+          - condition: state
+            entity_id: binary_sensor.modely_charger_sensor
+            state: "off"
+    action:
+      - service: easee.action_command
+        data:
+          device_id: 6253823754803a08f0b3d8c4d7acbd30
+          action_command: "{{'resume' if is_state('binary_sensor.shouldkeepcharginggolf', 'on') else 'pause'}}"
+
+  - alias: Forgot To Lock Golf
+    id: forgotToLockGolf
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.forgot_to_lock_golf
+        from: "off"
+        to: "on"
+    action:
+      - service: script.turn_on
+        entity_id: script.notify
+        data_template:
+          variables:
+            title: Noen glemte å låse golfen!
+            message: Noen glemte å låse golfen!
+
+  - id: e_golf_windhshield_heater_still_on
+    alias: e_golf_windhshield_heater_still_on
+    trigger:
+      - platform: state
+        entity_id: switch.e_golf_window_heater
+        to: "on"
+        for:
+          hours: 1
+    condition:
+      - alias: "not moving"
+        condition: state
+        entity_id: binary_sensor.e_golf_vehicle_moving
+        state: "off"
+    action:
+      - service: script.turn_on
+        entity_id: script.notify
+        data_template:
+          variables:
+            title: Varmetråder på Golf er fremdeles på
+            message: Varmetråder på Golf er fremdeles på
+script:
+  climate_egolf:
+    alias: "Climate E-golf"
+    sequence:
+      - service: switch.turn_on
+        entity_id:
+          - switch.e_golf_window_heater
+          - switch.e_golf_electric_climatisation
+          #- switch.e_golf_electric_climatisation
+          #- switch.e_golf_auxiliary_climatisation
+      # - service: climate.turn_on
+      #   data:
+      #     entity_id: climate.e_golf_electric_climatisation
+      # - service: climate.set_preset_mode
+      #   data:
+      #     preset_mode: "heat/cool"
+      #     entity_id: climate.e_golf_electric_climatisation
+      - delay:
+          seconds: 30
+      - service: switch.turn_on
+        entity_id: switch.e_golf_force_data_refresh
+
+  stop_climate_egolf:
+    alias: "Stop Climate E-golf"
+    sequence:
+      - service: switch.turn_off
+        entity_id:
+          - switch.e_golf_window_heater
+          - switch.e_golf_electric_climatisation
+          #- switch.e_golf_electric_climatisation
+          #- switch.e_golf_auxiliary_climatisation
+      # - service: climate.turn_off
+      #   data:
+      #     entity_id: climate.e_golf_electric_climatisation
+      # - delay:
+      #     seconds: 30
+      - service: switch.turn_on
+        entity_id: switch.e_golf_force_data_refresh

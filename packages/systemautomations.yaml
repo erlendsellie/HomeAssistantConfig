@@ -95,14 +95,14 @@ automation:
           - switch.garage_esp32
           - binary_sensor.vindfang_door
           - sensor.nordpool
-          - media_player.nvidia_shield
-          - lock.ytterdor_verisure
+          - media_player.living_room_tv
           - switch.garage_esp32
-          - device_tracker.oneplus
+          - device_tracker.erlend_mobil
           - device_tracker.caroline_app
           - sensor.nordpool
           - sensor.stua_temperature
-          - binary_sensor.front_door_ding
+          - lock.ytterdor
+          - binary_sensor.front_door_ding_mqtt
           - light.trym_balloon
           - light.tyra_ball
           - light.trym_roof
@@ -119,6 +119,8 @@ automation:
           - light.sofa
           - light.bathroom
           - light.toilet
+          - switch.varmekolbe
+          - sensor.aquarium_temp
         to: "unavailable"
         for:
           minutes: 5
@@ -136,14 +138,14 @@ automation:
           - switch.garage_esp32
           - binary_sensor.vindfang_door
           - sensor.nordpool
-          - media_player.nvidia_shield
-          - lock.ytterdor_verisure
+          - media_player.living_room_tv
+          - lock.ytterdor
           - switch.garage_esp32
-          - device_tracker.oneplus
+          - device_tracker.erlend_mobil
           - device_tracker.caroline_app
           - sensor.nordpool
           - sensor.stua_temperature
-          - binary_sensor.front_door_ding
+          - binary_sensor.front_door_ding_mqtt
           - light.trym_balloon
           - light.tyra_ball
           - light.trym_roof
@@ -157,6 +159,8 @@ automation:
           - switch.office_heater
           - switch.blanket
           - light.toilet
+          - switch.varmekolbe
+          - sensor.aquarium_temp
         to: "unavailable"
         for:
           minutes: 30
@@ -164,7 +168,7 @@ automation:
       - service: notify.me
         data_template:
           title: Important device unavailable
-          message: "{{trigger.from_state.name}} is unavailable"
+          message: "{{trigger.from_state.name}} ({{trigger.from_state.entity_id}}) is unavailable"
 
   - alias: NotifyImportantDevicesDownNew
     id: NotifyImportantDevicesDownNew
@@ -176,12 +180,12 @@ automation:
           {% from 'tools.jinja' import important_devices %} 
           {% from 'tools.jinja' import low_battery %}
           {{important_devices()}}
-    condition:
-      - condition: template
-        value_template: >
-          {% from 'tools.jinja' import important_devices %} 
-          {% from 'tools.jinja' import low_battery %}
-          {{important_devices()}}
+    # condition:
+    #   - condition: template
+    #     value_template: >
+    #       {% from 'tools.jinja' import important_devices %}
+    #       {% from 'tools.jinja' import low_battery %}
+    #       {{important_devices()}}
     action:
       - service: script.turn_on
         entity_id: script.notify
@@ -252,17 +256,35 @@ automation:
       - delay:
           minutes: 20
 
+  - alias: upstairslightdown
+    trigger:
+      - platform: state
+        entity_id: light.upstairs
+        to: "unavailable"
+        for:
+          minutes: 2
+    action:
+      - service: zwave_js.ping
+        target:
+          entity_id: light.upstairs
+
   - alias: NotifyZigbeeDown
     trigger:
       - platform: state
         entity_id: binary_sensor.water_kitchen
         to: "unavailable"
         for:
-          minutes: 2
+          minutes: 4
     action:
       - service: notify.me
         data_template:
           message: "The Zigbee network seems to be down"
+      - service: hassio.addon_restart
+        data:
+          #addon: addon_core_zwave_js
+          addon: 45df7312_zigbee2mqtt
+      - service: homeassistant.reload_config_entry
+        entity_id: binary_sensor.water_kitchen
       - wait_for_trigger:
           - platform: state
             entity_id: binary_sensor.water_kitchen
@@ -303,7 +325,8 @@ automation:
   #     - service: switch.turn_off
   #       entity_id: switch.bathroom_fan
 
-  - alias: health check every 3 mins
+  - alias: health check every 5 mins
+    id: healthcheck
     trigger:
       platform: time_pattern
       minutes: /5
@@ -410,14 +433,13 @@ automation:
             {%- for domain in domains -%}
             {%- if loop.first -%}
             The following devices have low battery levels:
-            {%- endif -%}
+            {% endif -%}
             {%- for item in domain if (item.attributes.battery_level is defined and item.attributes['battery_level'] | int(default=0) < threshold) or ("battery" in item.name | lower and ("Body" not in item.name) and ("Browser" not in item.name) and ("Battery Temperature" not in item.name) and ("Leaf" not in item.name) and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low" )) -%}
-
-            {%- if (item.attributes.battery_level is defined and ("Browser" | lower not in (item.name | lower)) and
+            {%- if (item.attributes.battery_level is defined and ("Browser" | lower not in (item.name | lower))  and
                 (item.attributes['battery_level'] | int(default=0) < threshold) and item.attributes.battery_level != 'unknown')%}
             {{ item.name }} ({{ item.attributes['battery_level'] }}),
             {% endif -%}
-            {%- if "battery" in item.name | lower and ('battery power' not in item.name | lower) and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low") -%}  
+            {%- if "battery" in item.name | lower and ('voltage' not in item.name | lower)  and ('battery power' not in item.name | lower) and ((item.state | int(default=0) < threshold and item.state| int(default=0) != 0) or item.state | lower == "low") -%}  
             {{ item.name }} ({{ item.state }}),
             {% endif -%}
             {%- endfor -%}
@@ -466,13 +488,13 @@ script:
       - service: homeassistant.reload_core_config
       - service: zone.reload
       - service: automation.reload
-      - service: script.reload
+      - service: script.reload_ha
       - delay:
           seconds: 30
       - service: "{{ washer_emptied }}"
         entity_id: input_boolean.washer_emptied
 
-  reload:
+  reload_ha:
     alias: "Reload HA"
     sequence:
       - service: homeassistant.reload_core_config
@@ -484,7 +506,7 @@ script:
       - service: notify.mobile_app_caroline_pixel
         data:
           message: "request_location_update"
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data:
           message: "request_location_update"
 

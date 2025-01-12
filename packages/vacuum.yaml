@@ -31,7 +31,7 @@ automation:
         - condition: template
           value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
         - condition: template
-          value_template: "{{ states.media_player.nvidia_shield.state  != 'playing'}}"
+          value_template: "{{ states.media_player.living_room_tv.state  != 'playing'}}"
         - condition: time
           after: "12:00:00"
     action:
@@ -81,7 +81,7 @@ script:
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_goto_target
-          params: [24350, 21900]
+          params: [28800, 24150]
 
   dockvacuum:
     alias: "Send Svetlana to Dock"
@@ -116,10 +116,6 @@ script:
         data:
           packet:
             - "JgCkAFsgHF0cXRxdWiEcXRtdHAACfVsgHFseXRxdWiEcXRxcHAACfVshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxcHAACfVsgHF0cXRxcWyEcXBxdHAACfVsgHF0cXBxdWyAcXRxdHAACfVohHF0cXBxdWyAcXRxdHIwNAA0FAAAAAA=="
-      - service: logbook.log
-        data_template:
-          name: Roomba
-          message: Started cleaning the house
 
   stoproomba:
     sequence:

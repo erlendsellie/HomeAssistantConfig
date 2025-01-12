@@ -1,0 +1,75 @@
+automation:
+  - id: toggleFrigateRecording
+    alias: toggleFrigateRecording
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.home_alarm
+      - platform: time_pattern
+        #every 5 minutes to ensure we toggle it off again if we restart frigate.
+        minutes: "/5"
+    action:
+      - service: switch.turn_{{ 'on' if is_state('alarm_control_panel.home_alarm', 'triggered') or is_state('alarm_control_panel.home_alarm', 'armed_away') else 'off'}}
+        target:
+          entity_id:
+            - switch.dogs_recordings
+            - switch.dogs_snapshots
+            - switch.hallway_recordings
+            - switch.hallway_snapshots
+      - service: switch.turn_{{ 'on' if is_state('alarm_control_panel.home_alarm', 'triggered') or is_state('alarm_control_panel.home_alarm', 'armed_away') else 'off'}}
+        target:
+          entity_id:
+            - switch.trym_recordings
+            - switch.trym_snapshots
+            - switch.tyra_snapshots
+            - switch.tyra_recordings
+
+  - id: frigateBarkDogs
+    alias: Notify with camera snapshot when dogs bark and alarm is armed away
+    description: >
+      Sends a notification with a snapshot of the camera when the dogs bark sound sensor is triggered, 
+      but only if the alarm is set to 'armed away'.
+    # mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.dogs_bark_sound
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_select.alarm
+        state: "Arm Away"
+    action:
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          message: "Barking was detected."
+          data:
+            image: /api/camera_proxy/camera.dogs
+            channel: Frigate Bark
+            vibrationPattern: "100, 1000, 100, 1000, 100" # The pattern you wish to set for vibrations
+            tag: "bark-dogs-hallway"
+            ttl: 0
+            priority: high
+
+  - id: frigateBanana
+    alias: frigateBanana
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.dogs_banana_occupancy
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.hallway_banana_occupancy
+        to: "on"
+    action:
+      # - service: tts.google_cloud_say
+      #   entity_id: media_player.hallway_speaker
+      #   data_template:
+      #     message: "Fin banan!"
+      - service: media_player.play_media
+        target:
+          entity_id: media_player.hallway_speaker
+        data:
+          media_content_id: "https://www.youtube.com/watch?v=ADlGkXAz1D0"
+          media_content_type: "video/youtube"
+      - delay:
+          minutes: 3
+      #Go bananas song

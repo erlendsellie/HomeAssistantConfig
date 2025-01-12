@@ -4,7 +4,7 @@ automation:
     mode: restart
     trigger:
       - platform: state
-        entity_id: sensor.puck_trym_action
+        entity_id: sensor.puck_trym_action #z2m-problem
     condition:
       - condition: template
         value_template: "{{trigger.to_state.state != ''}}"
@@ -51,7 +51,7 @@ automation:
                 entity_id: light.trym_balloon
                 data_template:
                   hs_color:
-                    - "{{ (30 + (state_attr('light.trym_balloon', 'hs_color')[0] or 0)) % 360 }}"
+                    - "{{ (10 + (state_attr('light.trym_balloon', 'hs_color')[0] or 0)) % 360 }}"
                     - 100
                   brightness_pct: 100
                   transition: 0
@@ -63,7 +63,7 @@ automation:
                 entity_id: light.trym_balloon
                 data_template:
                   hs_color:
-                    - "{{ (-30 + (state_attr('light.trym_balloon', 'hs_color')[0] or 0)) % 360 }}"
+                    - "{{ (-10 + (state_attr('light.trym_balloon', 'hs_color')[0] or 0)) % 360 }}"
                     - 100
                   brightness_pct: 100
                   transition: 0

@@ -6,7 +6,7 @@ template:
         state: >-
           {{
             (states.binary_sensor.motion_hallway.state == 'on' or
-            (states.binary_sensor.motion_upstairs.state == 'on' and states.input_select.alarm.state  == 'Disarm') or
+            (states.binary_sensor.should_upstair_lights_be_on.state == 'on' and states.input_select.alarm.state  == 'Disarm') or
             states.binary_sensor.motion_sokkel.state == 'on' or
             states.binary_sensor.motion_vindfang.state == 'on' or
             states.binary_sensor.motion_toilet.state =='on')
@@ -14,8 +14,9 @@ template:
             states.input_select.alarm.state  == 'Disarm'
           }}
       - name: "Should Upstair Lights Be On"
-        # delay_off:
-        #   minutes: 5
+        unique_id: "ShouldUpstairLightsBeOn"
+        delay_off:
+          minutes: 5
         state: >-
           {{
             states.binary_sensor.motion_upstairs.state == 'on' or
@@ -28,6 +29,17 @@ template:
             (states.binary_sensor.trym_motion.state == 'on' and states.input_boolean.trymasleep.state == 'off' and states.input_select.alarm.state  == 'Disarm') or
             (states.binary_sensor.tyra_motion.state == 'on' and states.input_boolean.tyraasleep.state == 'off' and states.input_select.alarm.state  == 'Disarm')
           }}
+        attributes:
+          upstairs: "{{states.binary_sensor.motion_upstairs.state == 'on'}}"
+          bathroom: "{{states.binary_sensor.motion_bathroom.state == 'on'}}"
+          door_bathroom: "{{states.binary_sensor.door_bathroom.state == 'on'}}"
+          motion_hallway: "{{(states.binary_sensor.motion_hallway.state == 'on' and states.input_select.alarm.state  == 'Disarm')}}"
+          motion_sokkel: "{{(states.binary_sensor.motion_sokkel.state == 'on' and states.input_select.alarm.state  == 'Disarm')}}"
+          motion_vindfang: "{{(states.binary_sensor.motion_vindfang.state == 'on' and states.input_select.alarm.state  == 'Disarm')}}"
+          motion_bedroom: "{{(states.binary_sensor.motion_bedroom.state == 'on' and states.input_select.alarm.state  == 'Disarm')}}"
+          motion_trym: "{{(states.binary_sensor.trym_motion.state == 'on' and states.input_boolean.trymasleep.state == 'off' and states.input_select.alarm.state  == 'Disarm')}}"
+          motion_tyra: "{{(states.binary_sensor.tyra_motion.state == 'on' and states.input_boolean.tyraasleep.state == 'off' and states.input_select.alarm.state  == 'Disarm')}}"
+
 # states.binary_sensor.trym_door.state == 'on' or
 # states.binary_sensor.tyra_door.state == 'on' or
 
@@ -118,6 +130,7 @@ automation:
           - binary_sensor.motion_sokkel
           - binary_sensor.grind
           - binary_sensor.door_downstairs
+          - binary_sensor.motion_downstairs_office
         to: "on"
     action:
       - service: light.turn_on
@@ -137,7 +150,7 @@ automation:
         entity_id: binary_sensor.motion_sokkel
         to: "off"
         for:
-          minutes: 3
+          minutes: 5
     action:
       - service: light.turn_off
         entity_id: light.sokkel

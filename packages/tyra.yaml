@@ -2,27 +2,28 @@ template:
   - sensor:
       - name: "tyra_traffic_color"
         state: >-
-          {%set hour = now().hour%}
+          {%set hour = (now().hour )%}
           {%set isWeekend = now().weekday() == 6 or now().weekday() == 7%}
           {%set onlyErlendHome = states('sensor.peoplehome') == 'Erlend'%}
 
-          {%if isWeekend and onlyErlendHome%}
-            {%if hour > 21 or hour < 6%}
-              red
-            {%elif hour < 8%}
-              gold
-            {%elif hour >= 8%}
-              green
-            {%endif%}
-          {%else%}
-            {%if hour > 21 or hour < 6%}
-              red
-            {%elif hour < 7%}
-              gold
-            {%elif hour >= 7%}
-              green
-            {%endif%} 
+          {%if hour > 20 or hour < 6%}
+            red
+          {%elif hour < 7%}
+            orange
+          {%elif hour >= 7 and hour < 10%}
+            green
+          {%elif hour > 9 or hour < 20%}
+            DeepPink
           {%endif%}
+      - name: "tyra_light"
+        state: >-
+          {%set lights = states.sensor.brightnessforlights.state%}
+          {%if states.input_boolean.tyraasleep.state == 'on'%}
+            {%set lights = 1%}
+          {% elif now().hour < 8 %} 
+            {%set lights = 20%}
+          {% endif %}
+          {{lights}}
 binary_sensor:
   - platform: template
     sensors:
@@ -67,7 +68,7 @@ automation:
   #     - condition: time
   #       after: '18:45:00'
   #   action:
-  #   - service: notify.mobile_app_oneplus
+  #   - service: notify.mobile_app_erlend_mobil
   #     data_template:
   #       title: 'Slå på'
   #       message: 'Tyra sover?'
@@ -208,11 +209,21 @@ automation:
         entity_id: input_select.alarm
         to: "Arm Home"
         for:
-          minutes: 30
+          seconds: 2
+      - platform: state
+        entity_id: input_select.alarm
+        to: "Arm Home"
+        for:
+          seconds: 30
     condition:
       - condition: template
         value_template: "{{ states.input_select.alarm.state != 'Arm Away' }}"
     action:
+      - service: light.turn_off
+        data_template:
+          entity_id:
+            - light.tyra_2
+            - light.tyra_3
       - service: light.turn_on
         data_template:
           brightness_pct: "1"
@@ -223,7 +234,9 @@ automation:
           brightness_pct: "1"
           entity_id:
             - light.tyra_ball
-          color_name: "DeepPink"
+          #color_name: "DeepPink"
+          color_name: "{{states('sensor.tyra_traffic_color')}}"
+
       # - service: light.turn_on
       #   entity_id: light.upstairs
       #   data_template:
@@ -263,6 +276,7 @@ automation:
         entity_id: climate.tyra_heater
 
   - alias: turnOnTyraLight
+    id: turnOnTyraLight
     trigger:
       - platform: state
         entity_id: binary_sensor.tyra_door
@@ -278,23 +292,49 @@ automation:
       - service: light.turn_on
         entity_id: light.tyra
         data_template:
-          brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
+          brightness_pct: "{{ states.sensor.tyra_light.state }}"
       - service: light.turn_on
         data:
           brightness_pct: "100"
           entity_id: light.tyra_ball
-          color_name: "DeepPink"
+          color_name: "{{states('sensor.tyra_traffic_color')}}"
+          #color_name: "DeepPink"
       - wait_for_trigger:
-          - platform: state
-            entity_id: binary_sensor.tyra_motion
-            to: "off"
+          - platform: template
+            value_template: "{{ states.binary_sensor.tyra_person_occupancy.state == 'off' and states.binary_sensor.tyra_motion.state == 'off' }}"
             for:
-              minutes: 4
-        timeout: "00:20:00"
-        continue_on_timeout: true
+              minutes: 1
+        timeout: "02:20:00"
+        continue_on_timeout: false
       - condition: template
         value_template: "{{ states.input_boolean.tyraasleep.state == 'off' }}"
       - service: light.turn_off
         entity_id: light.tyra
       - service: light.turn_off
         entity_id: light.tyra_ball
+
+  - id: "ToggleTyraLightsSwitch"
+    alias: ToggletyraLightsSwitch
+    mode: restart
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.tyra_switch_action #z2m-problem
+        to: toggle
+    condition: []
+    action:
+      - if:
+          - condition: state
+            entity_id: light.tyra
+            state: "on"
+        then:
+          - service: light.turn_off
+            data: {}
+            target:
+              entity_id: light.tyra
+        else:
+          - service: light.turn_on
+            data: {}
+            target:
+              entity_id: light.tyra

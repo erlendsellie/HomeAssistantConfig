@@ -10,8 +10,7 @@ automation:
       - platform: state
         entity_id:
           - binary_sensor.motion_kitchen
-          - binary_sensor.motion_upstairs
-          - binary_sensor.motion_vindfang
+          - input_boolean.easleep
         to: "on"
     condition:
       condition: and
@@ -25,13 +24,15 @@ automation:
         - condition: state
           entity_id: input_boolean.easleep
           state: "off"
+          for:
+            minutes: 5
     action:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data:
           message: "remove_channel"
           data:
             channel: "medication"
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           title: "Ta Medisin"
           message: "Ta Medisin"
@@ -49,16 +50,16 @@ automation:
         data_template:
           entity_id: media_player.kitchen_display
           volume_level: "{{states.sensor.speakervolume.state | float(default=0)+ 0.2}}"
-      - service: script.turn_on
-        entity_id: script.sayaikitchen
-        data_template:
-          variables:
-            message: Erlend må ta medisinen sin
-      # - service: tts.google_cloud_say
-      #   entity_id: media_player.kitchen_display
+
+      # - service: script.turn_on
+      #   entity_id: script.sayaikitchen
       #   data_template:
-      #     message: "Ta medisin"
-      #     language: "no"
+      #     variables:
+      #       message: Erlend må ta medisinen sin
+      - service: tts.google_cloud_say
+        entity_id: media_player.kitchen_display
+        data_template:
+          message: "Ta medisin"
       - delay:
           seconds: 10
       - service: media_player.media_stop
@@ -87,7 +88,7 @@ automation:
         entity_id: input_boolean.takemeds
       # - condition: template
       #   value_template: "{{ states.person.erlend.state != 'home' }}"
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           title: "Ta Medisin"
           message: "Ta Medisin"

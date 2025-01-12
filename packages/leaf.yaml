@@ -170,7 +170,7 @@
 #           entity_id: sensor.leaf_charge_filtered
 #           below: 20
 #       action:
-#         - service: notify.erlendpush
+#         - service: notify.me #earlier erlendpush
 #           data_template:
 #             message: "Leaf is at {{states.sensor.leaf_charge_filtered.state}}% battery. Turning off heating if not plugged in."
 #         - condition: state
@@ -215,7 +215,7 @@
 #           entity_id: binary_sensor.erlendhome
 #           state: 'on'
 #       action:
-#         - service: notify.mobile_app_oneplus
+#         - service: notify.mobile_app_erlend_mobil
 #           data_template:
 #             title: "Start heating the car?"
 #             message: >-
@@ -240,7 +240,7 @@
 #         entity_id: person.erlend
 #         state: 'Work'
 #       action:
-#         - service: notify.mobile_app_oneplus
+#         - service: notify.mobile_app_erlend_mobil
 #           data_template:
 #             title: "Start heating the car?"
 #             message: >-

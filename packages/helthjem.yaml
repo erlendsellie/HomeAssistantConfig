@@ -5,9 +5,32 @@ sensor:
     scan_interval: 300
     json_attributes:
       - value_json.Products
-    resource: https://www.norrona.com/nb-NO/o/json?=cta&displaysize=M&Sex=Male&Category=Jackets&Concept=falketind&Property=Waterproof&page=1&size=6
+    resource:
+      https://www.norrona.com/en-GB/o/json?=cta&DesignedFor=Hunting&page=1
+      #https://www.norrona.com/nb-NO/o/json?=cta&displaysize=M&Sex=Male&Category=Jackets&Concept=falketind&Property=Waterproof&page=1&size=6
     value_template: >-
       {{value_json.TotalMatching}}
+    force_update: true
+
+  - platform: rest
+    name: NorronaService
+    unique_id: NorronaService
+    scan_interval: 600
+    json_attributes:
+      - value_json[0].StatusString
+    resource: https://www.norrona.com/api/mypage/ServiceOrderHistory/?key=c913684c-b602-4797-9928-c1ef2a268499&count=0
+    value_template: >-
+      {{value_json[0].StatusString}}
+    force_update: true
+
+  - platform: rest
+    name: posten_tracking
+    scan_interval: 300
+    json_attributes:
+      - value_json.consignmentSet
+    resource: https://sporing.posten.no/tracking/api/fetch?query=LL031892682NO&lang=no
+    value_template: >-
+      {{value_json.consignmentSet[0].packageSet[0].eventSet[0].city}}
     force_update: true
 
   #sensor for checking last Tracking message from HeltHjem.
@@ -61,11 +84,29 @@ automation:
       - condition: template
         value_template: "{{trigger.to_state.state | float(default=0) > 0}}"
     action:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
-          title: Falketind på lager?
+          title: Jaktklær på outlet har blitt oppdatert?
           message: "{{ states('sensor.NorronaFalketind') }}"
           data:
-            clickAction: "https://www.norrona.com/nb-NO/o/?=cta&displaysize=M&Sex=Male&Category=Jackets&Concept=falketind&Property=Waterproof"
+            #clickAction: "i"
+            clickAction: "https://www.norrona.com/nb-NO/o/?=cta&DesignedFor=Hunting"
+            ttl: 0
+            priority: high
+
+  - alias: NotifyPosten
+    trigger:
+      - platform: state
+        entity_id: sensor.posten_tracking
+    condition:
+      - condition: template
+        value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
+    action:
+      - service: notify.mobile_app_erlend_mobil
+        data_template:
+          title: "Pakke rører på seg: {{ states('sensor.posten_tracking') }}"
+          message: "{{ states('sensor.posten_tracking') }}"
+          data:
+            clickAction: "https://sporing.posten.no/sporing/370730259853369118"
             ttl: 0
             priority: high

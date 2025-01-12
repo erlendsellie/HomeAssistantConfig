@@ -82,7 +82,7 @@ automation:
                         entity_id: media_player.google_tv
                   - conditions:
                       - condition: template
-                        value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.nvidia_shield.state != 'paused' and states.media_player.nvidia_shield.state != 'playing'))}}"
+                        value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.living_room_tv.state != 'paused' and states.media_player.living_room_tv.state != 'playing'))}}"
                     sequence:
                       - service: media_player.media_play_pause
                         entity_id: media_player.musikkstua
@@ -92,7 +92,7 @@ automation:
                         state: "off"
                     sequence:
                       - service: media_player.media_play_pause
-                        entity_id: media_player.nvidia_shield
+                        entity_id: media_player.living_room_tv
           - conditions:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
@@ -214,7 +214,7 @@ automation:
                         state: "off"
                     sequence:
                       # - service: media_player.toggle
-                      #   entity_id: media_player.nvidia_shield
+                      #   entity_id: media_player.living_room_tv
                       - service: media_player.toggle
                         entity_id: media_player.tv_stua
                   - conditions:

@@ -1,0 +1,59 @@
+automation:
+  - id: "ToggleBodLightsSwitch"
+    alias: ToggleBodLightsSwitch
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.bod_switch_action #z2m-problem
+        to: toggle
+    condition: []
+    action:
+      - if:
+          - condition: state
+            entity_id: light.bod
+            state: "on"
+        then:
+          - service: light.turn_off
+            data: {}
+            target:
+              entity_id: light.bod
+        else:
+          - service: light.turn_on
+            data: {}
+            target:
+              entity_id: light.bod
+
+  - id: "ToggleBodLightsDoor"
+    alias: ToggleBodLightsDoor
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.bod_door
+    action:
+      - condition: template
+        value_template: "{{trigger.to_state.state == 'on' or trigger.to_state.state == 'off'}}"
+      - service: light.turn_{{trigger.to_state.state}}
+        target:
+          entity_id: light.bod
+
+  - alias: turnOffBodLights
+    id: turnOffBodLights
+    trigger:
+      - platform: state
+        entity_id:
+          - light.bod
+          # - light.jaktbod
+          # - light.matbod
+          # - light.klaesbod
+        to: "on"
+        for:
+          hours: 1
+    action:
+      - variables:
+          entity: "{{trigger.entity_id}}"
+      #turn off the entity_id that triggered the automation
+      - service: light.turn_off
+        #entity_id: "{{entity_id}}"
+        entity_id: light.bod

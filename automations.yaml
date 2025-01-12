@@ -1,16 +1,16 @@
-- id: "1616060381373"
-  alias: Tag Brikke is scanned
-  description: ""
-  trigger:
-    - platform: tag
-      tag_id: b51cc136-c0d6-4ddc-9795-958eda69188a
-  condition: []
-  action:
-    - service: media_extractor.play_media
-      data:
-        entity_id: media_player.nvidia_shield
-        media_content_id: https://www.youtube.com/watch?v=EwhFNvfNVPk&t=117s
-  mode: single
+# - id: "1616060381373"
+#   alias: Tag Brikke is scanned
+#   description: ""
+#   trigger:
+#     - platform: tag
+#       tag_id: b51cc136-c0d6-4ddc-9795-958eda69188a
+#   condition: []
+#   action:
+#     - service: media_extractor.play_media
+#       data:
+#         entity_id: media_player.living_room_tv
+#         media_content_id: https://www.youtube.com/watch?v=EwhFNvfNVPk&t=117s
+#   mode: single
 - id: "1612620277117"
   alias: Cast to Google Hub
   mode: restart
@@ -28,7 +28,7 @@
     path: erlendsellie/tibber_reload.yaml
     input:
       entity: sensor.pulse_power
-      notify: true
+      notify: false
 - id: "1649098665941"
   alias: Nordpool - Reload Integration Blueprint
   description: ""
@@ -82,6 +82,15 @@
       sensor: sensor.pricecorrection
       number: input_number.office_floor_temperature
       climate: climate.office_floor
+- id: 1675106320563Aquarium
+  alias: PriceAnalyzer - Control Climate Aquarium
+  description: ""
+  use_blueprint:
+    path: erlendsellie/priceanalyzer.yaml
+    input:
+      sensor: sensor.pricecorrection
+      number: input_number.aquarium_temperature
+      climate: climate.aquarium
 - id: "1675356794858"
   alias: PriceAnalyzer - Varmepumpe Opp
   description: ""
@@ -106,7 +115,7 @@
   trigger:
     - platform: state
       entity_id:
-        - sensor.office_aqara_switch_action
+        - sensor.office_aqara_switch_action #z2m-problem
       to: single
   condition: []
   action:
@@ -122,6 +131,178 @@
       else:
         - service: light.turn_on
           data: {}
+          target:
+            entity_id: light.office_lights
+  mode: single
+- id: "1683626857839"
+  alias: Frigate Blueprint Driveway TV
+  description: ""
+  use_blueprint:
+    path: SgtBatten/Stable.yaml
+    input:
+      camera: camera.driveway
+      notify_device: 727474a5d18e36e7d6bd3039605a5748
+      message: "{{label}} detected in {{camera_name}}"
+      critical: "true"
+      tv: true
+      update_thumbnail: false
+      icon:
+        mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog'
+        else 'cat' if label == 'Cat' else 'car' if label == 'Car' else 'home-assistant'}}
+      channel: cctv
+      labels:
+        - person
+        - dog
+        - cat
+        - package
+        - bird
+        - bicycle
+        - mouse
+      color: teal
+      loiter_timer: 4
+      url_2:
+        "{{base_url}}/api/camera_proxy_stream/camera.{{trigger.payload_json['after']['camera']}}?token={{state_attr(
+        'camera.' ~ camera, 'access_token')}}"
+      button_2: View Stream
+      notify_group: tv_notifications
+      base_url: https://hjem.sellie.no
+      tv_transparency: 50%
+      tv_size: small
+      tv_position: top-left
+- id: "16836268578392"
+  alias: Frigate Blueprint Driveway Phone
+  description: ""
+  use_blueprint:
+    path: SgtBatten/Stable.yaml
+    input:
+      camera: camera.driveway
+      notify_device: f9128d37022ff73e005f0099f88573d0
+      message: "{{label}} detected in {{camera_name}}"
+      critical: "false"
+      tv: false
+      update_thumbnail: false
+      icon:
+        mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog'
+        else 'cat' if label == 'Cat' else 'car' if label == 'Car' else 'home-assistant'}}
+      channel: cctv
+      labels:
+        - person
+        - dog
+        - cat
+        - package
+        - bird
+        - bicycle
+        - mouse
+      color: amber
+      loiter_timer: 4
+      url_2:
+        "{{base_url}}/api/camera_proxy_stream/camera.{{trigger.payload_json['after']['camera']}}?token={{state_attr(
+        'camera.' ~ camera, 'access_token')}}"
+      button_2: View Stream
+      base_url: https://hjem.sellie.no
+      cooldown: 120
+      silence_timer: 30
+      state_filter: true
+      state_entity: cover.garage_door
+      state_filter_states:
+        - closed
+        - "off"
+      android_auto: true
+- id: "1685997323075"
+  alias: Low battery level detection & notification for all battery sensors
+  description: ""
+  use_blueprint:
+    path: sbyx/low-battery-level-detection-notification-for-all-battery-sensors.yaml
+    input:
+      time: "20:30:00"
+      day: 7
+      actions:
+        - service: script.notify
+          data:
+            variables:
+              message: Following devices have low battery:{{sensors}}
+- id: "1691690023642"
+  alias: Jaktbod Light Motion
+  description: ""
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.motion_jaktbod
+      light_target:
+        entity_id: light.jaktbod
+- id: "1706098134872"
+  alias: Tag Bad is scanned
+  description: ""
+  trigger:
+    - platform: tag
+      tag_id: 28dff421-e592-4301-857c-0ac447f28fa6
+    - platform: tag
+      tag_id: 0eb24c08-d759-4d0b-acce-dfe2032f9a97
+    - platform: state
+      entity_id: sensor.upstairs_knapp_click #z2m-problem
+  condition: []
+  action:
+    - service: input_boolean.turn_off
+      metadata: {}
+      data: {}
       target:
-        entity_id: light.office_lights
+        entity_id: input_boolean.force_to_wake_up
+    - service: media_player.media_stop
+      target:
+        entity_id: media_player.clock
+      data: {}
+  mode: single
+- id: "1722256179647"
+  alias: Frigate Garden
+  description: ""
+  use_blueprint:
+    path: SgtBatten/Stable.yaml
+    input:
+      camera: camera.garden
+      notify_device: f9128d37022ff73e005f0099f88573d0
+      message: "{{label}} detected in {{camera_name}}"
+      critical: "false"
+      tv: false
+      update_thumbnail: false
+      icon:
+        mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog'
+        else 'cat' if label == 'Cat' else 'car' if label == 'Car' else 'home-assistant'}}
+      channel: cctv
+      labels:
+        - person
+        - dog
+        - cat
+        - package
+        - bicycle
+        - mouse
+      color: amber
+      loiter_timer: 4
+      url_2:
+        "{{base_url}}/api/camera_proxy_stream/camera.{{trigger.payload_json['after']['camera']}}?token={{state_attr(
+        'camera.' ~ camera, 'access_token')}}"
+      button_2: View Stream
+      base_url: https://hjem.sellie.no
+      cooldown: 120
+      silence_timer: 30
+      state_filter: false
+      state_filter_states: []
+      android_auto: true
+- id: "1728649042797"
+  alias: Nordlysvarsel
+  description: ""
+  triggers:
+    - type: turned_on
+      device_id: 52a6957244c9b54fc0fa4148943b7190
+      entity_id: d06f022b2ef86532009d9a66e80f20bb
+      domain: binary_sensor
+      trigger: device
+  conditions: []
+  actions:
+    - service: script.turn_on
+      entity_id: script.notify
+      data_template:
+        variables:
+          title: Nordlysvarsel
+          message: "I kveld er det {{states.sensor.aurora_visibility_visibility.state}} % sjanse for å se nordlys"
+
   mode: single

@@ -54,13 +54,13 @@ automation:
           id: smart_switch
           event: 1004
     action:
-      - service: cover.stop
+      - service: cover.stop_cover
         entity_id: cover.veranda_curtains
 
   # - alias: Close Blinds When TV
   #   trigger:
   #     - platform: state
-  #       entity_id: media_player.nvidia_shield
+  #       entity_id: media_player.living_room_tv
   #       to: 'playing'
   #     - platform: state
   #       entity_id: binary_sensor.veranda
@@ -70,7 +70,7 @@ automation:
   #       entity_id: binary_sensor.veranda
   #       state: 'off'
   #     - condition: state
-  #       entity_id: media_player.nvidia_shield
+  #       entity_id: media_player.living_room_tv
   #       state: 'playing'
   #     - condition: template
   #       value_template: "{{ states.binary_sensor.carolinehome.state  == 'off'}}"

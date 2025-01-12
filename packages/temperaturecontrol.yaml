@@ -25,24 +25,24 @@ sensor:
           {{actualtemp - targetTemp}}
       today_max_price:
         value_template: >-
-          {% set today=state_attr('sensor.nordpool', 'raw_today')|sort(attribute='value') %}
+          {% set today=state_attr('sensor.priceanalyzer', 'raw_today')|sort(attribute='value') %}
           {{today[23].value * 100}}
       tomorrow_max_price:
         value_template: >-
-          {% set tomorrow=state_attr('sensor.nordpool', 'raw_tomorrow')|sort(attribute='value') %}
+          {% set tomorrow=state_attr('sensor.priceanalyzer', 'raw_tomorrow')|sort(attribute='value') %}
           {{tomorrow[23].value * 100}}
       tomorrow_low_price:
         value_template: >-
-          {% set tomorrow=state_attr('sensor.nordpool', 'raw_tomorrow')|sort(attribute='value') %}
+          {% set tomorrow=state_attr('sensor.priceanalyzer', 'raw_tomorrow')|sort(attribute='value') %}
           {{tomorrow[0].value * 100}}
       today_low_price:
         value_template: >-
-          {% set today=state_attr('sensor.nordpool', 'raw_today')|sort(attribute='value') %}
+          {% set today=state_attr('sensor.priceanalyzer', 'raw_today')|sort(attribute='value') %}
           {{today[0].value * 100}}
       price_difference_tomorrow:
         value_template: >-
-          {% set today=state_attr('sensor.nordpool', 'raw_today')|sort(attribute='value') %}
-          {% set tomorrow=state_attr('sensor.nordpool', 'raw_tomorrow')|sort(attribute='value') %}
+          {% set today=state_attr('sensor.priceanalyzer', 'raw_today')|sort(attribute='value') %}
+          {% set tomorrow=state_attr('sensor.priceanalyzer', 'raw_tomorrow')|sort(attribute='value') %}
           {{((tomorrow[0].value - today[0].value ) * 100) | round (2)}}
       price_difference_nights:
         value_template: >-
@@ -51,7 +51,7 @@ sensor:
           {{((tomorrow - today ) * 100) | round (2)}}
       rest_of_today_low_price:
         value_template: >-
-          {% set today=state_attr('sensor.nordpool', 'raw_today') %}
+          {% set today=state_attr('sensor.priceanalyzer', 'raw_today') %}
           {%-set now = now().hour | float(default=0)-%}
           {% set futureHours = namespace(values=[]) %}
           {% for hour in today %}
@@ -225,23 +225,24 @@ sensor:
           {%set current_hour = analyzer.attributes.current_hour%}
           {%set temp = analyzer.state | float %}
           {%set outside_temp = states.sensor.ute_temperature.state | float(default=10)%}
+          {%-set alarm = states.input_select.alarm.state -%}
           {%set effektledd = states('input_number.effektledd') | float(default=9.8) %}
           {%set is_charging = states('sensor.garage_power') | int(default=0) > 1%}
           {%if temp > 0 and outside_temp > 5%}
             {%if current_hour.price_next_hour > 2.00 or current_hour.value > 2.00%} {%set temp = temp * 2%} 
-            {%elif current_hour.price_next_hour > 1.00 or current_hour.value > 1.00%} {%set temp = temp * 2%} 
-            {%elif current_hour.is_max%} {%set temp = temp * 2%}
+            {%elif current_hour.price_next_hour > 1.00 or current_hour.value > 1.00%} {%set temp = temp * 1%} 
+            {%elif current_hour.is_max%} {%set temp = temp * 1%}
             {%else%} {%set temp = temp%}
             {%endif%}
           {%else%}
             {%if current_hour.price_next_hour > 6.00 or current_hour.value > 6.00%} {%set temp = temp * 4%} 
             {%elif current_hour.price_next_hour > 4.00 or current_hour.value > 4.00%} {%set temp = temp * 3%} 
-            {%elif current_hour.price_next_hour > 1.00 or current_hour.value > 1.00%} {%set temp = temp * 2%} 
-            {%elif current_hour.is_max%} {%set temp = temp * 2%}
+            {%elif current_hour.price_next_hour > 1.00 or current_hour.value > 1.00%} {%set temp = temp * 1%} 
+            {%elif current_hour.is_max%} {%set temp = temp * 1%}
             {%else%} {%set temp = temp%}
             {%endif%}
           {%endif%}
-          {%if is_charging and effektledd < 10%}
+          {%if is_charging and effektledd < 10 and alarm == 'Arm Home'%}
             {%set temp = temp - 1 %}
           {%endif%}
           {{temp}}
@@ -380,7 +381,7 @@ sensor:
           {%-set prettyCold = float(uteTemp) < float(states.input_number.coldthreshold.state) -%}
           {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
           {%-set currentTemp = states.climate.varmepumpe.attributes.current_temperature or 20 | float(default=0)%}
-          {%-set currentTemp = states.sensor.stua_temperature.state | float or 20 | float(default=0)%}
+          {%-set currentTemp = states.sensor.bthome_stua_temperature.state | float or 20 | float(default=0)%}
           {%-set priceCorrection =  states.sensor.pricecorrection.state | float(default=0) %}
           {%-set baseTemp =  states.sensor.baseheat.state | float(default=0)%}
           {%-set difference = ([baseTemp - currentTemp] | max) | round(1) %}       
@@ -803,18 +804,10 @@ automation:
         data_template:
           entity_id: climate.stua_heater
           temperature: "{{ states.sensor.baseheat.state | int(default=0) - 1 }}"
-      - service: logbook.log
-        data:
-          name: Varmepumpe
-          message: "set to {{ states.sensor.tempsenttoheater.state | int(default=0) }} degrees and {{states.input_select.operationmode.state}}"
       # - service: climate.set_temperature
       #   data_template:
-      #     entity_id: climate.toilet_heater
-      #     temperature: "{{ (states.sensor.toilettemp.state | float) }}"
-      - service: climate.set_temperature
-        data_template:
-          entity_id: climate.stua_heater
-          temperature: "{{ (states.sensor.baseheat.state | float) - 2}}"
+      #     entity_id: climate.stua_heater
+      #     temperature: "{{ (states.sensor.baseheat.state | float) - 2}}"
 
   - alias: heatpumpadjustswingmode
     id: heatpumpadjustswingmode
@@ -829,15 +822,24 @@ automation:
         to: "off"
         for:
           seconds: 10
+      # - platform: state
+      #   entity_id: climate.varmepumpe
+      - platform: state
+        entity_id: input_select.heat_pump_swing_mode
     action:
       - service: climate.set_swing_mode
         entity_id: climate.varmepumpe
         data:
           swing_mode: >-
-            {%if states.media_player.tv_stua.state == 'on'%}
-              5_down
+            {% set mode = states('input_select.heat_pump_swing_mode')%}
+            {%if mode == 'auto_tv'%}
+              {%if states.media_player.tv_stua.state == 'on'%}
+                      5_down
+              {%else%}
+                      auto
+              {%endif%}
             {%else%}
-              auto
+              {{mode}}
             {%endif%}
 
   - alias: TurnOffClimateStua
@@ -1128,11 +1130,6 @@ automation:
 #       temperature: 28
 #       #temperature: '{{ float(states.sensor.tempsenttoheater.state) | int(default=0) + 3 }}'
 #       #temperature: '{{ states.input_number.hjemmetemp.state | int(default=0) }}'
-#   - service: logbook.log
-#     data_template:
-#        name: House
-#        message: is being heated up to 28 degrees.
-#        #message: is being heated up to '{{ float(states.sensor.tempsenttoheater.state) | int(default=0) + 3 }}' degrees.
 #   - delay:
 #       minutes: 120
 #   - service: climate.set_temperature
@@ -1160,10 +1157,6 @@ script:
         state: "heat"
       - condition: template
         value_template: "{{(states.climate.varmepumpe.attributes.current_temperature | int(default=0)) < (states.input_number.hjemmetemp.state | int(default=0))}}"
-      - service: logbook.log
-        data_template:
-          name: House
-          message: Is being heated.
       - service: notify.me
         data_template:
           message: "Warmup started. Temp is {{states.climate.varmepumpe.attributes.current_temperature}}"
@@ -1230,10 +1223,6 @@ script:
       #   data_template:
       #     entity_id: climate.toilet_heater
       #     temperature: "{{ states.input_number.hjemmetemp.state | int(default=0)}}"
-      - service: logbook.log
-        data_template:
-          name: House
-          message: "is being heated up to {{states.input_number.hjemmetemp.state}} degrees."
       - wait_template: "{{ states.sensor.stua_temperature.state > states.input_number.hjemmetemp.state}}"
         timeout: "1:00:00"
       # - service: climate.set_hvac_mode

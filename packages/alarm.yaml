@@ -39,81 +39,85 @@ automation:
       - service: script.turn_on
         entity_id: script.requestlocation
 
-  - alias: NotifyMotion
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.motion_driveway
-        to: "on"
-        for:
-          seconds: 1
-    condition:
-      - condition: template
-        value_template: "{{ states.person.erlend.state  != 'home'}}"
-    action:
-      - service: script.turn_on
-        entity_id: script.requestlocation
-      - delay:
-          seconds: 2
-      # - service: notify.me
-      #   data:
-      #     title: "Motion Driveway"
-      #     message: "Motion in driveway when armed."
-      #     data:
-      #       photo:
-      #         url: !secret outdoorcamerastream
-      - service: notify.mobile_app_oneplus
-        data:
-          message: Motion in driveway when armed.
-          data:
-            image: "/api/camera_proxy/camera.driveway"
-      # - service: notify.mobile_app_oneplus
-      #   data_template:
-      #     title: Motion
-      #     message: Motion
-      #     data:
-      #       image: https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}
+  # - alias: NotifyMotion
+  #   trigger:
+  #     - platform: numeric_state
+  #       entity_id: sensor.driveway_person_count
+  #       above: 0
+  #   # condition:
+  #   #   - condition: template
+  #   #     value_template: "{{ states.person.erlend.state  != 'home'}}"
+  #   action:
+  #     - service: notify.mobile_app_erlend_mobil
+  #       data:
+  #         message: Person detected in Driveway.
+  #         data:
+  #           image: "/api/camera_proxy/camera.driveway_person"
+  #     - service: script.turn_on
+  #       entity_id: script.requestlocation
 
-      # - service: script.turn_on
-      #   entity_id: script.sendvideodriveway
+  # - delay:
+  #     seconds: 2
+  # - service: notify.me
+  #   data:
+  #     title: "Motion Driveway"
+  #     message: "Motion in driveway when armed."
+  #     data:
+  #       photo:
+  #         url: !secret outdoorcamerastream
+  # - service: notify.mobile_app_erlend_mobil
+  #   data:
+  #     message: Motion in driveway when armed.
+  #     data:
+  #       image: "/api/camera_proxy/camera.driveway"
+  # - service: notify.mobile_app_erlend_mobil
+  #   data_template:
+  #     title: Motion
+  #     message: Motion
+  #     data:
+  #       image: https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}
 
-  - alias: SnapshotMotionFilm
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.motion_driveway
-        to: "on"
-    condition:
-      - condition: state
-        entity_id: binary_sensor.hoveddor
-        state: "off"
-    action:
-      - service: camera.record
-        data:
-          entity_id: camera.driveway_stream
-          filename: "/config/www/snapshot.mp4"
-          duration: 5
+  # - service: script.turn_on
+  #   entity_id: script.sendvideodriveway
 
-  - alias: SnapshotMotion
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.motion_driveway
-        to: "on"
-        for:
-          seconds: 1
-    condition:
-      - condition: state
-        entity_id: binary_sensor.hoveddor
-        state: "off"
-    action:
-      - service: camera.snapshot
-        data:
-          entity_id: camera.driveway
-          filename: "/config/www/snapshot2.jpg"
-    # - service: notify.mobile_app_oneplus
-    #   data_template:
-    #     title: Motion
-    #     message: Motion
-    #     data:
-    #       image: https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}
+  # - alias: SnapshotMotionFilm
+  #   trigger:
+  #     - platform: state
+  #       entity_id: binary_sensor.motion_driveway
+  #       to: "on"
+  #   condition:
+  #     - condition: state
+  #       entity_id: binary_sensor.hoveddor
+  #       state: "off"
+  #   action:
+  #     - service: camera.record
+  #       data:
+  #         entity_id: camera.driveway_stream
+  #         filename: "/config/www/snapshot.mp4"
+  #         duration: 5
+
+  # - alias: SnapshotMotion
+  #   trigger:
+  #     - platform: state
+  #       entity_id: binary_sensor.motion_driveway
+  #       to: "on"
+  #       for:
+  #         seconds: 1
+  #   condition:
+  #     - condition: state
+  #       entity_id: binary_sensor.hoveddor
+  #       state: "off"
+  #   action:
+  #     - service: camera.snapshot
+  #       data:
+  #         entity_id: camera.driveway
+  #         filename: "/config/www/snapshot2.jpg"
+  #   # - service: notify.mobile_app_erlend_mobil
+  #   #   data_template:
+  #   #     title: Motion
+  #   #     message: Motion
+  #   #     data:
+  #   #       image: https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}
 
   - alias: SnapShotMeraker
     trigger:
@@ -147,17 +151,20 @@ automation:
     trigger:
       platform: state
       entity_id:
-        - binary_sensor.water_bathroom_upstairs
-        - binary_sensor.water_dishwasher
+        - binary_sensor.water_aquarium
+        - binary_sensor.oppvaskmaskin_water_leak
         - binary_sensor.water_kitchen
         - binary_sensor.water_laundry_room
       to: "on"
     action:
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data_template:
           title: "ALARM!"
           message: "Vannlekkasje på {{ trigger.from_state.name }}!"
-      - service: notify.carolinepush
+      - service: script.notify_tts_max
+        data:
+          message: "Vannlekkasje på {{ trigger.from_state.name }}!"
+      - service: script.notifycaroline
         data_template:
           title: "ALARM!"
           message: "Vannlekkasje på {{ trigger.from_state.name }}!"
@@ -166,11 +173,23 @@ automation:
           entity_id: media_player.minis
           volume_level: 1
       - service: tts.google_cloud_say
+        entity_id: media_player.bathroom
+        data_template:
+          message: "Alarm! Vannlekkasje på {{ trigger.from_state.name }}!"
+      - service: tts.google_cloud_say
+        entity_id: media_player.kitchen_display
+        data_template:
+          message: "Alarm! Vannlekkasje på {{ trigger.from_state.name }}!"
+      - service: tts.google_cloud_say
+        entity_id: media_player.clock
+        data_template:
+          message: "Alarm! Vannlekkasje på {{ trigger.from_state.name }}!"
+      - service: tts.google_cloud_say
         entity_id: media_player.minis
         data_template:
           message: "Alarm! Vannlekkasje på {{ trigger.from_state.name }}!"
       - delay:
-          seconds: 3
+          seconds: 5
       - service: tts.google_cloud_say
         entity_id: media_player.minis
         data_template:
@@ -317,16 +336,25 @@ automation:
   - id: Turnalarmaway10seconds
     alias: Turn Alarm Away After 10 seconds
     trigger:
-      platform: state
-      entity_id: input_select.alarm
-      to: "Arm Away"
-      for:
-        seconds: 10
+      - platform: state
+        entity_id: input_select.alarm
+        to: "Arm Away"
+        for:
+          seconds: 10
+      - platform: time
+        at: "12:34:56"
+    condition:
+      - condition: state
+        entity_id: input_select.alarm
+        state: "Arm Away"
     action:
       - service: media_player.turn_off
         entity_id: media_player.tv_stua
       - service: switch.turn_off
         entity_id: switch.nexa3 #Fan Heater
+      - condition: state
+        entity_id: input_boolean.vacuum_when_away
+        state: "on"
       - condition: state
         entity_id: input_boolean.runvacuum
         state: "on"
@@ -476,10 +504,12 @@ automation:
       - service: light.turn_on
         entity_id: light.trym_balloon
         data:
+          color_name: "{{states('sensor.trym_traffic_color')}}"
           brightness: 1
       - service: light.turn_on
         entity_id: light.tyra_ball
         data:
+          color_name: "{{states('sensor.tyra_traffic_color')}}"
           brightness: 1
       - service: script.turn_on
         entity_id: script.say
@@ -520,13 +550,13 @@ automation:
       - delay:
           hours: 5
 
-  - alias: updateMailToday
-    trigger:
-      platform: time
-      at: 02:00:00
-    action:
-      - service: homeassistant.update_entity
-        entity_id: sensor.mailtoday
+  # - alias: updateMailToday
+  #   trigger:
+  #     platform: time
+  #     at: 02:00:00
+  #   action:
+  #     - service: homeassistant.update_entity
+  #       entity_id: sensor.mailtoday
 
   - alias: VacuumDoneForTheDay
     trigger:
@@ -757,14 +787,19 @@ automation:
   - alias: WarningAlarmStillArmed
     trigger:
       - platform: state
-        entity_id: binary_sensor.door_livingroom, binary_sensor.door_kitchen
-        to: "on"
-      - platform: state
         entity_id:
-          - binary_sensor.motion_livingroom
-          - binary_sensor.motion_sokkel
-          #- binary_sensor.motion_vindfang
+          - binary_sensor.door_livingroom
+          - binary_sensor.door_kitchen
+          - binary_sensor.grind
+          - binary_sensor.grind_oppe
+          - binary_sensor.vindfang_door
         to: "on"
+      # - platform: state
+      #   entity_id:
+      #     # - binary_sensor.motion_jaktbod
+      #     # - binary_sensor.motion_sokkel
+      #     #- binary_sensor.motion_vindfang
+      #   to: "on"
     condition:
       condition: and
       conditions:
@@ -842,7 +877,7 @@ automation:
           #- binary_sensor.motion_sokkel
           #- binary_sensor.motion_hallway
           #- binary_sensor.motion_vindfang #Vindfang
-          - binary_sensor.motion_downstairs_office
+          #- binary_sensor.motion_downstairs_office
           - binary_sensor.garage_backdoor
         to: "on"
         from: "off"
@@ -894,7 +929,7 @@ automation:
         entity_id: media_player.minis
         data_template:
           message: "Inntrenger oppdaget. Deaktiver alarmen innen 30 sekunder for å unngå utrykning!"
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data:
           message: "Alarmen er i ferd med å utløses!"
           title: "Alarm"
@@ -902,10 +937,10 @@ automation:
           seconds: 30
       - condition: template
         value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data:
           message: "ALARM! The alarm has been triggered"
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data:
           message: "ALARM! The alarm has been triggered"
       - service: script.turn_on
@@ -948,17 +983,6 @@ automation:
       - service: script.turn_on
         entity_id: script.lockdoor
 
-  #Takes a lot of space. Must send the video, and then delete it or something?
-  # - alias: Savedoorbellvideo
-  #   trigger:
-  #     - platform: state
-  #       entity_id: sensor.front_door_last_activity
-  #   action:
-  #   - service: downloader.download_file
-  #     data_template:
-  #       url: "{{ state_attr('camera.front_door', 'video_url') }}"
-  #       subdir: "{{state_attr('camera.front_door', 'friendly_name')}}"
-  #       filename: "{{now().day}}-{{now().month}}-{{now().year}} {{now().hour}}:{{now().minute}}.mp4"
   - id: varsleOmÅpenDørNårDetBlirLåst
     alias: varsleOmÅpenDørNårDetBlirLåst
     trigger:
@@ -981,12 +1005,66 @@ automation:
                   - {{state.attributes.friendly_name}} \n
                 {% endif %}
               {% endfor %}
+      - service: script.turn_on
+        entity_id: script.saybedroom
+        data_template:
+          variables:
+            message: >-
+              Ytterdører er åpne: 
+              {% for entity_id in states.group.nightsensors.attributes.entity_id %}
+              {%set state = states[entity_id] %}
+                {% if state.state == 'on' %}
+                  {{state.attributes.friendly_name}} ,
+                {% endif %}
+              {% endfor %}
+
+  #TODO, when veranda-door har been open for over 10 minutes when it's cold outside
+  # when garage is opened when veranda door is opened?
+  # when ytterdor is opened when veranda is opened?
+
+  - id: veranda_door_still_open
+    alias: veranda_door_still_open
+    trigger:
+      # - platform: state
+      #   entity_id: binary_sensor.hoveddor
+      #   from: "off"
+      #   to: "on"
+      # - platform: state
+      #   entity_id: cover.garage_door
+      #   from: "closed"
+      #   to: "open"
+      - platform: template
+        for:
+          minutes: 10
+        value_template: >-
+          {{ 
+             states.binary_sensor.veranda.state == 'on' 
+          }}
+    condition:
+      #and states.sensor.ute_temperature.state | float < 5
+      - condition: state
+        entity_id: binary_sensor.veranda
+        state: "on"
+    action:
+      - service: script.turn_on
+        entity_id: script.notifyboth
+        data_template:
+          variables:
+            title: Veranda er fortsatt åpen!
+            message: >-
+              Verandadøra er fortsatt åpen!
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: >-
+              Verandadøra er fortsatt åpen, vennligst sjekk!
 
 script:
   alarmtriggered:
     alias: Alarm Triggered
     sequence:
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data_template:
           title: Alarmen er utløst!
           message: >-
@@ -998,7 +1076,7 @@ script:
             - {{state.attributes.friendly_name}}
             {%- endif -%}
             {%endfor %}
-      - service: notify.carolinepush
+      - service: script.notifycaroline
         data_template:
           title: Alarmen er utløst!
           message: >-
@@ -1061,12 +1139,12 @@ script:
       # - delay:
       #     seconds: 5
 
-      # - service: notify.mobile_app_oneplus
+      # - service: notify.mobile_app_erlend_mobil
       #   data:
       #     message: "Test file"
       #     data:
       #       video: "/config/www/snapshot.mp4"
-      # - service: notify.mobile_app_oneplus
+      # - service: notify.mobile_app_erlend_mobil
       #   data:
       #     message: "Test camera proxy"
       #     data:

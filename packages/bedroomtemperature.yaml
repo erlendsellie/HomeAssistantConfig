@@ -80,9 +80,11 @@ binary_sensor:
           {{tyraawake and home and windowclosed and (hour > 17) and (tyratemp > 24)}}
       bedroomtemphigh:
         friendly_name: "Bedroom Temp High"
+        delay_off:
+          minutes: 120
         value_template: >-
           {%-set hour = now().hour | float(default=0)-%}
           {%-set home = states.input_select.alarm.state == 'Disarm'%}
           {%-set windowclosed = states.binary_sensor.bedroom_window.state == 'off'%}
           {%-set temp = states.sensor.temp_bedroom.state | float(default=0)%}
-          {{home and windowclosed and (hour > 19) and (temp > 22)}}
+          {{home and windowclosed and (hour > 19) and (temp > 25)}}

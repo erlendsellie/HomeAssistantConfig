@@ -229,6 +229,7 @@ automation:
 
   #Pause TV
   - alias: "WatchLeftBattery"
+    id: WatchLeftBattery
     trigger:
       platform: webhook
       webhook_id: !secret watchleftbattery
@@ -253,7 +254,7 @@ automation:
                 entity_id: media_player.google_tv
           - conditions:
               - condition: template
-                value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.nvidia_shield.state != 'paused' and states.media_player.nvidia_shield.state != 'playing'))}}"
+                value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.living_room_tv.state != 'paused' and states.media_player.living_room_tv.state != 'playing'))}}"
             sequence:
               - service: media_player.media_play_pause
                 entity_id: media_player.musikkstua
@@ -263,10 +264,10 @@ automation:
                 state: "off"
             sequence:
               - service: media_player.media_play_pause
-                entity_id: media_player.nvidia_shield
+                entity_id: media_player.tv_stua #shield
               # - service: androidtv.adb_command
               #   data:
-              #     entity_id: media_player.nvidia_shield
+              #     entity_id: media_player.living_room_tv
               #     command: "CENTER"
             # - service: media_player.media_play_pause
             #   entity_id: media_player.tv_stua
@@ -284,6 +285,7 @@ automation:
         entity_id: script.lightson
 
   - alias: "watch1"
+    id: watch1
     trigger:
       platform: webhook
       webhook_id: !secret watch1
@@ -299,7 +301,7 @@ automation:
                 state: "off"
             sequence:
               # - service: media_player.toggle
-              #   entity_id: media_player.nvidia_shield
+              #   entity_id: media_player.living_room_tv
               - service: media_player.toggle
                 entity_id: media_player.tv_stua
           - conditions:
@@ -310,15 +312,15 @@ automation:
                 entity_id: media_player.tv_soverommet
                 state: "off"
             sequence:
-              - service: media_player.turn_on
+              - service: media_player.toggle
                 entity_id: media_player.google_tv
           - conditions:
               - condition: state
                 entity_id: input_boolean.easleep
                 state: "on"
-              - condition: state
-                entity_id: media_player.tv_soverommet
-                state: "on"
+              # - condition: state
+              #   entity_id: media_player.tv_soverommet
+              #   state: "on"
             sequence:
               - service: media_player.turn_off
                 entity_id: media_player.tv_soverommet
@@ -353,7 +355,7 @@ automation:
       webhook_id: !secret watchmotion
       local_only: false
     action:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           message: "Sleipner"
           data:
@@ -367,7 +369,7 @@ automation:
                 title: Frunk
                 destructive: true
 
-      # - service: notify.mobile_app_oneplus
+      # - service: notify.mobile_app_erlend_mobil
       #   data_template:
       #     message: "Actions"
       #     data:
@@ -393,29 +395,29 @@ automation:
       - service: switch.turn_on
         entity_id: switch.mower
 
-  - alias: "WatchCarStartHeating"
-    id: "watchcarstartheating"
-    trigger:
-      platform: webhook
-      webhook_id: !secret watchcarstartheating
-      local_only: false
-    # condition:
-    # - condition: template
-    #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
-    action:
-      - service: script.leaf_warmup
+  # - alias: "WatchCarStartHeating"
+  #   id: "watchcarstartheating"
+  #   trigger:
+  #     platform: webhook
+  #     webhook_id: !secret watchcarstartheating
+  #     local_only: false
+  #   # condition:
+  #   # - condition: template
+  #   #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
+  #   action:
+  #     - service: script.leaf_warmup
 
-  - alias: "WatchCarStopHeating"
-    id: "watchcarstopheating"
-    trigger:
-      platform: webhook
-      webhook_id: !secret watchcarstopheating
-      local_only: false
-    # condition:
-    # - condition: template
-    #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
-    action:
-      - service: script.leaf_stop_warmup
+  # - alias: "WatchCarStopHeating"
+  #   id: "watchcarstopheating"
+  #   trigger:
+  #     platform: webhook
+  #     webhook_id: !secret watchcarstopheating
+  #     local_only: false
+  #   # condition:
+  #   # - condition: template
+  #   #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
+  #   action:
+  #     - service: script.leaf_stop_warmup
 
   - alias: "actions"
     trigger:
@@ -438,7 +440,7 @@ automation:
                 entity_id: input_boolean.easleep
                 state: "off"
             sequence:
-              - service: notify.mobile_app_oneplus
+              - service: notify.mobile_app_erlend_mobil
                 data_template:
                   message: "Actions"
                   data:
@@ -535,7 +537,7 @@ script:
   notifyblanket:
     alias: notifyblanket
     sequence:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           title: "Blanket is {{states.switch.blanket.state}}"
           message: "Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom."
@@ -575,7 +577,7 @@ script:
   notifykids:
     alias: notifykids
     sequence:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           message: "Kids"
           data:
@@ -592,7 +594,7 @@ script:
   notifytesla:
     alias: notifytesla
     sequence:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           message: "Sleipner"
           data:

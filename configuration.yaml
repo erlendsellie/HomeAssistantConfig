@@ -1,9 +1,7 @@
 #https://github.com/ArveVM/HomeAssistantConfig4/wiki/1-Configuration#advanced-yaml-guide-general-yaml-guides--node-anchors
 #TODO
 homeassistant:
-  #packages: !include_dir_merge_named packages
   packages: !include_dir_named packages
-
   customize: !include customize.yaml
   customize_glob: !include customize_glob.yaml
   customize_domain:
@@ -11,17 +9,17 @@ homeassistant:
       assumed_state: false
     group:
       assumed_state: false
-  external_url: !secret base_url
-  internal_url: !secret internal_url
+  # external_url: !secret base_url
+  # internal_url: !secret internal_url
 
-  name: !secret ha_name
-  latitude: !secret latitude
-  longitude: !secret longitude
-  elevation: 140
-  unit_system: metric
-  time_zone: Europe/Oslo
-  currency: NOK
-  country: "NO"
+  # name: !secret ha_name
+  # latitude: !secret latitude
+  # longitude: !secret longitude
+  # elevation: 140
+  # unit_system: metric
+  # time_zone: Europe/Oslo
+  # currency: NOK
+  # country: "NO"
 
   #whitelist_external_dirs:
   # - /tmp
@@ -43,27 +41,27 @@ trace:
 logger:
   default: warning
   logs:
-    homeassistant.components.nissan_leaf: debug
-    pycarwings2: debug
+    #homeassistant.components.nissan_leaf: debug
+    #pycarwings2: debug
     #homeassistant.components.websocket_api: debug
     #homeassistant.components: warning
     #homeassistant.components.switch.broadlink: info
-    homeassistant.components.verisure: debug
+    #homeassistant.components.verisure: debug
     homeassistant.components.camera.generic: warning
     #homeassistant.components.mqtt: notset
     #homeassistant.components.ffmpeg: debug
     #tibber: notset
-    custom_components.hacs.storage: info
-    custom_components.hacs: info
+    #custom_components.hacs.storage: info
+    #custom_components.hacs: info
     #homeassistant.components.http: warning
     #homeassistant.components.automation: info
     #homeassistant.components.script: info
     #homeassistant.components.device_tracker.nmap_tracker: debug
     #homeassistant.components.stream: fatal
     #homeassistant.components.tibber: debug
-    homeassistant.components.priceanalyzer: debug
-    homeassistant.components.skisporet_v2: debug
-    custom_components.priceanalyzer: debug
+    #homeassistant.components.priceanalyzer: debug
+    #homeassistant.components.skisporet_v2: debug
+    #custom_components.priceanalyzer: debug
     libav: fatal
     aiohttp: fatal
     homeassistant.components.websocket_api.http.connection: fatal
@@ -77,7 +75,10 @@ logger:
     homeassistant.helpers.template: fatal #error #warning
     graphql_subscription_manager: error
     xiaomi_cloud_map_extractor: error
-
+    #volkswagencarnet: debug
+    homeassistant.components.recorder.db_schema: error
+    miio.miioprotocol: fatal
+    homeassistant.components.nmap: info
 #upnp:
 
 zone:
@@ -129,7 +130,7 @@ zone:
     radius: 50
     icon: mdi:ferry
 
-map:
+#map:
 
 frontend:
   themes: !include_dir_merge_named themes/
@@ -144,21 +145,21 @@ http:
     - "172.30.33.0/24"
     - "192.168.1.200"
 
-discovery:
+#discovery:
 
 wake_on_lan:
 
 recorder:
   db_url: !secret external_db_url #db_url
-  purge_keep_days: 20
+  #purge_keep_days: 20
   exclude:
     entities:
       # - sensor.consumptionrounded_mean
       - sensor.time_date
       - sensor.time_utc
       - sensor.time
-      - sensor.oneplus_last_removed_notification
-      - sensor.oneplus_last_notification
+      - sensor.erlend_mobil_last_removed_notification
+      - sensor.erlend_mobil_last_notification
       - sensor.caroline_active_notification_count
       #Maria DB Addon Config
       # databases:
@@ -213,8 +214,8 @@ sun:
 
 # weather: []
 
-downloader:
-  download_dir: downloads
+#downloader:
+#download_dir: downloads
 
 #   #signal_repetitions: 2
 tellstick:
@@ -276,6 +277,9 @@ light:
       - light.table_lamp
       - light.kjokkenbord
       - light.ledstrip_kitchen
+      - light.ledstrip_kitchen
+      - light.peis
+      - light.go
 
   - platform: switch
     name: Garage
@@ -440,7 +444,6 @@ switch:
 #       - XPlay
 
 media_player: !include media_player.yaml
-media_extractor:
 
 rest_command:
   healthcheck:
@@ -497,6 +500,17 @@ input_select:
       - fan
       - "off"
     icon: mdi:air-conditioner
+  heat_pump_swing_mode:
+    name: Heat Pump Swing Mode
+    options:
+      - auto
+      - 1_up
+      - 2
+      - 3
+      - 4
+      - 5_down
+      - swing
+      - auto_tv
   fanmode:
     name: Fan Mode
     options:
@@ -543,15 +557,15 @@ input_number:
     min: 0
     max: 99999
 
-proximity:
-  homeerlend:
-    devices:
-      - person.erlend
-    tolerance: 10
-  homecaroline:
-    devices:
-      - person.caroline
-    tolerance: 10
+# proximity:
+#   homeerlend:
+#     devices:
+#       - person.erlend
+#     tolerance: 10
+#   homecaroline:
+#     devices:
+#       - person.caroline
+#     tolerance: 10
 
 #device_tracker: []
 
@@ -563,6 +577,9 @@ input_boolean:
     icon: mdi:sleep
   casleep:
     name: Caroline sover
+    icon: mdi:sleep
+  stianasleep:
+    name: Stian sover
     icon: mdi:sleep
   alarmclock:
     name: Alarm Clock
@@ -599,6 +616,8 @@ input_boolean:
     name: Doorbell just rang
   runvacuum:
     name: Vacuum tonight
+  vacuum_when_away:
+    name: Vacuum When Away
 
 # var: # !include_dir_merge_list variables
 #   x:
@@ -626,8 +645,10 @@ tts:
     key_file: googlecloud.json
     language: nb-NO
     gender: female
-    voice: nb-NO-Standard-E
-    encoding: linear16
+
+    #voice: nb-NO-Standard-E
+    voice: nb-NO-Standard-C
+    encoding: mp3 #linear16
     # speed: 1
     # pitch: -2.5
     # gain: -5.0
@@ -672,7 +693,6 @@ telegram_bot:
 notify: !include notify.yaml
 climate: !include climate.yaml
 group: !include groups.yaml
-
 # smartir:
 
 # browser_mod:
@@ -685,8 +705,8 @@ group: !include groups.yaml
 
 #browser:
 
-panel_iframe:
-  tautulli:
-    title: Tautulli
-    icon: mdi:filmstrip
-    url: !secret tautulliurl
+# panel_iframe:
+#   tautulli:
+#     title: Tautulli
+#     icon: mdi:filmstrip
+#     url: !secret tautulliurl

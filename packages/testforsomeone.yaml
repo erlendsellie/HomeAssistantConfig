@@ -1,0 +1,18 @@
+template:
+  - binary_sensor:
+      - name: ErHjemmeUke
+        unique_id: ErHjemmeUke
+        state: >-
+          {%set week_number = now().isocalendar()[1]%}     
+          {{ ((week_number -1) // 2) % 2 == 0 }}
+  - sensor:          
+      - name: GuttaTemperatur
+        unique_id: GuttaTemperatur
+        state: >-
+          {%set hjemme_uke = states.binary_sensor.erhjemmeuke.state%}
+          {%if(hjemme_uke == 'on') %}
+            {%set temp = 18 if now().hour >= 23 else 22 if now().hour >= 16 else 10%}
+            {{temp}}
+          {% else %}
+            {{10}}
+          {% endif %}          

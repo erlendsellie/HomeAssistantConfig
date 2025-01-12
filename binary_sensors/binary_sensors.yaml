@@ -17,30 +17,31 @@
 #   reset: 60
 #   peak: -32
 
-- platform: car_wash
-  weather: weather.home
+#had some minor error.
+# - platform: car_wash
+#   weather: weather.home
 
 - platform: command_line
   name: "byasen.duckdns"
   command: curl -m 3 -s byasen.duckdns.org:8123/ > /dev/null && echo ON || echo OFF
   scan_interval: 180
 
-- platform: ping
-  name: "ipad"
-  host: 192.168.1.6
+# - platform: ping
+#   name: "ipad"
+#   host: 192.168.1.6
 
-- platform: ping
-  name: "XPS"
-  host: 192.168.1.50
+# - platform: ping
+#   name: "XPS"
+#   host: 192.168.1.50
 
-- platform: command_line
-  command: 'curl -X GET -H "Content-type: application/json" -H "kp-api-token: {{states.sensor.postenapikey.state}}"  https://www.posten.no/levering-av-post/_/service/no.posten.website/delivery-days?postalCode=7072'
-  name: MailTodayBinary
-  # json_attributes:
-  #   - nextDeliveryDays
-  value_template: "{{'i dag' in (value_json | string) }}"
-  scan_interval: 57600
-  command_timeout: 30
+# - platform: command_line
+#   command: 'curl -X GET -H "Content-type: application/json" -H "kp-api-token: {{states.sensor.postenapikey.state}}"  https://www.posten.no/levering-av-post/_/service/no.posten.website/delivery-days?postalCode=7072'
+#   name: MailTodayBinary
+# json_attributes:
+#   - nextDeliveryDays
+# value_template: "{{'i dag' in (value_json | string) }}"
+# scan_interval: 57600
+# command_timeout: 30
 
 # - platform: bayesian
 #   prior: 0.5
@@ -66,11 +67,11 @@
 - platform: template
   scan_interval: 10
   sensors:
-    mailtoday:
-      friendly_name: "Mail Today"
-      value_template: "{{states.sensor.mailtoday.state == 'True'}}"
+    # mailtoday:
+    #   friendly_name: "Mail Today"
+    #   value_template: "{{states.sensor.mailtoday.state == 'True'}}"
     echarging:
-      value_template: "{{states.binary_sensor.oneplus_is_charging.state == 'on'}}"
+      value_template: "{{states.binary_sensor.erlend_mobil_is_charging.state == 'on'}}"
     ccharging:
       value_template: "{{states.binary_sensor.caroline_is_charging.state == 'on'}}"
     tv_on:
@@ -102,7 +103,7 @@
     eprobablyasleep:
       friendly_name: "Erlend Probably Asleep"
       value_template: >-
-        {{states.sensor.oneplus_sleep_confidence.state | int(default=0) > 93}}
+        {{states.sensor.erlend_mobil_sleep_confidence.state | int(default=0) > 93}}
     cprobablyasleep:
       friendly_name: "Caroline Probably Asleep"
       value_template: >-
@@ -114,10 +115,9 @@
       value_template: >-
         {{states.sun.sun.attributes.elevation < 0 and (
         states.cover.garage_door.state == 'open' or
-        states.binary_sensor.hoveddor.state == 'on' or
-        states.binary_sensor.motion_driveway.state == 'on' or
-        states.binary_sensor.front_door_motion.state == 'on' or 
-        states.binary_sensor.motion_garage.state == 'on')}}
+        states.binary_sensor.hoveddor.state == 'on' or  
+        states.binary_sensor.motion_driveway_or_garage.state == 'on'
+        )}}
 
     # value_template: "{{(states.binary_sensor.grind_oppe.state == 'on' and ((states.input_boolean.trymasleep.state == 'on' and states.binary_sensor.trym_home.state == 'on') or states.input_boolean.tyraasleep.state == 'on'))}}"
 
@@ -154,7 +154,7 @@
         seconds: 30
       delay_off:
         minutes: 5
-      value_template: "{{states.sensor.torketrommel_electric_w.state | float(default=0)> 300}}"
+      value_template: "{{states.sensor.torketrommel_electric_w_raw.state | float(default=0)> 300}}"
       icon_template: >-
         {% if is_state("binary_sensor.drying", "on") %}
           mdi:tumble-dryer
@@ -185,11 +185,29 @@
       delay_off:
         minutes: 2
       delay_on:
-        minutes: 2
+        seconds: 15
       value_template: >-
         {{
-        (states.sensor.ultrasonic_sensor.state | float(default=0) < 0.4)
-        and (states.sensor.ultrasonic_sensor.state | float(default=0) > 0.1) 
+        (states.sensor.ultrasonic_sensor.state | float(default=0) < 0.5)
+        and (states.sensor.ultrasonic_sensor.state | float(default=0) > 0.0) 
+        }}
+      icon_template: >
+        {% if (state == 'off')%}
+        mdi:car-off
+        {% else %}
+        mdi:car-electric
+        {% endif %}
+    golf_in_garage:
+      friendly_name: "Golf In Garage"
+      device_class: occupancy
+      delay_off:
+        minutes: 2
+      delay_on:
+        seconds: 15
+      value_template: >-
+        {{
+        (states.sensor.ultrasonic_sensor.state | float(default=0) < 0.65)
+        and (states.sensor.ultrasonic_sensor.state | float(default=0) > 0.55) 
         }}
       icon_template: >
         {% if (state == 'off')%}
@@ -246,6 +264,8 @@
       value_template: "{{states.person.caroline.state == 'home' }}"
     sun_above_horizon:
       value_template: "{{states('sun.sun') == 'above_horizon'}}"
+    dark_outside:
+      value_template: "{{states.sun.sun.attributes.elevation < 5 }}"
 #((is_state('device_tracker.erlend_wifi','home')
 #and is_state('device_tracker.life360_erlend_sellie','home')))}}" #device_tracker.pi_g_watch_r_7594
 

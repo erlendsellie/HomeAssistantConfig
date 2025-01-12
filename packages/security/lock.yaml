@@ -2,8 +2,8 @@ lock:
   - platform: template
     name: ytterdor
     unique_id: "22aceadb-488c-4bf9-a387-c70ea9fe81c1"
-    value_template: "{{ is_state('lock.ytterdor_verisure', 'locked') }}"
-    availability_template: "{{ is_state('lock.ytterdor_verisure', 'locked') or is_state('lock.ytterdor_verisure', 'unlocked') }}"
+    value_template: "{{ is_state('lock.ytterdor', 'locked') }}"
+    availability_template: "{{ is_state('lock.ytterdor', 'locked') or is_state('lock.ytterdor', 'unlocked') }}"
     lock:
       service: script.lockdoor
     unlock:
@@ -14,9 +14,9 @@ script:
     alias: "Lock door"
     sequence:
       # - condition: template
-      #   value_template: "{{ states.lock.ytterdor_verisure.state != 'locked' }}"
+      #   value_template: "{{ states.lock.ytterdor.state != 'locked' }}"
       - service: lock.lock
-        entity_id: lock.ytterdor_verisure
+        entity_id: lock.ytterdor
         data:
           code: !secret lock_code
 
@@ -24,11 +24,73 @@ script:
     alias: "Unlock door"
     sequence:
       - service: lock.unlock
-        entity_id: lock.ytterdor_verisure
+        entity_id: lock.ytterdor
         data:
           code: !secret lock_code
 
 automation:
+  - id: wakelock
+    alias: wakelock
+    mode: restart
+    trigger:
+      # - platform: state
+      #   entity_id: lock.ytterdor
+      #   to: "unlocking"
+      # - platform: state
+      #   entity_id: lock.ytterdor
+      #   to: "locking"
+      # - platform: state
+      #   entity_id: lock.ytterdor
+      #   to: "unlocking"
+      #   for:
+      #     seconds: 10
+      # - platform: state
+      #   entity_id: lock.ytterdor
+      #   to: "locking"
+      #   for:
+      #     seconds: 10
+      - platform: state
+        entity_id: lock.ytterdor
+        to: "unlocking"
+        for:
+          minutes: 10
+      - platform: state
+        entity_id: lock.ytterdor
+        to: "locking"
+        for:
+          minutes: 10
+      # - platform: state
+      #   entity_id: binary_sensor.hoveddor
+    action:
+      # - service: button.press
+      #   target:
+      #     entity_id: button.ytterdor_wake
+      - delay:
+          seconds: 30
+      # - service: button.press
+      #   target:
+      #     entity_id: button.ytterdor_wake
+      - delay:
+          seconds: 30
+      # - service: button.press
+      #   target:
+      #     entity_id: button.ytterdor_wake
+      - delay:
+          seconds: 60
+      - condition:
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: lock.ytterdor
+                state: "unlocking"
+              - condition: state
+                entity_id: lock.ytterdor
+                state: "locking"
+      - service: notify.me
+        data:
+          title: "Door not working!"
+          message: "The door will not finish locking or unlocking."
+
   - id: lockDoorsAtNight
     alias: lockDoorsAtNight
     trigger:
@@ -43,9 +105,14 @@ automation:
       - condition: time
         after: "19:00:00"
         before: "08:00:00"
-      - condition: state
-        entity_id: lock.ytterdor
-        state: "unlocked"
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: lock.ytterdor
+            state: "unlocked"
+          - condition: state
+            entity_id: lock.ytterdor
+            state: "unlocking"
     action:
       - service: script.turn_on
         entity_id: script.lockdoor
@@ -57,7 +124,7 @@ automation:
       - platform: state
         entity_id: input_select.alarm
         to: "Disarm"
-        from: Arm Away
+        from: "Arm Away"
       - platform: state
         entity_id: binary_sensor.erlendhome
         to: "on"
@@ -67,9 +134,14 @@ automation:
         to: "on"
         from: "off"
     condition:
-      - condition: state
-        entity_id: lock.ytterdor
-        state: "locked"
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: lock.ytterdor
+            state: "locked"
+          - condition: state
+            entity_id: lock.ytterdor
+            state: "locking"
     action:
       - service: script.turn_on
         entity_id: script.unlockdoor
@@ -94,7 +166,7 @@ automation:
         data:
           entity_id: camera.driveway
           filename: "/tmp/snapshot.jpg"
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data:
           title: "door locked"
           message: "The door was locked since no one opened it."
@@ -150,7 +222,7 @@ automation:
         data:
           entity_id: camera.driveway
           filename: "/tmp/snapshot.jpg"
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data:
           title: "door locked"
           message: "The door was locked since no one opened it. Garage is {{states.cover.garage_door.state}}"

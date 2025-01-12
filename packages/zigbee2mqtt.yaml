@@ -2,7 +2,7 @@ template:
   - binary_sensor:
       - name: "Z2M Devices Unavailable"
         delay_off:
-          minutes: 5
+          minutes: 5 #z2m-problem below
         state: >-
           {% set found = namespace(found=false) %}
           {%-for item in states.sensor if (item.attributes.linkquality is defined)-%}
@@ -16,6 +16,12 @@ template:
           {%endif%}
           {%- endfor -%}
           {{found.found}}
+  - binary_sensor:
+      - name: "Z2M Lights Unavailable"
+        delay_on:
+          minutes: 1
+        state: >-
+          {{states.light.tvsone.state == 'unknown' or states.light.tvsone.state == 'unavailable'}}
 
 automation:
   - alias: "Z2mDeviceUnavailable"
@@ -25,7 +31,7 @@ automation:
         entity_id: binary_sensor.z2m_devices_unavailable
         to: "on"
     action:
-      - service: notify.me
+      - service: notify.me #z2m-problem below
         data_template:
           message: >-
             Zigbee Device unavailable?:  
@@ -38,3 +44,19 @@ automation:
               {{-item.attributes.friendly_name-}} , 
             {%endif%}
             {%- endfor -%}
+
+  - alias: "Z2mLightsUnavailable"
+    id: "Z2mLightsUnavailable"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.z2m_lights_unavailable
+        to: "on"
+    action:
+      - service: notify.me
+        data_template:
+          message: >-
+            Zigbee Lights unavailable?
+      - service: hassio.addon_restart
+        data:
+          addon: "45df7312_zigbee2mqtt"
+      #todo wait for trigger to on again

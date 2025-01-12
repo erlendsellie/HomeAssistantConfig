@@ -73,7 +73,7 @@ automation:
         entity_id: input_boolean.guestmode
         state: "on"
     action:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           title: "Guest mode is activated"
           message: "Guestmode is activated"
@@ -89,7 +89,7 @@ automation:
             event_type: mobile_app_notification_action
             event_data:
               action: toggleguestmode
-        timeout: "00:30:00"
+        timeout: "12:00:00"
         continue_on_timeout: false
       - service: input_boolean.turn_off
         entity_id: input_boolean.guestmode

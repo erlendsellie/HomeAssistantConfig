@@ -2,6 +2,8 @@ template:
   - binary_sensor:
       - name: "google_home_playing"
         unique_id: 4afd0a31-efb0-49e0-9da8-ljasldjl2j
+        delay_off:
+          minutes: 1
         attributes:
           musikkstua: "{{states.media_player.musikkstua.state}}"
           livingroom: "{{states.media_player.living_room_speaker.state}}"
@@ -31,6 +33,10 @@ input_text:
   openaisammendragresult:
     name: openaisammendragresult
     max: 255
+  weather_forecast_data:
+    name: Weather Forecast Data
+    initial: "[]"
+    max: 10000 # Adjust based on expected data size
 
 automation:
   - alias: SetVolume
@@ -41,11 +47,11 @@ automation:
       - service: media_player.volume_set
         data_template:
           entity_id: media_player.minis
-          volume_level: "{{states.sensor.speakervolume.state | float(default=0)}}"
+          volume_level: "{{states.sensor.speakervolume.state | float(default=0.1)}}"
       - service: media_player.volume_set
         data_template:
           entity_id: media_player.hallway_speaker
-          volume_level: "{{states.sensor.speakervolume.state | float(default=0)}}"
+          volume_level: "{{states.sensor.speakervolume.state | float(default=0.1)}}"
       - service: media_player.volume_set
         data_template:
           entity_id: media_player.living_room_speaker
@@ -53,15 +59,15 @@ automation:
       - service: media_player.volume_set
         data_template:
           entity_id: media_player.minis
-          volume_level: "{{states.sensor.speakervolume.state | float(default=0)}} "
+          volume_level: "{{states.sensor.speakervolume.state | float(default=0.1)}} "
       - service: media_player.volume_set
         data_template:
           entity_id: media_player.hallway_speaker
-          volume_level: "{{states.sensor.speakervolume.state | float(default=0)}}"
+          volume_level: "{{states.sensor.speakervolume.state | float(default=0.1)}}"
       - service: media_player.volume_set
         data_template:
           entity_id: media_player.living_room_speaker
-          volume_level: "{{states.sensor.speakervolume.state | float(default=0)- 0.1}}"
+          volume_level: "{{states.sensor.speakervolume.state | float(default=0.2)- 0.1}}"
 
         #### Media for door sensors
   - id: PlayMediaWhenDoorOpens
@@ -172,11 +178,14 @@ automation:
   - alias: PlaySoundMotionDriveway
     mode: single
     trigger:
+      # - platform: state
+      #   entity_id: binary_sensor.motion_driveway
+      #   to: "on"
+      # - platform: state
+      #   entity_id: binary_sensor.front_door_motion
+      #   to: "on"
       - platform: state
-        entity_id: binary_sensor.motion_driveway
-        to: "on"
-      - platform: state
-        entity_id: binary_sensor.front_door_motion
+        entity_id: binary_sensor.driveway_person_occupancy
         to: "on"
     condition:
       condition: and
@@ -577,7 +586,7 @@ automation:
   #   action:
   #   - service: notify.me
   #     data_template:
-  #       message: 'Avocado needs attention: {{ states.plant.avocado.attributes.problem }}'
+  #       message: 'Avocado needs attention: {{ states.plant.avocado.attributes.problem }}' #z2m-problem
   #   - service: media_player.volume_set
   #     data_template:
   #       entity_id: media_player.minis
@@ -594,6 +603,8 @@ automation:
   #       volume_level: 0.5
 
   - alias: "SvetlanaHasProblems"
+    mode: single
+    max_exceeded: silent
     trigger:
       platform: state
       entity_id: vacuum.xiaomi_vacuum_cleaner
@@ -608,6 +619,8 @@ automation:
       - service: notify.tv_stua
         data_template:
           message: "Something is wrong with Svetlana. Error message: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.error }}"
+      - delay:
+          minutes: 30
 
   #Add TTS for the same trigger, but with condition:
   # condition:
@@ -629,7 +642,7 @@ automation:
       for:
         minutes: 60
     action:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           title: "Garage has been open for 60 minutes"
           message: "Close it?"
@@ -688,7 +701,7 @@ automation:
           # - condition: template
           #   value_template: "{{ states.input_select.alarm.state == 'Disarm' }}"
           - service: script.turn_on
-            entity_id: script.sayai
+            entity_id: script.say
             data_template:
               variables:
                 message: Vaskemaskinen er ferdig
@@ -765,14 +778,14 @@ automation:
       #   entity_id: person.caroline
       #   zone: zone.havstein
       #   event: leave
-      - platform: zone
-        entity_id: person.caroline
-        zone: zone.dalgard
-        event: leave
-      - platform: zone
-        entity_id: person.caroline
-        zone: zone.ugla
-        event: leave
+      # - platform: zone
+      #   entity_id: person.caroline
+      #   zone: zone.dalgard
+      #   event: leave
+      # - platform: zone
+      #   entity_id: person.caroline
+      #   zone: zone.ugla
+      #   event: leave
       # - platform: zone
       #   entity_id: person.caroline
       #   zone: zone.mcdonalds
@@ -781,22 +794,22 @@ automation:
       #   entity_id: person.caroline
       #   zone: zone.nidaros
       #   event: leave
-      - platform: zone
-        entity_id: person.caroline
-        zone: zone.maria
-        event: leave
+      # - platform: zone
+      #   entity_id: person.caroline
+      #   zone: zone.maria
+      #   event: leave
     action:
       - service: script.turn_on
         entity_id: script.warmupcominghome
       - service: notify.me
         data_template:
-          title: "Caroline is probably home within {{states.sensor.caroline_to_home.state	}} minutes."
+          title: "Caroline is probably home within {{states.sensor.here_caroline_to_home_bike_duration.state | int - 10	}} minutes."
           message: "The time is {{ now().hour }}:{{ now().minute }}."
       - service: script.turn_on
         entity_id: script.sayai
         data_template:
           variables:
-            message: "Mamma er på vei hjem"
+            message: "Mamma er på vei hjem, og er hjemme om  ca {{states.sensor.here_caroline_to_home_bike_duration.state | int - 10}} minutter"
       - service: script.turn_on
         entity_id: script.blinkliving
         data_template:
@@ -817,11 +830,13 @@ automation:
         #This probably needs to be erlend to away from work for 2 minutes
     condition:
       - condition: time
-        after: "14:00:00"
+        after: "15:00:00"
         before: "18:00:00"
-      - condition: template
-        value_template: "{{  states.person.erlend.state == 'away' }}"
+      # - condition: template
+      #   value_template: "{{  states.person.erlend.state == 'away' }}"
     action:
+      - condition: template
+        value_template: "{{  states.person.erlend.state == 'away' or states.person.erlend.state == 'CloseBy' }}"
       # - wait_for_trigger:
       #   - platform: state
       #     entity_id: sensor.erlenddirection
@@ -829,7 +844,7 @@ automation:
       #   timeout: 10
       #   continue_on_timeout: false
       - service: homeassistant.update_entity
-        entity_id: sensor.erlend_to_home, proximity.homeerlend
+        entity_id: sensor.erlend_to_home
       # - wait_for_trigger:
       #     - platform: template
       #       value_template: "{{states.sensor.erlenddirection.state == 'towards'}}"
@@ -865,56 +880,56 @@ automation:
             title: Post leveres i dag.
             message: Post leveres i dag.
 
-  - alias: Erlend Leaving place
-    trigger:
-      - platform: zone
-        entity_id: person.erlend
-        zone: zone.ugla
-        event: leave #or enter
-      # - platform: zone
-      #   entity_id: person.erlend
-      #   zone: zone.work
-      #   event: leave #or enter
-      - platform: zone
-        entity_id: person.erlend
-        zone: zone.dalgard
-        event: leave #or enter
-      # - platform: zone
-      #   entity_id: person.erlend
-      #   zone: zone.sentrum
-      #   event: leave #or enter
-      # - platform: zone
-      #   entity_id: person.erlend
-      #   zone: zone.mcdonalds
-      #   event: leave
-      - platform: zone
-        entity_id: person.erlend
-        zone: zone.nidaros
-        event: leave
-    action:
-      - service: homeassistant.update_entity
-        entity_id: proximity.homeerlend
-      - wait_for_trigger:
-          - platform: state
-            entity_id: sensor.erlend_to_home
-        timeout: "00:10:00"
-        continue_on_timeout: false
-      - service: notify.me
-        data:
-          title: "left some place. ETA : {{ states.sensor.erlend_to_home.state	}} minutes"
-          message: The time is {{ now().hour }}:{{ now().minute }}
-      - service: script.turn_on
-        entity_id: script.warmupcominghome
-      - service: script.turn_on
-        entity_id: script.say
-        data_template:
-          variables:
-            message: "Pappa er på vei hjem"
-      - service: script.turn_on
-        entity_id: script.blinkliving
-        data_template:
-          variables:
-            color: green
+  # - alias: Erlend Leaving place
+  #   trigger:
+  #     - platform: zone
+  #       entity_id: person.erlend
+  #       zone: zone.ugla
+  #       event: leave #or enter
+  #     # - platform: zone
+  #     #   entity_id: person.erlend
+  #     #   zone: zone.work
+  #     #   event: leave #or enter
+  #     - platform: zone
+  #       entity_id: person.erlend
+  #       zone: zone.dalgard
+  #       event: leave #or enter
+  #     # - platform: zone
+  #     #   entity_id: person.erlend
+  #     #   zone: zone.sentrum
+  #     #   event: leave #or enter
+  #     # - platform: zone
+  #     #   entity_id: person.erlend
+  #     #   zone: zone.mcdonalds
+  #     #   event: leave
+  #     - platform: zone
+  #       entity_id: person.erlend
+  #       zone: zone.nidaros
+  #       event: leave
+  #   action:
+  #     - service: homeassistant.update_entity
+  #       entity_id: proximity.homeerlend
+  #     - wait_for_trigger:
+  #         - platform: state
+  #           entity_id: sensor.erlend_to_home
+  #       timeout: "00:10:00"
+  #       continue_on_timeout: false
+  #     - service: notify.me
+  #       data:
+  #         title: "left some place. ETA : {{ states.sensor.erlend_to_home.state	}} minutes"
+  #         message: The time is {{ now().hour }}:{{ now().minute }}
+  #     - service: script.turn_on
+  #       entity_id: script.warmupcominghome
+  #     - service: script.turn_on
+  #       entity_id: script.say
+  #       data_template:
+  #         variables:
+  #           message: "Pappa er kanskje på vei hjem"
+  #     - service: script.turn_on
+  #       entity_id: script.blinkliving
+  #       data_template:
+  #         variables:
+  #           color: green
 
   - id: ErlendEnteringWork
     alias: Erlend Entering Work
@@ -924,6 +939,16 @@ automation:
       zone: zone.work
       # Event is either enter or leave
       event: enter
+    condition:
+      - condition: time
+        before: "13:00:00"
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+
     action:
       - service: notify.me
         data:
@@ -931,10 +956,6 @@ automation:
           message: The time is {{ now().hour }}:{{ now().minute }}.
       - service: input_boolean.turn_on
         entity_id: input_boolean.alarmclock
-      - service: logbook.log
-        data_template:
-          name: Erlend
-          message: got to work
       - condition: template
         value_template: "{{ states.person.caroline.state == 'Sykehuset' and states.input_boolean.tryminkindergarden.state == 'off'}}"
       - service: notify.me
@@ -979,22 +1000,30 @@ script:
         entity_id: input_text.openaikitchen
         data:
           value: ""
+
+  #https://github.com/jjbankert/hass_chatgpt
   sayai:
     alias: Announcement over Google Homes with openAI
     mode: queued
     sequence:
-      - condition: template
-        value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
-      - service: input_text.set_value
-        entity_id: input_text.openai
-        data:
-          value: "Informer om at {{message}}"
-      - delay:
-          seconds: 50
-      - service: input_text.set_value
-        entity_id: input_text.openai
-        data:
-          value: ""
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "{{message}}"
+      # - condition: template
+      #   value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+      # - service: input_text.set_value
+      #   entity_id: input_text.openai
+      #   data:
+      #     value: "Informer meg om at {{message}}"
+      # - delay:
+      #     seconds: 50
+      # - service: input_text.set_value
+      #   entity_id: input_text.openai
+      #   data:
+      #     value: ""
+
   say:
     alias: Announcement over Google Homes
     mode: queued
@@ -1009,10 +1038,14 @@ script:
         data_template:
           entity_id: media_player.minis
           volume_level: "{{states.sensor.speakervolume.state}}"
-      - service: tts.google_cloud_say
+      - delay:
+          seconds: 1
+      - service: tts.google_cloud_say #google_cloud_say
         entity_id:
           - media_player.minis
           #- media_player.mirror
+        # language: nb-NO
+        # cache: true
         data_template:
           message: "{{message}}"
       - delay:

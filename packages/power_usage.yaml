@@ -66,6 +66,9 @@ sensor:
           - (states('sensor.torketrommel_electric_w') | float(default=0)) 
           - (states('sensor.office_floor_watt') | float(default=0)) 
           - (states('sensor.downstairs_bathroom_electric_consumption_w') | float(default=0)) 
+          - (states('sensor.varmepumpe_watt') | float(default=0)) 
+          - (states('sensor.varmepumpe_oppe_watt') | float(default=0)) 
+          - (states('sensor.aquarium_power') | float(default=0)) 
           )}}
       power_other_kwh:
         friendly_name: Power other kWh
@@ -73,7 +76,7 @@ sensor:
         value_template: >-
           {% set powerUsageBeforeNewSensor = 6405%}
           {% set main = states('sensor.power_other_kwh_raw') | float(default=0)%}
-          {% set heat_pump = states('sensor.varmepumpe_energy') | float(default=0)%}
+          {% set heat_pump = 396.8 | float(default=0)%}
           {{
           main - 
           heat_pump

@@ -42,20 +42,6 @@ automation:
 
   - alias: Trym left in kindergarden
     trigger:
-      # - platform: zone
-      #   entity_id: person.erlend
-      #   zone: zone.kindergarden
-      #   # Event is either enter or leave
-      #   event: enter
-      #   for:
-      #     minutes: 3
-      # - platform: zone
-      #   entity_id: person.caroline
-      #   zone: zone.kindergarden
-      #   # Event is either enter or leave
-      #   event: enter
-      #   for:
-      #     minutes: 3
       - platform: state
         entity_id: person.erlend, person.caroline
         to: "kindergarden"
@@ -70,12 +56,12 @@ automation:
     action:
       - service: notify.me
         data:
-          title: Kids left in kindergarden
+          title: Tyra left in kindergarden
           message: The time is {{ now().hour }}:{{ now().minute }}.
-      - service: logbook.log
-        data_template:
-          name: Kids
-          message: Left in kindergarden
+      - service: input_boolean.turn_off
+        entity_id:
+          - input_boolean.trymasleep
+          - input_boolean.tyraasleep
       - service: input_boolean.turn_on
         entity_id: input_boolean.tryminkindergarden
 
@@ -114,17 +100,13 @@ automation:
     action:
       - service: notify.me
         data_template:
-          title: Kids picked up from kindergarden
+          title: Tyra picked up from kindergarden
           message: De var der i {{states.sensor.trymsleeptimeformatted.state}}.
-      - service: logbook.log
-        data_template:
-          name: Kids
-          message: Picked up from kindergarden
       - service: script.turn_on
         entity_id: script.say
         data_template:
           variables:
-            message: "Barna ble hentet i barnehagen"
+            message: "Tyra ble hentet i barnehagen"
       - service: input_boolean.turn_off
         entity_id: input_boolean.tryminkindergarden
       - service: script.turn_on
@@ -136,19 +118,19 @@ automation:
           seconds: 20
       - service: script.turn_on
         entity_id: script.restorelightcolor
-      - condition: template
-        value_template: "{{states.binary_sensor.grind.state == 'on'}}"
-      - service: script.turn_on
-        entity_id: script.notifyBoth
-        data_template:
-          variables:
-            title: Barna er på vei hjem
-            message: Grinda er åpen
-      - service: script.turn_on
-        entity_id: script.say
-        data_template:
-          variables:
-            message: "Grinda er åpen, lukk den før barna kommer hjem"
+      # - condition: template
+      #   value_template: "{{states.binary_sensor.grind.state == 'on'}}"
+      # - service: script.turn_on
+      #   entity_id: script.notifyBoth
+      #   data_template:
+      #     variables:
+      #       title: Barna er på vei hjem
+      #       message: Grinda er åpen
+      # - service: script.turn_on
+      #   entity_id: script.say
+      #   data_template:
+      #     variables:
+      #       message: "Grinda er åpen, lukk den før barna kommer hjem"
 
   - alias: TrymStillInKindergarden
     trigger:
@@ -172,13 +154,13 @@ automation:
     action:
       - service: notify.me
         data:
-          title: The kids is still in kindergarden
+          title: Tyra is still in kindergarden
           message: leave now to pick him up before closing.
       - service: script.turn_on
         entity_id: script.say
         data_template:
           variables:
-            message: "Husk å hente barna i barnehagen"
+            message: "Husk å hente Tyra i barnehagen"
 
   - alias: Telegram Reply
     trigger:
@@ -337,7 +319,7 @@ automation:
           entity_id: binary_sensor.erlendhome
           state: "on"
     action:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           title: "Is the Car Heater Mounted?"
           message: "Its {{states.sensor.ute_temperature.state}} degrees outside."
@@ -698,13 +680,13 @@ automation:
   #   alias: Bathroom_Humidity_High_When_Not_Home
   #   trigger:
   #   - platform: template
-  #     value_template: "{{states.sensor.bathroomhumidity.attributes.change > float(8)}}"
+  #     value_template: "{{states.sensor.bathroomhumidity.attributes.change > float(8)}}" #z2m-problem
   #   condition:
   #     - condition: state
   #       entity_id:  input_select.alarm
   #       state: 'Arm Away'
   #   action:
-  #   - service:  notify.erlendpush
+  #   - service:  notify.me #earlier erlendpush
   #     data_template:
   #       message: Fuktigheten på badet har gått opp uten at noen er hjemme!
   #   - service:  notify.carolinepush
@@ -715,7 +697,7 @@ automation:
     alias: Bathroom Humidity High
     trigger:
       # - platform: template
-      #   value_template: "{{states.sensor.bathroomhumidity.attributes.change > float(5)}}"
+      #   value_template: "{{states.sensor.bathroomhumidity.attributes.change > float(5)}}" #z2m-problem
       - platform: template
         value_template: "{{states.sensor.bathroom_humidity.state | float(default=0) > float(30)}}"
     action:
@@ -833,7 +815,7 @@ automation:
   # - alias: TvLightsWhenTVOff
   #   trigger:
   #     - platform: state
-  #       entity_id: media_player.nvidia_shield
+  #       entity_id: media_player.living_room_tv
   #       to: "Off"
   #       for:
   #         seconds: 4
@@ -926,7 +908,7 @@ automation:
           entity_id: input_boolean.easleep
           state: "off"
     action:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           title: "Castet til Soverommet."
           message: " Var det feil?"
@@ -1062,6 +1044,25 @@ automation:
         data_template:
           title: "Snow is coming"
           message: "Det er meldt {{ states.sensor.snow.state }} cm med snø de neste 8 timene."
+
+  # - alias: "Fetch and Store Weather Forecast"
+  #   trigger:
+  #     # Define your trigger, e.g., every hour at minute 0
+  #     - platform: time_pattern
+  #       minutes: "0"
+  #   action:
+  #     - service: weather.get_forecasts
+  #       target:
+  #         entity_id:
+  #           - weather.tomorrow_io_home_nowcast
+  #           - weather.toronto_forecast
+  #       data:
+  #         type: hourly
+  #       response_variable: weather_forecast
+  #     - service: input_text.set_value
+  #       data:
+  #         entity_id: input_text.weather_forecast_data
+  #         value: "{{ weather_forecast | tojson }}"
 
   ########################################
   ########                        ########

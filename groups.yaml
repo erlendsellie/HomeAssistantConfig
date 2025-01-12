@@ -17,14 +17,13 @@ important_devices:
     - binary_sensor.vindfang_door
     - sensor.nordpool
     - sensor.priceanalyzer
-    #- media_player.nvidia_shield
-    - lock.ytterdor_verisure
+    #- media_player.living_room_tv
     - switch.garage_esp32
-    - device_tracker.oneplus
+    - device_tracker.erlend_mobil
     - device_tracker.caroline
     - sensor.nordpool
     - sensor.stua_temperature
-    - binary_sensor.front_door_ding
+    - binary_sensor.front_door_ding_mqtt
     - light.trym_balloon
     - light.tyra_ball
     - light.trym_roof
@@ -41,7 +40,14 @@ important_devices:
     - light.sofa
     - light.bathroom
     - light.toilet
-    - binary_sensor.motion_livingroom
+    - binary_sensor.motion_jaktbod
+    - sensor.ute_temperature
+    - light.sofa
+    - light.toilet
+    - binary_sensor.motion_toilet
+    - light.bathroom
+    - switch.varmekolbe
+    - sensor.aquarium_temp
 
 garmin:
   name: Garmin
@@ -49,12 +55,26 @@ garmin:
     - light.tvsone
     - cover.garage_door
     - script.climatecar
+    - script.defrostcar
+    - script.climate_e_golf
+
+garminerlend:
+  name: GarminErlend
+  entities:
+    - light.tvsone
+    - cover.garage_door
+    - script.climatecar
+    - script.defrostcar
+    - script.climate_e_golf
+    - script.toggletv
+    - input_boolean.automatic_bedroom_lights
 
 people:
   name: People
   entities:
     - person.caroline
     - person.erlend
+    - device_tracker.stian
     - device_tracker.stian_wifi
     - device_tracker.julianne_wifi
     - device_tracker.marianne_wifi
@@ -76,6 +96,7 @@ caroline:
     - device_tracker.caroline_wifi
     #- device_tracker.caroline_bt
     - device_tracker.life360_caroline_winge
+    - person.caroline
   # - device_tracker.carolines7
   #Trying withour owntracks. Will still get tracked in frontend.
   #- device_tracker.caroline_s7
@@ -146,6 +167,8 @@ notdimmableliving:
     - light.kjokkenbord
     - light.ledstrip_kitchen
     - light.peis
+    - light.bird
+    - light.go
   #- switch.table_light
   # - light.hallwaymiddle
 
@@ -154,7 +177,6 @@ dimmableliving:
   icon: mdi:lightbulb
   entities:
     - light.tvsone
-    - light.go
     # - light.tv
     # - light.sofa
     # #- light.peis
@@ -175,6 +197,7 @@ hallwaylights:
   entities:
     - light.hallway
     - light.trapp
+    - light.vindfang
   #- switch.nexa2  #vindfang
   #- light.sokkel
 
@@ -209,7 +232,7 @@ andrelys:
     - light.peis
     - light.play
     - light.driveway
-    - light.outdoor_led_strip
+    #- light.outdoor_led_strip
     - light.garage
     - light.garage_bulb
     - light.garage_led_strip

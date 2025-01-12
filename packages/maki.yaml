@@ -1,0 +1,71 @@
+input_datetime:
+  maki_inside_time:
+    name: "Maki Inside Time"
+    has_time: true
+    has_date: true
+
+  maki_outside_time:
+    name: "Maki Outside Time"
+    has_time: true
+    has_date: true
+
+automation:
+  - alias: Notify When Cat Enters or Exits
+    id: "notifymakioutsideinside"
+    description: Send a notification when the cat goes in or out the door and how long Maki was out or inside
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.maki
+        from: "off"
+        to: "on"
+        id: cat_in
+      - platform: state
+        entity_id: binary_sensor.maki
+        from: "on"
+        to: "off"
+        id: cat_out
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: cat_in
+            sequence:
+              # Set the inside timestamp when Maki comes in
+              - action: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.maki_inside_time
+                data:
+                  timestamp: "{{ now().timestamp() }}"
+              # Calculate how long Maki was outside
+              - variables:
+                  #time_outside: "{{ (as_timestamp(now()) - as_timestamp(states('input_datetime.maki_outside_time'))) | int }}"
+                  time_outside: "{{ (as_timestamp(now()) - as_timestamp(states('input_datetime.maki_outside_time') | default(now()))) | int }}"
+              - action: script.turn_on
+                entity_id: script.notifyboth
+                data:
+                  variables:
+                    title: "Maki er inne🏠"
+                    message: "Tid: {{ time_outside // 3600 }} timer og {{ (time_outside % 3600) // 60 }} minutter."
+                    channel: "cat"
+          - conditions:
+              - condition: trigger
+                id: cat_out
+            sequence:
+              # Set the outside timestamp when Maki goes out
+              - action: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.maki_outside_time
+                data:
+                  timestamp: "{{ now().timestamp() }}"
+              # Calculate how long Maki was inside
+              - variables:
+                  #time_inside: "{{ (as_timestamp(now()) - as_timestamp(states('input_datetime.maki_inside_time'))) | int }}"
+                  time_inside: "{{ (as_timestamp(now()) - as_timestamp(states('input_datetime.maki_inside_time') | default(now()))) | int }}"
+              - action: script.turn_on
+                entity_id: script.notifyboth
+                data:
+                  variables:
+                    title: "Maki er ute🌲"
+                    message: "Tid: {{ time_inside // 3600 }} timer og {{ (time_inside % 3600) // 60 }} minutter."
+                    channel: "cat"

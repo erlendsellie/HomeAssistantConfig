@@ -2,7 +2,7 @@ script:
   ble_transmitter_off:
     alias: Simple Notification If Home
     sequence:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data:
           message: "command_ble_transmitter"
           data:
@@ -11,7 +11,7 @@ script:
   ble_transmitter_on:
     alias: Simple Notification If Home
     sequence:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data:
           message: "command_ble_transmitter"
           data:

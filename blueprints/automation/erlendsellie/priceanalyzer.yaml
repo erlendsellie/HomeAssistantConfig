@@ -18,7 +18,6 @@ blueprint:
       description: Input Number Helper for base setpoint temperature
       selector:
         entity:
-          domain: input_number
     climate:
       name: Climate
       description: Climate Entity to control

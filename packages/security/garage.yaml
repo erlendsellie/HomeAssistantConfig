@@ -7,7 +7,7 @@ cover:
         open_cover:
           - service: script.open_garage_door
           - delay:
-              seconds: 10
+              seconds: 15
           - condition: template
             value_template: "{{ states.cover.garage_door.state == 'closed' }}"
           - service: script.turn_on
@@ -16,10 +16,12 @@ cover:
               variables:
                 title: Seems like the garage could not open
                 message: Seems like the garage could not open
+          - service: script.open_garage_door
+
         close_cover:
           - service: script.close_garage_door
           - delay:
-              seconds: 20
+              seconds: 25
           - condition: template
             value_template: "{{ states.cover.garage_door.state == 'open' }}"
           - service: script.turn_on
@@ -28,6 +30,7 @@ cover:
               variables:
                 title: Seems like the garage could not close
                 message: Seems like the garage could not close
+          - service: script.close_garage_door
         stop_cover:
           service: script.stop_garage_door
         icon_template: >-
@@ -39,6 +42,10 @@ cover:
             mdi:garage
           {% endif %}
 
+input_boolean:
+  automatic_garage:
+    name: "Automatic Garage"
+
 binary_sensor:
   - platform: template
     scan_interval: 10
@@ -47,11 +54,19 @@ binary_sensor:
         friendly_name: "Motion Driveway or Garage"
         device_class: motion
         delay_off:
-          minutes: 10
+          minutes: 5
         value_template: >-
-          {{states.binary_sensor.motion_garage.state == 'on' or
-            states.binary_sensor.motion_driveway.state == 'on' or 
-            states.binary_sensor.front_door_motion.state == 'on'}}
+          {{
+            states.binary_sensor.motion_garage.state == 'on' or
+            states.binary_sensor.motion_driveway.state == 'on' or
+            states.binary_sensor.front_door_motion.state == 'on' or
+            (states.sensor.garage_person_count.state is not none and 
+            states.sensor.garage_person_count.state != 'unavailable' and 
+            states.sensor.garage_person_count.state != '0') or
+            (states.sensor.driveway_person_count.state is not none and 
+            states.sensor.driveway_person_count.state != 'unavailable' and 
+            states.sensor.driveway_person_count.state != '0')
+          }}
       garageanddooropen:
         device_class: opening
         value_template: "{{(states.binary_sensor.garage_backdoor.state == 'on' and states.cover.garage_door.state == 'on') and (states.binary_sensor.door_downstair.state == 'on' or states.binary_sensor.veranda.state == 'on') }}"
@@ -60,7 +75,8 @@ binary_sensor:
         delay_off:
           minutes: 5
         value_template: >-
-          {{states.binary_sensor.motion_garage.state == 'on' or states.cover.garage_door.state == 'open'}}
+          {{states.binary_sensor.motion_garage.state == 'on' or states.cover.garage_door.state == 'open' or 
+            states.sensor.garage_person_count.state != '0'}}
 
 script:
   open_garage_door:
@@ -72,12 +88,8 @@ script:
         value_template: "{{ states.cover.garage_door.state == 'closed' }}"
       - service: switch.turn_on
         entity_id: switch.garage_esp32
-      - service: logbook.log
-        data_template:
-          name: Garage door
-          message: opened
       - delay:
-          seconds: 10
+          seconds: 20
 
   close_garage_door:
     alias: close_garage_door
@@ -100,12 +112,8 @@ script:
         default:
           - service: switch.turn_on
             entity_id: switch.garage_esp32
-          - service: logbook.log
-            data_template:
-              name: Garage door
-              message: closed
           - delay:
-              seconds: 10
+              seconds: 20
 
   stop_garage_door:
     alias: stop_garage_door
@@ -145,9 +153,20 @@ automation:
       - platform: state
         entity_id: binary_sensor.motion_driveway_or_garage
         to: "off"
+      - platform: state
+        entity_id: binary_sensor.motion_driveway_or_garage
+        to: "off"
+        for:
+          minutes: 4
+      - platform: state
+        entity_id: cover.garage_door
+        to: "on"
+        for:
+          minutes: 5
     condition:
       - condition: template
-        value_template: "{{ states.cover.garage_door.state  == 'open'}}" #Maybe add garage not occupied?
+        value_template: "{{ states.cover.garage_door.state  == 'open'
+          and states.binary_sensor.motion_driveway_or_garage.state == 'off'}}"
     action:
       - service: cover.close_cover
         entity_id: cover.garage_door
@@ -165,12 +184,12 @@ automation:
         data_template:
           variables:
             message: Garasjen ble åpnet
-      - wait_for_trigger:
-          - platform: state
-            entity_id: binary_sensor.motion_driveway_or_garage
-            to: "off"
-      - service: cover.close_cover
-        entity_id: cover.garage_door
+      # - wait_for_trigger:
+      #     - platform: state
+      #       entity_id: binary_sensor.motion_driveway_or_garage
+      #       to: "off"
+      # - service: cover.close_cover
+      #   entity_id: cover.garage_door
 
   - id: garageclosed
     alias: garageclosed
@@ -186,41 +205,68 @@ automation:
           variables:
             message: Garasjen ble lukket
 
-  - alias: Close Garage When someone leaves
-    id: CloseGarageWhensomeoneleaves
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.erlendhome
-        to: "off"
-      - platform: state
-        entity_id: binary_sensor.carolinehome
-        to: "off"
-        #Also do this when garage has been open for some time? Should be safe, as motion is not detected anymore.
-    condition:
-      - condition: state
-        entity_id: cover.garage_door
-        state: "open"
-    action:
-      #When motion in driveway has been off for 1 minutes. Lets wait 15 minutes as a timeout.
-      - wait_template: >-
-          {{ (states.binary_sensor.motion_driveway.state == 'off')
-          and 
-          ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 1}}
-        timeout: "0:15:00"
-        #And if timed out, abort with the same logic
-      - condition: template
-        value_template: >-
-          {{ (states.binary_sensor.motion_driveway.state == 'off')
-          and 
-          ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 1}}
-      # - service: notify.mobile_app_oneplus
-      #   data_template:
-      #     title: Garage closed since someone left.
-      #     message: Garage closed since someone left.
-      #     data:
-      #       image: 'https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}'
-      - service: cover.close_cover
-        entity_id: cover.garage_door
+  # - alias: Close Garage When No One is Present
+  #   id: 754a9449-9946-458a-b0d9-8c4ed8e7a980
+  #   description: Close the garage when both person count sensors are 0 for 5 minutes
+  #   mode: single
+  #   trigger:
+  #     - platform: state
+  #       entity_id: sensor.garage_person_count
+  #       to: "0"
+  #       for: "00:05:00"
+  #     - platform: state
+  #       entity_id: sensor.driveway_person_count
+  #       to: "0"
+  #       for: "00:05:00"
+  #   condition:
+  #     - condition: state
+  #       entity_id: sensor.garage_person_count
+  #       state: "0"
+  #     - condition: state
+  #       entity_id: sensor.driveway_person_count
+  #       state: "0"
+  #     - condition: state
+  #       entity_id: cover.garage_door
+  #       state: "open"
+  #   action:
+  #     - service: cover.close_cover
+  #       entity_id: cover.garage_door
+
+  # - alias: Close Garage When someone leaves
+  #   id: CloseGarageWhensomeoneleaves
+  #   trigger:
+  #     - platform: state
+  #       entity_id: binary_sensor.erlendhome
+  #       to: "off"
+  #     - platform: state
+  #       entity_id: binary_sensor.carolinehome
+  #       to: "off"
+  #       #Also do this when garage has been open for some time? Should be safe, as motion is not detected anymore.
+  #   condition:
+  #     - condition: state
+  #       entity_id: cover.garage_door
+  #       state: "open"
+  #   action:
+  #     #When motion in driveway has been off for 1 minutes. Lets wait 15 minutes as a timeout.
+  #     - wait_template: >-
+  #         {{ (states.binary_sensor.motion_driveway.state == 'off')
+  #         and
+  #         ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 1}}
+  #       timeout: "0:15:00"
+  #       #And if timed out, abort with the same logic
+  #     - condition: template
+  #       value_template: >-
+  #         {{ (states.binary_sensor.motion_driveway.state == 'off')
+  #         and
+  #         ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 1}}
+  #     # - service: notify.mobile_app_erlend_mobil
+  #     #   data_template:
+  #     #     title: Garage closed since someone left.
+  #     #     message: Garage closed since someone left.
+  #     #     data:
+  #     #       image: 'https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}'
+  #     - service: cover.close_cover
+  #       entity_id: cover.garage_door
 
   - alias: Open Garage and unlock when home
     trigger:
@@ -233,8 +279,14 @@ automation:
         entity_id: binary_sensor.garage_occupied
         state: "off"
       - condition: state
+        entity_id: input_boolean.automatic_garage
+        state: "on"
+      - condition: state
         entity_id: cover.garage_door
         state: "closed"
+      - condition: state
+        entity_id: binary_sensor.golf_in_garage
+        state: "off"
     action:
       - service: cover.open_cover
         entity_id: cover.garage_door
@@ -256,8 +308,14 @@ automation:
         entity_id: binary_sensor.garage_occupied
         state: "off"
       - condition: state
+        entity_id: input_boolean.automatic_garage
+        state: "on"
+      - condition: state
         entity_id: cover.garage_door
         state: "closed"
+      - condition: state
+        entity_id: binary_sensor.golf_in_garage
+        state: "off"
     action:
       - service: cover.open_cover
         entity_id: cover.garage_door
@@ -293,34 +351,38 @@ automation:
             title: Garage opened because Caroline came home from Work.
             message: Garage opened because Caroline came home Work.
 
-  - id: closegarageAlarmAway
-    alias: closegarageAlarmAway
-    trigger:
-      platform: state
-      entity_id: input_select.alarm
-      to: "Arm Away"
-      for:
-        seconds: 10
-    condition:
-      condition: state
-      entity_id: cover.garage_door
-      state: "open"
-    action:
-      - service: cover.close_cover
-        entity_id: cover.garage_door
-    # - service: script.turn_on
-    #   entity_id: script.notify
-    #   data_template:
-    #     variables:
-    #       title: Garage closed because Armed away.
-    #       message: Garage closed because Armed away.
-
+  # - id: closegarageAlarmAway
+  #   alias: closegarageAlarmAway
+  #   trigger:
+  #     platform: state
+  #     entity_id: input_select.alarm
+  #     to: "Arm Away"
+  #     for:
+  #       seconds: 20
+  #   condition:
+  #     condition: state
+  #     entity_id: cover.garage_door
+  #     state: "open"
+  #   action:
+  #     - service: cover.close_cover
+  #       entity_id: cover.garage_door
+  # - service: script.turn_on
+  #   entity_id: script.notify
+  #   data_template:
+  #     variables:
+  #       title: Garage closed because Armed away.
+  #       message: Garage closed because Armed away.
   - id: Turnalarmhome3
     alias: Turn Alarm home After 3
     trigger:
       - entity_id: input_select.alarm
-        platform: state
+        trigger: state
         to: "Arm Home"
+        for:
+          minutes: 3
+      - entity_id: input_select.alarm
+        trigger: state
+        to: "Arm Away"
         for:
           minutes: 3
     condition:
@@ -328,7 +390,7 @@ automation:
       entity_id: cover.garage_door
       state: "open"
     action:
-      - service: cover.close_cover
+      - action: cover.close_cover
         entity_id: cover.garage_door
     # - service: script.turn_on
     #   entity_id: script.notify

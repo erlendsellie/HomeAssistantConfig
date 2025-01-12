@@ -76,14 +76,14 @@ sensor.cbattery:
   state_class: measurement
 sensor.snow:
   state_class: measurement
-person.erlend:
-  entity_picture: /local/CVbilde.jpg
-sensor.erlend:
-  entity_picture: /local/CVbilde.jpg
-person.caroline:
-  entity_picture: /local/caroline.png
-sensor.caroline:
-  entity_picture: /local/caroline.png
+# person.erlend:
+#   entity_picture: /local/CVbilde.jpg
+# sensor.erlend:
+#   entity_picture: /local/CVbilde.jpg
+# person.caroline:
+#   entity_picture: /local/caroline.png
+# sensor.caroline:
+#   entity_picture: /local/caroline.png
 cover.veranda_curtains:
   device_class: shade
 sensor.trym_temp:

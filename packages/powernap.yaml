@@ -7,6 +7,12 @@ automation:
         to: "on"
         for:
           hours: 3
+      - platform: state
+        entity_id: person.caroline
+        from: "home"
+      - platform: state
+        entity_id: binary_sensor.hoveddor, binary_sensor.bod_door
+        to: "on"
     action:
       service: input_boolean.turn_off
       entity_id: input_boolean.powernap

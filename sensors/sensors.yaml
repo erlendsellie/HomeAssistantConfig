@@ -49,14 +49,14 @@
 #   value_template: "{{value.split('$')[1] | float}}"
 #   unit_of_measurement: USD
 
-- platform: command_line
-  command: 'curl -X GET -H "Content-type: application/json" -H "kp-api-token: {{states.sensor.postenapikey.state}}"  https://www.posten.no/levering-av-post/_/service/no.posten.website/delivery-days?postalCode=7072'
-  name: MailToday
-  json_attributes:
-    - nextDeliveryDays
-  value_template: "{{'i dag' in (value_json.nextDeliveryDays | string) }}"
-  scan_interval: 57600
-  command_timeout: 30
+# - platform: command_line
+#   command: 'curl -X GET -H "Content-type: application/json" -H "kp-api-token: {{states.sensor.postenapikey.state}}"  https://www.posten.no/levering-av-post/_/service/no.posten.website/delivery-days?postalCode=7072'
+#   name: MailToday
+#   json_attributes:
+#     - nextDeliveryDays
+#   value_template: "{{'i dag' in (value_json.nextDeliveryDays | string) }}"
+#   scan_interval: 57600
+#   command_timeout: 30
 
 # - platform: template
 #   sensors:
@@ -83,9 +83,9 @@
 - platform: google_wifi
   host: 192.168.1.1
 
-- platform: wasteplan_trv
-  id: 1035
-  pickup_day: 1
+# - platform: wasteplan_trv
+#   id: 1035
+#   pickup_day: 1
 
 # - platform: darksky
 #   api_key: !secret darksky_api_key
@@ -153,7 +153,6 @@
     - "date_time"
     - "time_date"
     - "time_utc"
-    - "beat"
 
 - platform: websocket_api
 
@@ -171,17 +170,17 @@
       name: office_temp
 #nc core-tellstick 50801
 
-- platform: systemmonitor
-  resources:
-    - type: memory_use_percent
-    - type: load_15m
-    - type: processor_use
-    - type: last_boot
-    - type: disk_use_percent
-      arg: /
-    - type: load_5m
+# - platform: systemmonitor
+#   resources:
+#     - type: memory_use_percent
+#     - type: load_15m
+#     - type: processor_use
+#     - type: last_boot
+#     - type: disk_use_percent
+#       arg: /
+#     - type: load_5m
 
-    - type: load_1m
+#     - type: load_1m
 
 - platform: filter
   name: "filtered consumption"
@@ -356,7 +355,18 @@
     alarm:
       value_template: >
         {% if states.binary_sensor.erlendhome.state == 'on' or states.binary_sensor.carolinehome.state == 'on' or states.group.people.state == 'home' %}
-          {% if (states.input_boolean.easleep.state == 'on' or states.binary_sensor.erlendhome.state == 'off') and (states.input_boolean.casleep.state == 'on' or states.binary_sensor.carolinehome.state == 'off') and (states.binary_sensor.erlendhome.state == 'on' or states.binary_sensor.carolinehome.state == 'on')  %}
+          {% if (states.input_boolean.easleep.state == 'on' or states.binary_sensor.erlendhome.state == 'off')
+              and 
+              (states.input_boolean.casleep.state == 'on' or states.binary_sensor.carolinehome.state == 'off')
+              and 
+              (states.binary_sensor.erlendhome.state == 'on' or states.binary_sensor.carolinehome.state == 'on')  %}
+            Arm Home
+          {% elif 
+          (states.binary_sensor.erlendhome.state == 'off' and states.binary_sensor.carolinehome.state == 'off')
+            and
+            states.device_tracker.stian.state == 'home'
+            and states.input_boolean.stianasleep.state == 'on'
+          %}
             Arm Home
           {% else %}
             Disarm
@@ -386,7 +396,7 @@
     #     {% endif %}
     ebattery:
       unit_of_measurement: "%"
-      value_template: "{{ states.sensor.oneplus_battery_level.state}}"
+      value_template: "{{ states.sensor.erlend_mobil_battery_level.state}}"
     wear_battery:
       unit_of_measurement: "%"
       friendly_name: "Wear Battery"
@@ -561,12 +571,12 @@
     #   friendly_name: Table Brightness pct
     #   unit_of_measurement: "%"
     #   value_template: '{{float(states.light.kjokkenbord.attributes.brightness*0.3921568627450981)}}'
-    distancefromhome:
-      friendly_name: Distance from home
-      unit_of_measurement: km
-      value_template: >-
-        {% set dummy = states("sensor.time") %}
-        {{[states.proximity.homecaroline.state | int(default=0), states.proximity.homeerlend.state | int(default=0)] | min | int(default=0)}}
+    # distancefromhome:
+    #   friendly_name: Distance from home
+    #   unit_of_measurement: km
+    #   value_template: >-
+    #     {% set dummy = states("sensor.time") %}
+    #     {{[states.proximity.homecaroline.state | int(default=0), states.proximity.homeerlend.state | int(default=0)] | min | int(default=0)}}
     speakervolume:
       friendly_name: "Speaker Volume"
       unit_of_measurement: "%"
@@ -574,19 +584,19 @@
         {%-set trymasleep = states.input_boolean.trymasleep.state == 'on' -%}
         {%-set tyraasleep = states.input_boolean.tyraasleep.state == 'on' -%}
         {% if trymasleep or tyraasleep %}
-          0.5
+          0.3
         {% elif states.input_boolean.powernap.state == 'on' %} 
           0.0
         {% elif states.input_select.alarm.state == 'Disarm' %} 
-          0.7
+          0.5
         {% elif states.input_select.alarm.state == 'Arm Home'%}
-          0.2
+          0.1
         {% else %}
           0.0
         {% endif %}
     unlockedby:
       friendly_name: "Door unlocked by"
-      value_template: "{{states.lock.ytterdor_verisure.attributes.changed_by}}"
+      value_template: "{{states.lock.ytterdor.attributes.changed_by}}"
     # {% if states.input_select.alarm.state == 'Disarm' %}
     #   {% if float(states.sensor.ute_temperature.state) < float(states.input_number.coldthreshold.state) %}
     #     {{ float(states.input_number.hjemmetemp.state) + float(states.input_number.extradegrees.state) }}

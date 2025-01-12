@@ -20,7 +20,7 @@ automation:
       for:
         minutes: 60
     action:
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data_template:
           title: Røykvarsler utilgjengelig!
           message: Røykvarsleren {{ trigger.from_state.name }} er utilgjengelig!
@@ -52,10 +52,10 @@ automation:
     action:
       - service: script.turn_off
         entity_id: script.smoketriggered
-      - service: notify.carolinepush
+      - service: script.notifycaroline
         data:
           message: "Smoke cleared"
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data:
           message: "Smoke cleared"
       - service: script.turn_off
@@ -87,15 +87,11 @@ script:
       #   entity_id: light.gateway_light_7c49eb1c2d6b
       #   data:
       #     color_name: red
-      - service: logbook.log
-        data_template:
-          name: Smokesensor
-          message: triggered
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data_template:
           title: Alarm!
           message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - service: notify.carolinepush
+      - service: script.notifycaroline
         data_template:
           title: Alarm!
           message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
@@ -103,23 +99,23 @@ script:
         data_template:
           title: Alarm!
           message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data_template:
           title: Alarm!
           message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - service: notify.carolinepush
+      - service: script.notifycaroline
         data_template:
           title: Alarm!
           message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - service: notify.carolinepush
+      - service: script.notifycaroline
         data_template:
           title: Alarm!
           message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - service: notify.erlendpush
+      - service: notify.me #earlier erlendpush
         data_template:
           title: Alarm!
           message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - service: notify.carolinepush
+      - service: script.notifycaroline
         data_template:
           title: Alarm!
           message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '

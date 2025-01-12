@@ -102,7 +102,7 @@ sensor:
           {% set return = min(30,return)%}
           {% set minutes = now().minute | int(default = 0) %}
           {%if minutes < 10 and effect_cap < 12%}
-              {% set return = 20%}
+              {% set return = 15%}
           {%endif%}
           {{return}}
 binary_sensor:
@@ -117,7 +117,7 @@ binary_sensor:
           {% set minutes = now().minute %}
           {% set effektledd = states('input_number.effektledd') | float(default=9.8) %}
           {%-set threshold = effektledd | float(default=0)-%}
-          {{effect >= threshold and minutes > 18}}
+          {{effect >= threshold and minutes > 15}}
       effect_is_high_immidiate:
         friendly_name: "Effect Is High Immidiate"
         value_template: >-
@@ -125,7 +125,7 @@ binary_sensor:
           {% set minutes = now().minute %}
           {% set effektledd = states('input_number.effektledd') | float(default=9.8) %}
           {%-set threshold = effektledd | float(default=0)-%}
-          {{effect >= threshold and minutes > 18}}
+          {{effect >= threshold and minutes > 15}}
       effect_is_really_high:
         friendly_name: "Effect Is Really High"
         delay_off:
@@ -135,7 +135,7 @@ binary_sensor:
           {% set minutes = now().minute %}
           {% set effektledd = states('input_number.effektledd') | float(default=9.8) %}
           {%-set threshold = effektledd | float(default=0) + 2 -%}
-          {{effect >= threshold and minutes > 20}}
+          {{effect >= threshold and minutes > 25}}
 
 automation:
   - id: dynamiccharging
@@ -180,7 +180,7 @@ automation:
         entity_id: binary_sensor.effect_is_really_high
         to: "on"
       - platform: time_pattern
-        minutes: "/10"
+        minutes: "/13"
     condition:
       - condition: template
         value_template: "{{ states.input_boolean.limit_power.state == 'on'}}"
@@ -229,11 +229,9 @@ automation:
                 entity_id: input_boolean.limit_water_heater
               - service: input_boolean.turn_on
                 entity_id: input_boolean.limit_heaters
-              - service: script.turn_on
-                entity_id: script.notify_tts_max_if_home
-                data_template:
-                  variables:
-                    message: "Warning, high power usage. The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now."
+              - service: script.notify_tts_max_if_home
+                data:
+                  message: "Warning, high power usage. The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now."
               - service: script.turn_on
                 entity_id: script.notify
                 data_template:
@@ -252,11 +250,9 @@ automation:
               variables:
                 title: Warning, high power usage.
                 message: The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.
-          - service: script.turn_on
-            entity_id: script.notify_tts_max_if_home
-            data_template:
-              variables:
-                message: Warning, high power usage! The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.
+          - service: script.notify_tts_max_if_home
+            data:
+              message: Warning, high power usage! The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.
 
   - alias: "EffectTurnUpPowerWhenLow"
     id: "EffectTurnUpPowerWhenLow"

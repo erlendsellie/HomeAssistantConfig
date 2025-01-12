@@ -12,7 +12,7 @@ automation:
 
     # - service: media_extractor.play_media
     #   data:
-    #     entity_id: media_player.nvidia_shield
+    #     entity_id: media_player.living_room_tv
     #     media_content_id: "https://www.youtube.com/watch?v=84AJflQ8YRc"
     #     media_content_type: video/youtube
 
@@ -23,10 +23,10 @@ automation:
     action:
       - service: media_player.turn_on
         data:
-          entity_id: media_player.nvidia_shield
+          entity_id: media_player.living_room_tv
       - service: media_player.select_source
         data:
-          entity_id: media_player.nvidia_shield
+          entity_id: media_player.living_room_tv
           source: "Plex"
       - delay:
           seconds: 2

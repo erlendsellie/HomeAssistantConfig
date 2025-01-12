@@ -47,18 +47,18 @@ switch:
               seconds: 2
           - service: mqtt.publish
             data:
-              payload_template: start
+              payload: start
               topic: robonect/control
           # - delay:
           #     seconds: 2
           # - service: mqtt.publish
           #   data:
-          #     payload_template: start
+          #     payload: start
           #     topic: robonect/control
         turn_off:
           - service: mqtt.publish
             data:
-              payload_template: stop
+              payload: stop
               topic: robonect/control
 
 # select:
@@ -88,13 +88,13 @@ automation:
     action:
       - service: mqtt.publish
         data:
-          payload_template: "{{ trigger.to_state.state }}"
+          payload: "{{ trigger.to_state.state }}"
           topic: robonect/control/mode
       - delay:
           seconds: 5
       - service: mqtt.publish
         data:
-          payload_template: "{{ trigger.to_state.state }}"
+          payload: "{{ trigger.to_state.state }}"
           topic: robonect/control/mode
 
   - id: "update_esteban_mode"
@@ -126,7 +126,7 @@ automation:
   #   condition: []
   #   action:
   #     - data:
-  #         payload_template: "{{ states('input_select.esteban_command') }}"
+  #         payload: "{{ states('input_select.esteban_command') }}"
   #         topic: robonect/control
   #       service: mqtt.publish
   #     - data:
@@ -156,7 +156,7 @@ automation:
   #   condition: []
   #   action:
   #     - data:
-  #         payload_template: "{{ states('input_select.esteban_command') }}"
+  #         payload: "{{ states('input_select.esteban_command') }}"
   #         topic: robonect/control/mode
   #       service: mqtt.publish
   #     - data:
@@ -239,33 +239,39 @@ sensor:
       esteban_status_friendly:
         friendly_name: "Esteban Status"
         value_template: >
-          {% if is_state("sensor.Esteban_status_raw", "0") -%}
+          {%set status = states("sensor.Esteban_status_raw")%}
+          {% if status == "0" -%}
             Detecting Status
-          {% elif is_state("sensor.Esteban_status_raw", "1") -%}
+          {% elif status == "1" -%}
             Parked
-          {% elif is_state("sensor.Esteban_status_raw", "2") -%}
+          {% elif status == "2" -%}
             Mowing
-          {% elif is_state("sensor.Esteban_status_raw", "3") -%}
+          {% elif status == "3" -%}
             Searching Charging Station
-          {% elif is_state("sensor.Esteban_status_raw", "4") -%}
+          {% elif status == "4" -%}
             Charging
-          {% elif is_state("sensor.Esteban_status_raw", "5") -%}
+          {% elif status == "5" -%}
             Searching
-          {% elif is_state("sensor.Esteban_status_raw", "7") -%}
+          {% elif status == "7" -%}
             Error
-          {% elif is_state("sensor.Esteban_status_raw", "8") -%}
+          {% elif status == "8" -%}
             Missing Loop Signal
-          {% elif is_state("sensor.Esteban_status_raw", "16") -%}
+          {% elif status == "16" -%}
             Off
-          {% elif is_state("sensor.Esteban_status_raw", "17") -%}
+          {% elif status == "17" -%}
             Sleeping
-          {% elif is_state("sensor.Esteban_status_raw", "18") -%}
+          {% elif status == "18" -%}
             Waiting For Garage Door
           {% else -%}
-            Figure out what state {{ states("sensor.Esteban_status_raw") }} means
+            Figure out what state {{ status }} means
           {%- endif %}
 mqtt:
   sensor:
+    - state_topic: "robonect/mower/battery/charge"
+      name: "Esteban Battery"
+      unit_of_measurement: "%"
+      device_class: battery
+
     - state_topic: "robonect/mower/battery/charge"
       name: "Esteban Battery"
       unit_of_measurement: "%"
@@ -304,3 +310,6 @@ mqtt:
 
     - state_topic: "robonect/mower/status"
       name: "Esteban status raw"
+
+    - state_topic: "robonect/mower/status/plain"
+      name: "Esteban Status Text"

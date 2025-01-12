@@ -1,0 +1,259 @@
+homeassistant:
+  customize:
+    # Add state-class to enable long term statistics:
+    sensor.aquarium_light_today:
+      state_class: measurement
+
+utility_meter:
+  aquarium_today:
+    source: sensor.aquarium_power
+    cycle: daily
+    name: Aquarium Today
+    unique_id: sensor.aquarium_today
+input_datetime:
+  aquarium_last_water_change:
+    name: Last Water Change
+    has_date: true
+    has_time: false
+  aquarium_last_filter_clean:
+    name: Last Filter Clean
+    has_date: true
+    has_time: false
+
+template:
+  - sensor:
+      - name: "Aquarium Power"
+        unit_of_measurement: W
+        state: >-
+          {% set heater = states.switch.varmekolbe.state == 'on'%}
+          {% set lights = states.light.aquarium.state == 'on'%}
+          {%set power = 0%}
+          {%if heater%}
+          {%set power = power + 300%}
+          {%endif%}
+          {%if lights%}
+          {%set power = power + 42 + 150 %}
+          {%endif%}
+          {{power}}
+  - binary_sensor:
+      - name: "Should Aquarium Night Light Be On"
+        unit_of_measurement: W
+        state: >-
+          {{states.input_select.alarm.state == 'Disarm' and states.light.aquarium.state == 'off'}}
+      - name: "Aquarium Water Change Done"
+        delay_off:
+          minutes: 10
+        state: >-
+          {{
+            states.sensor.aquarium_temp_statistics.state | float(default=0) < -0.5
+          }}
+sensor:
+  - platform: history_stats
+    name: Aquarium Light Today
+    entity_id: light.aquarium
+    state: "on"
+    type: time
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"
+
+  - platform: integration
+    source: sensor.aquarium_power
+    name: Aquarium Kwh
+    unit_prefix: k
+    round: 2
+    method: left
+
+  - platform: statistics
+    name: Aquarium Temp Statistics
+    entity_id: sensor.aquarium_temp
+    state_characteristic: change
+    max_age:
+      minutes: 3
+    sampling_size: 150
+    precision: 1
+
+climate:
+  - platform: generic_thermostat
+    name: Aquarium
+    heater: switch.varmekolbe
+    target_sensor: sensor.aquarium_temp
+    min_temp: 16
+    max_temp: 32
+    precision: 0.1
+    hot_tolerance: 0.1
+    cold_tolerance: 0.2
+    min_cycle_duration:
+      minutes: 3
+    keep_alive:
+      minutes: 45
+
+input_number:
+  aquarium_temperature:
+    name: Aquarium Temperature
+    min: 16
+    max: 32
+    step: 0.5
+    mode: slider
+
+automation:
+  - id: Toggle Aquarium Co2
+    alias: Toggle Aquarium Co2
+    trigger:
+      - platform: time
+        at: "22:00:00"
+        id: night
+      - platform: time
+        at: "23:00:00"
+        id: night
+      # - platform: time
+      #   at: "08:00:00"
+      #   id: night
+      # - platform: time
+      #   at: "06:00:00"
+      #   id: morning
+      - platform: time
+        at: "12:00:00"
+        id: morning
+    action:
+      - if:
+          - condition: template
+            value_template: >-
+              {{ trigger.id == 'morning'}}
+        then:
+          - service: switch.turn_on
+            data:
+              entity_id: switch.aquarium_co2
+        else:
+          - service: switch.turn_off
+            data:
+              entity_id: switch.aquarium_co2
+
+  - id: Toggle Aquarium light
+    alias: Toggle Aquarium light
+    trigger:
+      - platform: time
+        at: "23:00:00"
+        id: night
+      - platform: time
+        at: "00:00:00"
+        id: night
+      - platform: time
+        at: "01:00:00"
+        id: night
+      - platform: state
+        entity_id: input_boolean.easleep
+        to: "on"
+        id: night
+      # - platform: time
+      #   at: "08:15:00"
+      #   id: night
+      # - platform: time
+      #   at: "06:30:00"
+      #   id: morning
+      - platform: time
+        at: "13:00:00"
+        id: morning
+    action:
+      - if:
+          - condition: template
+            value_template: >-
+              {{ trigger.id == 'morning'}}
+        then:
+          - service: light.turn_on
+            data:
+              entity_id: light.aquarium
+        else:
+          - service: light.turn_off
+            data:
+              entity_id: light.aquarium
+
+  - id: toggleAquariumNightLight
+    alias: toggleAquariumNightLight
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.should_aquarium_night_light_be_on
+    action:
+      - if:
+          - condition: template
+            value_template: >-
+              {{ trigger.to_state.state == 'on'}}
+        then:
+          - service: light.turn_{{trigger.to_state.state}}
+            target:
+              entity_id: light.go
+            data:
+              brightness_pct: 100
+        else:
+          - service: light.turn_off
+            data:
+              entity_id: light.go
+
+  - id: Aquarium Water Change
+    alias: Aquarium Water Change
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.aquarium_water_change_done
+        to: "on"
+    action:
+      - service: notify.me
+        data_template:
+          message: "Vannskifte fullført?"
+      - delay:
+          minutes: 30
+      - service: input_datetime.set_datetime
+        data:
+          datetime: "{{now()}}"
+          entity_id: input_datetime.aquarium_last_water_change
+      - service: climate.turn_on
+        data:
+          entity_id: climate.aquarium
+      # - service: switch.turn_on
+      #   data:
+      #     entity_id: switch.aquarium_pump
+
+  - id: AquariumTempGoneWrong
+    alias: AquariumTempGoneWrong
+    mode: single
+    trigger:
+      - platform: template
+        value_template: >-
+          {%set temp = states('sensor.aquarium_temp') | float%}
+          {%set target = state_attr('climate.aquarium', 'temperature') | float%}
+          {{(temp - target) > 1.5}}
+      - platform: template
+        value_template: >-
+          {%set temp = states('sensor.aquarium_temp') | float%}
+          {%set target = state_attr('climate.aquarium', 'temperature') | float%}
+          {{(temp - target) > 2}}
+    action:
+      - service: notify.me
+        data_template:
+          message: "Oisann! Temperaturen i akvariet er på {{states('sensor.aquarium_temp')}}"
+      - delay:
+          minutes: 60
+script:
+  vannskifte:
+    alias: "Vannskifte"
+    sequence:
+      - service: climate.turn_off
+        data:
+          entity_id: climate.aquarium
+      # - service: switch.turn_off
+      #   data:
+      #     entity_id: switch.aquarium_pump
+      - delay:
+          minutes: 60
+      - service: climate.turn_on
+        data:
+          entity_id: climate.aquarium
+      # - service: switch.turn_on
+      #   data:
+      #     entity_id: switch.aquarium_pump
+
+  filterclean:
+    alias: "Filter Clean"
+    sequence:
+      - service: input_datetime.set_datetime
+        data:
+          datetime: "{{now()}}"
+          entity_id: input_datetime.aquarium_last_filter_clean

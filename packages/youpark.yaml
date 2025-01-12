@@ -1,0 +1,49 @@
+multiscrape:
+  - resource: https://www.youpark.no/payment/EC75785/1
+    scan_interval: 7200 #2 hours
+    sensor:
+      - name: "you_park_tesla"
+        select: "div.transactions div:not(.fw-bold)"
+        icon: "mdi:road"
+  - resource: https://www.youpark.no/payment/EB31893/1
+    scan_interval: 7200 #2 hours
+    sensor:
+      - name: "you_park_golf"
+        select: "div.transactions div:not(.fw-bold)"
+        icon: "mdi:road"
+automation:
+  - id: you_park_tesla
+    alias: you_park_tesla
+    trigger:
+      - platform: time_pattern
+        hours: "/4"
+    condition:
+      - condition: template
+        value_template: "{{  states.sensor.you_park_tesla.state != 'unavailable' }}"
+    action:
+      - service: notify.mobile_app_erlend_mobil
+        data_template:
+          title: "Betal parkering!"
+          message: "Ubetalt passering på Tesla. Dato: {{states.sensor.you_park_tesla.state}}"
+          data:
+            clickAction: "https://www.youpark.no/payment/EC75785/1"
+            ttl: 0
+            priority: high
+
+  - id: you_park_golf
+    alias: you_park_golf
+    trigger:
+      - platform: time_pattern
+        hours: "/4"
+    condition:
+      - condition: template
+        value_template: "{{  states.sensor.you_park_golf.state != 'unavailable' }}"
+    action:
+      - service: notify.mobile_app_erlend_mobil
+        data_template:
+          title: "Betal parkering!"
+          message: "Ubetalt passering på golf. Dato: {{states.sensor.you_park_golf.state}}"
+          data:
+            clickAction: "https://www.youpark.no/payment/EB31893/1"
+            ttl: 0
+            priority: high

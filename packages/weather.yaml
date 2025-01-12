@@ -1,21 +1,37 @@
 template:
-  sensor:
-    - name: weather_norsk
-      state: >
-        {%- set state = states('weather.home') -%}
-        {% if state == 'clear-night' %} stjerneklart
-        {% elif state == 'cloudy' %} skyet
-        {% elif state == 'exceptional' %} ekstremt
-        {% elif state == 'fog' %} tåke
-        {% elif state == 'hail' %} hagl
-        {% elif state == 'lightning' %} lyn og torden
-        {% elif state == 'lightning-rainy' %} regn lyn og torden
-        {% elif state == 'partlycloudy' %} delvis skyet
-        {% elif state == 'pouring' %} mye regn
-        {% elif state == 'rainy' %} regn
-        {% elif state == 'snowy' %} snø
-        {% elif state == 'snowy-rainy' %} sludd
-        {% elif state == 'sunny' %} solfylt og pent
-        {% elif state == 'windy' %} sterk vind
-        {% elif state == 'windy-variant' %} Vindfullt
-        {% endif %}
+  - sensor:
+      - name: weather_norsk
+        state: >
+          {%- set state = states('weather.home') -%}
+          {% if state == 'clear-night' %} stjerneklart
+          {% elif state == 'cloudy' %} skyet
+          {% elif state == 'exceptional' %} ekstremt
+          {% elif state == 'fog' %} tåke
+          {% elif state == 'hail' %} hagl
+          {% elif state == 'lightning' %} lyn og torden
+          {% elif state == 'lightning-rainy' %} regn lyn og torden
+          {% elif state == 'partlycloudy' %} delvis skyet
+          {% elif state == 'pouring' %} mye regn
+          {% elif state == 'rainy' %} regn
+          {% elif state == 'snowy' %} snø
+          {% elif state == 'snowy-rainy' %} sludd
+          {% elif state == 'sunny' %} solfylt og pent
+          {% elif state == 'windy' %} sterk vind
+          {% elif state == 'windy-variant' %} Vindfullt
+          {% endif %}
+
+  - trigger:
+      - trigger: time_pattern
+        hours: /1
+    action:
+      - action: weather.get_forecasts
+        data:
+          type: hourly
+        target:
+          entity_id: weather.home
+        response_variable: hourly
+    sensor:
+      - name: Temperature forecast next hour
+        unique_id: temperature_forecast_next_hour
+        state: "{{ hourly['weather.home'].forecast[0].temperature }}"
+        unit_of_measurement: °C

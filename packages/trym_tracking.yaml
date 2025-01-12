@@ -1,0 +1,86 @@
+input_boolean:
+  trym_in_school:
+    name: Trym is in School
+    icon: mdi:school
+
+automation:
+  - alias: Trym left in School
+    id: tryminschool
+    trigger:
+      - platform: zone
+        entity_id: person.erlend, person.caroline, person.trym
+        zone: zone.school
+        #for:
+      #    minutes: 2
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+      - condition: time
+        before: "13:20:00"
+      - condition: state
+        entity_id: input_boolean.trym_in_school
+        state: "off"
+    action:
+      - service: notify.me
+        data:
+          title: Trym kom på skolen
+          message: The time is {{ now().hour }}:{{ now().minute }}.
+      - service: input_boolean.turn_off
+        entity_id:
+          - input_boolean.trymasleep
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.trym_in_school
+
+  - alias: Trym picked up from School
+    id: trymnotinschool
+    trigger:
+      - platform: time
+        at: "16:45:00"
+      - platform: zone
+        entity_id: person.erlend, person.caroline, person.trym
+        zone: zone.school
+        #for:
+        #minutes: 1
+      - platform: zone
+        entity_id: person.trym
+        zone: zone.school
+        event: leave
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+      - condition: time
+        after: "13:00:00"
+      - condition: state
+        entity_id: input_boolean.trym_in_school
+        state: "on"
+    action:
+      - service: notify.me
+        data_template:
+          title: Trym dro fra skolen
+          message: Trym dro fra skolen
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "Trym dro fra skolen"
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.trym_in_school
+      - service: script.turn_on
+        entity_id: script.blinkliving
+        data_template:
+          variables:
+            color: blue
+      - delay:
+          seconds: 20
+      - service: script.turn_on
+        entity_id: script.restorelightcolor

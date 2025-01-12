@@ -81,7 +81,7 @@ automation:
       for:
         minutes: 90
     action:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           title: "Garage has been open for 90 minutes"
           message: "Close it?"
@@ -227,6 +227,9 @@ automation:
       - condition: state
         entity_id: group.innedorsensorer
         state: "on"
+      - condition: time
+        after: "19:00:00"
+        before: "10:00:00"
     action:
       - service: script.turn_on
         entity_id: script.notifyhome
@@ -255,7 +258,7 @@ automation:
   #     - condition: template # More than 5 minutes since last time. Does not work correctly?
   #       value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.automation.trymmotion.attributes.last_triggered)) / 60) | round(0)) > 5)}}"
   #   action:
-  #   - service: notify.mobile_app_oneplus
+  #   - service: notify.mobile_app_erlend_mobil
   #     data_template:
   #       title: Did Trym wake up?
   #       message: Did trym wake up?
@@ -358,10 +361,10 @@ automation:
     id: incall
     trigger:
       - platform: state
-        entity_id: sensor.oneplus_audio_mode
+        entity_id: sensor.erlend_mobil_audio_mode
         to: "in_communication"
       - platform: state
-        entity_id: sensor.oneplus_audio_mode
+        entity_id: sensor.erlend_mobil_audio_mode
         to: "in_call"
     action:
       - choose:
@@ -382,7 +385,7 @@ automation:
                   color_name: red
               - wait_for_trigger:
                   - platform: state
-                    entity_id: sensor.oneplus_audio_mode
+                    entity_id: sensor.erlend_mobil_audio_mode
                     to: "normal"
                 timeout: "02:00:00"
                 continue_on_timeout: true
@@ -395,7 +398,7 @@ automation:
             #   entity_id: switch.circadian_lighting_circadian_stua
           - conditions:
               - condition: state
-                entity_id: media_player.nvidia_shield
+                entity_id: media_player.living_room_tv
                 state: "playing"
               - condition: state
                 entity_id: person.erlend
@@ -406,17 +409,17 @@ automation:
                   or states.binary_sensor.trym_home.state == 'off' }}
             sequence:
               - service: media_player.media_pause
-                entity_id: media_player.nvidia_shield
+                entity_id: media_player.living_room_tv
               - wait_for_trigger:
                   - platform: state
-                    entity_id: sensor.oneplus_audio_mode
+                    entity_id: sensor.erlend_mobil_audio_mode
                     to: "normal"
                 timeout: "02:00:00"
                 continue_on_timeout: false
               - condition: template
-                value_template: "{{ states.media_player.nvidia_shield.state != 'playing'}}"
+                value_template: "{{ states.media_player.living_room_tv.state != 'playing'}}"
               - service: media_player.media_play
-                entity_id: media_player.nvidia_shield
+                entity_id: media_player.living_room_tv
 
   - alias: lunchtime
     trigger:
@@ -452,7 +455,7 @@ script:
   remove_channel:
     alias: Remove Channel
     sequence:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data:
           message: "remove_channel"
           data:
@@ -487,6 +490,9 @@ script:
             title: "{{title}}"
             message: "{{message}}"
             channel: "{{channel}}"
+      - service: notify.tv_stua
+        data_template:
+          message: "{{message}}"
 
   notifymehome:
     alias: Simple Notification If Home
@@ -494,7 +500,7 @@ script:
       - condition: state
         entity_id: person.erlend
         state: "home"
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           title: "{{title}}"
           message: "{{message}}"
@@ -524,7 +530,7 @@ script:
       - condition: state
         entity_id: person.erlend
         state: "home"
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data:
           title: "{{message}}"
           message: TTS
@@ -536,11 +542,15 @@ script:
 
   sound_if_home:
     alias: notify_tts_max_if_home
+    fields:
+      message:
+        description: "The message content"
+        example: "The light is on!"
     sequence:
       - condition: state
         entity_id: person.erlend
         state: "home"
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data:
           title: "{{sound}}"
           message: "command_activity"
@@ -551,21 +561,41 @@ script:
 
   notify_tts_max:
     alias: notify_tts_max
+    fields:
+      message:
+        description: "The message content"
+        example: "The light is on!"
     sequence:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data:
           title: "{{message}}"
+          message: "{{ message }}"
+          data:
+            ttl: 0
+            priority: high
+            channel: alarm_stream_max
+      # - service: notify.mobile_app_erlend_mobil
+      #   data:
+      #     message: TTS
+      #     title: { { message } }
+      #     data:
+      #       ttl: 0
+      #       tts_text: "{{message}}"
+      #       priority: high
+      #       channel: alarm_stream
+      - service: notify.mobile_app_erlend_mobil
+        data:
           message: TTS
+          title: "{{ message }}"
           data:
             tts_text: "{{message}}"
             ttl: 0
             priority: high
             channel: alarm_stream_max
-
   notify:
     alias: Simple Notification
     sequence:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
           title: "{{title}}"
           message: "{{message}}"
@@ -590,7 +620,7 @@ script:
     alias: Notify When Motion Outside On Shield
     sequence:
       - condition: template
-        value_template: "{{states.media_player.nvidia_shield.state != 'off'}}"
+        value_template: "{{states.media_player.living_room_tv.state != 'off'}}"
       # - service: notify.shield_gentle
       #   data_template:
       #     message: 'Motion Outside'

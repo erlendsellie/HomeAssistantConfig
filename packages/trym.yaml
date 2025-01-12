@@ -2,28 +2,16 @@ template:
   - sensor:
       - name: "trym_traffic_color"
         state: >-
-          {%set hour = now().hour%}
+          {%set hour = (now().hour)%}
           {%set isWeekend = now().weekday() == 6 or now().weekday() == 7%}
           {%set onlyErlendHome = states('sensor.peoplehome') == 'Erlend'%}
-
-          {%if isWeekend and onlyErlendHome%}
-            {%if hour > 21 or hour < 6%}
-              red
-            {%elif hour < 8%}
-              gold
-            {%elif hour >= 8%}
-              green
-            {%endif%}
-          {%else%}
-            {%if hour > 21 or hour < 6%}
-              red
-            {%elif hour < 7%}
-              gold
-            {%elif hour >= 7%}
-              green
-            {%endif%} 
+          {%if hour > 20 or hour < 6%}
+            red
+          {%elif hour < 7%}
+            orange
+          {%elif hour >= 7%}
+            green
           {%endif%}
-
 automation:
   #todo implement better logic, so yellow is on for a longer time if erlend
   # is home alone with the kids. And add triggers based on when we wake up.
@@ -53,31 +41,9 @@ automation:
       - condition: template
         value_template: "{{states.sensor.alarm.state != 'Arm Away' }}"
       - condition: time
-        after: "23:59:00"
+        after: "21:00:00"
         before: "08:06:00"
     action:
-      # - choose:
-      #     - conditions:
-      #         - condition: time
-      #           after: "00:00:00"
-      #       sequence:
-      #         - alias: "Set variables"
-      #           variables:
-      #             color: red
-      #     - conditions:
-      #         - condition: time
-      #           after: "06:00:00"
-      #       sequence:
-      #         - alias: "Set variables"
-      #           variables:
-      #             color: gold
-      #     - conditions:
-      #         - condition: time
-      #           after: "07:00:00"
-      #       sequence:
-      #         - alias: "Set variables"
-      #           variables:
-      #             color: green
       - service: light.turn_on
         data:
           color_name: "{{states('sensor.trym_traffic_color')}}"
@@ -177,15 +143,16 @@ automation:
       - service: light.turn_on
         entity_id: light.trym_balloon
         data_template:
+          color_name: "{{states('sensor.trym_traffic_color')}}"
           brightness_pct: "100"
       - wait_for_trigger:
           - platform: state
-            entity_id: binary_sensor.trym_motion
+            entity_id: binary_sensor.trym_person_occupancy
             to: "off"
             for:
-              minutes: 6
+              minutes: 10
         timeout: "00:20:00"
-        continue_on_timeout: true
+        continue_on_timeout: false
       - condition: template
         value_template: "{{ states.input_boolean.trymasleep.state == 'off' }}"
       - service: light.turn_off
@@ -207,6 +174,24 @@ automation:
     action:
       - service: light.turn_off
         entity_id: light.trym_balloon
+
+  - alias: DimTrymBallLight
+    trigger:
+      - platform: time
+        at: "20:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.trymasleep
+        state: "on"
+    action:
+      - service: light.turn_on
+        entity_id:
+          - light.trym_balloon
+          - light.trym_roof
+        data_template:
+          color_name: "{{states('sensor.trym_traffic_color')}}"
+          transition: 300
+          brightness_pct: "10"
 
   # - alias: trymRoofTurnedOnFor20Minutes
   #   trigger:
@@ -288,7 +273,12 @@ automation:
       - service: light.turn_on
         data_template:
           brightness_pct: "100"
-          color_name: white
+          color_name: "{{states('sensor.trym_traffic_color')}}"
           entity_id:
             - light.trym_balloon
             - light.lavalamp
+script:
+  toggle_trym_player:
+    sequence:
+      - service: media_player.media_play_pause
+        entity_id: media_player.trym

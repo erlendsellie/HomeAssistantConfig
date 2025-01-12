@@ -69,22 +69,16 @@ automation:
         state: "Error"
     action:
       - service: script.turn_on
-        entity_id: script.notifycarolinehome
+        entity_id: script.notifyhome
         data_template:
           variables:
             title: Gressklipper sitter fast
-            message: Gressklipper sitter fast
-      - service: script.turn_on
-        entity_id: script.notify
-        data_template:
-          variables:
-            title: Gressklipper sitter fast
-            message: Gressklipper sitter fast
-      - service: script.turn_on
-        entity_id: script.say
-        data_template:
-          variables:
-            message: "Gressklipperen sitter fast."
+            message: "Gressklipper sitter fast ({{states('sensor.esteban_error')}})"
+      # - service: script.turn_on
+      #   entity_id: script.sayai
+      #   data_template:
+      #     variables:
+      #       message: ", på en kort og sarkastisk måte, at den teite robot-gressklipperen sitter fast igjen"
 
   - alias: "StopMowing"
     trigger:

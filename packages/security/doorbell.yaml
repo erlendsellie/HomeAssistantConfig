@@ -18,6 +18,7 @@ automation:
       #   event_type: deconz_event
       #   event_data:
       #     id: smart_switch
+
     action:
       - service: script.turn_on
         entity_id: script.doorbell
@@ -115,23 +116,30 @@ script:
         data:
           entity_id: media_player.living_room_speaker
           volume_level: 0.5
-      - service: script.turn_on
-        entity_id: script.notify_tts_max_if_home
-        data_template:
-          variables:
-            message: Ding Dong!
-      - service: notify.mobile_app_oneplus
+      - service: script.notify_tts_max_if_home
+        data:
+          message: Ding Dong!
+      - service: notify.mobile_app_erlend_mobil
         data:
           message: Ding Dong!
           title: DingDong!
           data:
-            image: "/api/camera_proxy/camera.driveway_stream"
+            notification_icon: mdi:cctv
+            image: >-
+              /api/camera_proxy/camera.driveway
+            tag: drive-motion
       - service: notify.mobile_app_caroline_pixel
         data:
           message: Ringeklokke!
           title: DingDong!
           data:
-            image: "/api/camera_proxy/camera.driveway"
+            message: Ding Dong!
+            title: DingDong!
+            data:
+              notification_icon: mdi:cctv
+              image: >-
+                /api/camera_proxy/camera.driveway
+              tag: drive-motion
       - condition: template
         value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
       - service: media_player.play_media
@@ -140,8 +148,6 @@ script:
           media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
           #media_content_id: https://hjem.sellie.no/local/sounds/screams/goosebumps.mp3
           media_content_type: "music"
-      - service: script.turn_on
-        entity_id: script.sendvideodriveway
       - delay:
           seconds: 8
       - service: media_player.play_media
@@ -161,10 +167,6 @@ script:
         data_template:
           entity_id: media_player.living_room_speaker
           volume_level: "{{states.sensor.speakervolume.state}}"
-      - service: logbook.log
-        data:
-          name: Doorbell
-          message: rang
       # - service: light.turn_off
       #   entity_id: light.gateway_light_7c49eb1c2d6b
       #This is stupid. Make not stupid.
@@ -173,7 +175,7 @@ script:
       # - service: media_player.turn_off
       #   entity_id: media_player.tv_stua
 
-      # - service: notify.carolinepush
+      # - service: script.notifycaroline
       #   data:
       #     title: Ding Dong
       #     message: Noen ringte på døra

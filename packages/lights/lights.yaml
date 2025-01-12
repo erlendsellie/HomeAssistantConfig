@@ -1,3 +1,7 @@
+input_boolean:
+  automatic_bedroom_lights:
+    name: "Automatic Bedroom Lights"
+
 automation:
   - alias: AdjustLightProfile
     trigger:
@@ -116,7 +120,7 @@ automation:
   #         message: Play Turned on.
   - alias: TurnOnOfficeLight
     trigger:
-      platform: state
+      trigger: state
       entity_id: binary_sensor.motion_downstairs_office
       to: "on"
     condition:
@@ -124,9 +128,9 @@ automation:
         entity_id: input_boolean.guestmode
         state: "off"
     action:
-      - service: light.turn_on
+      - action: light.turn_on
         entity_id:
-          # - light.office_light
+          - light.office_light
           - light.play
     # - service: light.turn_on
     #   entity_id: light.sokkel
@@ -194,18 +198,17 @@ automation:
       - service: light.turn_on
         entity_id: light.bedroom
 
-  - alias: BedroomLightSwitchSync
-    trigger:
-      platform: state
-      entity_id:
-        - switch.bedroomlight_switch
-        - switch.bedroom
-    action:
-      - service: switch.turn_{{trigger.to_state.state}}
-        entity_id:
-          - switch.bedroomlight_switch
-          - switch.bedroom
-
+  # - alias: BedroomLightSwitchSync
+  #   trigger:
+  #     platform: state
+  #     entity_id:
+  #       - switch.bedroomlight_switch
+  #       - switch.bedroom
+  #   action:
+  #     - service: switch.turn_{{trigger.to_state.state}}
+  #       entity_id:
+  #         - switch.bedroomlight_switch
+  #         - switch.bedroom
   - alias: TurnOnBedroomLight
     trigger:
       platform: state
@@ -217,9 +220,9 @@ automation:
         # - condition: state
         #   entity_id: input_boolean.trymasleep
         #   state: 'off'
-        # - condition: state
-        #   entity_id: input_boolean.tyraasleep
-        #   state: 'off'
+        - condition: state
+          entity_id: input_boolean.guestmode
+          state: "off"
         - condition: state
           entity_id: light.bedroom
           state: "off"
@@ -239,8 +242,9 @@ automation:
               state: "off"
         - condition: template
           value_template: "{{ states.media_player.tv_soverommet.state  != 'on'}}"
-
     action:
+      - condition: template
+        value_template: "{{  is_state('input_boolean.automatic_bedroom_lights', 'on') or (is_state('input_boolean.casleep', 'off') or is_state('input_boolean.easleep', 'off')) }}"
       - service: light.turn_on
         entity_id: group.bedroomlights
         data_template:
@@ -274,17 +278,27 @@ automation:
           entity_id: light.caroline_bedroom
           state: "on"
     action:
+      - condition: state
+        entity_id: input_boolean.automatic_bedroom_lights
+        state: "on"
       - service: light.turn_off
-        entity_id: group.bedroomlights
+        entity_id:
+          - group.bedroomlights
+          - light.bedroom_wardrobe_led_strip
 
   - id: toggleWardrobeLight
     alias: toggleWardrobeLight
     trigger:
       - platform: state
         entity_id: binary_sensor.bedroom_wardrobe
+    condition:
+      - condition: template
+        value_template: "{{  trigger.to_state.state != 'unavailable' }}"
+      - condition: template
+        value_template: "{{  trigger.to_state.state != 'unknown' }}"
     action:
-      service: light.turn_{{trigger.to_state.state}}
-      entity_id: light.bedroom_wardrobe_led_strip
+      - service: light.turn_{{trigger.to_state.state}}
+        entity_id: light.bedroom_wardrobe_led_strip
 
   #Light bedroom is set up in HA as the switch by the door, so we'll turn on all lights when this is pressed.
   # Should map it so that
@@ -397,6 +411,7 @@ automation:
         entity_id:
           - light.utespotter
           - light.lily
+          - light.outdoor_led_strip
 
   - alias: TurnOnDriveWayLight
     id: turnOnDrivewayLight
@@ -408,7 +423,6 @@ automation:
       - service: light.turn_{{trigger.to_state.state}}
         entity_id:
           - light.driveway
-          - light.outdoor_led_strip
 
   - alias: TurnOnGarageLight
     id: TurnOnGarageLight
@@ -445,38 +459,22 @@ script:
           brightness_pct: "{{ max([states.input_number.brightness.state | int(default=0) ,20]) }}"
       - service: script.turn_on
         entity_id: script.restorelivingcolor
-      - service: logbook.log
-        data_template:
-          name: Lights
-          message: were automatically turned on
 
   lightsoff:
     sequence:
       - service: light.turn_off
         entity_id: group.living
-      - service: logbook.log
-        data_template:
-          name: Lights
-          message: were automatically turned off
 
   alllightson:
     sequence:
       - service: light.turn_on
         entity_id: group.lights
-      - service: logbook.log
-        data_template:
-          name: Lights
-          message: were automatically turned on
 
   alllightsoff:
     mode: restart
     sequence:
       - service: light.turn_off
         entity_id: group.lights
-      - service: logbook.log
-        data_template:
-          name: Lights
-          message: were automatically turned off
       - condition: template
         value_template: "{{states.input_select.alarm.state == 'Arm Home'}}"
       - service: light.turn_on

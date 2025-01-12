@@ -49,7 +49,10 @@ variables
 deconz
 broadlink_climate_codes
 appdaemon
-
+verisure
+wmbusmeters
+blueprints/switch_manager
+blueprints/automation/sbyx
 
 
 tellduslive.conf
@@ -99,8 +102,8 @@ home-assistant.log.fault
 old_alarm_yamlarm.txt
 notify.yaml
 googlecloud.json
-
-
+public_key.pem
+tesla_fleet.key
 
 kodepanel.yaml
 home-assistant-priceanalyzerbug.log.1

@@ -1,12 +1,19 @@
 template:
   - binary_sensor:
+      - name: Easee Car Connected
+        unique_id: easee_car_connected
+        state: >-
+          {{states('sensor.garage_status') != 'disconnected'}}
+
       - name: ModelY Unplugged In Afternoon
         unique_id: modely_unplugged_in_afternoon
         state: >-
-          {%set time_since_changed = now() - states.binary_sensor.modely_charger_sensor.last_changed%}
+          {%set sensor = states.binary_sensor.easee_car_connected %}
+          {%set last_changed = states.sensor.garage_status.last_changed%}
+          {%set time_since_changed = now() - last_changed%}
           {%set halfhour = timedelta(minutes=30)%}
           {%set just_unplugged = time_since_changed < halfhour%}
-          {%set is_unplugged = states('binary_sensor.modely_charger_sensor') == 'off' %}
+          {%set is_unplugged = sensor.state == 'off' %}
           {%set is_afternoon = now().hour > 15%}
           {{just_unplugged and is_afternoon and is_unplugged}}
   - sensor:
@@ -31,7 +38,7 @@ template:
       - name: "ModelY kWh To Charge"
         unit_of_measurement: "kWh"
         state: >-
-          {{(75 * (states('sensor.modely_percent_to_charge') | float(default=0) / 100))| round(2)}}
+          {{(states('sensor.modely_percent_to_charge') | float  * 0.760294118) | round(3)}}
       - name: "Easee Charging Speed"
         unit_of_measurement: "W"
         state: >-
@@ -49,13 +56,13 @@ template:
         unit_of_measurement: "NOK"
         state: >-
           {% set kwh = states('sensor.modely_kwh_to_charge') | float(default=0) %}
-          {% set kr = states('sensor.price_now_with_subsidy') | float %}
+          {% set kr = states('sensor.priceanalyzer_price') | float %}
           {{ (kwh * kr) | round(2) }}
       - name: "ModelY kWh To Charge To 100"
         unit_of_measurement: "kWh"
         state: >-
           {%set percent_to_charge = 100 - states('sensor.modely')| float%}
-          {{(75 * (percent_to_charge | float(default=0) / 100))| round(2)}}
+          {{(percent_to_charge | float  * 0.760294118) | round(3) }}
       - name: "ModelY Minutes To Charge To 100"
         unit_of_measurement: "minutes"
         state: >-
@@ -66,23 +73,23 @@ template:
         unit_of_measurement: "NOK"
         state: >-
           {% set kwh = states('sensor.modely_kwh_to_charge_to_100') | float(default=0) %}
-          {% set kr = states('sensor.price_now_with_subsidy') | float %}
+          {% set kr = states('sensor.priceanalyzer_price') | float %}
           {{ (kwh * kr) | round(2)}}
 
 automation:
-  - alias: "upgradeInsurance"
-    id: "upgradeInsurance"
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.modely_mileage_sensor
-        above: 34000
-    action:
-      - service: script.turn_on
-        entity_id: script.notify
-        data_template:
-          variables:
-            title: Kilometer på Sleipner holder på å gå over forsikring.
-            message: "Kilometerstand: {{states.sensor.modely_mileage_sensor.state}}"
+  # - alias: "upgradeInsurance"
+  #   id: "upgradeInsurance"
+  #   trigger:
+  #     - platform: numeric_state
+  #       entity_id: sensor.modely_mileage_sensor
+  #       above: 48100
+  #   action:
+  #     - service: script.turn_on
+  #       entity_id: script.notify
+  #       data_template:
+  #         variables:
+  #           title: Kilometer på Sleipner holder på å gå over forsikring.
+  #           message: "Kilometerstand: {{states.sensor.modely_mileage_sensor.state}}"
 
   - alias: CarLowChargeAfter21
     id: CarLowChargeAfter21
@@ -110,7 +117,7 @@ automation:
     # Trigger this automation when the car leaves the home zone
     trigger:
       - platform: template
-        value_template: "{{states('device_tracker.modely_location_tracker') != 'home'}}"
+        value_template: "{{states('device_tracker.modely_location_tracker') == 'away'}}"
     # Save the current state of the car charger sensor to a variable
     action:
       - variables:
@@ -176,25 +183,8 @@ automation:
         entity_id: input_select.alarm
         to: "Arm Home"
     action:
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: >-
-                  {{ 
-                    states.binary_sensor.should_charge_car_tonight.state == 'off' and
-                    states.sensor.modely.state | int(default=0) > 30
-                    and states.device_tracker.modely_location_tracker.state == 'home'
-                  }}
-            sequence:
-              - service: script.turn_on
-                entity_id: script.notify
-                data_template:
-                  variables:
-                    title: Will not charge car tonight.
-                    message: Will not charge car tonight.
-        default:
-          - service: switch.turn_on
-            entity_id: switch.garage_is_enabled
+      - service: switch.turn_on
+        entity_id: switch.garage_is_enabled
 
   # - alias: "defrostTeslaWhenHome"
   #   id: "defrostTeslaWhenHome"
@@ -242,17 +232,20 @@ automation:
       #   at: '14:50:00'
       - platform: time
         at: "15:50:00"
+      - platform: numeric_state
+        entity_id: sensor.worked_today
+        above: 7.90 #54 minutes
+      - platform: numeric_state
+        entity_id: sensor.worked_today
+        above: 8.90 #54 minutes
     condition:
       - condition: state
         entity_id: person.erlend
         state: "Work"
-      - condition: state
-        entity_id: device_tracker.modely_location_tracker
-        state: "Park Work"
     action:
-      - service: notify.mobile_app_oneplus
+      - service: notify.mobile_app_erlend_mobil
         data_template:
-          title: "Start heating Sleipner?"
+          title: "Start heating Car?"
           message: >-
             Its {{states.sensor.modely_temperature_sensor_inside.state}} degrees in the car.
           data:
@@ -260,7 +253,9 @@ automation:
             priority: high
             actions:
               - action: preheatsleipner
-                title: "Yes"
+                title: "Yes, Tesla"
+              - action: preheatgolf
+                title: "Yes, Golf"
 
   - alias: preheatSleipnerByNotification
     trigger:
@@ -270,6 +265,15 @@ automation:
           action: preheatsleipner
     action:
       - service: script.climatecar
+
+  - alias: preheatSleipnerByNotification
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: preheatgolf
+    action:
+      - service: script.climate_egolf
 
   - alias: "openTrunk"
     id: "openTrunk"
@@ -430,6 +434,64 @@ automation:
           message: |
             Update for Tesla is Available.
 
+  - alias: "Notify to plug in car"
+    id: Notifytoplugincar
+    trigger:
+      - platform: state
+        entity_id: person.caroline
+        to: "home"
+        id: caroline_home
+      - platform: state
+        entity_id: person.erlend
+        to: "home"
+        id: erlend_home
+    action:
+      - delay: "00:04:00" # 4-minute delay
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: device_tracker.modely_location_tracker
+            state: "home"
+          - condition: state
+            entity_id: device_tracker.e_golf_position
+            state: "home"
+      - condition: template
+        value_template: "{{ states('sensor.garage_status') == 'disconnected' }}"
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: caroline_home
+            sequence:
+              - service: script.turn_on
+                entity_id: script.notifycaroline
+                data_template:
+                  variables:
+                    title: "Lad bil"
+                    message: "Sett en av bilene på lading"
+              - service: script.turn_on
+                entity_id: script.notify
+                data_template:
+                  variables:
+                    title: "Lad bil"
+                    message: "Sett en av bilene på lading"
+          - conditions:
+              - condition: trigger
+                id: erlend_home
+            sequence:
+              - service: script.turn_on
+                entity_id: script.notify
+                data_template:
+                  variables:
+                    title: "Lad bil"
+                    message: "Sett en av bilene på lading"
+        default:
+          - service: script.turn_on
+            entity_id: script.notify
+            data_template:
+              variables:
+                title: "Lad bil"
+                message: "Sett en av bilene på lading"
+
 script:
   defrostcar:
     alias: "Defost Sleipner"
@@ -440,11 +502,9 @@ script:
           variables:
             title: Defrosting car
             message: Defrosting car
-      - service: climate.set_preset_mode
-        data:
-          preset_mode: Defrost
+      - service: switch.turn_on
         target:
-          entity_id: climate.modely
+          entity_id: switch.modely_defrost
 
   cooldowncar:
     alias: "Cool Down Sleipner"

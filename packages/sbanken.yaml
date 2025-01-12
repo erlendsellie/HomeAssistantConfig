@@ -42,6 +42,7 @@ template:
           {%set last = states.sensor.regningskonto.attributes.transactions[0]%}
           {{last.amount}} på {{last.text}}
       - name: Sbanken Egen Cash
+        unique_id: sensor.sbanken_egen_cash
         unit_of_measurement: NOK
         state_class: measurement
         state: >-
@@ -51,6 +52,7 @@ template:
           {%set til_betaling = states('sensor.til_betaling') | float(default=0)%}
           {{brukskonto + bufferkonto + sparekonto + til_betaling}}
       - name: Sbanken Samlet Cash
+        unique_id: sensor.sbanken_samlet_cash
         unit_of_measurement: NOK
         state_class: measurement
         state: >-
@@ -104,7 +106,7 @@ automation:
 #       - condition: template
 #         value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
 #     action:
-#       - service: notify.mobile_app_oneplus
+#       - service: notify.mobile_app_erlend_mobil
 #         data_template:
 #           title: Nytt trekk på felleskortet
 #           message: "{{states('sensor.felleskortet_last_transaction')}}"
