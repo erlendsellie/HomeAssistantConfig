@@ -121,7 +121,7 @@ automation:
           variables:
             title: "Car to charge tonight"
             message: >-
-              {{state('sensor.car_charging')}}
+              {{states('sensor.car_charging')}}
             channel: "cars"
 
   - alias: ShouldKeepChargingGolf
