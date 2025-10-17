@@ -262,13 +262,13 @@
   max_age:
     days: 7
 
-- platform: attributes
-  friendly_name: "Trym Sover Last turned on"
-  attribute: last_triggered
-  icon: "mdi:clock"
-  time_format: "%e %B - %H:%M:%S"
-  entities:
-    - automation.trymsoveron
+# - platform: attributes
+#   friendly_name: "Trym Sover Last turned on"
+#   attribute: last_triggered
+#   icon: "mdi:clock"
+#   time_format: "%e %B - %H:%M:%S"
+#   entities:
+#     - automation.trymsoveron
 
 # - platform: scrape
 #   name: 'tslascrape'
@@ -283,50 +283,50 @@
 #   unit_of_measurement: USD
 #   value_template: "{{ value | float(default=0)}}"
 
-#Automation changes input based on this, then light follows input?
 - platform: template
   sensors:
-    snow:
-      unit_of_measurement: cm
-      friendly_name: Snow next 8 hours
-      icon_template: mdi:weather-snowy
-      value_template: >
-        {%- set snow = namespace(amount=0) -%}
-        {%- set now = as_timestamp(now()) -%}
-        {%- for weather in states.weather.home_hourly.attributes.forecast -%}
-          {%- if (as_timestamp(weather.datetime) - now < (60*60*8)) -%}
-            {%- if weather.condition == 'snowy' -%}
-                    {%- set snow.amount = snow.amount + weather.precipitation %}
-            {%- endif -%}
-          {% endif %}
-        {%- endfor -%}
-        {{snow.amount}}
-    erlend:
-      value_template: >
-        {%if states.person.erlend.state == 'away' or states.person.erlend.state == 'not_home' %}
-        {% set address = states.sensor.erlendaddress.state.split(',')[0] %}
-        {%if address == 'Unknown' %}
-          {{states.person.erlend.state}}
-        {%else %}
-          {{address}}
-        {%endif %}
-        {%else %}
-        {{states.person.erlend.state}}
-        {%endif %}
-    caroline:
-      value_template: >
-        {%if states.person.caroline.state == 'away' or states.person.caroline.state == 'not_home'%}
-        {% set address = states.sensor.carolineaddress.state.split(',')[0] %}
-        {%if address == 'Unknown' %}
-          {{states.person.caroline.state}}
-        {%else %}
-          {{address}}
-        {%endif %}
-        {%else %}
-        {{states.person.caroline.state}}
-        {%endif %}
-    erlenddirection:
-      value_template: "{{states.proximity.homeerlend.attributes.dir_of_travel}}"
+    #     snow:
+    #       unit_of_measurement: cm
+    #       friendly_name: Snow next 8 hours
+    #       icon_template: mdi:weather-snowy
+    #       value_template: >
+    #         {%- set snow = namespace(amount=0) -%}
+    #         {%- set now = as_timestamp(now(), default=0)) -%}
+    #         {%- for weather in states.weather.home_hourly.attributes.forecast -%}
+    #           {%- if (as_timestamp(weather.datetime, default=0) - now < (60*60*8)) -%}
+    #             {%- if weather.condition == 'snowy' -%}
+    #                     {%- set snow.amount = snow.amount + weather.precipitation %}
+    #             {%- endif -%}
+    #           {% endif %}
+    #         {%- endfor -%}
+    #         {{snow.amount}}
+
+    # erlend:
+    #   value_template: >
+    #     {%if states.person.erlend.state == 'away' or states.person.erlend.state == 'not_home' %}
+    #     {% set address = states.sensor.erlendaddress.state.split(',')[0] %}
+    #     {%if address == 'Unknown' %}
+    #       {{states.person.erlend.state}}
+    #     {%else %}
+    #       {{address}}
+    #     {%endif %}
+    #     {%else %}
+    #     {{states.person.erlend.state}}
+    #     {%endif %}
+    # caroline:
+    #   value_template: >
+    #     {%if states.person.caroline.state == 'away' or states.person.caroline.state == 'not_home'%}
+    #     {% set address = states.sensor.carolineaddress.state.split(',')[0] %}
+    #     {%if address == 'Unknown' %}
+    #       {{states.person.caroline.state}}
+    #     {%else %}
+    #       {{address}}
+    #     {%endif %}
+    #     {%else %}
+    #     {{states.person.caroline.state}}
+    #     {%endif %}
+    # erlenddirection:
+    #   value_template: "{{states.proximity.homeerlend.attributes.dir_of_travel}}"
     peoplehome:
       value_template: >
         {% if(states.person.erlend.state == 'home' and states.person.caroline.state != 'home') %}
@@ -473,27 +473,18 @@
     #     {% else %}
     #     100
     #     {% endif %}
-    trymsleeptime_old:
-      friendly_name: "Trym Sleep time_old"
-      unit_of_measurement: "minutes"
-      value_template: >-
-        {% set dummy = states("sensor.time") %}
-        {% if states.input_boolean.trymasleep.state == 'on' %}
-            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trymsoveron.attributes.last_triggered,0)) / 60) | round(0)}}
-        {% else %}
-            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trymsoveroff.attributes.last_triggered)) / 60) | round(0)}}
-        {% endif %}
     trymsleeptime:
       friendly_name: "Trym Sleep time"
       unit_of_measurement: "minutes"
+      #as_timestamp Maybe here!
       value_template: >-
         {% set dummy = states("sensor.time") %}
         {% if states.input_boolean.trymasleep.state == 'on' %}
-            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trymsoveron.attributes.last_triggered,0)) / 60) | round(0)}}
+            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trymsoveron.attributes.last_triggered,0, default=0)) / 60) | round(0)}}
         {% elif states.input_boolean.tryminkindergarden.state == 'on' %}
-            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trym_left_in_kindergarden.attributes.last_triggered)) / 60) | round(0)}}
+            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trym_left_in_school.attributes.last_triggered, default=0)) / 60) | round(0)}}
         {% else %}
-            {{((as_timestamp(utcnow()) - as_timestamp([states.automation.trymsoveroff.attributes.last_triggered, states.automation.trym_picked_up_in_kindergarden.attributes.last_triggered] | max)) / 60) | round(0)}}
+            {{((as_timestamp(utcnow()) - as_timestamp([states.automation.trymsoveroff.attributes.last_triggered, states.automation.trym_picked_up_in_kindergarden.attributes.last_triggered] | max, default=0)) / 60) | round(0)}}
         {% endif %}
     trymsleeptimeformatted:
       friendly_name: "Trym Sleep time"
@@ -506,12 +497,13 @@
     tyrasleeptime:
       friendly_name: "Tyra Sleep time"
       unit_of_measurement: "minutes"
+      #as_timestamp maybe here
       value_template: >-
         {% set dummy = states("sensor.time") %}
         {% if states.input_boolean.tyraasleep.state  == 'on'%}
-            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveron.attributes.last_triggered)) / 60) | round(0)}} 
+            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveron.attributes.last_triggered, default=0)) / 60) | round(0)}} 
         {% else %}
-            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveroff.attributes.last_triggered)) / 60) | round(0)}}                
+            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveroff.attributes.last_triggered, default=0)) / 60) | round(0)}}                
         {% endif %}
     # trymsleeptime:
     #   friendly_name: "Trym Sleep time"
@@ -525,25 +517,25 @@
     # washingmachinenotmovedin:
     #   friendly_name: 'Time since Washer moved'
     #   value_template: >-
-    #       {{(as_timestamp(utcnow()) - as_timestamp(states.sensor.coordination_158d0002a520b4.last_changed))}}
+    #       {{(as_timestamp(utcnow()) - as_timestamp(states.sensor.coordination_158d0002a520b4.last_changed, default=0))}}
 
-    octoprint_time_remaining:
-      friendly_name: "OctoPrint Time Remaining Left"
-      unit_of_measurement: Minutes
-      value_template: >-
-        {%set seconds = as_timestamp(states.sensor.octoprint_estimated_finish_time.state) - as_timestamp(now())%}
-        {{(seconds)}}
-    octoprint_time_left_minutes:
-      friendly_name: "OctoPrint Minutes Left"
-      unit_of_measurement: Minutes
-      value_template: >-
-        {{((states.sensor.octoprint_time_remaining.state | int(default=0)) /60 )|round(0)}}
-    octoprint_time_ready: #this works now.
-      friendly_name: "OctoPrint ETA time"
-      device_class: "timestamp"
-      value_template: >-
-        {%- set date = as_timestamp(now()) + states('sensor.octoprint_time_remaining')| float(default=0) -%}
-        {{date | timestamp_local}}
+    # octoprint_time_remaining:
+    #   friendly_name: "OctoPrint Time Remaining Left"
+    #   unit_of_measurement: Minutes
+    #   value_template: >-
+    #     {%set seconds = as_timestamp(states.sensor.octoprint_estimated_finish_time.state, default=0) - as_timestamp(now(), default=0))%}
+    #     {{(seconds)}}
+    # octoprint_time_left_minutes:
+    #   friendly_name: "OctoPrint Minutes Left"
+    #   unit_of_measurement: Minutes
+    #   value_template: >-
+    #     {{((states.sensor.octoprint_time_remaining.state | int(default=0)) /60 )|round(0)}}
+    # octoprint_time_ready: #this works now.
+    #   friendly_name: "OctoPrint ETA time"
+    #   device_class: "timestamp"
+    #   value_template: >-
+    #     {%- set date = as_timestamp(now(), default=0)) + states('sensor.octoprint_time_remaining')| float(default=0) -%}
+    #     {{date | timestamp_local}}
 
     # realtargettemp:
     #   friendly_name: "Target"

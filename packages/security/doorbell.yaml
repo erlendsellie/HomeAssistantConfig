@@ -1,7 +1,7 @@
 automation:
   - id: doorbell
     alias: Door Bell
-    mode: restart
+    mode: single
     trigger:
       - platform: state
         entity_id: binary_sensor.front_door_ding
@@ -14,6 +14,14 @@ automation:
       - platform: state
         entity_id: switch.doorbutton
         to: "on"
+      - platform: template
+        value_template: >-
+          {{ 
+            (as_timestamp(states('sensor.front_door_last_ding') | default('2025-09-10T12:23:51+00:00')) | int) 
+            - as_timestamp(utcnow()) > 30 
+          }}
+
+
       # - platform: event
       #   event_type: deconz_event
       #   event_data:
@@ -22,6 +30,12 @@ automation:
     action:
       - service: script.turn_on
         entity_id: script.doorbell
+      # - action: media_player.play_media
+      #   data:
+      #     media_content_id: media-source://camera/camera.driveway
+      #     media_content_type: image/jpeg
+      #   target:
+      #     entity_id: media_player.living_room_tv_cast
       - service: input_boolean.turn_on
         entity_id: input_boolean.doorbelljustrang
       - delay:
@@ -36,7 +50,7 @@ automation:
         to: "on"
     condition:
       - condition: template
-        value_template: "{{((as_timestamp(utcnow()) - as_timestamp(states.script.doorbell.last_changed)) / 60) | round(0) < 3}}"
+        value_template: "{{((as_timestamp(utcnow()) - as_timestamp(states.script.doorbell.last_changed, default=0)) / 60) | round(0) < 3}}"
     action:
       - service: script.turn_off
         entity_id: script.doorbell
@@ -44,10 +58,10 @@ automation:
         entity_id: script.blink_lights_doorbell
       - service: script.turn_on
         entity_id: script.restorelightcolor
-      - delay:
-          minutes: 2
-      - service: media_player.media_stop
-        entity_id: media_player.kitchen_display
+      # - delay:
+      #     minutes: 2
+      # - service: media_player.media_stop
+      #   entity_id: media_player.kitchen_display
 
   - alias: Door Bell done turn off
     trigger:
@@ -70,8 +84,8 @@ automation:
         entity_id: input_boolean.doorbelljustrang
         state: "on"
     action:
-      - service: media_player.turn_off
-        entity_id: media_player.kitchen_display
+      # - service: media_player.turn_off
+      #   entity_id: media_player.kitchen_display
       - service: switch.turn_off
         entity_id: switch.doorbutton
 
@@ -80,10 +94,6 @@ automation:
       platform: state
       entity_id: switch.doorbutton
       to: "on"
-    condition:
-      condition: state
-      entity_id: media_player.tv_stua
-      state: "on"
     action:
       - service: camera.play_stream
         entity_id: camera.driveway
@@ -108,10 +118,17 @@ script:
       #   entity_id: camera.driveway_stream
       #   data:
       #     media_player: media_player.living_room
-      - service: camera.play_stream
-        entity_id: camera.driveway_stream
-        data:
-          media_player: media_player.kitchen_display
+      # - service: camera.play_stream
+      #   entity_id: camera.driveway_stream
+      #   data:
+      #     media_player: media_player.kitchen_display
+      # - action: media_player.play_media
+      #   data:
+      #     media_content_id: media-source://camera/driveway_hd
+      #     media_content_type: image/jpeg
+      #   target:
+      #     entity_id: media_player.kitchen_display
+
       - service: media_player.volume_set
         data:
           entity_id: media_player.living_room_speaker
@@ -128,7 +145,7 @@ script:
             image: >-
               /api/camera_proxy/camera.driveway
             tag: drive-motion
-      - service: notify.mobile_app_caroline_pixel
+      - service: notify.mobile_app_pixel_7_pro
         data:
           message: Ringeklokke!
           title: DingDong!
@@ -140,8 +157,8 @@ script:
               image: >-
                 /api/camera_proxy/camera.driveway
               tag: drive-motion
-      - condition: template
-        value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
+      # - condition: template
+      #   value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
       - service: media_player.play_media
         data:
           entity_id: media_player.minis

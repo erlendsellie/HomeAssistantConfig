@@ -44,7 +44,8 @@ automation:
           data:
             image: /api/camera_proxy/camera.dogs
             channel: Frigate Bark
-            vibrationPattern: "100, 1000, 100, 1000, 100" # The pattern you wish to set for vibrations
+            # vibrationPattern: "100, 1000, 100, 1000, 100" # The pattern you wish to set for vibrations
+            #vibrationPattern: "100" # The pattern you wish to set for vibrations
             tag: "bark-dogs-hallway"
             ttl: 0
             priority: high

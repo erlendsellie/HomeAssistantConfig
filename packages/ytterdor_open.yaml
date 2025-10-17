@@ -1,0 +1,50 @@
+automation:
+  - id: ytterdor_open_3min
+    alias: "Ytterdør open for 3 minutter"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.ytterdor_open
+        to: "on"
+        for:
+          minutes: 3
+    action:
+      # Send push-varsel og lyd via notifyhome (riktig kall)
+      - service: script.turn_on
+        entity_id: script.notifyhome
+        data_template:
+          variables:
+            title: "Ytterdøra står åpen"
+            message: "Ytterdøra har stått åpen i over 3 minutta – no e hundan garantert på rømmen!"
+            channel: "door_alerts"
+
+      # TTS – kun tale, ingen lydfil
+      - service: script.say
+        data:
+          where: "hallway"
+          message: "Ytterdøra har stått åpen i over tre minutt! Lukk igjen før bikkjan stikk te nabo’n!"
+
+  - id: begge_dora_open_1min
+    alias: "Ytterdør og vindfangsdør åpen samtidig 1 min"
+    mode: single
+    trigger:
+      - platform: template
+        value_template: >
+          {{ is_state('binary_sensor.ytterdor_open', 'on') and is_state('binary_sensor.vindfang_door', 'on') }}
+        for:
+          minutes: 1
+    action:
+      # Send push-varsel og lyd via notifyhome
+      - service: script.turn_on
+        entity_id: script.notifyhome
+        data_template:
+          variables:
+            title: "Begge dørene e åpen!"
+            message: "Ytterdør OG vindfangsdør står åpen – no e det fri utfart for bikkjan!"
+            channel: "door_alerts"
+
+      # TTS – kun tale
+      - service: script.say
+        data:
+          where: "living_room"
+          message: "Begge dørene står åpen! no e hundan sikkert halvveis te butikken allerede!"

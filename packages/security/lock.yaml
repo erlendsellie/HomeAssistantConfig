@@ -215,7 +215,7 @@ automation:
       - delay:
           minutes: 5
       - condition: template
-        value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed)) / 60) | round(0)) > 5) and (states.lock.ytterdor.state == 'unlocked')}}"
+        value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed, default=0)) / 60) | round(0)) > 5) and (states.lock.ytterdor.state == 'unlocked')}}"
       - service: script.turn_on
         entity_id: script.lockdoor
       - service: camera.snapshot

@@ -84,3 +84,82 @@ automation:
           seconds: 20
       - service: script.turn_on
         entity_id: script.restorelightcolor
+
+  # -------------------------------------------------------------------
+  # 1) Turn TRYMINSCHOOL ON when the school’s “Checked in” notification arrives
+  # -------------------------------------------------------------------
+  - alias: Trym checked in to school (notification)
+    id: trym_checked_in_notification
+    trigger:
+      - platform: state
+        entity_id: sensor.erlend_last_notification_title
+    condition:
+      # only when the title starts with Checked in
+      - condition: template
+        value_template: >
+          {{ states('sensor.erlend_last_notification_title')
+            .startswith('Checked in')  or
+            states('sensor.erlend_last_notification_title')
+            .startswith('Checked out') }}
+      # only in the morning before school wraps up
+      - condition: time
+        before: "13:15:00"
+      - condition: state
+        entity_id: input_boolean.trym_in_school
+        state: "off"
+    action:
+      - service: notify.me
+        data:
+          title: Trym kom på skolen
+          message: The time is {{ now().hour }}:{{ now().minute }}.
+      - service: input_boolean.turn_off
+        entity_id:
+          - input_boolean.trymasleep
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.trym_in_school
+
+  # -------------------------------------------------------------------
+  # 2) Turn TRYMIN SCHOOL OFF when the school’s “Checked out” arrives after 13:30
+  # -------------------------------------------------------------------
+  - alias: Trym checked out of school (notification)
+    id: trym_checked_out_notification
+    trigger:
+      - platform: state
+        entity_id: sensor.erlend_last_notification_title
+    condition:
+      # only when the title starts with Checked out
+      - condition: template
+        value_template: >
+          {{ states('sensor.erlend_last_notification_title')
+            .startswith('Checked out') }}
+      # and only if that “(HH:MM)” time is after 13:30
+      - condition: template
+        value_template: >
+          {% set title = states('sensor.erlend_last_notification_title') %}
+          {# parse the time from "Checked out (08:14) - Trym" #}
+          {% set t = strptime(title, 'Checked out (%H:%M) - Trym') %}
+          {{ (t.hour > 13) or (t.hour == 13 and t.minute >= 30) }}
+      - condition: state
+        entity_id: input_boolean.trym_in_school
+        state: "on"
+    action:
+      - service: notify.me
+        data_template:
+          title: Trym dro fra skolen (Vigilo)
+          message: Trym dro fra skolen (Vigilo)
+      - service: script.turn_on
+        entity_id: script.say
+        data_template:
+          variables:
+            message: "Trym dro fra skolen"
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.trym_in_school
+      - service: script.turn_on
+        entity_id: script.blinkliving
+        data_template:
+          variables:
+            color: blue
+      - delay:
+          seconds: 20
+      - service: script.turn_on
+        entity_id: script.restorelightcolor

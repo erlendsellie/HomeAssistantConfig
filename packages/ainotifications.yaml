@@ -1,0 +1,84 @@
+automation:
+
+# automation:
+# - alias: "AI Notification on Driveway Motion"
+#   id: ai_notify_driveway
+#   mode: single
+#   trigger:
+#     - platform: state
+#       entity_id: binary_sensor.driveway_motion
+#       to: "on"
+
+#   action:
+#     - alias: "Send prompt to OpenAI"
+#       service: conversation.process
+#       response_variable: ai_response
+#       data:
+#         agent_id: conversation.openai_conversation_3
+#         text: >
+#           Er garasjen min åpen?
+
+# - alias: "Send mobile notification with image"
+#   service: notify.mobile_app_erlend_mobil
+#   data:
+#     title: "Bevegelse"
+#     message: "{{ ai_response.response.speech.plain.speech }}"
+#     data:
+#       image: "https://hjem.sellie.no{{ state_attr('camera.driveway', 'entity_picture') }}"
+#       ttl: 0
+#       priority: high
+#       channel: driveway_alert
+script:
+  checkgarage:
+    alias: Check garage and notify
+    mode: single
+    sequence:
+      - action: ai_task.generate_data
+        data:
+          task_name: Garage open or close
+          entity_id: ai_task.openai_ai_task
+          instructions: >-
+            This is my driveway. Is the garage door on the right side for the black garage fully closed? It should be a brown garage door.
+          structure:
+            fully_closed:
+              required: true
+              selector:
+                boolean:
+            message:
+              required: true
+              selector:
+                text:
+          attachments:
+            media_content_id: media-source://camera/camera.driveway
+            media_content_type: image/jpeg
+        response_variable: result
+      - condition: template
+        value_template: "{{ result.data.fully_closed == false }}"
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          title: "Garasjeåpen!"
+          message: "{{result.data.message}}"
+          data:
+            image: "https://hjem.sellie.no{{ state_attr('camera.driveway', 'entity_picture') }}"
+            ttl: 0
+            priority: high
+            channel: driveway_alert
+  ai_say:
+    alias: AI say
+    mode: single
+    fields:
+      prompt:
+        selector:
+          text:
+    sequence:
+      - action: openai_conversation.generate_content
+        response_variable: ai_response
+        data:
+          config_entry: 7cb47cdea724030f7efc821ffaf1ae6d
+          prompt: "{{ prompt }}"
+      - service: script.turn_on
+        target:
+          entity_id: script.say
+        data:
+          variables:
+            message: "{{ ai_response.text }}"

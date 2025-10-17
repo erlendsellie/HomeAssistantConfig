@@ -36,7 +36,6 @@ system_health:
 default_config:
 
 trace:
-  stored_traces: 40
 
 logger:
   default: warning
@@ -79,6 +78,10 @@ logger:
     homeassistant.components.recorder.db_schema: error
     miio.miioprotocol: fatal
     homeassistant.components.nmap: info
+    custom_components.bambu_lab.pybambu: fatal
+    ring_doorbell.doorbot: error
+    homeassistant.components.waze_travel_time.coordinator: fatal
+
 #upnp:
 
 zone:
@@ -401,25 +404,25 @@ mqtt:
       unit_of_measurement: "V"
 
 switch:
-  - platform: rest
-    resource: http://192.168.1.88/api/printer/tool
-    name: "preheatPrinterTool"
-    body_on: '{"command": "target","targets": {"tool0": 210}}'
-    body_off: '{"command": "target","targets": {"tool0": 0}}'
-    is_on_template: "{{ float(states.sensor.octoprint_target_tool0_temp.state) > 40}}"
-    headers:
-      Content-Type: application/json
-      X-Api-Key: !secret octoprint
+  # - platform: rest
+  #   resource: http://192.168.1.88/api/printer/tool
+  #   name: "preheatPrinterTool"
+  #   body_on: '{"command": "target","targets": {"tool0": 210}}'
+  #   body_off: '{"command": "target","targets": {"tool0": 0}}'
+  #   is_on_template: "{{ float(states.sensor.octoprint_target_tool0_temp.state) > 40}}"
+  #   headers:
+  #     Content-Type: application/json
+  #     X-Api-Key: !secret octoprint
 
-  - platform: rest
-    resource: http://192.168.1.88/api/printer/bed
-    name: "preheatPrinterBed"
-    body_on: '{"command": "target","target": 60}'
-    body_off: '{"command": "target","target": 0}'
-    is_on_template: "{{ float(states.sensor.octoprint_target_bed_temp.state) > 40}}"
-    headers:
-      Content-Type: application/json
-      X-Api-Key: !secret octoprint
+  # - platform: rest
+  #   resource: http://192.168.1.88/api/printer/bed
+  #   name: "preheatPrinterBed"
+  #   body_on: '{"command": "target","target": 60}'
+  #   body_off: '{"command": "target","target": 0}'
+  #   is_on_template: "{{ float(states.sensor.octoprint_target_bed_temp.state) > 40}}"
+  #   headers:
+  #     Content-Type: application/json
+  #     X-Api-Key: !secret octoprint
 
   - platform: tellstick
 
@@ -647,8 +650,9 @@ tts:
     gender: female
 
     #voice: nb-NO-Standard-E
-    voice: nb-NO-Standard-C
-    encoding: mp3 #linear16
+    #voice: nb-NO-Standard-C
+    voice: nb-NO-Standard-F
+    encoding: linear16 #mp3 #linear16
     # speed: 1
     # pitch: -2.5
     # gain: -5.0

@@ -219,18 +219,58 @@ automation:
         value_template: >-
           {%set temp = states('sensor.aquarium_temp') | float%}
           {%set target = state_attr('climate.aquarium', 'temperature') | float%}
-          {{(temp - target) > 1.5}}
+          {{(temp - target) > 3}}
       - platform: template
         value_template: >-
           {%set temp = states('sensor.aquarium_temp') | float%}
           {%set target = state_attr('climate.aquarium', 'temperature') | float%}
-          {{(temp - target) > 2}}
+          {{temp > 28}}
     action:
       - service: notify.me
         data_template:
           message: "Oisann! Temperaturen i akvariet er på {{states('sensor.aquarium_temp')}}"
       - delay:
           minutes: 60
+
+  - id: Toggle Aquarium light Trym
+    alias: Toggle Aquarium light Trym
+    trigger:
+      - platform: time
+        at: "21:00:00"
+        id: night
+      - platform: time
+        at: "00:00:00"
+        id: night
+      - platform: time
+        at: "01:00:00"
+        id: night
+      - platform: state
+        entity_id: input_boolean.trymasleep
+        to: "off"
+        id: morning
+      - platform: time
+        at: "08:30:00"
+        id: night
+      - platform: time
+        at: "06:30:00"
+        id: morning
+      - platform: time
+        at: "13:00:00"
+        id: morning
+    action:
+      - if:
+          - condition: template
+            value_template: >-
+              {{ trigger.id == 'morning'}}
+        then:
+          - service: light.turn_on
+            data:
+              entity_id: light.trym_aquarium
+        else:
+          - service: light.turn_off
+            data:
+              entity_id: light.trym_aquarium
+
 script:
   vannskifte:
     alias: "Vannskifte"

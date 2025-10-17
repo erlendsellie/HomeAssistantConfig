@@ -1,315 +1,315 @@
-#https://forum.robonect.de/viewtopic.php?f=10&t=2535
-#api
+# #https://forum.robonect.de/viewtopic.php?f=10&t=2535
+# #api
 
-#todo
-#set EOD when mowed enough for today.
-#turn off when veranda opens, turn on when close. Will handle itself by time and stuff i think.
-#cleanup.
+# #todo
+# #set EOD when mowed enough for today.
+# #turn off when veranda opens, turn on when close. Will handle itself by time and stuff i think.
+# #cleanup.
 
-input_select:
-  # esteban_command:
-  #   name: Esteban Set State
-  #   options:
-  #     - _
-  #     - start
-  #     - stop
-  #     - auto
-  #     - home
-  #     - man
-  #     - eod
-  #   initial: _
-  #   icon: mdi:robot
+# input_select:
+#   # esteban_command:
+#   #   name: Esteban Set State
+#   #   options:
+#   #     - _
+#   #     - start
+#   #     - stop
+#   #     - auto
+#   #     - home
+#   #     - man
+#   #     - eod
+#   #   initial: _
+#   #   icon: mdi:robot
 
-  esteban_mode:
-    name: Esteban Mode
-    options:
-      - auto
-      - home
-      - man
-      - eod
-    icon: mdi:robot
-
-switch:
-  # - platform: mqtt
-  #   name: Esteban Switch
-  #   #state_topic: "home/bathroom/gpio/13"
-  #   command_topic: "robonect/control"
-  #   payload_on: "start"
-  #   payload_off: "stop"
-
-  - platform: template
-    switches:
-      esteban_switch:
-        value_template: "{{ is_state('sensor.esteban_stopped', 'false') }}"
-        turn_on:
-          - service: rest_command.esteban_clear_error
-          - delay:
-              seconds: 2
-          - service: mqtt.publish
-            data:
-              payload: start
-              topic: robonect/control
-          # - delay:
-          #     seconds: 2
-          # - service: mqtt.publish
-          #   data:
-          #     payload: start
-          #     topic: robonect/control
-        turn_off:
-          - service: mqtt.publish
-            data:
-              payload: stop
-              topic: robonect/control
-
-# select:
-#   - platform: mqtt
-#     command_topic: robonect/control/mode
-#     name: Esteban Mode mqtt
+#   esteban_mode:
+#     name: Esteban Mode
 #     options:
 #       - auto
 #       - home
 #       - man
 #       - eod
+#     icon: mdi:robot
 
-rest_command:
-  esteban_clear_error:
-    #url: "http://192.168.1.36/status?reset="
-    url: "http://192.168.1.36/json?cmd=error&reset"
-    username: !secret robonect_username
-    password: !secret robonect_password
-    method: get
+# switch:
+#   # - platform: mqtt
+#   #   name: Esteban Switch
+#   #   #state_topic: "home/bathroom/gpio/13"
+#   #   command_topic: "robonect/control"
+#   #   payload_on: "start"
+#   #   payload_off: "stop"
 
-automation:
-  - id: "esteban_mode"
-    alias: esteban_mode
-    trigger:
-      - platform: state
-        entity_id: input_select.esteban_mode
-    action:
-      - service: mqtt.publish
-        data:
-          payload: "{{ trigger.to_state.state }}"
-          topic: robonect/control/mode
-      - delay:
-          seconds: 5
-      - service: mqtt.publish
-        data:
-          payload: "{{ trigger.to_state.state }}"
-          topic: robonect/control/mode
+#   - platform: template
+#     switches:
+#       esteban_switch:
+#         value_template: "{{ is_state('sensor.esteban_stopped', 'false') }}"
+#         turn_on:
+#           - service: rest_command.esteban_clear_error
+#           - delay:
+#               seconds: 2
+#           - service: mqtt.publish
+#             data:
+#               payload: start
+#               topic: robonect/control
+#           # - delay:
+#           #     seconds: 2
+#           # - service: mqtt.publish
+#           #   data:
+#           #     payload: start
+#           #     topic: robonect/control
+#         turn_off:
+#           - service: mqtt.publish
+#             data:
+#               payload: stop
+#               topic: robonect/control
 
-  - id: "update_esteban_mode"
-    alias: update_esteban_mode
-    mode: single
-    max_exceeded: silent
-    trigger:
-      - platform: state
-        entity_id: sensor.esteban_mode
-    action:
-      - service: input_select.select_option
-        data:
-          entity_id: input_select.esteban_mode
-          option: "{{ trigger.to_state.state }}"
-      - delay:
-          minutes: 1
+# # select:
+# #   - platform: mqtt
+# #     command_topic: robonect/control/mode
+# #     name: Esteban Mode mqtt
+# #     options:
+# #       - auto
+# #       - home
+# #       - man
+# #       - eod
 
-  # - id: "esteban_command_mode"
-  #   alias: esteban Command Control
-  #   trigger:
-  #     - entity_id: input_select.esteban_command
-  #       from: _
-  #       platform: state
-  #       to: start
-  #     - entity_id: input_select.esteban_command
-  #       from: _
-  #       platform: state
-  #       to: stop
-  #   condition: []
-  #   action:
-  #     - data:
-  #         payload: "{{ states('input_select.esteban_command') }}"
-  #         topic: robonect/control
-  #       service: mqtt.publish
-  #     - data:
-  #         entity_id: input_select.esteban_command
-  #         option: _
-  #       service: input_select.select_option
+# rest_command:
+#   esteban_clear_error:
+#     #url: "http://192.168.1.36/status?reset="
+#     url: "http://192.168.1.36/json?cmd=error&reset"
+#     username: !secret robonect_username
+#     password: !secret robonect_password
+#     method: get
 
-  # - id: "esteban_command_control_mode"
-  #   alias: esteban Command Control Mode
-  #   trigger:
-  #     - entity_id: input_select.esteban_command
-  #       from: _
-  #       platform: state
-  #       to: auto
-  #     - entity_id: input_select.esteban_command
-  #       from: _
-  #       platform: state
-  #       to: home
-  #     - entity_id: input_select.esteban_command
-  #       from: _
-  #       platform: state
-  #       to: man
-  #     - entity_id: input_select.esteban_command
-  #       from: _
-  #       platform: state
-  #       to: eod
-  #   condition: []
-  #   action:
-  #     - data:
-  #         payload: "{{ states('input_select.esteban_command') }}"
-  #         topic: robonect/control/mode
-  #       service: mqtt.publish
-  #     - data:
-  #         entity_id: input_select.esteban_command
-  #         option: _
-  #       service: input_select.select_option
+# automation:
+#   - id: "esteban_mode"
+#     alias: esteban_mode
+#     trigger:
+#       - platform: state
+#         entity_id: input_select.esteban_mode
+#     action:
+#       - service: mqtt.publish
+#         data:
+#           payload: "{{ trigger.to_state.state }}"
+#           topic: robonect/control/mode
+#       - delay:
+#           seconds: 5
+#       - service: mqtt.publish
+#         data:
+#           payload: "{{ trigger.to_state.state }}"
+#           topic: robonect/control/mode
 
-sensor:
-  - platform: history_stats
-    name: Mowed today
-    entity_id: binary_sensor.robot_is_mowing
-    state: "on"
-    type: time
-    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
-    end: "{{ now() }}"
+#   - id: "update_esteban_mode"
+#     alias: update_esteban_mode
+#     mode: single
+#     max_exceeded: silent
+#     trigger:
+#       - platform: state
+#         entity_id: sensor.esteban_mode
+#     action:
+#       - service: input_select.select_option
+#         data:
+#           entity_id: input_select.esteban_mode
+#           option: "{{ trigger.to_state.state }}"
+#       - delay:
+#           minutes: 1
 
-  - platform: history_stats
-    name: Mowed since docked
-    entity_id: sensor.esteban_status_friendly
-    state: "Mowing"
-    type: time
-    end: "{{ now() }}"
-    start: >-
-      {%-set sinceDocked = states.binary_sensor.robot_charging.last_changed -%}
-      {{sinceDocked}}
+#   # - id: "esteban_command_mode"
+#   #   alias: esteban Command Control
+#   #   trigger:
+#   #     - entity_id: input_select.esteban_command
+#   #       from: _
+#   #       platform: state
+#   #       to: start
+#   #     - entity_id: input_select.esteban_command
+#   #       from: _
+#   #       platform: state
+#   #       to: stop
+#   #   condition: []
+#   #   action:
+#   #     - data:
+#   #         payload: "{{ states('input_select.esteban_command') }}"
+#   #         topic: robonect/control
+#   #       service: mqtt.publish
+#   #     - data:
+#   #         entity_id: input_select.esteban_command
+#   #         option: _
+#   #       service: input_select.select_option
 
-  - platform: rest
-    name: Esteban Error
-    scan_interval: 20
-    json_attributes:
-      - error.error_code
-    resource: http://192.168.1.36/json?cmd=status
-    value_template: >-
-      {% set error = iif('error' in value_json,value_json.error, {'error_message': ''}) %}
-      {% set message = error.error_message %}
-      {% set message = message.replace('Esteban is', '')%}
-      {% set message = message.replace('Esteban has', '')%}
-      {% set message = message or 'Clear'%}
-      {{message}}
-    force_update: true
-    authentication: basic
-    username: !secret robonect_username
-    password: !secret robonect_password
+#   # - id: "esteban_command_control_mode"
+#   #   alias: esteban Command Control Mode
+#   #   trigger:
+#   #     - entity_id: input_select.esteban_command
+#   #       from: _
+#   #       platform: state
+#   #       to: auto
+#   #     - entity_id: input_select.esteban_command
+#   #       from: _
+#   #       platform: state
+#   #       to: home
+#   #     - entity_id: input_select.esteban_command
+#   #       from: _
+#   #       platform: state
+#   #       to: man
+#   #     - entity_id: input_select.esteban_command
+#   #       from: _
+#   #       platform: state
+#   #       to: eod
+#   #   condition: []
+#   #   action:
+#   #     - data:
+#   #         payload: "{{ states('input_select.esteban_command') }}"
+#   #         topic: robonect/control/mode
+#   #       service: mqtt.publish
+#   #     - data:
+#   #         entity_id: input_select.esteban_command
+#   #         option: _
+#   #       service: input_select.select_option
 
-  - platform: rest
-    name: Esteban Mode
-    scan_interval: 20
-    json_attributes:
-    resource: http://192.168.1.36/json?cmd=status
-    value_template: >-
-      {%set mode = value_json.status.mode%}
-      {%if mode == 0 %}
-      auto
-      {%elif mode == 1 %}
-      home
-      {%elif mode == 2 %}
-      eod
-      {%elif mode == 3 %}
-      man
-      {%elif mode == 4 %}
-      auto
-      {%endif %}
-    force_update: true
-    authentication: basic
-    username: !secret robonect_username
-    password: !secret robonect_password
+# sensor:
+#   - platform: history_stats
+#     name: Mowed today
+#     entity_id: binary_sensor.robot_is_mowing
+#     state: "on"
+#     type: time
+#     start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+#     end: "{{ now() }}"
 
-  # - platform: scrape
-  #   resource: https://192.168.1.36
-  #   authentication: basic
-  #   username: !secret robonect_username
-  #   password: !secret robonect_password
-  #   index: 0
-  #   name: Esteban Fault
-  #   select: "table > tbody > tr:nth-child(4) > td:nth-child(2)"
-  #   value_template: "{{ value }}"
+#   - platform: history_stats
+#     name: Mowed since docked
+#     entity_id: sensor.esteban_status_friendly
+#     state: "Mowing"
+#     type: time
+#     end: "{{ now() }}"
+#     start: >-
+#       {%-set sinceDocked = states.binary_sensor.robot_charging.last_changed -%}
+#       {{sinceDocked}}
 
-  - platform: template
-    sensors:
-      esteban_status_friendly:
-        friendly_name: "Esteban Status"
-        value_template: >
-          {%set status = states("sensor.Esteban_status_raw")%}
-          {% if status == "0" -%}
-            Detecting Status
-          {% elif status == "1" -%}
-            Parked
-          {% elif status == "2" -%}
-            Mowing
-          {% elif status == "3" -%}
-            Searching Charging Station
-          {% elif status == "4" -%}
-            Charging
-          {% elif status == "5" -%}
-            Searching
-          {% elif status == "7" -%}
-            Error
-          {% elif status == "8" -%}
-            Missing Loop Signal
-          {% elif status == "16" -%}
-            Off
-          {% elif status == "17" -%}
-            Sleeping
-          {% elif status == "18" -%}
-            Waiting For Garage Door
-          {% else -%}
-            Figure out what state {{ status }} means
-          {%- endif %}
-mqtt:
-  sensor:
-    - state_topic: "robonect/mower/battery/charge"
-      name: "Esteban Battery"
-      unit_of_measurement: "%"
-      device_class: battery
+#   - platform: rest
+#     name: Esteban Error
+#     scan_interval: 20
+#     json_attributes:
+#       - error.error_code
+#     resource: http://192.168.1.36/json?cmd=status
+#     value_template: >-
+#       {% set error = iif('error' in value_json,value_json.error, {'error_message': ''}) %}
+#       {% set message = error.error_message %}
+#       {% set message = message.replace('Esteban is', '')%}
+#       {% set message = message.replace('Esteban has', '')%}
+#       {% set message = message or 'Clear'%}
+#       {{message}}
+#     force_update: true
+#     authentication: basic
+#     username: !secret robonect_username
+#     password: !secret robonect_password
 
-    - state_topic: "robonect/mower/battery/charge"
-      name: "Esteban Battery"
-      unit_of_measurement: "%"
-      device_class: battery
+#   - platform: rest
+#     name: Esteban Mode
+#     scan_interval: 20
+#     json_attributes:
+#     resource: http://192.168.1.36/json?cmd=status
+#     value_template: >-
+#       {%set mode = value_json.status.mode%}
+#       {%if mode == 0 %}
+#       auto
+#       {%elif mode == 1 %}
+#       home
+#       {%elif mode == 2 %}
+#       eod
+#       {%elif mode == 3 %}
+#       man
+#       {%elif mode == 4 %}
+#       auto
+#       {%endif %}
+#     force_update: true
+#     authentication: basic
+#     username: !secret robonect_username
+#     password: !secret robonect_password
 
-    - state_topic: "robonect/mower/stopped"
-      name: "Esteban Stopped"
+#   # - platform: scrape
+#   #   resource: https://192.168.1.36
+#   #   authentication: basic
+#   #   username: !secret robonect_username
+#   #   password: !secret robonect_password
+#   #   index: 0
+#   #   name: Esteban Fault
+#   #   select: "table > tbody > tr:nth-child(4) > td:nth-child(2)"
+#   #   value_template: "{{ value }}"
 
-    - state_topic: "robonect/wlan/rssi"
-      name: "Esteban wifi signal"
-      unit_of_measurement: "dBm"
+#   - platform: template
+#     sensors:
+#       esteban_status_friendly:
+#         friendly_name: "Esteban Status"
+#         value_template: >
+#           {%set status = states("sensor.Esteban_status_raw")%}
+#           {% if status == "0" -%}
+#             Detecting Status
+#           {% elif status == "1" -%}
+#             Parked
+#           {% elif status == "2" -%}
+#             Mowing
+#           {% elif status == "3" -%}
+#             Searching Charging Station
+#           {% elif status == "4" -%}
+#             Charging
+#           {% elif status == "5" -%}
+#             Searching
+#           {% elif status == "7" -%}
+#             Error
+#           {% elif status == "8" -%}
+#             Missing Loop Signal
+#           {% elif status == "16" -%}
+#             Off
+#           {% elif status == "17" -%}
+#             Sleeping
+#           {% elif status == "18" -%}
+#             Waiting For Garage Door
+#           {% else -%}
+#             Figure out what state {{ status }} means
+#           {%- endif %}
+# mqtt:
+#   sensor:
+#     - state_topic: "robonect/mower/battery/charge"
+#       name: "Esteban Battery"
+#       unit_of_measurement: "%"
+#       device_class: battery
 
-    - state_topic: "robonect/mower/status/duration"
-      name: "Esteban time in current status"
-      unit_of_measurement: "minutes"
+#     - state_topic: "robonect/mower/battery/charge"
+#       name: "Esteban Battery"
+#       unit_of_measurement: "%"
+#       device_class: battery
 
-    - state_topic: "robonect/mower/mode"
-      name: "Esteban mode raw"
+#     - state_topic: "robonect/mower/stopped"
+#       name: "Esteban Stopped"
 
-    - state_topic: "robonect/mower/statistic/hours"
-      name: "Esteban Operation Hours"
-      unit_of_measurement: "hours"
-      icon: mdi:timer-sand
+#     - state_topic: "robonect/wlan/rssi"
+#       name: "Esteban wifi signal"
+#       unit_of_measurement: "dBm"
 
-    - state_topic: "robonect/health/voltage/int33"
-      name: "Esteban Operating Voltage Robonect"
-      unit_of_measurement: "V"
+#     - state_topic: "robonect/mower/status/duration"
+#       name: "Esteban time in current status"
+#       unit_of_measurement: "minutes"
 
-    - state_topic: "robonect/health/voltage/ext33"
-      name: "Esteban Operating Voltage Mower"
-      unit_of_measurement: "V"
+#     - state_topic: "robonect/mower/mode"
+#       name: "Esteban mode raw"
 
-    - state_topic: "robonect/health/voltage/batt"
-      name: "Esteban Battery Voltage"
-      unit_of_measurement: "V"
+#     - state_topic: "robonect/mower/statistic/hours"
+#       name: "Esteban Operation Hours"
+#       unit_of_measurement: "hours"
+#       icon: mdi:timer-sand
 
-    - state_topic: "robonect/mower/status"
-      name: "Esteban status raw"
+#     - state_topic: "robonect/health/voltage/int33"
+#       name: "Esteban Operating Voltage Robonect"
+#       unit_of_measurement: "V"
 
-    - state_topic: "robonect/mower/status/plain"
-      name: "Esteban Status Text"
+#     - state_topic: "robonect/health/voltage/ext33"
+#       name: "Esteban Operating Voltage Mower"
+#       unit_of_measurement: "V"
+
+#     - state_topic: "robonect/health/voltage/batt"
+#       name: "Esteban Battery Voltage"
+#       unit_of_measurement: "V"
+
+#     - state_topic: "robonect/mower/status"
+#       name: "Esteban status raw"
+
+#     - state_topic: "robonect/mower/status/plain"
+#       name: "Esteban Status Text"

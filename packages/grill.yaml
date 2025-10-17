@@ -15,12 +15,12 @@ automation:
         for:
           minutes: 1
         value_template: >
-          {{ states('sensor.grill_1') | float > states('input_number.grill_temp') | float and states('sensor.grill_1') | float < 2000 }}
+          {{ states('sensor.grill_1') | float(default=0) > states('input_number.grill_temp') | float(default=0) and states('sensor.grill_1') | float(default=0) < 2000 }}
       - platform: template
         for:
           minutes: 1
         value_template: >
-          {{ states('sensor.grill_2') | float > states('input_number.grill_temp') | float and states('sensor.grill_2') | float < 2000}}
+          {{ states('sensor.grill_2') | float(default=0) > states('input_number.grill_temp') | float(default=0) and states('sensor.grill_2') | float(default=0) < 2000}}
     action:
       - service: script.turn_on
         entity_id: script.say

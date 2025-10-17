@@ -1,22 +1,24 @@
 template:
   - binary_sensor:
       - name: "Should Hallway Lights Be On"
+        unique_id: 4b6bf2cb-eccd-41bc-a8ff-5857427eab61
         delay_off:
-          minutes: 5
+          minutes: 2
         state: >-
           {{
             (states.binary_sensor.motion_hallway.state == 'on' or
             (states.binary_sensor.should_upstair_lights_be_on.state == 'on' and states.input_select.alarm.state  == 'Disarm') or
             states.binary_sensor.motion_sokkel.state == 'on' or
             states.binary_sensor.motion_vindfang.state == 'on' or
-            states.binary_sensor.motion_toilet.state =='on')
+            states.binary_sensor.motion_toilet.state =='on') or
+            states.binary_sensor.hallway_person_occupancy.state == 'on'
             and
             states.input_select.alarm.state  == 'Disarm'
           }}
       - name: "Should Upstair Lights Be On"
         unique_id: "ShouldUpstairLightsBeOn"
         delay_off:
-          minutes: 5
+          minutes: 2
         state: >-
           {{
             states.binary_sensor.motion_upstairs.state == 'on' or
@@ -82,7 +84,7 @@ automation:
           - binary_sensor.should_hallway_lights_be_on
           - binary_sensor.door_livingroom
           - binary_sensor.door_kitchen
-          - binary_sensor.grind
+          # - binary_sensor.grind
           - binary_sensor.grind_oppe
         to: "on"
     action:
@@ -220,7 +222,7 @@ script:
     sequence:
       # - condition: template
       #   value_template: "{{ states.binary_sensor.motion_upstairs.state == 'off'}}"
-      - service: light.turn_off
+      - action: light.turn_off
         entity_id: light.upstairs
 
   turnoffhallwaylights:
@@ -228,5 +230,5 @@ script:
     sequence:
       # - condition: template
       #   value_template: "{{ states.binary_sensor.motion_hallway.state == 'off'}}"
-      - service: light.turn_off
+      - action: light.turn_off
         entity_id: light.hallway, light.trapp

@@ -93,7 +93,7 @@ automation:
               - action: garageRemind
                 title: Remind me in 5 minutes
                 destructive: true
-      - service: notify.mobile_app_caroline_pixel
+      - service: notify.mobile_app_pixel_7_pro
         data_template:
           title: "Garage has been open for 90 minutes"
           message: "Close it?"
@@ -460,14 +460,14 @@ script:
           message: "remove_channel"
           data:
             channel: "{{channel}}"
-      - service: notify.mobile_app_caroline_pixel
+      - service: notify.mobile_app_pixel_7_pro
         data:
           message: "remove_channel"
           data:
             channel: "{{channel}}"
 
   notifyhome:
-    alias: Simple Notification To Both
+    alias: Simple Notification To Both Home
     sequence:
       # - service: script.turn_on
       #   entity_id: script.remove_channel
@@ -490,6 +490,8 @@ script:
             title: "{{title}}"
             message: "{{message}}"
             channel: "{{channel}}"
+      - condition: template
+        value_template: "{{ states.media_player.tv_stua.state != 'off'}}"
       - service: notify.tv_stua
         data_template:
           message: "{{message}}"
@@ -501,7 +503,7 @@ script:
         entity_id: person.erlend
         state: "home"
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           title: "{{title}}"
           message: "{{message}}"
           data:
@@ -515,8 +517,8 @@ script:
       - condition: state
         entity_id: person.caroline
         state: "home"
-      - service: notify.mobile_app_caroline_pixel
-        data_template:
+      - service: notify.mobile_app_pixel_7_pro
+        data:
           title: "{{title}}"
           message: "{{message}}"
           data:
@@ -607,7 +609,7 @@ script:
   notifycaroline:
     alias: Simple Notification to Caroline
     sequence:
-      - service: notify.mobile_app_caroline_pixel
+      - service: notify.mobile_app_pixel_7_pro
         data_template:
           title: "{{title}}"
           message: "{{message}}"

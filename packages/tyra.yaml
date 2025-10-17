@@ -77,7 +77,7 @@ automation:
   #           - action: tyrasoveron
   #             title: Ja
   #             destructive: true
-  #   - service: notify.mobile_app_caroline_pixel
+  #   - service: notify.mobile_app_pixel_7_pro
   #     data_template:
   #       title: 'Slå på'
   #       message: 'Tyra sover?'
@@ -295,7 +295,7 @@ automation:
           brightness_pct: "{{ states.sensor.tyra_light.state }}"
       - service: light.turn_on
         data:
-          brightness_pct: "100"
+          brightness_pct: "33"
           entity_id: light.tyra_ball
           color_name: "{{states('sensor.tyra_traffic_color')}}"
           #color_name: "DeepPink"

@@ -25,25 +25,24 @@ template:
       #   unit_of_measurement: "%"
       #   state: >-
       #     {{states.sensor.sleipner_charging_state_data_sensor.attributes.charge_limit_soc}}
-      - name: "ModelY Charge Done"
-        device_class: "timestamp"
-        state: >-
-          {% set charge_time_left = states.sensor.modely_charge_time_left.state | float(default=0) %}
-          {% set new_charge_time = now() + timedelta(hours=charge_time_left) %}
-          {{ new_charge_time | as_timestamp }}
+      # - name: "ModelY Charge Done"
+      #   state: >-
+      #     {% set charge_time_left = states('sensor.modely_charge_time_left') | float(0) %}
+      #     {% set new_charge_time = now() + timedelta(hours=charge_time_left) %}
+      #     {{ new_charge_time | as_timestamp }}
       - name: "ModelY Percent To Charge"
         unit_of_measurement: "%"
         state: >-
-          {{states('number.modely_charge_limit') | float - states('sensor.modely') | float(default=0)}}
+          {{states('number.modely_charge_limit') | float(default=80) - states('sensor.modely') | float(default=0)}}
       - name: "ModelY kWh To Charge"
         unit_of_measurement: "kWh"
         state: >-
-          {{(states('sensor.modely_percent_to_charge') | float  * 0.760294118) | round(3)}}
+          {{(states('sensor.modely_percent_to_charge') | float(default=10)  * 0.760294118) | round(3)}}
       - name: "Easee Charging Speed"
         unit_of_measurement: "W"
         state: >-
-          {%set A = states('sensor.garage_max_charger_limit') | float%}
-          {%set pf = states('sensor.power_factor_sivert_thonstads_vei_6b')| float%}
+          {%set A = states('sensor.garage_max_charger_limit') | float(default=10)%}
+          {%set pf = states('sensor.power_factor_sivert_thonstads_vei_6b')| float(default=10)%}
           {% set V = states('sensor.garage_voltage') | float%}
           {{((sqrt(3) * pf * A * V) / 100) | round(0)}}
       - name: "ModelY Minutes To Charge"
@@ -56,12 +55,12 @@ template:
         unit_of_measurement: "NOK"
         state: >-
           {% set kwh = states('sensor.modely_kwh_to_charge') | float(default=0) %}
-          {% set kr = states('sensor.priceanalyzer_price') | float %}
+          {% set kr = states('sensor.priceanalyzer_price') | float(default=1) %}
           {{ (kwh * kr) | round(2) }}
       - name: "ModelY kWh To Charge To 100"
         unit_of_measurement: "kWh"
         state: >-
-          {%set percent_to_charge = 100 - states('sensor.modely')| float%}
+          {%set percent_to_charge = 100 - states('sensor.modely')| float(default=80)%}
           {{(percent_to_charge | float  * 0.760294118) | round(3) }}
       - name: "ModelY Minutes To Charge To 100"
         unit_of_measurement: "minutes"
@@ -73,7 +72,7 @@ template:
         unit_of_measurement: "NOK"
         state: >-
           {% set kwh = states('sensor.modely_kwh_to_charge_to_100') | float(default=0) %}
-          {% set kr = states('sensor.priceanalyzer_price') | float %}
+          {% set kr = states('sensor.priceanalyzer_price') | float(default=1) %}
           {{ (kwh * kr) | round(2)}}
 
 automation:
@@ -82,14 +81,35 @@ automation:
   #   trigger:
   #     - platform: numeric_state
   #       entity_id: sensor.modely_mileage_sensor
-  #       above: 48100
+  #       above: 5200
   #   action:
   #     - service: script.turn_on
   #       entity_id: script.notify
   #       data_template:
   #         variables:
-  #           title: Kilometer på Sleipner holder på å gå over forsikring.
+  #           title: Kilometer på Navi holder på å gå over forsikring.
   #           message: "Kilometerstand: {{states.sensor.modely_mileage_sensor.state}}"
+
+  - alias: Notify if Model Y charge limit to high
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: sensor.modely_charge_limit
+      - platform: state
+        entity_id: sensor.alarm
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.modely_charge_limit
+        above: 80
+    action:
+      - service: script.turn_on
+        target:
+          entity_id: script.notify
+        data_template:
+          variables:
+            title: "Charge Limit Warning"
+            message: >
+              Charge limit is {{ states('sensor.modely_charge_limit') }}% 🚨
 
   - alias: CarLowChargeAfter21
     id: CarLowChargeAfter21
@@ -369,24 +389,6 @@ automation:
             title: Åpner frunk
             message: Åpner frunk
 
-  - alias: "lockFrunk"
-    id: "lockFrunk"
-    trigger:
-      platform: webhook
-      webhook_id: !secret tesla_lock_frunk
-      local_only: false
-    action:
-      - service: cover.close_cover
-        entity_id: cover.modely_frunk
-      # - service: lock.lock
-      #   entity_id: lock.modely_frunk_lock
-      - service: script.turn_on
-        entity_id: script.notify
-        data_template:
-          variables:
-            title: Locking frunk
-            message: Locking frunk
-
   - alias: "22Degrees"
     id: "22Degrees"
     trigger:
@@ -421,18 +423,18 @@ automation:
             title: Defrosting Sleipner
             message: "its {{states.sensor.modely_temperature_sensor_inside.state}} in the car."
 
-  - alias: "Update Available For Tesla"
-    id: "Update Available For Tesla"
-    trigger:
-      platform: state
-      entity_id: update.modely_update
-      to: "on"
-    action:
-      - service: notify.me
-        data:
-          title: "Update for Tesla is available."
-          message: |
-            Update for Tesla is Available.
+  # - alias: "Update Available For Tesla"
+  #   id: "Update Available For Tesla"
+  #   trigger:
+  #     platform: state
+  #     entity_id: update.modely_update
+  #     to: "on"
+  #   action:
+  #     - service: notify.me
+  #       data:
+  #         title: "Update for Tesla is available."
+  #         message: |
+  #           Update for Tesla is Available.
 
   - alias: "Notify to plug in car"
     id: Notifytoplugincar

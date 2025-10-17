@@ -16,6 +16,7 @@ input_boolean:
 automation:
   - alias: forcewakeup
     id: forcewakeup
+    mode: single
     trigger:
       platform: template
       value_template: >-
@@ -43,7 +44,8 @@ automation:
                 state: "on"
           sequence:
             - service: script.turn_on
-              entity_id: script.forcetowakeup
+              target:
+                entity_id: script.forcetowakeup
             - delay:
                 minutes: 5
 
@@ -93,7 +95,8 @@ automation:
       # - delay:
       #     minutes: 10
       - service: script.turn_on
-        entity_id: script.wakeupai
+        target:
+          entity_id: script.wakeupai
 
   # - alias: ErlendWakeup
   #   id: ErlendWakeup
@@ -158,7 +161,8 @@ automation:
           state: "on"
     action:
       - service: script.turn_on
-        entity_id: script.overslept
+        target:
+          entity_id: script.overslept
 
   - alias: ErlendOverSoverfortsatt
     id: ErlendOverSoverfortsatt
@@ -183,7 +187,8 @@ automation:
           state: "on"
     action:
       - service: script.turn_on
-        entity_id: script.stilloverslept
+        target:
+          entity_id: script.stilloverslept
 
   - alias: TurnOffWakingUp
     id: TurnOffWakingUp
@@ -194,13 +199,15 @@ automation:
         to: "off"
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.waking_up
+        target:
+          entity_id: input_boolean.waking_up
 
 script:
   wakeup:
     sequence:
       - service: light.turn_on
-        entity_id: light.bedroom
+        target:
+          entity_id: light.bedroom
         data:
           brightness_pct: 100
           transition: 100
@@ -288,39 +295,158 @@ script:
   forcetowakeup:
     sequence:
       - service: light.turn_on
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights
+      - action: openai_conversation.generate_content
+        response_variable: generated_content
+        data:
+          config_entry: 7cb47cdea724030f7efc821ffaf1ae6d
+          prompt: >-
+            {%- set nextAlarmRaw = states('sensor.erlend_mobil_next_alarm') -%}
+            {%- set now_dt = utcnow() -%}
+            {%- set now_ts = as_timestamp(now_dt, default=0) -%}
+            {%- set now_dt = now() -%}
+            {%- set time = now_dt.strftime('%H:%M') -%}
+
+            {# prøv å parse direkte, ellers bruk fallback #}
+            {%- set p1 = as_timestamp(nextAlarmRaw, default=0) -%}
+            {%- if p1 is not none %}
+              {%- set nextAlarmAsTimestamp = p1 -%}
+            {%- else %}
+              {%- set nextAlarmAsTimestamp = as_timestamp(nextAlarmRaw, now_ts) -%}
+            {%- endif %}
+
+            {# forskjell i minutter (positiv = i framtida, negativ = i fortida) #}
+            {%- set diffMinutes = ((nextAlarmAsTimestamp - now_ts) / 60) | round(0) -%}
+
+            {# finn klokkeslettet til alarmen og lag et "i dag kl X" timestamp #}
+            {%- set alarm_time_str = nextAlarmAsTimestamp | timestamp_custom('%H:%M') -%}
+            {%- set today_alarm_str = now_dt.strftime('%Y-%m-%d') ~ ' ' ~ alarm_time_str -%}
+            {%- set today_alarm_dt = strptime(today_alarm_str, '%Y-%m-%d %H:%M') -%}
+            {%- set today_alarm_ts = as_timestamp(today_alarm_dt, default=0) -%}
+            {%- set since_today_alarm = ((now_ts - today_alarm_ts) / 60) | round(0) -%}
+
+            {# Hvis neste alarm står langt fram (f.eks. i morgen eller flere dager),
+              men samme klokkeslett var tidligere i dag, vis hvor lenge siden den ringte i dag. #}
+            {%- if diffMinutes < 0 %}
+              {%- set display_minutes = (-diffMinutes) -%}
+              {%- set direction = 'siden' -%}
+            {%- elif diffMinutes >= 1440 and since_today_alarm >= 0 and since_today_alarm < 1440 %}
+              {%- set display_minutes = since_today_alarm -%}
+              {%- set direction = 'siden' -%}
+            {%- else %}
+              {%- set display_minutes = diffMinutes -%}
+              {%- set direction = 'til' -%}
+            {%- endif %}
+
+            {# lag en snakkbar tekst i variabelen alarmText (brukes av TTS) #}
+            {%- set abs_m = display_minutes | int -%}
+            {%- if abs_m <= 0 %}
+              {%- if direction == 'til' -%}
+                {%- set alarmText = 'Alarmen går nå.' -%}
+              {%- else -%}
+                {%- set alarmText = 'Alarmen ringte akkurat nå.' -%}
+              {%- endif -%}
+            {%- elif abs_m < 60 %}
+              {%- if direction == 'til' -%}
+                {%- set alarmText = 'Alarmen går om ' ~ abs_m ~ ' minutter.' -%}
+              {%- else -%}
+                {%- set alarmText = 'Alarmen ringte for ' ~ abs_m ~ ' minutter siden.' -%}
+              {%- endif -%}
+            {%- elif abs_m < 1440 %}
+              {%- set h = abs_m // 60 -%}
+              {%- set m = abs_m % 60 -%}
+              {%- if direction == 'til' -%}
+                {%- set alarmText = 'Alarmen går om ' ~ h ~ ' ' ~ ('time' if h == 1 else 'timer') ~ ((' og ' ~ m ~ ' minutter') if m > 0 else '') ~ '.' -%}
+              {%- else -%}
+                {%- set alarmText = 'Alarmen ringte for ' ~ h ~ ' ' ~ ('time' if h == 1 else 'timer') ~ ((' og ' ~ m ~ ' minutter') if m > 0 else '') ~ ' siden.' -%}
+              {%- endif -%}
+            {%- else %}
+              {%- set d = abs_m // 1440 -%}
+              {%- set rem = abs_m % 1440 -%}
+              {%- set h = rem // 60 -%}
+              {%- set m = rem % 60 -%}
+              {%- if direction == 'til' -%}
+                {%- set alarmText = 'Alarmen går om ' ~ d ~ ' ' ~ ('dag' if d == 1 else 'dager') ~ ((' og ' ~ h ~ ' ' ~ ('time' if h==1 else 'timer')) if h > 0 else '') ~ ((' og ' ~ m ~ ' minutter') if m > 0 else '') ~ '.' -%}
+              {%- else -%}
+                {%- set alarmText = 'Alarmen ringte for ' ~ d ~ ' ' ~ ('dag' if d == 1 else 'dager') ~ ((' og ' ~ h ~ ' ' ~ ('time' if h==1 else 'timer')) if h > 0 else '') ~ ((' og ' ~ m ~ ' minutter') if m > 0 else '') ~ ' siden.' -%}
+              {%- endif -%}
+            {%- endif %}
+
+            {# ukedag / jobb eller fri #}
+            {%- set wd_en = now_dt.strftime('%A') -%}
+            {%- set wd_map = {'Monday':'mandag','Tuesday':'tirsdag','Wednesday':'onsdag','Thursday':'torsdag','Friday':'fredag','Saturday':'lørdag','Sunday':'søndag'} -%}
+            {%- set wd = wd_map[wd_en] -%}
+            {%- set work_msg = 'du skal på jobb i dag' if now_dt.weekday() < 5 else 'du har fri i dag' -%}
+
+            {%- set vær = states('sensor.weather_norsk') -%}
+            {%- set temp = states('sensor.ute_temperature') -%}
+
+
+            {% set today = now().date() %}
+            {% set ns = namespace(events=[]) %}
+
+
+            {% for cal in states.calendar %}
+                  
+                      {% set st = cal.attributes.start_time if 'start_time' in cal.attributes else None %}
+                      {% if st %}
+                          {% set start = as_datetime(st).date() %}
+                        {% if start == today %}
+                            {% set message = cal.attributes.message if 'message' in cal.attributes else None %}
+                            {% set person = cal.attributes.friendly_name %}
+                          {% if person == 'Carolinewinge@gmail.com' %}
+                          {% set person = 'Caroline' %}
+                          {% endif %}
+                          {% if person != 'Caroline' and person != 'Trym' %}
+                          {% set person = 'Meg' %}
+                          {% endif %}
+                            {% if message and person %}
+                            
+                                {% set ns.events = ns.events + [person + ": " + message] %}
+                            {% endif %}
+                        {% endif %}
+                    
+                {% endif %}
+            {% endfor %}
+            {% set calendar = ns.events | join(", ") if ns.events else "Ingen ting i kalenderen i dag." %}
+
+            {# --- selve prompten som sendes til OpenAI --- #}
+            Du er en vekkeklokke-assistent og skal vekke brukeren på en veldig sarkastisk og frekk måte. Gi full sarkasme. Klokka er {{ time }}. {{ alarmText }} Det er {{ wd }}, {{ work_msg }}. Været er {{ vær }}, og temperaturen ute er {{ temp }} grader. Dette står i kalendere idag: {{calendar}}
+            Lag en frekk og sarkastisk vekkermelding på norsk, på skikkelig trøndersk, som passer for talesyntese — tydelig uttale, naturlig språk (bruk "en" i stedet for "1" i tale der det er naturlig). Svar med SSML, uten noen code-block ellernoe, kun den rene SSML-teksten. Start meldingen direkte og hold til en frekk stil. Snakk trøndersk og vær helt på kanten!
+
+      # - service: notify.mobile_app_erlend_mobil
+      #   data:
+      #     title: "Vekkeklokke"
+      #     message: "{{ generated_content.text }}"
+      #     data:
+      #       channel: "vekkeklokke"
+      #       ttl: 0
+      #       priority: high
       - service: media_player.volume_set
-        data_template:
+        target:
           entity_id: media_player.clock
-          volume_level: "0.6"
-      - service: input_text.set_value
-        entity_id: input_text.openaibedroom
         data:
-          value: ""
-      - service: input_text.set_value
-        entity_id: input_text.openaibedroom
+          volume_level: 0.7
+      - service: tts.speak
+        target:
+          entity_id: tts.google_cloud
         data:
-          value: >-
-            {%-set nextAlarm = states.sensor.erlend_mobil_next_alarm.state -%}
-            {%set time = now().hour | string + ':' + now().minute | string%}
-            {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
-            {%-set minutesBefore = 10 -%}
-            {%set relativeAlarm = ((nextAlarmAsTimestamp - as_timestamp(utcnow())) / 60) | round (0) %}
-            {%set vær = states('sensor.weather_norsk')%}
-            Du er en vekkeklokke og skal vekke meg på en sarkastisk måte.
-            Klokken er {{time}}.
-            Alarmen ringte for {{relativeAlarm}} minutter siden.
-            Været er {{vær}}, og temperaturen ute er {{states.sensor.ute_temperature.state}}
-            Neste ting i kalenderen er: {{states.calendar.privat.attributes.message}}
+          media_player_entity_id: media_player.clock
+          message: "{{ generated_content.text }}"
       - delay:
-          seconds: 30
+          seconds: 45
+
       - service: media_player.volume_set
-        data:
+        target:
           entity_id: media_player.clock
-          volume_level: "0.4"
+        data:
+          volume_level: 0.5
+
       - service: media_player.play_media
-        data:
+        target:
           entity_id: media_player.clock
+        data:
           media_content_type: "audio/mp4"
           media_content_id: "https://p4.p4groupaudio.com/P04_MH"
 

@@ -1,5 +1,5 @@
 multiscrape:
-  - resource: https://www.youpark.no/payment/EC75785/1
+  - resource: https://www.youpark.no/payment/EN52492/1
     scan_interval: 7200 #2 hours
     sensor:
       - name: "you_park_tesla"
@@ -26,7 +26,7 @@ automation:
           title: "Betal parkering!"
           message: "Ubetalt passering på Tesla. Dato: {{states.sensor.you_park_tesla.state}}"
           data:
-            clickAction: "https://www.youpark.no/payment/EC75785/1"
+            clickAction: "https://www.youpark.no/payment/EN52492/1"
             ttl: 0
             priority: high
 

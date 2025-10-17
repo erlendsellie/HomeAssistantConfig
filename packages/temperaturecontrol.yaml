@@ -15,52 +15,78 @@ sensor:
       pricelevel:
         friendly_name: "Price Level"
         value_template: "{{states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.price_level}}"
-      tibberheatdifference:
-        friendly_name: "Tibber Heat Difference"
-        unit_of_measurement: "°C"
-        # The Heater is always set to 22 in Tibber. This way, we can see if Tibber wants to increase or decrease the temperature.
-        value_template: >-
-          {%-set targetTemp = 22 -%}
-          {%-set actualtemp = states.climate.stua_heater.attributes.temperature | float(default=0)-%}
-          {{actualtemp - targetTemp}}
+      # tibberheatdifference:
+      #   friendly_name: "Tibber Heat Difference"
+      #   unit_of_measurement: "°C"
+      #   # The Heater is always set to 22 in Tibber. This way, we can see if Tibber wants to increase or decrease the temperature.
+      #   value_template: >-
+      #     {%-set targetTemp = 22 -%}
+      #     {%-set actualtemp = states.climate.stua_heater.attributes.temperature | float(default=0)-%}
+      #     {{actualtemp - targetTemp}}
       today_max_price:
         value_template: >-
-          {% set today=state_attr('sensor.priceanalyzer', 'raw_today')|sort(attribute='value') %}
-          {{today[23].value * 100}}
+          {% set today = state_attr('sensor.nordpool', 'raw_today') | default([]) | sort(attribute='value') %}
+          {% if today | length > 0 %}
+            {{ (today[-1].value * 100) | round(2) }}
+          {% else %}
+            0
+          {% endif %}
+
       tomorrow_max_price:
         value_template: >-
-          {% set tomorrow=state_attr('sensor.priceanalyzer', 'raw_tomorrow')|sort(attribute='value') %}
-          {{tomorrow[23].value * 100}}
+          {% set tomorrow = state_attr('sensor.nordpool', 'raw_tomorrow') | default([]) | sort(attribute='value') %}
+          {% if tomorrow | length > 0 %}
+            {{ (tomorrow[-1].value * 100) | round(2) }}
+          {% else %}
+            0
+          {% endif %}
+
       tomorrow_low_price:
         value_template: >-
-          {% set tomorrow=state_attr('sensor.priceanalyzer', 'raw_tomorrow')|sort(attribute='value') %}
-          {{tomorrow[0].value * 100}}
+          {% set tomorrow = state_attr('sensor.nordpool', 'raw_tomorrow') | default([]) | sort(attribute='value') %}
+          {% if tomorrow | length > 0 %}
+            {{ (tomorrow[0].value * 100) | round(2) }}
+          {% else %}
+            0
+          {% endif %}
+
       today_low_price:
         value_template: >-
-          {% set today=state_attr('sensor.priceanalyzer', 'raw_today')|sort(attribute='value') %}
-          {{today[0].value * 100}}
+          {% set today = state_attr('sensor.nordpool', 'raw_today') | default([]) | sort(attribute='value') %}
+          {% if today | length > 0 %}
+            {{ (today[0].value * 100) | round(2) }}
+          {% else %}
+            0
+          {% endif %}
+
       price_difference_tomorrow:
         value_template: >-
-          {% set today=state_attr('sensor.priceanalyzer', 'raw_today')|sort(attribute='value') %}
-          {% set tomorrow=state_attr('sensor.priceanalyzer', 'raw_tomorrow')|sort(attribute='value') %}
-          {{((tomorrow[0].value - today[0].value ) * 100) | round (2)}}
+          {% set today = state_attr('sensor.nordpool', 'raw_today') | default([]) | sort(attribute='value') %}
+          {% set tomorrow = state_attr('sensor.nordpool', 'raw_tomorrow') | default([]) | sort(attribute='value') %}
+          {% if today | length > 0 and tomorrow | length > 0 %}
+            {{ ((tomorrow[0].value - today[0].value) * 100) | round(2) }}
+          {% else %}
+            0
+          {% endif %}
+
       price_difference_nights:
         value_template: >-
-          {% set today = states.sensor.billigste_pris_ikveld.state | float(default=0)%}
-          {% set tomorrow= states.sensor.billigste_pris_imorgen_ettermiddag.state | float(default=0)%}
-          {{((tomorrow - today ) * 100) | round (2)}}
+          {% set today = states('sensor.billigste_pris_ikveld') | float(0) %}
+          {% set tomorrow = states('sensor.billigste_pris_imorgen_ettermiddag') | float(0) %}
+          {{ ((tomorrow - today) * 100) | round(2) }}
+
       rest_of_today_low_price:
         value_template: >-
-          {% set today=state_attr('sensor.priceanalyzer', 'raw_today') %}
-          {%-set now = now().hour | float(default=0)-%}
-          {% set futureHours = namespace(values=[]) %}
-          {% for hour in today %}
-              {% if hour.start.hour >= now %}
-              {% set futureHours.values = futureHours.values + [{'start':hour.start,'end':hour.end,'value': hour.value}] %}
-              {% endif %}
-          {%- endfor -%}
-          {% set today=futureHours.values |sort(attribute='value') %}
-          {{today[0].value * 100}}
+          {% set today = state_attr('sensor.nordpool', 'raw_today') | default([]) %}
+          {% set now_hour = now().hour %}
+          {% set future_hours = today | selectattr('start', 'ge', now()) | list %}
+          {% if future_hours | length > 0 %}
+            {% set sorted_future = future_hours | sort(attribute='value') %}
+            {{ (sorted_future[0].value * 100) | round(2) }}
+          {% else %}
+            0
+          {% endif %}
+
       # price_rest_of_day:
       #   value_template: >-
       #     {% set today=state_attr('sensor.nordpool', 'raw_today') %}
@@ -246,53 +272,53 @@ sensor:
             {%set temp = temp - 1 %}
           {%endif%}
           {{temp}}
-      pricecorrection_old:
-        friendly_name: "Price Correction"
-        unit_of_measurement: "°C"
-        value_template: >-
-          {%-set usingSpot = states.binary_sensor.usingspot.state == 'on' -%}
-          {%-set priceGaining = states.binary_sensor.pricegaining.state == 'on' -%}
-          {%-set priceFalling = states.binary_sensor.pricefalling.state == 'on' -%}
-          {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
-          {%-set isMaxPrice = states.binary_sensor.ismaxprice.state == 'on' -%}
-          {%-set isPeak = states.binary_sensor.pricerelativycheap.state == 'off' -%}
-          {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' or states.binary_sensor.pricerelativycheap.state == 'on' -%}
-          {%-set isNordPoolLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
-          {%-set minPrice = states.sensor.nordpool.attributes.min | float(default=0)-%}
-          {%-set price = states.sensor.nordpool.state | float(default=0)-%}
-          {%-set nextPrice = states.sensor.nordpool.attributes.raw_today[now().hour + 1].value-%}
-          {%-set isExtremePrice = (price * 100) > 100-%}
-          {%-set pricecorrectiondownnexthour = states.binary_sensor.pricecorrectiondownnexthour.state -%}
-          {%-set isMinPrice = minPrice == price -%}
-          {%-set pricedifference = states.sensor.pricespike.state | float(default=0)%}       
-          {%-set tempDownToLong = states.binary_sensor.pricecorrection_down_for_3_hours.state == 'on' -%}
-          {%-set tempDownToLong = false -%}
-          {%-set tempDown = isMaxPrice or ((isPeak or priceFalling) and tempDownToLong == False) -%}
-          {%-set catchUp = states.binary_sensor.afterpricereduction.state -%}
-          {%-set catchUp = 'off' -%}
-          {%-set temp =  0 -%}
-          {%-set tempcorrection = 1 %}
-          {% if ((price * 100) > 200) or ((nextPrice * 100) > 200) %}
-            {%-set tempcorrection = 4 %}
-          {% elif ((price * 100) > 100) or ((nextPrice * 100) > 100) %}
-            {%-set tempcorrection = 3 %}
-          {% elif pricedifference > 0.8 or isMaxPrice or isMinPrice %}
-            {%-set tempcorrection = 2 %}
-          {% endif %}
-          {% if isHeating and pricedifference > 0.1%} 
-            {% if ((isLowPrice and priceGaining) or (tempDownToLong) or catchUp == 'on') %}
-                {%-set temp =  temp + tempcorrection -%}
-            {% elif (isLowPrice and (priceGaining == false or priceFalling == true and isMaxPrice == false)) %}
-                {%-set temp = temp -%}
-            {% elif (tempDown)%}
-                {%-set temp =  temp - tempcorrection -%}
-            {% endif %}
-          {% endif %}
-          {%if usingSpot == true%}
-          {{temp | float}}
-          {% else %}
-            0
-          {%endif%}
+      # pricecorrection_old:
+      #   friendly_name: "Price Correction"
+      #   unit_of_measurement: "°C"
+      #   value_template: >-
+      #     {%-set usingSpot = states.binary_sensor.usingspot.state == 'on' -%}
+      #     {%-set priceGaining = states.binary_sensor.pricegaining.state == 'on' -%}
+      #     {%-set priceFalling = states.binary_sensor.pricefalling.state == 'on' -%}
+      #     {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
+      #     {%-set isMaxPrice = states.binary_sensor.ismaxprice.state == 'on' -%}
+      #     {%-set isPeak = states.binary_sensor.pricerelativycheap.state == 'off' -%}
+      #     {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' or states.binary_sensor.pricerelativycheap.state == 'on' -%}
+      #     {%-set isNordPoolLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
+      #     {%-set minPrice = states.sensor.nordpool.attributes.min | float(default=0)-%}
+      #     {%-set price = states.sensor.nordpool.state | float(default=0)-%}
+      #     {%-set nextPrice = states.sensor.nordpool.attributes.raw_today[now().hour + 1].value-%}
+      #     {%-set isExtremePrice = (price * 100) > 100-%}
+      #     {%-set pricecorrectiondownnexthour = states.binary_sensor.pricecorrectiondownnexthour.state -%}
+      #     {%-set isMinPrice = minPrice == price -%}
+      #     {%-set pricedifference = states.sensor.pricespike.state | float(default=0)%}
+      #     {%-set tempDownToLong = states.binary_sensor.pricecorrection_down_for_3_hours.state == 'on' -%}
+      #     {%-set tempDownToLong = false -%}
+      #     {%-set tempDown = isMaxPrice or ((isPeak or priceFalling) and tempDownToLong == False) -%}
+      #     {%-set catchUp = states.binary_sensor.afterpricereduction.state -%}
+      #     {%-set catchUp = 'off' -%}
+      #     {%-set temp =  0 -%}
+      #     {%-set tempcorrection = 1 %}
+      #     {% if ((price * 100) > 200) or ((nextPrice * 100) > 200) %}
+      #       {%-set tempcorrection = 4 %}
+      #     {% elif ((price * 100) > 100) or ((nextPrice * 100) > 100) %}
+      #       {%-set tempcorrection = 3 %}
+      #     {% elif pricedifference > 0.8 or isMaxPrice or isMinPrice %}
+      #       {%-set tempcorrection = 2 %}
+      #     {% endif %}
+      #     {% if isHeating and pricedifference > 0.1%}
+      #       {% if ((isLowPrice and priceGaining) or (tempDownToLong) or catchUp == 'on') %}
+      #           {%-set temp =  temp + tempcorrection -%}
+      #       {% elif (isLowPrice and (priceGaining == false or priceFalling == true and isMaxPrice == false)) %}
+      #           {%-set temp = temp -%}
+      #       {% elif (tempDown)%}
+      #           {%-set temp =  temp - tempcorrection -%}
+      #       {% endif %}
+      #     {% endif %}
+      #     {%if usingSpot == true%}
+      #     {{temp | float}}
+      #     {% else %}
+      #       0
+      #     {%endif%}
       baseheat:
         friendly_name: "Base Heat"
         unit_of_measurement: "°C"
@@ -800,10 +826,10 @@ automation:
         data_template:
           entity_id: climate.varmepumpe
           temperature: "{{ states.sensor.tempsenttoheater.state | int(default=0) }}"
-      - service: climate.set_temperature
-        data_template:
-          entity_id: climate.stua_heater
-          temperature: "{{ states.sensor.baseheat.state | int(default=0) - 1 }}"
+      # - service: climate.set_temperature
+      #   data_template:
+      #     entity_id: climate.stua_heater
+      #     temperature: "{{ states.sensor.baseheat.state | int(default=0) - 1 }}"
       # - service: climate.set_temperature
       #   data_template:
       #     entity_id: climate.stua_heater
@@ -864,7 +890,7 @@ automation:
           entity_id:
             - climate.varmepumpe
             # - climate.toilet_heater
-            - climate.stua_heater
+            #- climate.stua_heater
       - service: script.turn_on
         entity_id: script.turnoffheaters
 
@@ -1006,10 +1032,10 @@ automation:
           hvac_mode: "{{ states.input_select.operationmode.state}}"
       - condition: template
         value_template: "{{ states.input_select.operationmode.state == 'heat'}}"
-      - service: climate.set_hvac_mode
-        data_template:
-          entity_id: climate.stua_heater
-          hvac_mode: "heat"
+      # - service: climate.set_hvac_mode
+      #   data_template:
+      #     entity_id: climate.stua_heater
+      #     hvac_mode: "heat"
 
   - alias: WarmupMorning
     trigger:
@@ -1246,10 +1272,10 @@ script:
             {{temp}}
       - service: input_boolean.turn_off
         entity_id: input_boolean.warmupmorning
-      - service: climate.set_hvac_mode
-        data:
-          entity_id: climate.stua_heater
-          hvac_mode: "heat"
+      # - service: climate.set_hvac_mode
+      #   data:
+      #     entity_id: climate.stua_heater
+      #     hvac_mode: "heat"
 
   turnoffheaters:
     alias: Turn Off Heaters

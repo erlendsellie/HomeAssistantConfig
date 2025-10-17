@@ -41,7 +41,7 @@ automation:
           entity_id: binary_sensor.carolinehome
           state: "on"
     action:
-      - service: notify.mobile_app_caroline_pixel
+      - service: notify.mobile_app_pixel_7_pro
         data_template:
           title: "Turn on the blanket heater?"
           message: "Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom."

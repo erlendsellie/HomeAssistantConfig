@@ -9,7 +9,7 @@ automation:
     trigger:
       - platform: state
         entity_id:
-          - binary_sensor.motion_kitchen
+          - binary_sensor.motion_bedroom
           - input_boolean.easleep
         to: "on"
     condition:
@@ -70,9 +70,10 @@ automation:
   - alias: TurnOnMeds
     trigger:
       - platform: time
-        at: "20:00:00"
-      - platform: time
-        at: "05:00:00"
+        at: "21:00:00"
+      # - platform: time
+      #   at: "05:00:00"
+
       # - platform: state
       #   entity_id: input_boolean.easleep
       #   to: "off"
@@ -107,6 +108,8 @@ automation:
           action: medstaken
       - platform: tag
         tag_id: bffa609d-495b-447a-8a04-3df26bb9324b
+      - platform: time
+        at: "02:00:00"
     action:
       - service: input_boolean.turn_off
         entity_id: input_boolean.takemeds

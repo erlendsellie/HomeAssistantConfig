@@ -1,116 +1,84 @@
-mqtt:
-  cover:
-    - name: "veranda_door"
-      device_class: "shade"
-      command_topic: "am43/027e259e8621/set"
-      position_topic: "am43/027e259e8621/position"
-      set_position_topic: "am43/027e259e8621/set_position"
-      availability_topic: "am43/027e259e8621/available"
-      position_open: 2
-      position_closed: 99
+# mqtt:
+#   cover:
+#     - name: "veranda_door"
+#       device_class: "shade"
+#       command_topic: "am43/027e259e8621/set"
+#       position_topic: "am43/027e259e8621/position"
+#       set_position_topic: "am43/027e259e8621/set_position"
+#       availability_topic: "am43/027e259e8621/available"
+#       position_open: 2
+#       position_closed: 99
 
-    - name: "veranda_window"
-      device_class: "shade"
-      command_topic: "am43/02feff09d6d0/set"
-      position_topic: "am43/02feff09d6d0/position"
-      set_position_topic: "am43/02feff09d6d0/set_position"
-      availability_topic: "am43/02feff09d6d0/available"
-      position_open: 2
-      position_closed: 99
-cover:
-  - platform: group
-    name: Veranda Curtains
-    entities:
-      - cover.window
-      - cover.door
-script:
-  verandahalfway:
-    alias: "Veranda half way"
-    sequence:
-      - service: cover.set_cover_position
-        entity_id: cover.veranda_door
-        data:
-          position: 53
-      - service: cover.close_cover
-        entity_id: cover.veranda_window
+#     - name: "veranda_window"
+#       device_class: "shade"
+#       command_topic: "am43/02feff09d6d0/set"
+#       position_topic: "am43/02feff09d6d0/position"
+#       set_position_topic: "am43/02feff09d6d0/set_position"
+#       availability_topic: "am43/02feff09d6d0/available"
+#       position_open: 2
+#       position_closed: 99
+# cover:
+#   - platform: group
+#     name: Veranda Curtains
+#     entities:
+#       - cover.window
+#       - cover.door
+# script:
+#   verandahalfway:
+#     alias: "Veranda half way"
+#     sequence:
+#       - service: cover.set_cover_position
+#         entity_id: cover.veranda_door
+#         data:
+#           position: 53
+#       - service: cover.close_cover
+#         entity_id: cover.veranda_window
 
-automation:
-  - alias: Open Curtains
-    trigger:
-      - platform: event
-        event_type: deconz_event
-        event_data:
-          id: smart_switch
-          event: 1002
-    action:
-      - service: cover.toggle
-        entity_id: cover.veranda_curtains
+# automation:
+#   - alias: Open Curtains
+#     trigger:
+#       - platform: event
+#         event_type: deconz_event
+#         event_data:
+#           id: smart_switch
+#           event: 1002
+#     action:
+#       - service: cover.toggle
+#         entity_id: cover.veranda_curtains
 
-  - alias: stop Curtains
-    trigger:
-      - platform: event
-        event_type: deconz_event
-        event_data:
-          id: smart_switch
-          event: 1004
-    action:
-      - service: cover.stop_cover
-        entity_id: cover.veranda_curtains
+#   - alias: stop Curtains
+#     trigger:
+#       - platform: event
+#         event_type: deconz_event
+#         event_data:
+#           id: smart_switch
+#           event: 1004
+#     action:
+#       - service: cover.stop_cover
+#         entity_id: cover.veranda_curtains
 
-  # - alias: Close Blinds When TV
-  #   trigger:
-  #     - platform: state
-  #       entity_id: media_player.living_room_tv
-  #       to: 'playing'
-  #     - platform: state
-  #       entity_id: binary_sensor.veranda
-  #       to: 'off'
-  #   condition:
-  #     - condition: state
-  #       entity_id: binary_sensor.veranda
-  #       state: 'off'
-  #     - condition: state
-  #       entity_id: media_player.living_room_tv
-  #       state: 'playing'
-  #     - condition: template
-  #       value_template: "{{ states.binary_sensor.carolinehome.state  == 'off'}}"
-  #   action:
-  #   - service: cover.close_cover
-  #     entity_id: cover.veranda_curtains
-
-  # - alias: Open Blinds by TV
-  #   trigger:
-  #     platform: state
-  #     entity_id: media_player.tv_stua
-  #     to: 'off'
-  #     for:
-  #       minutes: 1
-  #   action:
-  #   - service: cover.open_cover
-  #     entity_id: cover.veranda_curtains
-
-  - alias: Restart blinds
-    trigger:
-      - platform: state
-        entity_id: cover.window
-        to: "unavailable"
-        for:
-          minutes: 30
-    action:
-      - service: script.turn_on
-        entity_id: script.notify
-        data_template:
-          variables:
-            message: The curtains are UNAVAILABLE
-      - wait_for_trigger:
-          - platform: template
-            for:
-              minutes: 5
-            value_template: "{{states.cover.window.state != 'unavailable' and states.cover.door.state != 'unavailable'}}"
-        timeout: "03:00:00"
-        continue_on_timeout: false
-      - service: script.turn_on
-        entity_id: script.notify
-        data_template:
-          variables:
-            message: The curtains are available again
+#   - alias: Restart blinds
+#     trigger:
+#       - platform: state
+#         entity_id: cover.window
+#         to: "unavailable"
+#         for:
+#           minutes: 30
+#     action:
+#       - service: script.turn_on
+#         entity_id: script.notify
+#         data_template:
+#           variables:
+#             message: The curtains are UNAVAILABLE
+#       - wait_for_trigger:
+#           - platform: template
+#             for:
+#               minutes: 5
+#             value_template: "{{states.cover.window.state != 'unavailable' and states.cover.door.state != 'unavailable'}}"
+#         timeout: "03:00:00"
+#         continue_on_timeout: false
+#       - service: script.turn_on
+#         entity_id: script.notify
+#         data_template:
+#           variables:
+#             message: The curtains are available again

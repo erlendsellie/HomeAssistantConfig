@@ -79,7 +79,7 @@ automation:
                         state: "on"
                     sequence:
                       - service: media_player.media_play_pause
-                        entity_id: media_player.google_tv
+                        entity_id: media_player.bedroom_tv
                   - conditions:
                       - condition: template
                         value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.living_room_tv.state != 'paused' and states.media_player.living_room_tv.state != 'playing'))}}"
@@ -97,8 +97,8 @@ automation:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
             sequence:
-              - service: cover.open_cover
-                entity_id: cover.veranda_curtains
+              # - service: cover.open_cover
+              #   entity_id: cover.veranda_curtains
 
   - alias: "GarminWebHookDownCaroline"
     id: "GarminWebHookDownCaroline"
@@ -226,7 +226,7 @@ automation:
                         state: "off"
                     sequence:
                       - service: media_player.turn_on
-                        entity_id: media_player.google_tv
+                        entity_id: media_player.bedroom_tv
                   - conditions:
                       - condition: state
                         entity_id: input_boolean.casleep

@@ -1,63 +1,63 @@
-template:
-  # - sensor:
-  #     - name: "Waste"
-  #       state: >
-  #         {%set rest = states.sensor.restavfall%}
-  #         {%set plast = states.sensor.papir%}
-  #         {%set papir = states.sensor.plastemballasje%}
-  #         {%set next = rest%}
-  #         {%if plast.attributes.next_pickup_week != None and plast.attributes.next_pickup_week < next.attributes.next_pickup_week%}
-  #           {%set next = plast%}
-  #         {%elif papir.attributes.next_pickup_week != None and papir.attributes.next_pickup_week < next.attributes.next_pickup_week%}
-  #           {%set papir = plast%}
-  #         {%endif%}
-  #         {{next.attributes.friendly_name}} tømmes {{next.state | lower | regex_replace(find='uke', replace='tirsdag', ignorecase=True) | regex_replace(find='uken', replace='tirsdag', ignorecase=True)}}
-multiscrape:
-  - resource: https://trv.no/plan/1edf022a-1b8f-4297-aea9-0e916919e386/
-    scan_interval: 14400 #4 hours
-    sensor:
-      - name: "TRV"
-        select: "tbody tr:not(.tommefri-uke) a"
-        icon: "mdi:trash-can"
-        attributes:
-          - name: Date
-            select: "tbody tr:not(.tommefri-uke) .date"
-          - name: IsoDate
-            select: "tbody tr:not(.tommefri-uke) .date"
-            value_template: >
-              {%set year = now().year | string%}
-              {%set date = value + '.' + year + ' 11:00:00'%}
-              {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
-              {{dt}}
-          - name: RelativeTime
-            select: "tbody tr:not(.tommefri-uke) .date"
-            value_template: >
-              {%set year = now().year | string%}
-              {%set date = value + '.' + year + ' 11:00:00'%}
-              {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
-              {{relative_time(dt)}}
-          - name: TimedeltaDays
-            select: "tbody tr:not(.tommefri-uke) .date"
-            value_template: >
-              {%set year = now().year | string%}
-              {%set date = value + '.' + year + ' 23:59:00'%}
-              {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
-              {{timedelta((as_timestamp(dt) - as_timestamp(now()))/60/60/24).days}}
-sensor:
-  - platform: rest
-    name: TRV Rest
-    scan_interval: 86400
-    json_attributes_path: $.calendar[0]
-    json_attributes:
-      - dato
-      - frekvensType
-      - frekvensIntervall
-      - fraksjon
-      - fraksjonId
-      - symbolId
-    resource: https://trv.no/wp-json/wasteplan/v2/calendar/1edf022a-1b8f-4297-aea9-0e916919e386
-    value_template: >-
-      {{value_json.calendar[0].fraksjon}}
+# template:
+# - sensor:
+#     - name: "Waste"
+#       state: >
+#         {%set rest = states.sensor.restavfall%}
+#         {%set plast = states.sensor.papir%}
+#         {%set papir = states.sensor.plastemballasje%}
+#         {%set next = rest%}
+#         {%if plast.attributes.next_pickup_week != None and plast.attributes.next_pickup_week < next.attributes.next_pickup_week%}
+#           {%set next = plast%}
+#         {%elif papir.attributes.next_pickup_week != None and papir.attributes.next_pickup_week < next.attributes.next_pickup_week%}
+#           {%set papir = plast%}
+#         {%endif%}
+#         {{next.attributes.friendly_name}} tømmes {{next.state | lower | regex_replace(find='uke', replace='tirsdag', ignorecase=True) | regex_replace(find='uken', replace='tirsdag', ignorecase=True)}}
+# multiscrape:
+# - resource: https://trv.no/plan/1edf022a-1b8f-4297-aea9-0e916919e386/
+#   scan_interval: 14400 #4 hours
+#   sensor:
+#     - name: "TRV"
+#       select: "tbody tr:not(.tommefri-uke) a"
+#       icon: "mdi:trash-can"
+#       attributes:
+#         - name: Date
+#           select: "tbody tr:not(.tommefri-uke) .date"
+#         - name: IsoDate
+#           select: "tbody tr:not(.tommefri-uke) .date"
+#           value_template: >
+#             {%set year = now().year | string%}
+#             {%set date = value + '.' + year + ' 11:00:00'%}
+#             {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
+#             {{dt}}
+#         - name: RelativeTime
+#           select: "tbody tr:not(.tommefri-uke) .date"
+#           value_template: >
+#             {%set year = now().year | string%}
+#             {%set date = value + '.' + year + ' 11:00:00'%}
+#             {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
+#             {{relative_time(dt)}}
+#         - name: TimedeltaDays
+#           select: "tbody tr:not(.tommefri-uke) .date"
+#           value_template: >
+#             {%set year = now().year | string%}
+#             {%set date = value + '.' + year + ' 23:59:00'%}
+#             {% set dt = strptime(date, "%d.%m.%Y %H:%M:%S") %}
+#             {{timedelta((as_timestamp(dt, default=0) - as_timestamp(now(), default=0)))/60/60/24).days}}
+# sensor:
+#   - platform: rest
+#     name: TRV Rest
+#     scan_interval: 86400
+#     json_attributes_path: $.calendar[0]
+#     json_attributes:
+#       - dato
+#       - frekvensType
+#       - frekvensIntervall
+#       - fraksjon
+#       - fraksjonId
+#       - symbolId
+#     resource: https://trv.no/wp-json/wasteplan/v2/calendar/1edf022a-1b8f-4297-aea9-0e916919e386
+#     value_template: >-
+#       {{value_json.calendar[0].fraksjon}}
 
 automation:
   - alias: Calendar notification
@@ -73,13 +73,12 @@ automation:
         event: start
         entity_id: calendar.waste
         offset: -13:30:00
-
     action:
-      - service: persistent_notification.create
-        data:
-          message: >-
-            Event {{ trigger.calendar_event.summary }} @
-            {{ trigger.calendar_event.start }}
+      # - service: persistent_notification.create
+      #   data:
+      #     message: >-
+      #       Event {{ trigger.calendar_event.summary }} @
+      #       {{ trigger.calendar_event.start }}
       - service: script.turn_on
         entity_id: script.notifyboth
         data_template:

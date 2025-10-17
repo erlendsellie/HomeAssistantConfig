@@ -1,36 +1,50 @@
+template:
+  - binary_sensor:
+      - name: "Should Bod Lights Be On"
+        delay_off:
+          minutes: 5
+        state: >-
+          {{
+            (states.binary_sensor.motion_bod.state == 'on' or
+            states.binary_sensor.motion_jaktbod.state == 'on')
+          }}
+
 automation:
-  - id: "ToggleBodLightsSwitch"
-    alias: ToggleBodLightsSwitch
-    description: ""
-    trigger:
-      - platform: state
-        entity_id:
-          - sensor.bod_switch_action #z2m-problem
-        to: toggle
-    condition: []
-    action:
-      - if:
-          - condition: state
-            entity_id: light.bod
-            state: "on"
-        then:
-          - service: light.turn_off
-            data: {}
-            target:
-              entity_id: light.bod
-        else:
-          - service: light.turn_on
-            data: {}
-            target:
-              entity_id: light.bod
+  # - id: "ToggleBodLightsSwitch"
+  #   alias: ToggleBodLightsSwitch
+  #   description: ""
+  #   trigger:
+  #     - platform: state
+  #       entity_id:
+  #         - sensor.bod_switch_action #z2m-problem
+  #       to: toggle
+  #   condition: []
+  #   action:
+  #     - if:
+  #         - condition: state
+  #           entity_id: light.bod
+  #           state: "on"
+  #       then:
+  #         - service: light.turn_off
+  #           data: {}
+  #           target:
+  #             entity_id: light.bod
+  #       else:
+  #         - service: light.turn_on
+  #           data: {}
+  #           target:
+  #             entity_id: light.bod
 
   - id: "ToggleBodLightsDoor"
     alias: ToggleBodLightsDoor
     description: ""
     trigger:
+      # - platform: state
+      #   entity_id:
+      #     - binary_sensor.bod_door
       - platform: state
         entity_id:
-          - binary_sensor.bod_door
+          - binary_sensor.should_bod_lights_be_on
     action:
       - condition: template
         value_template: "{{trigger.to_state.state == 'on' or trigger.to_state.state == 'off'}}"
@@ -50,10 +64,16 @@ automation:
         to: "on"
         for:
           hours: 1
+      - platform: state
+        to: "off"
+        for:
+          minutes: 5
+        entity_id:
+          - binary_sensor.should_bod_lights_be_on
     action:
       - variables:
           entity: "{{trigger.entity_id}}"
       #turn off the entity_id that triggered the automation
-      - service: light.turn_off
+      - action: light.turn_off
         #entity_id: "{{entity_id}}"
         entity_id: light.bod

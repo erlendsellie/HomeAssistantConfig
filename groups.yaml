@@ -11,7 +11,7 @@ important_devices:
     - sensor.stua_temperature
     - climate.varmepumpe
     - climate.sokkel
-    - sensor.netatmo_home_temperature
+    #- sensor.netatmo_home_temperature
     - vacuum.xiaomi_vacuum_cleaner
     - switch.garage_esp32
     - binary_sensor.vindfang_door
@@ -20,20 +20,20 @@ important_devices:
     #- media_player.living_room_tv
     - switch.garage_esp32
     - device_tracker.erlend_mobil
-    - device_tracker.caroline
+    - device_tracker.caroline_pixel
     - sensor.nordpool
     - sensor.stua_temperature
     - binary_sensor.front_door_ding_mqtt
     - light.trym_balloon
     - light.tyra_ball
-    - light.trym_roof
+    #- light.trym_roof
     - switch.varmtvannsbereder
     - light.tv
     - sensor.priceanalyzer
     - sensor.pricecorrection
-    - switch.toilet_heater
-    - climate.tyra_heater
-    - climate.trym
+    #- switch.toilet_heater
+    #- climate.tyra_heater
+    #    - climate.trym
     - switch.office_heater
     - switch.blanket
     - light.tv
@@ -140,7 +140,7 @@ living:
     - group.dimmableliving
     #- light.hyperion
     - light.peis
-    - light.kubbelys
+    #- light.kubbelys
 
   # - switch.kitchen
   # #- switch.table
@@ -221,12 +221,12 @@ andrelys:
     #- light.guestroom
     - light.toilet
     - group.bedroomlights
-    - light.trym_roof
+    #    - light.trym_roof
     - light.trym_balloon
     - light.lavalamp
     - light.tyra_ball
     - light.tyra
-    - light.bathroom
+    #- light.bathroom
     - light.sokkel
     - light.vindfang
     - light.peis

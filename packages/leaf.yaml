@@ -52,7 +52,7 @@
 #               {{ states.sensor.leaf_charge.attributes.updated_on | regex_replace(find=' ', replace='T', ignorecase=False)}}
 #         leaf_updated_formatted:
 #           value_template: >-
-#             {% set secondsSince = as_timestamp(utcnow()) - as_timestamp(states.sensor.leaf_charge.attributes.updated_on)%}
+#             {% set secondsSince = as_timestamp(utcnow()) - as_timestamp(states.sensor.leaf_charge.attributes.updated_on, default=0)%}
 #             {{ ((secondsSince | int(default=0)) / 60) | round(0)}} minutes ago
 
 #     - platform: filter

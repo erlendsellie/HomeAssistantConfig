@@ -254,14 +254,13 @@ input_boolean.tyraasleep:
   entity_picture: https://hjem.sellie.no/local/tyra.jpg
 binary_sensor.xps:
   icon: mdi:keyboard-outline
-sensor.leaf_updated:
-  device_class: timestamp
+# sensor.leaf_updated:
+#   device_class: timestamp
 device_tracker.tesla_model_y_location_tracker:
   icon: mdi:car-electric
 device_tracker.modely_location_tracker:
   icon: mdi:car-electric
-
-sensor.skisporet_saupstad_kartet:
-  device_class: timestamp
-sensor.skisporet_saupstad_granasen:
-  device_class: timestamp
+# sensor.skisporet_saupstad_kartet:
+#   device_class: timestamp
+# sensor.skisporet_saupstad_granasen:
+#   device_class: timestamp

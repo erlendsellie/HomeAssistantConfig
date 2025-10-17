@@ -12,6 +12,9 @@ template:
           {%elif hour >= 7%}
             green
           {%endif%}
+      - name: "erlend_last_notification_title"
+        state: >-
+          {{states.sensor.erlend_mobil_last_notification.attributes['android.title']}}
 automation:
   #todo implement better logic, so yellow is on for a longer time if erlend
   # is home alone with the kids. And add triggers based on when we wake up.
@@ -52,7 +55,7 @@ automation:
       - service: light.turn_on
         data:
           color_name: "{{states('sensor.tyra_traffic_color')}}"
-          brightness_pct: "50"
+          brightness_pct: "33"
           entity_id: light.tyra_ball
 
       #TODO ASAP: FInd a solution for weekends
@@ -136,10 +139,10 @@ automation:
         entity_id: input_boolean.trymasleep
         state: "off"
     action:
-      - service: light.turn_on
-        entity_id: light.trym_roof
-        data_template:
-          brightness_pct: "{{ states.sensor.brightnessfortrymlight.state }}"
+      # - service: light.turn_on
+      #   entity_id: light.trym_roof
+      #   data_template:
+      #     brightness_pct: "{{ states.sensor.brightnessfortrymlight.state }}"
       - service: light.turn_on
         entity_id: light.trym_balloon
         data_template:
@@ -155,8 +158,8 @@ automation:
         continue_on_timeout: false
       - condition: template
         value_template: "{{ states.input_boolean.trymasleep.state == 'off' }}"
-      - service: light.turn_off
-        entity_id: light.trym_roof
+      # - service: light.turn_off
+      #   entity_id: light.trym_roof
       - service: light.turn_off
         entity_id: light.trym_balloon
 
@@ -187,7 +190,7 @@ automation:
       - service: light.turn_on
         entity_id:
           - light.trym_balloon
-          - light.trym_roof
+          #- light.trym_roof
         data_template:
           color_name: "{{states('sensor.trym_traffic_color')}}"
           transition: 300
@@ -277,6 +280,64 @@ automation:
           entity_id:
             - light.trym_balloon
             - light.lavalamp
+
+  - alias: "Stop Trym Media Player After Duration or Motion"
+    id: "stop_trym_media_player_duration_motion" # Good, unique ID
+    mode: single # Prevents multiple instances
+    trigger:
+      - platform: template
+        value_template: "{{ is_state('media_player.trym','buffering') or is_state('media_player.trym','playing') }}"
+        for:
+          hours: 1
+      - platform: state
+        entity_id: binary_sensor.trym_motion
+        to: "on"
+        for:
+          minutes: 30
+    condition:
+      # Condition for trigger 2:  Only execute if the media player is currently playing.
+      - condition: template
+        value_template: >-
+          {% if trigger.entity_id == 'binary_sensor.trym_motion' %}
+            {{ is_state('media_player.trym', 'playing') or is_state('media_player.trym', 'buffering') }}
+          {% else %}
+            true
+          {% endif %}
+    action:
+      - service: media_player.media_stop
+        data: {} # Add empty data block.  Good practice for service calls.
+        target:
+          entity_id: media_player.trym
+
+  - alias: Check In/Out Automation
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: sensor.erlend_last_notification_title
+        to: "checked in"
+        id: checked_in
+      - platform: state
+        entity_id: sensor.erlend_last_notification_title
+        to: "checked out"
+        id: checked_out
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: checked_in
+            sequence:
+              - service: notify.me
+                data:
+                  message: "Trym ble sjekket inn."
+          - conditions:
+              - condition: trigger
+                id: checked_out
+            sequence:
+              - service: notify.me
+                data:
+                  message: "Trym ble sjekket ut."
+
 script:
   toggle_trym_player:
     sequence:

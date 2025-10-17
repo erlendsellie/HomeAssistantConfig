@@ -28,7 +28,8 @@ automation:
     action:
       service: frontend.set_theme
       data:
-        name: "Fluent Slate"
+        #name: "Fluent Slate"
+        name: "Catppuccin Mocha"
         mode: dark
 
   - alias: Restart Home Assistant When High Memory
@@ -90,29 +91,29 @@ automation:
           - climate.varmepumpe
           - switch.varmepumpe
           - climate.sokkel
-          - sensor.netatmo_home_temperature
+          #- sensor.netatmo_home_temperature
           - vacuum.xiaomi_vacuum_cleaner
           - switch.garage_esp32
-          - binary_sensor.vindfang_door
+          #   - binary_sensor.vindfang_door
           - sensor.nordpool
           - media_player.living_room_tv
           - switch.garage_esp32
           - device_tracker.erlend_mobil
-          - device_tracker.caroline_app
+          - device_tracker.caroline_pixel
           - sensor.nordpool
           - sensor.stua_temperature
           - lock.ytterdor
           - binary_sensor.front_door_ding_mqtt
           - light.trym_balloon
           - light.tyra_ball
-          - light.trym_roof
+          #- light.trym_roof
           - switch.varmtvannsbereder
           - light.tv
           - sensor.priceanalyzer
           - sensor.pricecorrection
-          - switch.toilet_heater
+          #- switch.toilet_heater
           - climate.tyra_heater
-          - climate.trym
+       #   - climate.trym
           - switch.office_heater
           - switch.blanket
           - light.tv
@@ -133,29 +134,29 @@ automation:
           - climate.varmepumpe
           - switch.varmepumpe
           - climate.sokkel
-          - sensor.netatmo_home_temperature
+          #- sensor.netatmo_home_temperature
           - vacuum.xiaomi_vacuum_cleaner
           - switch.garage_esp32
-          - binary_sensor.vindfang_door
+          #   - binary_sensor.vindfang_door
           - sensor.nordpool
           - media_player.living_room_tv
           - lock.ytterdor
           - switch.garage_esp32
           - device_tracker.erlend_mobil
-          - device_tracker.caroline_app
+          - device_tracker.caroline_pixel
           - sensor.nordpool
           - sensor.stua_temperature
           - binary_sensor.front_door_ding_mqtt
           - light.trym_balloon
           - light.tyra_ball
-          - light.trym_roof
+          #- light.trym_roof
           - switch.varmtvannsbereder
           - light.tv
           - sensor.priceanalyzer
           - sensor.pricecorrection
-          - switch.toilet_heater
+          #- switch.toilet_heater
           - climate.tyra_heater
-          - climate.trym
+       #   - climate.trym
           - switch.office_heater
           - switch.blanket
           - light.toilet
@@ -348,8 +349,8 @@ automation:
       - platform: state
         entity_id: input_select.alarm
     action:
-      - service: notify.me
-        data_template:
+      - action: notify.me
+        data:
           title: "Alarm:"
           message: "{{ states.input_select.alarm.state }}"
 
@@ -503,7 +504,7 @@ script:
     alias: Request Location
     mode: restart
     sequence:
-      - service: notify.mobile_app_caroline_pixel
+      - service: notify.mobile_app_pixel_7_pro
         data:
           message: "request_location_update"
       - service: notify.mobile_app_erlend_mobil
@@ -543,51 +544,64 @@ sensor:
         column: "value"
     unit_of_measurement: MB
 
-  - platform: command_line
-    name: "HAstats YAML-line TOTAL count"
-    command: " find /config/ -name '*.yaml' | xargs cat | wc -l"
-  - platform: command_line
-    name: "HAstats YAML-line Dashboard count"
-    command: " find /config/dashboard -name '*.yaml' | xargs cat | wc -l"
-  - platform: command_line
-    name: "HAstats YAML-line Packages count"
-    command: " find /config/packages -name '*.yaml' | xargs cat | wc -l"
+command_line:
+  - sensor:
+      name: "HAstats YAML-line TOTAL count"
+      command: >
+        bash -lc 'find /config -type f -name "*.yaml" -print0 |
+        xargs -0 cat | wc -l'
+      unit_of_measurement: "lines"
+
+  - sensor:
+      name: "HAstats YAML-line Dashboard count"
+      command: >
+        bash -lc 'find /config/dashboard -type f -name "*.yaml" -print0 |
+        xargs -0 cat | wc -l'
+      unit_of_measurement: "lines"
+
+  - sensor:
+      name: "HAstats YAML-line Packages count"
+      command: >
+        bash -lc 'find /config/packages -type f -name "*.yaml" -print0 |
+        xargs -0 cat | wc -l'
+      unit_of_measurement: "lines"
+
   # - platform: command_line
   #   name: Kim Soppel
   #   command: "curl 'https://norkartrenovasjon.azurewebsites.net/proxyserver.ashx?server=https://komteksky.norkart.no/komtek.renovasjonwebapi/api/tommekalender/?kommunenr=3021&gatenavn=Glimmerveien%20&gatekode=302102176&husnr=12' \ -H 'Kommunenr: 3021' \ -H 'RenovasjonAppKey: AE13DEEC-804F-4615-A74E-B4FAC11F0A30' --compressed"
 
-  - platform: rest
-    name: "KimRest"
-    scan_interval: 86400
-    resource_template: "https://norkartrenovasjon.azurewebsites.net/proxyserver.ashx?server=https://komteksky.norkart.no/komtek.renovasjonwebapi/api/tommekalender/?kommunenr=3021&gatenavn=Glimmerveien%20&gatekode=302102176&husnr=12"
-    headers:
-      Kommunenr: 3021
-      RenovasjonAppKey: "AE13DEEC-804F-4615-A74E-B4FAC11F0A30"
-    json_attributes_path: "$.[0]"
-    json_attributes:
-      - "Tommedatoer"
-    value_template: >
-      {%set next_pickup = value_json[0]%}
-      {%if next_pickup.FraksjonId == 1%}
-        {%set next_pickup_type = 'Restavfall'%}
-      {%elif next_pickup.FraksjonId == 2%}
-        {%set next_pickup_type = 'Papir'%}
-      {%endif%}
-      {{next_pickup_type}}
+  # - platform: rest
+  #   name: "KimRest"
+  #   scan_interval: 86400
+  #   resource_template: "https://norkartrenovasjon.azurewebsites.net/proxyserver.ashx?server=https://komteksky.norkart.no/komtek.renovasjonwebapi/api/tommekalender/?kommunenr=3021&gatenavn=Glimmerveien%20&gatekode=302102176&husnr=12"
+  #   headers:
+  #     Kommunenr: 3021
+  #     RenovasjonAppKey: "AE13DEEC-804F-4615-A74E-B4FAC11F0A30"
+  #   json_attributes_path: "$.[0]"
+  #   json_attributes:
+  #     - "Tommedatoer"
+  #   value_template: >
+  #     {%set next_pickup = value_json[0]%}
+  #     {%if next_pickup.FraksjonId == 1%}
+  #       {%set next_pickup_type = 'Restavfall'%}
+  #     {%elif next_pickup.FraksjonId == 2%}
+  #       {%set next_pickup_type = 'Papir'%}
+  #     {%endif%}
+  #     {{next_pickup_type}}
 
-  - platform: rest
-    name: "KimRestDato"
-    scan_interval: 86400
-    resource_template: "https://norkartrenovasjon.azurewebsites.net/proxyserver.ashx?server=https://komteksky.norkart.no/komtek.renovasjonwebapi/api/tommekalender/?kommunenr=3021&gatenavn=Glimmerveien%20&gatekode=302102176&husnr=12"
-    headers:
-      Kommunenr: 3021
-      RenovasjonAppKey: "AE13DEEC-804F-4615-A74E-B4FAC11F0A30"
-    json_attributes_path: "$.[0]"
-    json_attributes:
-      - "Tommedatoer"
-    value_template: >
-      {%set next_pickup = value_json[0]%}
-      {{next_pickup['Tommedatoer'][0]}}
+  # - platform: rest
+  #   name: "KimRestDato"
+  #   scan_interval: 86400
+  #   resource_template: "https://norkartrenovasjon.azurewebsites.net/proxyserver.ashx?server=https://komteksky.norkart.no/komtek.renovasjonwebapi/api/tommekalender/?kommunenr=3021&gatenavn=Glimmerveien%20&gatekode=302102176&husnr=12"
+  #   headers:
+  #     Kommunenr: 3021
+  #     RenovasjonAppKey: "AE13DEEC-804F-4615-A74E-B4FAC11F0A30"
+  #   json_attributes_path: "$.[0]"
+  #   json_attributes:
+  #     - "Tommedatoer"
+  #   value_template: >
+  #     {%set next_pickup = value_json[0]%}
+  #     {{next_pickup['Tommedatoer'][0]}}
 
 #{%set dato = states('sensor.kimrestdato')%}
 #Dager til tømming:

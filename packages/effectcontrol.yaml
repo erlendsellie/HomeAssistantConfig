@@ -68,15 +68,18 @@ sensor:
         friendly_name: "Amshan increase possible"
         unit_of_measurement: "kW"
         value_template: >-
-          {% set usage = states.sensor.effekt_denne_timen_trend.state | float%}
-          {% set limit = states.input_number.effektledd.state | float%}
-          {% set safe = 0.0 %}
-          {% set minutes = now().minute %}
-          {% set seconds = now().second %}
-            {%if minutes%}
-            {% set timeLeft = (3600 - ((minutes * 60) + seconds)) %}
-          {{ min(30,((limit - usage - safe) * (3600 / timeLeft))) | round (2)}}
-          {%endif%}
+          {% set usage  = states('sensor.effekt_denne_timen_trend') | float(0) %}
+          {% set limit  = states('input_number.effektledd') | float(0) %}
+          {% set safe   = 0.0 %}
+          {% set minutes = now().minute | int(0) %}
+          {% set seconds = now().second | int(0) %}
+          {% set timeLeft = 3600 - ((minutes * 60) + seconds) %}
+
+          {% if timeLeft > 0 %}
+            {{ [30, ((limit - usage - safe) * (3600 / timeLeft))] | min | round(2) }}
+          {% else %}
+            {{ 0 }}
+          {% endif %}
       ampere_increase_possible:
         friendly_name: "Ampere Increase Possible"
         unit_of_measurement: A

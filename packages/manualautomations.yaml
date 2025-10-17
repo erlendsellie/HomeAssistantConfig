@@ -31,7 +31,7 @@ automation:
       - service: input_boolean.turn_off
         entity_id: input_boolean.tyrainkindergarden
 
-  - alias: trymInKinderGardenChangedToON
+  - alias: TyraInKinderGardenChangedToON
     trigger:
       platform: state
       entity_id: input_boolean.tryminkindergarden
@@ -40,7 +40,7 @@ automation:
       - service: input_boolean.turn_on
         entity_id: input_boolean.tyrainkindergarden
 
-  - alias: Trym left in kindergarden
+  - alias: Tyra left in kindergarden
     trigger:
       - platform: state
         entity_id: person.erlend, person.caroline
@@ -65,7 +65,7 @@ automation:
       - service: input_boolean.turn_on
         entity_id: input_boolean.tryminkindergarden
 
-  - alias: Trym picked up in kindergarden
+  - alias: Tyra picked up in kindergarden
     trigger:
       # - platform: zone
       #   entity_id: person.erlend
@@ -99,12 +99,12 @@ automation:
         state: "on"
     action:
       - service: notify.me
-        data_template:
+        data:
           title: Tyra picked up from kindergarden
-          message: De var der i {{states.sensor.trymsleeptimeformatted.state}}.
+          message: Tyra picked up from kindergarden
       - service: script.turn_on
         entity_id: script.say
-        data_template:
+        data:
           variables:
             message: "Tyra ble hentet i barnehagen"
       - service: input_boolean.turn_off
@@ -327,7 +327,7 @@ automation:
             actions:
               - action: turnoncarheater
                 title: "Yes"
-      - service: notify.mobile_app_caroline_pixel
+      - service: notify.mobile_app_pixel_7_pro
         data_template:
           title: "Is the Car Heater Mounted?"
           message: "Its {{states.sensor.ute_temperature.state}} degrees outside."
@@ -876,22 +876,22 @@ automation:
   - alias: bedroomtvOnWrong
     trigger:
       # - platform: state
-      #   entity_id: media_player.tv_soverommet #Maybe media_player.google_tv, check states for chromecast first.
+      #   entity_id: media_player.tv_soverommet #Maybe media_player.bedroom_tv, check states for chromecast first.
       #   to: 'on'
       #   for:
       #     seconds: 20
       - platform: state
-        entity_id: media_player.google_tv
+        entity_id: media_player.bedroom_tv
         to: "Idle"
         for:
           seconds: 20
       - platform: state
-        entity_id: media_player.google_tv
+        entity_id: media_player.bedroom_tv
         to: "Playing"
         for:
           seconds: 20
       - platform: state
-        entity_id: media_player.google_tv
+        entity_id: media_player.bedroom_tv
         to: "Paused"
         for:
           seconds: 20
@@ -917,7 +917,7 @@ automation:
               - action: tvbedroomoff
                 title: Ja, slå av TV på soverommet igjen
                 destructive: true
-      - service: notify.mobile_app_caroline_pixel
+      - service: notify.mobile_app_pixel_7_pro
         data_template:
           title: "Castet til Soverommet."
           message: " Var det feil?"
@@ -949,13 +949,13 @@ automation:
         entity_id: media_player.tv_soverommet
         to: "unavailable"
       - platform: state
-        entity_id: media_player.google_tv
+        entity_id: media_player.bedroom_tv
         to: "off"
         for:
           minutes: 5
     action:
       - service: media_player.media_stop
-        entity_id: media_player.google_tv
+        entity_id: media_player.bedroom_tv
       - service: media_player.turn_off
         entity_id: media_player.tv_soverommet
 
@@ -973,7 +973,7 @@ automation:
         for:
           minutes: 240
       - platform: state
-        entity_id: media_player.google_tv
+        entity_id: media_player.bedroom_tv
         to: "on"
         for:
           minutes: 118
@@ -987,22 +987,22 @@ automation:
         entity_id: binary_sensor.bed_tv_idle
         to: "on"
       - platform: state
-        entity_id: media_player.google_tv
+        entity_id: media_player.bedroom_tv
         to: "off"
         for:
           minutes: 15
       - platform: state
-        entity_id: media_player.google_tv
+        entity_id: media_player.bedroom_tv
         to: "idle"
         for:
           minutes: 5
       - platform: state
-        entity_id: media_player.google_tv
+        entity_id: media_player.bedroom_tv
         to: "Idle"
         for:
           minutes: 5
       - platform: state
-        entity_id: media_player.google_tv
+        entity_id: media_player.bedroom_tv
         to: "Paused"
         for:
           minutes: 15
@@ -1033,17 +1033,17 @@ automation:
     # - service: light.turn_off
     #   entity_id: light.gateway_light_7c49eb1c2d6b
 
-  - id: winteriscoming
-    alias: winteriscoming
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.snow
-        above: 5
-    action:
-      - service: notify.me
-        data_template:
-          title: "Snow is coming"
-          message: "Det er meldt {{ states.sensor.snow.state }} cm med snø de neste 8 timene."
+  # - id: winteriscoming
+  #   alias: winteriscoming
+  #   trigger:
+  #     - platform: numeric_state
+  #       entity_id: sensor.snow
+  #       above: 5
+  #   action:
+  #     - service: notify.me
+  #       data_template:
+  #         title: "Snow is coming"
+  #         message: "Det er meldt {{ states.sensor.snow.state }} cm med snø de neste 8 timene."
 
   # - alias: "Fetch and Store Weather Forecast"
   #   trigger:
@@ -1107,7 +1107,7 @@ automation:
   #   action:
   #     - service: media_player.turn_on
   #       data: {}
-  #       entity_id: media_player.google_tv
+  #       entity_id: media_player.bedroom_tv
   #   mode: single
 
 script:
@@ -1117,4 +1117,4 @@ script:
       - service: media_player.turn_off
         entity_id: media_player.tv_soverommet
       - service: media_player.turn_off
-        entity_id: media_player.google_tv
+        entity_id: media_player.bedroom_tv

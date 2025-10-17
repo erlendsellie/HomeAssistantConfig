@@ -1,0 +1,186 @@
+input_boolean:
+  # Meal done toggle (reset daily)
+  dogs_dinner_fed:
+    name: Dogs have been fed Evening
+    icon: mdi:dog
+  dog_breakfast_done:
+    name: Dogs have been fed Morning
+    icon: mdi:dog
+
+  pixel_dinner_monday:
+    name: Pixel – Mandag
+  pixel_dinner_tuesday:
+    name: Pixel – Tirsdag
+  pixel_dinner_wednesday:
+    name: Pixel – Onsdag
+  pixel_dinner_thursday:
+    name: Pixel – Torsdag
+  pixel_dinner_friday:
+    name: Pixel – Fredag
+  pixel_dinner_saturday:
+    name: Pixel – Lørdag
+  pixel_dinner_sunday:
+    name: Pixel – Søndag
+
+  sudo_dinner_monday:
+    name: Sudo – Mandag
+  sudo_dinner_tuesday:
+    name: Sudo – Tirsdag
+  sudo_dinner_wednesday:
+    name: Sudo – Onsdag
+  sudo_dinner_thursday:
+    name: Sudo – Torsdag
+  sudo_dinner_friday:
+    name: Sudo – Fredag
+  sudo_dinner_saturday:
+    name: Sudo – Lørdag
+  sudo_dinner_sunday:
+    name: Sudo – Søndag
+
+template:
+  - binary_sensor:
+      - name: "Pixel skal ikke ha middag i dag"
+        unique_id: pixel_skip_dinner_today
+        state: >-
+          {{
+            not is_state('input_boolean.pixel_dinner_' ~ now().strftime('%A') | lower, 'on')
+          }}
+
+      - name: "Sudo skal ikke ha middag i dag"
+        unique_id: sudo_skip_dinner_today
+        state: >-
+          {{
+            not is_state('input_boolean.sudo_dinner_' ~ now().strftime('%A') | lower, 'on')
+          }}
+automation:
+  # Reset feed tracker at 5 AM
+  - alias: Reset Dog Dinner State
+    trigger:
+      - platform: time
+        at: "04:00:00"
+      - platform: time
+        at: "18:00:00"
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id:
+            - input_boolean.dogs_dinner_fed
+            - input_boolean.dog_breakfast_done
+
+  - alias: Remind Dog Breakfast
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_kitchen
+        to: "on"
+    condition:
+      - condition: time
+        after: "05:00:00"
+        before: "13:00:00"
+      - condition: state
+        entity_id: input_boolean.dog_breakfast_done
+        state: "off"
+    action:
+      - variables:
+          pixel_skip: "{{ is_state('binary_sensor.pixel_skal_ikke_ha_middag_i_dag', 'on') }}"
+          sudo_skip: "{{ is_state('binary_sensor.sudo_skal_ikke_ha_middag_i_dag', 'on') }}"
+          pixel_text: >-
+            {% if pixel_skip %}Ikke mat Pixel{% else %}Mat Pixel{% endif %}
+          sudo_text: >-
+            {% if sudo_skip %}Ikke mat Sudo{% else %}Mat Sudo{% endif %}
+          combined_message: "{{ pixel_text }}, {{ sudo_text }}"
+
+      # - service: script.notifyhome
+      #   data:
+      #     variables:
+      #       title: "Hundemiddag"
+      #       message: "{{ combined_message }}"
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          title: "Hundemiddag"
+          message: "{{ combined_message }}"
+          data:
+            actions:
+              - action: FEED_CONFIRMED
+                title: "Bekreft at de er matet"
+
+  # Smart Reminder based on motion in kitchen
+  - alias: Remind to Feed Dogs in Kitchen
+    id: remind_to_feed_dogs_in_kitchen
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_kitchen
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.motion_sokkel
+        to: "on"
+    condition:
+      - condition: time
+        after: "19:30:00"
+      - condition: state
+        entity_id: input_boolean.dogs_dinner_fed
+        state: "off"
+      # - condition: state
+      #   entity_id: input_boolean.trymasleep
+      #   state: "on"
+      # - condition: state
+      #   entity_id: input_boolean.tyraasleep
+      #   state: "on"
+    action:
+      - variables:
+          pixel_skip: "{{ is_state('binary_sensor.pixel_dinner_skipped_today', 'on') }}"
+          sudo_skip: "{{ is_state('binary_sensor.sudo_dinner_skipped_today', 'on') }}"
+          pixel_text: >-
+            {% if pixel_skip %}Ikke mat Pixel{% else %}Mat Pixel{% endif %}
+          sudo_text: >-
+            {% if sudo_skip %}Ikke mat Sudo{% else %}Mat Sudo{% endif %}
+          combined_message: "{{ pixel_text }}, {{ sudo_text }}"
+      - service: script.turn_on
+        entity_id: script.notifyhome
+        data_template:
+          variables:
+            title: 🐶Mat hundene!🐶
+            message: "{{combined_message}}"
+
+      # - service: notify.mobile_app_erlend_mobil
+      #   data:
+      #     title: "Hundemiddag"
+      #     message: "{{ combined_message }}"
+      #     data:
+      #       actions:
+      #         - action: FEED_CONFIRMED
+      #           title: "Bekreft at de er matet"
+      # - service: notify.mobile_app_pixel_7_pro
+      #   data:
+      #     title: "Hundemiddag"
+      #     message: "{{ combined_message }}"
+      #     data:
+      #       actions:
+      #         - action: FEED_CONFIRMED
+      #           title: "Bekreft at de er matet"
+
+  # Confirm feeding via app
+  - alias: Confirm Dog Dinner Fed
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: FEED_CONFIRMED
+      - platform: state
+        entity_id: binary_sensor.dogs_food
+        to: "on"
+    conditions:
+      - condition: template
+        value_template: "{{  states.input_boolean.dogs_dinner_fed.state == 'off' or states.input_boolean.dog_breakfast_done.state == 'off' }}"
+    action:
+      - service: input_boolean.turn_on
+        entity_id:
+          - input_boolean.dogs_dinner_fed
+          - input_boolean.dog_breakfast_done
+      - service: script.turn_on
+        target:
+          entity_id: script.notifyhome
+        data_template:
+          variables:
+            title: "Hundene fikk mat🐶"
+            message: "Hundene fikk mat🐶"
+            channel: "dogs"

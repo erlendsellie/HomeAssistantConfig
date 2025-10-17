@@ -6,7 +6,7 @@ script:
       - condition: state
         entity_id: person.caroline
         state: "home"
-      - service: notify.mobile_app_caroline_pixel
+      - service: notify.mobile_app_pixel_7_pro
         data:
           title: "https://hjem.sellie.no/local/sounds/lost_woods.mp3"
           message: "command_activity"

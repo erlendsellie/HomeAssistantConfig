@@ -1,0 +1,36 @@
+[
+    {
+        "serialPortPath": "/dev/ttyS4",
+        "state": "idle",
+        "baudRate": null,
+        "flashType": "official",
+        "connectResult": {
+            "model": "EFR32MG21A020F768IM32-B SiliconLabs",
+            "firmwareVersion": "",
+            "deviceType": "iHost MG21"
+        },
+        "firmware": {
+            "version": "6.10.9",
+            "firmwareType": "Zigbee",
+            "name": "ihost_mg21_zigbee_stable_6.10.9_115200.gbl"
+        }
+    },
+    {
+        "serialPortPath": "/dev/ttyUSB0",
+        "state": "processing",
+        "baudRate": null,
+        "flashType": "official",
+        "connectResult": {
+            "model": "",
+            "firmwareVersion": "20230507",
+            "deviceType": "ZBDongle-P",
+            "firmwareType": "Zigbee"
+        },
+        "firmware": {
+            "version": "20240710",
+            "firmwareType": "Zigbee",
+            "name": "donglep_cc2652p_zigbee_stable_20240710_115200.hex",
+            "originalFilename": ""
+        }
+    }
+]

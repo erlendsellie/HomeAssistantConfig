@@ -1,16 +1,3 @@
-# - id: "1616060381373"
-#   alias: Tag Brikke is scanned
-#   description: ""
-#   trigger:
-#     - platform: tag
-#       tag_id: b51cc136-c0d6-4ddc-9795-958eda69188a
-#   condition: []
-#   action:
-#     - service: media_extractor.play_media
-#       data:
-#         entity_id: media_player.living_room_tv
-#         media_content_id: https://www.youtube.com/watch?v=EwhFNvfNVPk&t=117s
-#   mode: single
 - id: "1612620277117"
   alias: Cast to Google Hub
   mode: restart
@@ -115,7 +102,7 @@
   trigger:
     - platform: state
       entity_id:
-        - sensor.office_aqara_switch_action #z2m-problem
+        - sensor.office_aqara_switch_action
       to: single
   condition: []
   action:
@@ -239,7 +226,7 @@
     - platform: tag
       tag_id: 0eb24c08-d759-4d0b-acce-dfe2032f9a97
     - platform: state
-      entity_id: sensor.upstairs_knapp_click #z2m-problem
+      entity_id: sensor.upstairs_knapp_click
   condition: []
   action:
     - service: input_boolean.turn_off
@@ -299,10 +286,42 @@
   conditions: []
   actions:
     - service: script.turn_on
-      entity_id: script.notify
+      target:
+        entity_id: script.notify
       data_template:
         variables:
           title: Nordlysvarsel
-          message: "I kveld er det {{states.sensor.aurora_visibility_visibility.state}} % sjanse for å se nordlys"
-
+          message:
+            I kveld er det {{states.sensor.aurora_visibility_visibility.state}}
+            % sjanse for å se nordlys
   mode: single
+- id: "1743949122224"
+  alias: Led bedroom follow
+  description: ""
+  triggers:
+    - trigger: state
+      entity_id:
+        - light.0x001788010b3ef1fe
+      to:
+        - "on"
+        - "off"
+  conditions: []
+  actions:
+    - action: light.turn_{{trigger.to_state.state}}
+      metadata: {}
+      data: {}
+      target:
+        entity_id: light.bedroom_led_strip
+  mode: single
+- id: "1754551538980"
+  alias: Driveway AI camera analysis
+  description: ""
+  use_blueprint:
+    path: balloob/ai-camera-analysis.yaml
+    input:
+      motion_entity: binary_sensor.motion_driveway
+      camera_target: camera.driveway
+      extra_instructions:
+        Look for things in my driveway camera, and tell me what's
+        there.
+      analysis_delay: 2

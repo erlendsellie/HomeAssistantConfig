@@ -158,7 +158,7 @@ automation:
         value_template: >-
           {{ ((((as_timestamp(now()) + (15*60) | int(default=0))) | timestamp_custom("%Y-%m-%dT%H:%M+0200",true,0))
           == 
-          states.sensor.next_alarm.state) 
+          states.sensor.erlend_mobil_next_alarm.state) 
           and
           states.sensor.date_time.state == states.sensor.date_time.state}}
     condition:
@@ -171,9 +171,9 @@ automation:
         #   - wed
         #   - thu
         #   - fri
-        # - condition: state
-        #   entity_id: input_boolean.casleep
-        #   state: 'off'
+        - condition: state
+          entity_id: input_boolean.casleep
+          state: "off"
         - condition: state
           entity_id: input_boolean.alarmclock
           state: "on"
@@ -384,8 +384,8 @@ automation:
 
   - alias: TurnOnLightsWhenWeGetHome
     id: TurnOnLightsWhenWeGetHome
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: input_select.alarm
         to: "Disarm"
     condition:
@@ -393,36 +393,39 @@ automation:
       - condition: template
         value_template: "{{ states.sensor.illuminance_living.state | float(default=0)< 40}}"
     action:
-      - service: script.turn_on
-        entity_id: script.lightson
+      - action: script.turn_on
+        target:
+          entity_id: script.lightson
 
   - alias: AdjustUteSpotter
     id: AdjustUteSpotter
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.sun_above_horizon
     action:
-      - service: >
+      - action: >
           {% if trigger.to_state.state == 'on' %}
             light.turn_off
           {% else %}
             light.turn_on
           {% endif %}
-        entity_id:
-          - light.utespotter
-          - light.lily
-          - light.outdoor_led_strip
+        target:
+          entity_id:
+            - light.utespotter
+            - light.lily
+            - light.outdoor_led_strip
 
   - alias: TurnOnDriveWayLight
     id: turnOnDrivewayLight
     mode: restart #parallel single queued
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.drivewaylightshouldbeon
     action:
-      - service: light.turn_{{trigger.to_state.state}}
-        entity_id:
-          - light.driveway
+      - action: light.turn_{{trigger.to_state.state}}
+        target:
+          entity_id:
+            - light.driveway
 
   - alias: TurnOnGarageLight
     id: TurnOnGarageLight
@@ -480,7 +483,7 @@ script:
       - service: light.turn_on
         entity_id:
           - light.trym_balloon
-          - light.trym_roof
+          #- light.trym_roof
           - light.tyra_ball
 
   restorelightcolor:
@@ -503,7 +506,7 @@ script:
         entity_id: light.kitchen_ceiling_led
         data_template:
           brightness_pct: "100"
-          color_temp: "235"
+          color_temp_kelvin: "235"
       - service: light.turn_on
         entity_id: light.ledstrip_kitchen
         data_template:
@@ -527,7 +530,7 @@ script:
         entity_id: light.play
         data_template:
           brightness_pct: "30"
-          color_temp: 500
+          color_temp_kelvin: 500
       - delay:
           seconds: 10
       - condition: template

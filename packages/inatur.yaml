@@ -1,0 +1,459 @@
+command_line:
+  - sensor:
+      name: "Inatur Cards"
+      command: >
+        curl -s "https://www.inatur.no/kortaktivering/api/v1/tilbud/activations/60ae28c829df660003ad4c65?kommunenummer=1841"
+        | jq -c '{data:.}'
+      # command: >
+      #   curl -s "https://www.inatur.no/kortaktivering/api/v1/tilbud/activations/60ae28c829df660003ad4c65?kommunenummer=1840"
+      #   | jq -c '{data:.}'
+      scan_interval: 120
+      value_template: "ok"
+      json_attributes:
+        - data
+      # If the endpoint returns JSON and you want a specific field, uncomment and adjust:
+  - sensor:
+      name: "Inatur Cards Saltdal"
+      command: >
+        curl -s "https://www.inatur.no/kortaktivering/api/v1/tilbud/activations/60ae28c829df660003ad4c65?kommunenummer=1840"
+        | jq -c '{data:.}'
+      # command: >
+      #   curl -s "https://www.inatur.no/kortaktivering/api/v1/tilbud/activations/60ae28c829df660003ad4c65?kommunenummer=1840"
+      #   | jq -c '{data:.}'
+      scan_interval: 120
+      value_template: "ok"
+      json_attributes:
+        - data
+      # If the endpoint returns JSON and you want a specific field, uncomment and adjust:
+
+  - sensor:
+      name: "Inatur Tilbud Midtre Gauldal"
+      command: >
+        curl -s "https://www.inatur.no/internal/search?f=%5B%7B%22felt%22%3A%22arter%22%2C%22sokeord%22%3A%22lirype%22%7D%2C%7B%22felt%22%3A%22fylker%22%2C%22sokeord%22%3A%22Tr%C3%B8ndelag%22%7D%2C%7B%22felt%22%3A%22kommuner%22%2C%22sokeord%22%3A%22Midtre%20Gauldal%22%7D%2C%7B%22felt%22%3A%22type%22%2C%22sokeord%22%3A%22smaavilttilbud%22%7D%5D&ledig=true&p=0"
+        | jq -c '{data:.}'
+      scan_interval: 400
+      value_template: "ok"
+      json_attributes:
+        - data
+
+  - sensor:
+      name: "Inatur Tilbud Meråker"
+      command: >
+        curl -s "https://www.inatur.no/internal/search?f=%5B%7B%22felt%22%3A%22arter%22%2C%22sokeord%22%3A%22lirype%22%7D%2C%7B%22felt%22%3A%22fylker%22%2C%22sokeord%22%3A%22Tr%C3%B8ndelag%22%7D%2C%7B%22felt%22%3A%22kommuner%22%2C%22sokeord%22%3A%22Mer%C3%A5ker%22%7D%2C%7B%22felt%22%3A%22type%22%2C%22sokeord%22%3A%22smaavilttilbud%22%7D%5D&ledig=true&p=0"
+        | jq -c '{data:.}'
+      scan_interval: 400
+      value_template: "ok"
+      json_attributes:
+        - data
+
+  - sensor:
+      name: "Inatur Tilbud Fosen"
+      command: >
+        curl -s "https://www.inatur.no/internal/search?f=%5B%7B%22felt%22%3A%22arter%22%2C%22sokeord%22%3A%22lirype%22%7D%2C%7B%22felt%22%3A%22fylker%22%2C%22sokeord%22%3A%22Tr%C3%B8ndelag%22%7D%2C%7B%22felt%22%3A%22kommuner%22%2C%22sokeord%22%3A%22Indre%20Fosen%22%7D%2C%7B%22felt%22%3A%22type%22%2C%22sokeord%22%3A%22smaavilttilbud%22%7D%5D&ledig=true&p=0"
+        | jq -c '{data:.}'
+      scan_interval: 400
+      value_template: "ok"
+      json_attributes:
+        - data
+
+  - sensor:
+      name: "Inatur Tilbud Selbu"
+      command: >
+        curl -s "https://www.inatur.no/internal/search?f=%5B%7B%22felt%22%3A%22arter%22%2C%22sokeord%22%3A%22lirype%22%7D%2C%7B%22felt%22%3A%22fylker%22%2C%22sokeord%22%3A%22Tr%C3%B8ndelag%22%7D%2C%7B%22felt%22%3A%22kommuner%22%2C%22sokeord%22%3A%22Selbu%22%7D%2C%7B%22felt%22%3A%22type%22%2C%22sokeord%22%3A%22smaavilttilbud%22%7D%5D&ledig=true&p=0"
+        | jq -c '{data:.}'
+      scan_interval: 400
+      value_template: "ok"
+      json_attributes:
+        - data
+
+  - sensor:
+      name: "Inatur Tilbud Åfjord"
+      command: >
+        curl -s "https://www.inatur.no/internal/search?f=%5B%7B%22felt%22%3A%22arter%22%2C%22sokeord%22%3A%22lirype%22%7D%2C%7B%22felt%22%3A%22fylker%22%2C%22sokeord%22%3A%22Tr%C3%B8ndelag%22%7D%2C%7B%22felt%22%3A%22kommuner%22%2C%22sokeord%22%3A%22%C3%85fjord%22%7D%2C%7B%22felt%22%3A%22type%22%2C%22sokeord%22%3A%22smaavilttilbud%22%7D%5D&ledig=true&p=0"
+        | jq -c '{data:.}'
+      scan_interval: 400
+      value_template: "ok"
+      json_attributes:
+        - data
+
+  - sensor:
+      name: "Inatur Tilbud Oppdal"
+      command: >
+        curl -s "https://www.inatur.no/internal/search?f=%5B%7B%22felt%22%3A%22arter%22%2C%22sokeord%22%3A%22lirype%22%7D%2C%7B%22felt%22%3A%22fylker%22%2C%22sokeord%22%3A%22Tr%C3%B8ndelag%22%7D%2C%7B%22felt%22%3A%22kommuner%22%2C%22sokeord%22%3A%22Oppdal%22%7D%2C%7B%22felt%22%3A%22type%22%2C%22sokeord%22%3A%22smaavilttilbud%22%7D%5D&ledig=true&p=0"
+        | jq -c '{data:.}'
+      scan_interval: 400
+      value_template: "ok"
+      json_attributes:
+        - data
+
+  - sensor:
+      name: "Inatur Tilbud Stjørdal"
+      command: >
+        curl -s "https://www.inatur.no/internal/search?f=%5B%7B%22felt%22%3A%22arter%22%2C%22sokeord%22%3A%22lirype%22%7D%2C%7B%22felt%22%3A%22fylker%22%2C%22sokeord%22%3A%22Tr%C3%B8ndelag%22%7D%2C%7B%22felt%22%3A%22kommuner%22%2C%22sokeord%22%3A%22Stj%C3%B8rdal%22%7D%2C%7B%22felt%22%3A%22type%22%2C%22sokeord%22%3A%22smaavilttilbud%22%7D%5D&ledig=true&p=0"
+        | jq -c '{data:.}'
+      scan_interval: 400
+      value_template: "ok"
+      json_attributes:
+        - data
+
+template:
+  - sensor:
+      - name: "Inatur Available Cards List"
+        unique_id: inatur_available_cards_list
+        state: "{{ now().timestamp() | int }}"
+        attributes:
+          cards: >
+            {% set ns = namespace(cards_list=[])%}
+            {% set areas = state_attr('sensor.inatur_cards', 'data') or [] %}
+            {% for area_data in areas %}
+              {% set area_id = area_data.subArea.id %}
+              {% set area_name = area_data.subArea.name %}
+              {% for activation in area_data.activations %}
+                {% set num_activated = activation.numActivated | int(0) %}
+                {% set capacity = activation.capacity | int(0) %}
+                {% set available = capacity - num_activated %}
+                {% set activation_date = as_datetime(activation.date) | as_local %}
+                {% set thirteen_days_from_now = now().replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=13) %}
+                {% set has_capacity = capacity > 0 and (capacity != available) %}
+                {% if has_capacity and activation_date >= as_datetime('2025-09-10') | as_local and available > 0 and activation_date <= as_datetime('2025-09-14') | as_local and ("balvatnet" in area_name | lower) %}
+                  {% set card_entry = {
+                    'area_id': area_id,
+                    'area_name': area_name,
+                    'date': activation.date,
+                    'available_cards': available
+                  } %}
+                  {% set ns.cards_list = ns.cards_list + [card_entry] %}
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+            {{ ns.cards_list }}
+      - name: "Inatur Available Cards List Saltdal"
+        unique_id: inatur_available_cards_list_saltdal
+        state: "{{ now().timestamp() | int }}"
+        attributes:
+          cards: >
+            {% set ns = namespace(cards_list=[])%}
+            {% set areas = state_attr('sensor.inatur_cards_saltdal', 'data') or [] %}
+            {% for area_data in areas %}
+              {% set area_id = area_data.subArea.id %}
+              {% set area_name = area_data.subArea.name %}
+              {% for activation in area_data.activations %}
+                {% set num_activated = activation.numActivated | int(0) %}
+                {% set capacity = activation.capacity | int(0) %}
+                {% set available = capacity - num_activated %}
+                {% set activation_date = as_datetime(activation.date) | as_local %}
+                {% set thirteen_days_from_now = now().replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=13) %}
+                {% set has_capacity = capacity > 0 and (capacity != available) %}
+                {% if has_capacity and activation_date >= as_datetime('2025-09-10') | as_local and available > 0 and activation_date <= as_datetime('2025-09-14') | as_local
+                  and ("balvatnet" in area_name | lower) %}
+                  {% set card_entry = {
+                    'area_id': area_id,
+                    'area_name': area_name,
+                    'date': activation.date,
+                    'available_cards': available
+                  } %}
+                  {% set ns.cards_list = ns.cards_list + [card_entry] %}
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+            {{ ns.cards_list }}
+
+  - sensor:
+      - name: "Inatur Midtre Gauldal Updated Yesterday"
+        unique_id: inatur_updated_yesterday
+        state: "{{ now().timestamp() | int }}"
+        attributes:
+          cards: >
+            {% set yesterday_timestamp = (now() - timedelta(days=1)).timestamp() %}
+            {# Hent data fra begge sensorene #}
+            {% set sensor_data_gauldal = state_attr('sensor.inatur_tilbud_midtre_gauldal', 'data') %}
+            {% set sensor_data_meraker = state_attr('sensor.inatur_tilbud_meraker', 'data') %}
+            {% set sensor_data_stjordal = state_attr('sensor.inatur_tilbud_stjordal', 'data') %}
+
+            {% set sensor_data_fosen = state_attr('sensor.inatur_tilbud_fosen', 'data') %}
+            {% set sensor_data_selbu = state_attr('sensor.inatur_tilbud_selbu', 'data') %}
+            {% set sensor_data_åfjord = state_attr('sensor.inatur_tilbud_åfjord', 'data') %}
+            {% set sensor_data_oppdal = state_attr('sensor.inatur_tilbud_oppdal', 'data') %}
+
+
+            {# Slå sammen resultat-listan, håndter null-verdia hvis en sensor e tom #}
+            {% set results_gauldal = sensor_data_gauldal.resultat if sensor_data_gauldal is not none else [] %}
+            {% set results_meraker = sensor_data_meraker.resultat if sensor_data_meraker is not none else [] %}
+            {% set results_stjordal = sensor_data_stjordal.resultat if sensor_data_stjordal is not none else [] %}
+
+
+            {% set results_fosen = sensor_data_fosen.resultat if sensor_data_fosen is not none else [] %}
+            {% set results_selbu = sensor_data_selbu.resultat if sensor_data_selbu is not none else [] %}
+            {% set results_åfjord = sensor_data_åfjord.resultat if sensor_data_åfjord is not none else [] %}
+            {% set results_oppdal = sensor_data_oppdal.resultat if sensor_data_oppdal is not none else [] %}
+
+
+
+            {% set results = results_gauldal + results_meraker + results_stjordal + results_fosen + results_selbu + results_åfjord + results_oppdal %}
+            {% set ns = namespace(filtered_data = []) %}
+            {% for result in results %}
+              {% set updated_timestamp = result.sistOppdatert | default(0, true) %}
+              {% set published_timestamp = result.sistPublisert | default(0, true) %}
+              {# Konverter millisekunder te sekunder #}
+              {% if updated_timestamp > 2000000000 %}
+                {% set updated_timestamp = (updated_timestamp / 1000) %}
+              {% endif %}
+              {% if published_timestamp > 2000000000 %}
+                {% set published_timestamp = (published_timestamp / 1000) %}
+              {% endif %}
+              {# Filtrer bare med nye oppdateringer #}
+              {% set innenbygds = ("innenbygds" in result.tittel | lower)%}
+              {% if (updated_timestamp > yesterday_timestamp or published_timestamp > yesterday_timestamp) and innenbygds == False%}              
+                {% set ns.filtered_data = ns.filtered_data + [result] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.filtered_data | to_json }}
+
+# template:
+#   - sensor:
+#       - name: Balvatnet Fauske Cards
+#         unique_id: balvatnet_fauske_cards
+#         state: >
+#           {% set cutoff = (now().year | string) ~ '-09-10' %}
+#           {% set sub = state_attr('sensor.inatur_cards','subAreaState') or [] %}
+#           {% set area = 'Balvatnet Fauske' %}
+#           {% set total = 0 %}
+#           {% for sa in sub | selectattr('name','equalto', area) %}
+#             {% for d in sa.get('days', sa.get('dates', sa.get('activations', []))) %}
+#               {% set date = d.get('date') or d.get('day') %}
+#               {% set status = (d.get('status') or d.get('state') or '') | lower %}
+#               {% set avail = d.get('available') or d.get('availableCards') or d.get('remaining') or 0 %}
+#               {% if date and date >= cutoff and status != 'full' %}
+#                 {% set total = total + (avail | int) %}
+#               {% endif %}
+#             {% endfor %}
+#           {% endfor %}
+#           {{ total }}
+#         attributes:
+#           per_day: >
+#             {% set cutoff = (now().year | string) ~ '-09-10' %}
+#             {% set sub = state_attr('sensor.inatur_cards','subAreaState') or [] %}
+#             {% set area = 'Balvatnet Fauske' %}
+#             {% set m = dict() %}
+#             {% for sa in sub | selectattr('name','equalto', area) %}
+#               {% for d in sa.get('days', sa.get('dates', sa.get('activations', []))) %}
+#                 {% set date = d.get('date') or d.get('day') %}
+#                 {% set status = (d.get('status') or d.get('state') or '') | lower %}
+#                 {% set avail = d.get('available') or d.get('availableCards') or d.get('remaining') or 0 %}
+#                 {% if date and date >= cutoff and status != 'full' %}
+#                   {% set m = dict(m, **{date: (avail | int)}) %}
+#                 {% endif %}
+#               {% endfor %}
+#             {% endfor %}
+#             {{ m | tojson }}
+
+#       - name: Sulitjelma-Nord Cards
+#         unique_id: sulitjelma_nord_cards
+#         state: >
+#           {% set cutoff = (now().year | string) ~ '-09-10' %}
+#           {% set sub = state_attr('sensor.inatur_cards','subAreaState') or [] %}
+#           {% set area = 'Sulitjelma-Nord' %}
+#           {% set total = 0 %}
+#           {% for sa in sub | selectattr('name','equalto', area) %}
+#             {% for d in sa.get('days', sa.get('dates', sa.get('activations', []))) %}
+#               {% set date = d.get('date') or d.get('day') %}
+#               {% set status = (d.get('status') or d.get('state') or '') | lower %}
+#               {% set avail = d.get('available') or d.get('availableCards') or d.get('remaining') or 0 %}
+#               {% if date and date >= cutoff and status != 'full' %}
+#                 {% set total = total + (avail | int) %}
+#               {% endif %}
+#             {% endfor %}
+#           {% endfor %}
+#           {{ total }}
+#         attributes:
+#           per_day: >
+#             {% set cutoff = (now().year | string) ~ '-09-10' %}
+#             {% set sub = state_attr('sensor.inatur_cards','subAreaState') or [] %}
+#             {% set area = 'Sulitjelma-Nord' %}
+#             {% set m = dict() %}
+#             {% for sa in sub | selectattr('name','equalto', area) %}
+#               {% for d in sa.get('days', sa.get('dates', sa.get('activations', []))) %}
+#                 {% set date = d.get('date') or d.get('day') %}
+#                 {% set status = (d.get('status') or d.get('state') or '') | lower %}
+#                 {% set avail = d.get('available') or d.get('availableCards') or d.get('remaining') or 0 %}
+#                 {% if date and date >= cutoff and status != 'full' %}
+#                   {% set m = dict(m, **{date: (avail | int)}) %}
+#                 {% endif %}
+#               {% endfor %}
+#             {% endfor %}
+#             {{ m | tojson }}
+automation:
+  - alias: Notify on Available Inatur Cards
+    id: notify_inatur_available_cards
+    trigger:
+      - platform: state
+        entity_id: sensor.inatur_available_cards_list
+        attribute: cards
+    action:
+      - variables:
+          message_list: >
+            {%set available_cards_list =state_attr('sensor.inatur_available_cards_list', 'cards')  %}
+            {% set ns = namespace(messages=[])%}
+            {% for card in available_cards_list %}
+              {% if card.available_cards > 0 %}
+                {% set ns.messages = ns.messages + [card.area_name + ' on ' + card.date + ' has ' + card.available_cards | string + ' cards.'] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.messages }}
+      - if: "{{ message_list | length > 0 }}"
+        then:
+          - service: notify.mobile_app_erlend_mobil
+            data:
+              title: "Inatur Cards Available! 🎣"
+              message: "{{ message_list | join('\n') }}"
+              data:
+                ttl: 0
+                priority: high
+                channel: "inatur"
+                vibrationPattern: 250, 250, 250
+                notification_icon: "mdi:bird"
+                actions:
+                  - action: "URI" # Must be set to URI if you plan to use a URI
+                    title: "Aktiver!"
+                    uri: "https://www.inatur.no/kortaktivering/controls/68b4b16fed53595bbfdf799f/41580813/4609312/60ae28c829df660003ad4c65" # URL to open when action is selected, can also be a lovelace view/dashboard
+          # - service: notify.mobile_app_stian_mobil
+          #   data:
+          #     title: "Inatur Cards Available! 🎣"
+          #     message: "{{ message_list | join('\n') }}"
+          #     data:
+          #       ttl: 0
+          #       priority: high
+          #       channel: "inatur"
+          #       vibrationPattern: 250, 250, 250
+          #       notification_icon: "mdi:bird"
+          #       actions:
+          #         - action: "URI" # Must be set to URI if you plan to use a URI
+          #           title: "Aktiver!"
+          #           uri: "https://www.inatur.no/kortaktivering/controls/68b17ba362cee12627212c68/45511133/4602471/60ae28c829df660003ad4c65/1841/s206" # URL to open when action is selected, can also be a lovelace view/dashboard
+          - service: persistent_notification.create
+            data:
+              title: "Inatur Cards Available! 🎣"
+              message: "{{ message_list | join('\n') }}"
+
+  - alias: Notify on Available Inatur Cards Saltdal
+    id: notify_inatur_available_cards_saltdal
+    trigger:
+      - platform: state
+        entity_id: sensor.inatur_available_cards_list_saltdal
+        attribute: cards
+    action:
+      - variables:
+          message_list: >
+            {%set available_cards_list =state_attr('sensor.inatur_available_cards_list_saltdal', 'cards')  %}
+            {% set ns = namespace(messages=[])%}
+            {% for card in available_cards_list %}
+              {% if card.available_cards > 0 and card.area_name == 'Balvatnet Saltdal'%}
+                {% set ns.messages = ns.messages + [card.area_name + ' on ' + card.date + ' has ' + card.available_cards | string + ' cards.'] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.messages }}
+      - if: "{{ message_list | length > 0 }}"
+        then:
+          - service: notify.mobile_app_erlend_mobil
+            data:
+              title: "SALTDAL Inatur Cards Available! 🎣"
+              message: "{{ message_list | join('\n') }}"
+              data:
+                ttl: 0
+                priority: high
+                channel: "inatur"
+                vibrationPattern: 250, 250, 250
+                notification_icon: "mdi:bird"
+                actions:
+                  - action: "URI" # Must be set to URI if you plan to use a URI
+                    title: "Aktiver!"
+                    uri: "https://www.inatur.no/kortaktivering/controls/68b4b16fed53595bbfdf799f/41580813/4609312/60ae28c829df660003ad4c65" # URL to open when action is selected, can also be a lovelace view/dashboard
+          # - service: notify.mobile_app_stian_mobil
+          #   data:
+          #     title: "SALTDAL Inatur Cards Available! 🎣"
+          #     message: "{{ message_list | join('\n') }}"
+          #     data:
+          #       ttl: 0
+          #       priority: high
+          #       channel: "inatur"
+          #       vibrationPattern: 250, 250, 250
+          #       notification_icon: "mdi:bird"
+          #       actions:
+          #         - action: "URI" # Must be set to URI if you plan to use a URI
+          #           title: "Aktiver!"
+          #           uri: "https://www.inatur.no/kortaktivering/controls/68b17ba362cee12627212c68/45511133/4602471/60ae28c829df660003ad4c65/1841/s206" # URL to open when action is selected, can also be a lovelace view/dashboard
+          - service: persistent_notification.create
+            data:
+              title: "Inatur Cards Available! 🎣"
+              message: "{{ message_list | join('\n') }}"
+
+  - id: "inatur_nytt_tilbud_varsling"
+    alias: "Inatur: Nytt jakttilbud"
+    description: "Sender varsling når det finnes nye jakttilbud som er oppdatert siden i går."
+    trigger:
+      - platform: state
+        entity_id: sensor.inatur_midtre_gauldal_updated_yesterday
+        attribute: cards
+    condition: []
+    action:
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          title: "🎣 Nye jakttilbud tilgjengelig!"
+          message: >
+            {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') | from_json %}
+            {% set ns = namespace(messages = []) %}
+            {% for item in results %}
+              {% set title = item.tittel | default('Ukjent tittel') %}
+              {% set updated = item.sistOppdatertFormatert | default('Ukjent dato') %}
+              {% set description = item.kortBeskrivelse | default('Ingen beskrivelse tilgjengelig.') %}
+              {% set message = "- " ~ title ~ " (Oppdatert: " ~ updated ~ ")\n" %}
+              {% set ns.messages = ns.messages + [message] %}
+            {% endfor %}
+            {{ ns.messages | join('\n\n') }}
+          data:
+            ttl: 0
+            priority: high
+            channel: "inatur"
+            vibrationPattern: 1000, 1000, 1000
+            notification_icon: "mdi:bird"
+            actions:
+              - action: URI
+                title: "Se tilbud"
+                uri: >
+                  {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') | from_json %}
+                  {% if results and (results | length) > 0 %}
+                    {{ "https://www.inatur.no" ~ results[0].url }}
+                  {% else %}
+                    {{ "https://www.inatur.no" }}
+                  {% endif %}
+      - service: notify.mobile_app_stian_mobil
+        data:
+          title: "🎣 Nye jakttilbud tilgjengelig!"
+          message: >
+            {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') | from_json %}
+            {% set ns = namespace(messages = []) %}
+            {% for item in results %}
+              {% set title = item.tittel | default('Ukjent tittel') %}
+              {% set updated = item.sistOppdatertFormatert | default('Ukjent dato') %}
+              {% set description = item.kortBeskrivelse | default('Ingen beskrivelse tilgjengelig.') %}
+              {% set message = "- " ~ title ~ " (Oppdatert: " ~ updated ~ ")\n" %}
+              {% set ns.messages = ns.messages + [message] %}
+            {% endfor %}
+            {{ ns.messages | join('\n\n') }}
+          data:
+            ttl: 0
+            priority: high
+            channel: "inatur"
+            vibrationPattern: 1000, 1000, 1000
+            notification_icon: "mdi:bird"
+            actions:
+              - action: URI
+                title: "Se tilbud"
+                uri: >
+                  {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') | from_json %}
+                  {% if results and (results | length) > 0 %}
+                    {{ "https://www.inatur.no" ~ results[0].url }}
+                  {% else %}
+                    {{ "https://www.inatur.no" }}
+                  {% endif %}
+    mode: single

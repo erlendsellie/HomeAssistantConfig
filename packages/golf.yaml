@@ -45,8 +45,8 @@ template:
           {{30 * ((states('sensor.golf_percent_to_charge') | float)/100) | round(3)}}
       - name: "Car to charge"
         state: >-
-          {%set tesla = states('sensor.modely_kwh_to_charge') | float%}
-          {%set tesla_soc = states('sensor.modely') | float%}
+          {%set tesla = states('sensor.modely_kwh_to_charge') | float(default=0)%}
+          {%set tesla_soc = states('sensor.modely') | float(default=60)%}
           {%set golf_soc = states('sensor.e_golf_battery_level') | float%}
           {%set golf = states('sensor.golf_kwh_to_charge') | float%}
           {%if golf_soc < 40 and tesla_soc < 40%}
@@ -62,27 +62,24 @@ template:
           {%endif%}
       - name: "Car Charging"
         state: >-
-          {%set tesla_soc = states('sensor.modely') | float%}
-          {%set golf_soc = states('sensor.e_golf_battery_level') | float%}
-          {%set car_to_charge = states('sensor.car_to_charge')%}
-          {%set tesla_charging = states('binary_sensor.modely_charger_sensor') == 'on' %}
-          {%set golf_charging = states('binary_sensor.e_golf_charging_cable_connected') == 'on' %}
+          {% set tesla_soc = states('sensor.modely') | float(0) %}
+          {% set golf_soc = states('sensor.e_golf_battery_level') | float(0) %}
+          {% set car_to_charge = states('sensor.car_to_charge') %}
+          {% set tesla_charging = is_state('binary_sensor.modely_charger_sensor', 'on') %}
+          {% set golf_charging = is_state('binary_sensor.e_golf_charging_cable_connected', 'on') %}
 
-          {%if tesla_charging%}
-          {%if car_to_charge == 'Tesla'%}
-            {%set charging_car = 'Correct car is charging'%}
-          {%endif%}
-            {%set charging_car =  charging_car + ' (Tesla)'%}
-          {%elif golf_charging%}
-          {%if car_to_charge == 'Golf'%}
-            {%set charging_car = 'Correct car is charging'%}
-          {%endif%}
-            {%set charging_car =  charging_car + ' (Golf)'%}
-          {%else%}
-            {%set charging_car = 'No car is charging'%}
-          {%endif%}
-          {{charging_car}}
-          You should charge {{car_to_charge}} tonight. Tesla: {{tesla_soc}}%, Golf: {{golf_soc}}%
+          {% if tesla_charging and car_to_charge == 'Tesla' %}
+            Correct car is charging (Tesla)
+          {% elif golf_charging and car_to_charge == 'Golf' %}
+            Correct car is charging (Golf)
+          {% elif tesla_charging %}
+            Incorrect car is charging (Tesla)
+          {% elif golf_charging %}
+            Incorrect car is charging (Golf)
+          {% else %}
+            No car is charging
+          {% endif %}
+          You should charge {{ car_to_charge }} tonight. Tesla: {{ tesla_soc }}%, Golf: {{ golf_soc }}%
 
   #     - name: ErHjemmeUke
   #       unique_id: ErHjemmeUke
@@ -116,7 +113,8 @@ automation:
         at: "21:00:00"
     action:
       - service: script.turn_on
-        entity_id: script.notifymehome
+        target:
+          entity_id: script.notifymehome
         data_template:
           variables:
             title: "Car to charge tonight"
@@ -209,6 +207,15 @@ script:
           seconds: 30
       - service: switch.turn_on
         entity_id: switch.e_golf_force_data_refresh
+      - delay:
+          minutes: 3
+      - condition: state
+        entity_id: sensor.e_golf_request_results
+        state: "fail"
+      - service: switch.turn_on
+        entity_id:
+          - switch.e_golf_window_heater
+          - switch.e_golf_electric_climatisation
 
   stop_climate_egolf:
     alias: "Stop Climate E-golf"

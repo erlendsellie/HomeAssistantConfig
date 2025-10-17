@@ -225,7 +225,7 @@ automation:
         data:
           #rgb_color: [255,128,25]
           brightness_pct: 100
-          color_temp: "215"
+          color_temp_kelvin: "215"
 
   #Pause TV
   - alias: "WatchLeftBattery"
@@ -251,7 +251,7 @@ automation:
                 state: "on"
             sequence:
               - service: media_player.media_play_pause
-                entity_id: media_player.google_tv
+                entity_id: media_player.bedroom_tv
           - conditions:
               - condition: template
                 value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.living_room_tv.state != 'paused' and states.media_player.living_room_tv.state != 'playing'))}}"
@@ -313,7 +313,7 @@ automation:
                 state: "off"
             sequence:
               - service: media_player.toggle
-                entity_id: media_player.google_tv
+                entity_id: media_player.bedroom_tv
           - conditions:
               - condition: state
                 entity_id: input_boolean.easleep
@@ -336,18 +336,6 @@ automation:
     action:
       - service: light.toggle
         entity_id: light.sofa
-
-  - alias: "Watch5"
-    trigger:
-      platform: webhook
-      webhook_id: !secret watch5
-      local_only: false
-    condition:
-      - condition: template
-        value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
-    action:
-      - service: cover.toggle
-        entity_id: cover.veranda_curtains
 
   - alias: "klokke7"
     trigger:
@@ -484,16 +472,6 @@ automation:
     action:
       - service: script.notifyblanket
 
-  - alias: "toggleCurtainsNotification"
-    trigger:
-      - platform: event
-        event_type: mobile_app_notification_action
-        event_data:
-          action: togglecurtains
-    action:
-      - service: cover.toggle
-        entity_id: cover.veranda_curtains
-
   - alias: "curtainshalfwayNotification"
     trigger:
       - platform: event
@@ -557,7 +535,7 @@ script:
   notifyblanketcaroline:
     alias: notifyblanketcaroline
     sequence:
-      - service: notify.mobile_app_caroline_pixel
+      - service: notify.mobile_app_pixel_7_pro
         data_template:
           title: "Blanket is {{states.switch.blanket.state}}"
           message: "Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom."

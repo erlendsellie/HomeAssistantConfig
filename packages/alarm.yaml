@@ -37,7 +37,8 @@ automation:
         to: "on"
     action:
       - service: script.turn_on
-        entity_id: script.requestlocation
+        target:
+          entity_id: script.requestlocation
 
   # - alias: NotifyMotion
   #   trigger:
@@ -141,7 +142,8 @@ automation:
       from: Arm Away
     action:
       - service: script.turn_on
-        entity_id: script.say
+        target:
+          entity_id: script.say
         data_template:
           variables:
             message: "Alarmen ble deaktivert."
@@ -308,7 +310,8 @@ automation:
         minutes: 10
     action:
       - service: script.turn_on
-        entity_id: script.lockdoor
+        target:
+          entity_id: script.lockdoor
 
   - id: Turnalarmaway
     alias: Turn Alarm away
@@ -321,17 +324,21 @@ automation:
       #   data_template:
       #     message: 'Arm Away'
       - service: script.turn_on
-        entity_id: script.lockdoor
+        target:
+          entity_id: script.lockdoor
       - service: script.turn_on
         entity_id: script.alllightsoff
       - delay:
           seconds: 20
       - service: script.turn_on
-        entity_id: script.alllightsoff
+        target:
+          entity_id: script.alllightsoff
       - service: script.turn_on
-        entity_id: script.alllightsoff
+        target:
+          entity_id: script.alllightsoff
       - service: script.turn_on
-        entity_id: script.lockdoor
+        target:
+          entity_id: script.lockdoor
 
   - id: Turnalarmaway10seconds
     alias: Turn Alarm Away After 10 seconds
@@ -349,21 +356,25 @@ automation:
         state: "Arm Away"
     action:
       - service: media_player.turn_off
-        entity_id: media_player.tv_stua
+        target:
+          entity_id: media_player.tv_stua
       - service: switch.turn_off
-        entity_id: switch.nexa3 #Fan Heater
+        target:
+          entity_id: switch.nexa3 #Fan Heater
       - condition: state
         entity_id: input_boolean.vacuum_when_away
         state: "on"
       - condition: state
         entity_id: input_boolean.runvacuum
         state: "on"
-      - service: vacuum.set_fan_speed
-        entity_id: vacuum.xiaomi_vacuum_cleaner
+      - action: vacuum.set_fan_speed
+        target:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
         data:
           fan_speed: Turbo
       - service: vacuum.start
-        entity_id: vacuum.xiaomi_vacuum_cleaner
+        target:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
 
   - id: RunNeato
     alias: RunNeato
@@ -492,27 +503,35 @@ automation:
       #   data_template:
       #     message: 'Arm Home'
       - service: script.turn_on
-        entity_id: script.lockdoor
-      - entity_id: script.alllightsoff
+        target:
+          entity_id: script.lockdoor
+      - target:
+          entity_id: script.alllightsoff
         service: script.turn_on
-      - entity_id: script.alllightsoff
+      - target:
+          entity_id: script.alllightsoff
         service: script.turn_on
       - service: media_player.turn_off
-        entity_id: media_player.tv_stua
+        target:
+          entity_id: media_player.tv_stua
       - service: switch.turn_off
-        entity_id: switch.nexa3 #Fan Heater
+        target:
+          entity_id: switch.nexa3 #Fan Heater
       - service: light.turn_on
-        entity_id: light.trym_balloon
+        target:
+          entity_id: light.trym_balloon
         data:
           color_name: "{{states('sensor.trym_traffic_color')}}"
           brightness: 1
       - service: light.turn_on
-        entity_id: light.tyra_ball
+        target:
+          entity_id: light.tyra_ball
         data:
           color_name: "{{states('sensor.tyra_traffic_color')}}"
           brightness: 1
       - service: script.turn_on
-        entity_id: script.say
+        target:
+          entity_id: script.say
         data_template:
           variables:
             message: Alarmen ble aktivert for natten
@@ -521,7 +540,8 @@ automation:
       # - service: light.turn_off
       #   entity_id: light.gateway_light_7c49eb1c2d6b
       - service: script.turn_on
-        entity_id: script.lockdoor
+        target:
+          entity_id: script.lockdoor
 
   - alias: RunVacuumAtNight
     mode: single
@@ -541,12 +561,14 @@ automation:
         entity_id: input_boolean.runvacuum
         state: "on"
     action:
-      - service: vacuum.set_fan_speed
-        entity_id: vacuum.xiaomi_vacuum_cleaner
+      - action: vacuum.set_fan_speed
+        target:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
         data:
           fan_speed: Silent
       - service: vacuum.start
-        entity_id: vacuum.xiaomi_vacuum_cleaner
+        target:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
       - delay:
           hours: 5
 
@@ -573,7 +595,8 @@ automation:
         data:
           message: "The Vacuum has cleaned for 45 minutes, so it won't clean more today."
       - service: input_boolean.turn_off
-        entity_id: input_boolean.runvacuum
+        target:
+          entity_id: input_boolean.runvacuum
 
   - alias: resetVacuumDoneForTheDay
     trigger:
@@ -581,7 +604,8 @@ automation:
         at: "10:00:00"
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.runvacuum
+        target:
+          entity_id: input_boolean.runvacuum
 
   ################
   ##   Disarm   ##
@@ -591,6 +615,37 @@ automation:
   # The conditions still has to be met, ig the door has to be unlocked when the door is opened.
 
   #Bytte til group
+
+  - alias: armByDoor
+    trigger:
+      # - platform: state
+      #   entity_id: binary_sensor.hoveddor
+      #   to: 'on'
+      - platform: state
+        entity_id: lock.ytterdor
+        from: "unlocked"
+        to: "locked"
+    # condition:
+    # - condition: state
+    #   entity_id: binary_sensor.motion_vindfang
+    #   state: 'off'
+    # - condition: template
+    #   value_template: >-
+    #       {%-set alarmNotJustSet = (((as_timestamp(utcnow()) - as_timestamp(states.sensor.alarm.last_changed, default=0)) / 60) | round(0)) > 4 -%}
+    #       {%-set notDisarmedAndGarageClosed = states.input_select.alarm.state != 'Disarm' and states.cover.garage_door.state == 'closed' -%}
+    #       {%-set notmotionvindfang = states.binary_sensor.motion_vindfang.state == 'off' -%}
+    #       {{alarmNotJustSet and notDisarmedAndGarageClosed and notmotionvindfang}}
+    action:
+      - condition: template
+        value_template: "{{states.sensor.alarm.state == 'Arm Away' and states.input_boolean.guestmode.state == 'off'}}"
+      - service: input_select.select_option
+        data_template:
+          entity_id: input_select.alarm
+          option: "{{states.sensor.alarm.state}}"
+      - service: notify.me
+        data_template:
+          title: "Arm away by door lock"
+          message: "The door was locked by {{states.sensor.unlockedby.state}}. The alarm is {{states.input_select.alarm.state}} and the time is {{ now().hour }}:{{ now().minute }}."
 
   - alias: disarmByDoor
     trigger:
@@ -607,7 +662,7 @@ automation:
     #   state: 'off'
     # - condition: template
     #   value_template: >-
-    #       {%-set alarmNotJustSet = (((as_timestamp(utcnow()) - as_timestamp(states.sensor.alarm.last_changed)) / 60) | round(0)) > 4 -%}
+    #       {%-set alarmNotJustSet = (((as_timestamp(utcnow()) - as_timestamp(states.sensor.alarm.last_changed, default=0)) / 60) | round(0)) > 4 -%}
     #       {%-set notDisarmedAndGarageClosed = states.input_select.alarm.state != 'Disarm' and states.cover.garage_door.state == 'closed' -%}
     #       {%-set notmotionvindfang = states.binary_sensor.motion_vindfang.state == 'off' -%}
     #       {{alarmNotJustSet and notDisarmedAndGarageClosed and notmotionvindfang}}
@@ -646,10 +701,11 @@ automation:
           minutes: 5
       # If the door has not been opened in the last 3 minutes, set the previous Alarm state..
       - condition: template
-        value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed)) / 60) | round(0)) > 6)}}"
+        value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed, default=0)) / 60) | round(0)) > 6)}}"
       # - condition: templa= 'Disarm' }}"
       - service: lock.lock
-        entity_id: lock.ytterdor
+        target:
+          entity_id: lock.ytterdor
       - service: notify.me
         data:
           title: "door unlocked"
@@ -759,13 +815,15 @@ automation:
         from: "Arm Away"
     action:
       - service: vacuum.return_to_base
-        entity_id:
-          - vacuum.xiaomi_vacuum_cleaner
-          - vacuum.neato
+        target:
+          entity_id:
+            - vacuum.xiaomi_vacuum_cleaner
+            - vacuum.neato
       - delay:
           seconds: 5
       - service: vacuum.return_to_base
-        entity_id: vacuum.xiaomi_vacuum_cleaner
+        target:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
 
   - id: turnalarmmoff
     alias: Turn Alarm off
@@ -775,9 +833,11 @@ automation:
         to: Disarm
     action:
       - service: script.turn_off
-        entity_id: script.alarmtriggered
-      - service: vacuum.set_fan_speed
-        entity_id: vacuum.xiaomi_vacuum_cleaner
+        target:
+          entity_id: script.alarmtriggered
+      - action: vacuum.set_fan_speed
+        target:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
         data:
           fan_speed: Silent
     # - service: notify.me
@@ -790,7 +850,7 @@ automation:
         entity_id:
           - binary_sensor.door_livingroom
           - binary_sensor.door_kitchen
-          - binary_sensor.grind
+          # - binary_sensor.grind
           - binary_sensor.grind_oppe
           - binary_sensor.vindfang_door
         to: "on"
@@ -861,7 +921,7 @@ automation:
           - binary_sensor.veranda_open
           - binary_sensor.door_livingroom
           - binary_sensor.door_kitchen
-          - binary_sensor.grind
+          # - binary_sensor.grind
           - binary_sensor.door_downstairs
           - binary_sensor.lilleveranda
           - binary_sensor.trym_door
@@ -1025,10 +1085,11 @@ automation:
   - id: veranda_door_still_open
     alias: veranda_door_still_open
     trigger:
-      # - platform: state
-      #   entity_id: binary_sensor.hoveddor
-      #   from: "off"
-      #   to: "on"
+      - platform: state
+        entity_id: binary_sensor.hoveddor
+        from: "off"
+        to: "on"
+        id: door
       # - platform: state
       #   entity_id: cover.garage_door
       #   from: "closed"
@@ -1059,7 +1120,28 @@ automation:
           variables:
             message: >-
               Verandadøra er fortsatt åpen, vennligst sjekk!
-
+      - condition: trigger
+        id: door
+      # Capture the current state of the light
+      - service: scene.create
+        data:
+          scene_id: before_driveway_light
+          snapshot_entities:
+            - light.driveway
+      # Turn the driveway light red
+      # - service: light.turn_on
+      #   target:
+      #     entity_id: light.driveway
+      #   data:
+      #     brightness: 255
+      #     transition: 1
+      #     color_name: red
+      # Wait for 10 seconds
+      - delay: "00:00:10"
+      # Restore the previous light state
+      - service: scene.turn_on
+        target:
+          entity_id: scene.before_driveway_light
 script:
   alarmtriggered:
     alias: Alarm Triggered
@@ -1088,8 +1170,9 @@ script:
             - {{state.attributes.friendly_name}}
             {%- endif -%}
             {%endfor %}
-      - service: vacuum.set_fan_speed
-        entity_id: vacuum.xiaomi_vacuum_cleaner
+      - action: vacuum.set_fan_speed
+        target:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
         data:
           fan_speed: Turbo
       - service: vacuum.start

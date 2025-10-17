@@ -39,6 +39,7 @@ sensor:
     sensors:
       power_without_easee:
         friendly_name: Power Without Easee
+        unique_id: "e6681b9d-8ce0-46fd-a2ff-3f92a48e768a"
         unit_of_measurement: W
         value_template: >-
           {% set main = states.sensor.pulse_power.state | float(default=0)%}
@@ -48,6 +49,7 @@ sensor:
           }}
       power_other:
         friendly_name: Power other
+        unique_id: "d6f067a2-aacb-439f-86b0-ea0ce7024686"
         unit_of_measurement: W
         value_template: >-
           {% set main = states('sensor.pulse_power') | float(default=0)%}
@@ -72,6 +74,7 @@ sensor:
           )}}
       power_other_kwh:
         friendly_name: Power other kWh
+        unique_id: "1ea69479-05ca-4379-af01-32c5d5d599a2"
         unit_of_measurement: kWh
         value_template: >-
           {% set powerUsageBeforeNewSensor = 6405%}
@@ -84,11 +87,13 @@ sensor:
           }}
       easee_w:
         friendly_name: Easee Watt
+        unique_id: "661e7393-1ebf-4c4e-95b5-94b4d74cb0e6"
         unit_of_measurement: W
         value_template: >-
           {{states.sensor.garage_power.state | float(default=0)* 1000}}
       office_heater_w:
         friendly_name: Office Heater W
+        unique_id: "03a239d5-8a63-4d92-bbde-ce4b19f15ee6"
         unit_of_measurement: W
         value_template: >-
           {% set on = states.switch.office_heater.state == 'on'%}
@@ -99,6 +104,7 @@ sensor:
           {%endif%}
       toilet_heater_w:
         friendly_name: Toilet Heater W
+        unique_id: "e57c00aa-b2d9-46d3-b762-3b94d4906a4b"
         unit_of_measurement: W
         value_template: >-
           {% set on = states.switch.toilet_heater.state == 'on'%}
@@ -109,6 +115,7 @@ sensor:
           {%endif%}
       tyra_heater_w:
         friendly_name: Tyra Heater W
+        unique_id: "1604a7be-12ae-42d3-9b17-955532d918ef"
         unit_of_measurement: W
         value_template: >-
           {% set on = states.climate.tyra_heater.attributes.hvac_action == 'heating' %}
@@ -119,6 +126,7 @@ sensor:
           {%endif%}
       trym_heater_w:
         friendly_name: Trym Heater W
+        unique_id: "0caf0648-2e15-4fc0-8348-9e40c7f88cc7"
         unit_of_measurement: W
         value_template: >-
           {% set on = states.climate.trym.attributes.hvac_action == 'heating' %}
@@ -147,6 +155,7 @@ sensor:
   - platform: filter
     name: "power other filtered"
     entity_id: sensor.power_other
+    unique_id: "0067ffba-78d7-441e-9727-f77d57cab410"
     filters:
       - filter: throttle
         window_size: 4
@@ -158,6 +167,7 @@ sensor:
 
   - platform: integration
     source: sensor.office_heater_w
+    unique_id: "f1daf17c-60c6-4321-a198-0c36b41ae20f"
     name: Office Heater Kwh
     unit_prefix: k
     round: 2
@@ -165,6 +175,7 @@ sensor:
 
   - platform: integration
     source: sensor.toilet_heater_w
+    unique_id: "871791bf-aa0f-4329-b164-f47307829c0d"
     name: Toilet Heater Kwh
     unit_prefix: k
     round: 2
@@ -172,23 +183,27 @@ sensor:
 
   - platform: integration
     source: sensor.torketrommel_electric_w
+    unique_id: "7900fed7-d658-4d3f-aeb5-777a60c7647b"
     name: Torketrommel Kwh
     unit_prefix: k
     round: 2
 
   - platform: integration
     source: sensor.vaskemaskin_electric_w
+    unique_id: "91d9bc38-94ba-423a-b1eb-4e2bac1aafce"
     name: Vaskemaskin Kwh
     unit_prefix: k
     round: 2
 
   # - platform: integration
   #   source: sensor.varmepumpe_w
+  # unique_id: "5c26bede-c059-4010-90fd-10ed7fced163"
   #   name: Varmepumpe Kwh
   #   unit_prefix: k
   #   round: 2
   - platform: integration
     source: sensor.power_other_filtered
+    unique_id: "76a1df5b-41b1-49c9-8b0d-3eda79331f2e"
     name: Power Other Kwh Raw
     unit_prefix: k
     round: 2
@@ -197,6 +212,7 @@ sensor:
 
   - platform: filter
     name: "Vindfang Consumed kWh"
+    unique_id: "27174c61-0f40-489c-8d30-58d4f623ee37"
     entity_id: sensor.vindfang_electric_consumption_kwh_raw
     filters:
       - filter: outlier
@@ -207,6 +223,7 @@ sensor:
 
   - platform: filter
     name: "Varmtvannsbereder Consumed kWh"
+    unique_id: "4b8e20fa-cfde-4a25-b4a3-b79da1fac795"
     entity_id: sensor.varmtvannsbereder_kwh_raw
     filters:
       - filter: outlier
@@ -217,6 +234,7 @@ sensor:
 
   - platform: filter
     name: "Sokkel Consumed kWh"
+    unique_id: "7b2eefbf-2487-4449-9687-e9daeaa39978"
     entity_id: sensor.sokkel_electric_consumption_kwh_raw
     filters:
       - filter: outlier
@@ -227,6 +245,7 @@ sensor:
 
   - platform: filter
     name: "Bathroom Consumption kWh"
+    unique_id: "f4774364-00a3-4607-9b8b-e83e79442b8e"
     entity_id: sensor.bathroom_electric_consumption_kwh_raw
     filters:
       - filter: outlier
@@ -237,6 +256,7 @@ sensor:
 
   - platform: filter
     name: "Vaskemaskin Electric Consumed kWh"
+    unique_id: "a5381c24-576f-4a46-9979-d5c6b0e71d75"
     entity_id: sensor.vaskemaskin_electric_consumed_kwh_raw
     filters:
       - filter: outlier
@@ -247,6 +267,7 @@ sensor:
 
   - platform: filter
     name: "Torketrommel Electric Consumed kWh"
+    unique_id: "27502c09-0aac-4302-8089-efe33fa5a3fb"
     entity_id: sensor.torketrommel_electric_consumed_kwh_raw
     filters:
       - filter: outlier
@@ -257,6 +278,7 @@ sensor:
 
   - platform: filter
     name: "Torketrommel Electric W"
+    unique_id: "05b2a7c3-862e-4ca0-9d16-4625fa3d886a"
     entity_id: sensor.torketrommel_electric_w_raw
     filters:
       - filter: outlier
@@ -270,5 +292,6 @@ binary_sensor:
     sensors:
       vvb_heating:
         friendly_name: VVB Heating
+        unique_id: "e7f7e3e8-510b-4a6d-8937-1bcdb23dc75b"
         value_template: >-
           {{states.sensor.varmtvannsbereder_electric_consumption_w.state | int > 0}}

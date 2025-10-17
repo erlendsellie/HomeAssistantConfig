@@ -1,14 +1,14 @@
-climate:
-  - platform: generic_thermostat
-    name: Toilet Heater
-    heater: switch.toilet_heater
-    target_sensor: sensor.toilet_temp
-    min_temp: 16
-    max_temp: 26
-    precision: 0.5
-    hot_tolerance: 0.2
-    keep_alive:
-      minutes: 10
+# climate:
+#   - platform: generic_thermostat
+#     name: Toilet Heater
+#     heater: switch.toilet_heater
+#     target_sensor: sensor.toilet_temp
+#     min_temp: 16
+#     max_temp: 26
+#     precision: 0.5
+#     hot_tolerance: 0.2
+#     keep_alive:
+#       minutes: 10
 
 input_number:
   toilet_heater_temperature:
@@ -19,26 +19,26 @@ input_number:
     mode: slider
 
 automation:
-  - alias: ClimateToiletNotWorking
-    trigger:
-      - platform: template
-        value_template: >-
-          {{(states.climate.toilet_heater.attributes.current_temperature - 
-          states.climate.toilet_heater.attributes.temperature)
-          > 2}}
-    action:
-      - service: switch.turn_off
-        entity_id: switch.toilet_heater
+  # - alias: ClimateToiletNotWorking
+  #   trigger:
+  #     - platform: template
+  #       value_template: >-
+  #         {{(states.climate.toilet_heater.attributes.current_temperature -
+  #         states.climate.toilet_heater.attributes.temperature)
+  #         > 2}}
+  #   action:
+  #     - service: switch.turn_off
+  #       entity_id: switch.toilet_heater
 
-  - id: "PriceAnalyzer - Climate Toilet"
-    alias: PriceAnalyzer - Climate Toilet
-    description: ""
-    use_blueprint:
-      path: erlendsellie/priceanalyzer.yaml
-      input:
-        sensor: sensor.pricecorrection
-        number: input_number.toilet_heater_temperature
-        climate: climate.toilet_heater
+  # - id: "PriceAnalyzer - Climate Toilet"
+  #   alias: PriceAnalyzer - Climate Toilet
+  #   description: ""
+  #   use_blueprint:
+  #     path: erlendsellie/priceanalyzer.yaml
+  #     input:
+  #       sensor: sensor.pricecorrection
+  #       number: input_number.toilet_heater_temperature
+  #       climate: climate.toilet_heater
 
   # - alias: ClimateToiletNotWorkingNotify
   #   trigger:

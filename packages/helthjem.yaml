@@ -1,3 +1,11 @@
+multiscrape:
+  # - resource: https://www.monsterenergy.com/no-no/promotions/
+  #   scan_interval: 7200 #2 hours
+  #   sensor:
+  #     - name: "monster_promotions"
+  #       select: ".promotions h1"
+  #       icon: "mdi:beer"
+
 sensor:
   #sensor for checking total matces for a specific search from Norrøna Online Outlet.
   - platform: rest
@@ -13,66 +21,84 @@ sensor:
     force_update: true
 
   - platform: rest
-    name: NorronaService
-    unique_id: NorronaService
-    scan_interval: 600
-    json_attributes:
-      - value_json[0].StatusString
-    resource: https://www.norrona.com/api/mypage/ServiceOrderHistory/?key=c913684c-b602-4797-9928-c1ef2a268499&count=0
-    value_template: >-
-      {{value_json[0].StatusString}}
-    force_update: true
+    name: Erlend Current Temperatur
+    resource_template: >
+      https://api.open-meteo.com/v1/forecast?latitude={{ states.person.erlend.attributes.latitude | default(63.357) }}&longitude={{ states.person.erlend.attributes.longitude | default(10.354) }}&current_weather=true
+    value_template: "{{ value_json.current_weather.temperature }}"
+    unit_of_measurement: "°C"
+    scan_interval: 900 # oppdater hvert 15. min
 
   - platform: rest
-    name: posten_tracking
-    scan_interval: 300
-    json_attributes:
-      - value_json.consignmentSet
-    resource: https://sporing.posten.no/tracking/api/fetch?query=LL031892682NO&lang=no
-    value_template: >-
-      {{value_json.consignmentSet[0].packageSet[0].eventSet[0].city}}
-    force_update: true
+    name: "Elkjop Order Status"
+    resource: "https://www.elkjop.no/api/no-b2c/track-and-trace/order/v2/2120081010"
+    method: GET
+    scan_interval: 900 # sjekk hvert 15. minutt (kan sett kortere om du vil)
+    value_template: >
+      {{ value_json.order.deliveries[0].activeStatusId }}
+
+  # - platform: rest
+  #   name: posten_tracking
+  #   scan_interval: 300
+  #   json_attributes:
+  #     - value_json.consignmentSet
+  #   resource: https://sporing.posten.no/tracking/api/fetch?query=LL031892682NO&lang=no
+  #   value_template: >-
+  #     {{value_json.consignmentSet[0].packageSet[0].eventSet[0].city}}
+  #   force_update: true
 
   #sensor for checking last Tracking message from HeltHjem.
-  - platform: command_line
-    command: >-
-      curl 'https://services.helthjem.no/graphql' \
-        -H 'authority: services.helthjem.no' \
-        -H 'accept: */*' \
-        -H 'accept-language: en-US,en;q=0.9,nb-NO;q=0.8,nb;q=0.7,no;q=0.6' \
-        -H 'content-type: application/json' \
-        -H 'origin: https://helthjem.no' \
-        -H 'referer: https://helthjem.no/sporingv2?sporingsnummer=R-4CK4W' \
-        -H 'sec-ch-ua: "Chromium";v="104", " Not A;Brand";v="99", "Google Chrome";v="104"' \
-        -H 'sec-ch-ua-mobile: ?0' \
-        -H 'sec-ch-ua-platform: "Linux"' \
-        -H 'sec-fetch-dest: empty' \
-        -H 'sec-fetch-mode: cors' \
-        -H 'sec-fetch-site: same-site' \
-        -H 'user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36' \
-        --data-raw '{"variables":{},"query":"{\n  getTracking(parcelReference: \"R-4CK4W\") {\n    deliveryPoint {\n      postalCode\n      postalArea\n      type\n      __typename\n    }\n    events {\n      additionalInfoApiKey\n      apiKey\n      freightProduct\n      time\n      shipmentNumber\n      isHighlighted\n      location\n      messages {\n        message\n        title\n        additionalMessage\n        __typename\n      }\n      type\n      __typename\n    }\n    noticeData {\n      message\n      title\n      __typename\n    }\n    sender {\n      postalCode\n      postalArea\n      __typename\n    }\n    shipmentNumber\n    shopId\n    status\n    shop {\n      id\n      name\n      logoUrl\n      __typename\n    }\n    __typename\n  }\n}"}' \
-        --compressed
-    name: helthjem
-    # json_attributes:
-    #   - nextDeliveryDays
-    value_template: >-
-      {%set lastEvent = value_json.data.getTracking.events[0] %}
-      {{lastEvent.location}} : {{lastEvent.messages.title}} : {{lastEvent.messages.message}}
-    scan_interval: 300
-    command_timeout: 30
+  # - platform: command_line
+  #   command: >-
+  #     curl 'https://services.helthjem.no/graphql' \
+  #       -H 'authority: services.helthjem.no' \
+  #       -H 'accept: */*' \
+  #       -H 'accept-language: en-US,en;q=0.9,nb-NO;q=0.8,nb;q=0.7,no;q=0.6' \
+  #       -H 'content-type: application/json' \
+  #       -H 'origin: https://helthjem.no' \
+  #       -H 'referer: https://helthjem.no/sporingv2?sporingsnummer=R-4CK4W' \
+  #       -H 'sec-ch-ua: "Chromium";v="104", " Not A;Brand";v="99", "Google Chrome";v="104"' \
+  #       -H 'sec-ch-ua-mobile: ?0' \
+  #       -H 'sec-ch-ua-platform: "Linux"' \
+  #       -H 'sec-fetch-dest: empty' \
+  #       -H 'sec-fetch-mode: cors' \
+  #       -H 'sec-fetch-site: same-site' \
+  #       -H 'user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36' \
+  #       --data-raw '{"variables":{},"query":"{\n  getTracking(parcelReference: \"R-4CK4W\") {\n    deliveryPoint {\n      postalCode\n      postalArea\n      type\n      __typename\n    }\n    events {\n      additionalInfoApiKey\n      apiKey\n      freightProduct\n      time\n      shipmentNumber\n      isHighlighted\n      location\n      messages {\n        message\n        title\n        additionalMessage\n        __typename\n      }\n      type\n      __typename\n    }\n    noticeData {\n      message\n      title\n      __typename\n    }\n    sender {\n      postalCode\n      postalArea\n      __typename\n    }\n    shipmentNumber\n    shopId\n    status\n    shop {\n      id\n      name\n      logoUrl\n      __typename\n    }\n    __typename\n  }\n}"}' \
+  #       --compressed
+  #   name: helthjem
+  #   # json_attributes:
+  #   #   - nextDeliveryDays
+  #   value_template: >-
+  #     {%set lastEvent = value_json.data.getTracking.events[0] %}
+  #     {{lastEvent.location}} : {{lastEvent.messages.title}} : {{lastEvent.messages.message}}
+  #   scan_interval: 300
+  #   command_timeout: 30
 
 automation:
-  - alias: NotifyHeltHjem
+  # - alias: NotifyHeltHjem
+  #   trigger:
+  #     - platform: state
+  #       entity_id: sensor.helthjem
+  #   action:
+  #     - service: script.turn_on
+  #       entity_id: script.notify
+  #       data:
+  #         variables:
+  #           title: Klokka nærmer seg!
+  #           message: "{{ states('sensor.helthjem') }}"
+
+  - alias: "Elkjop status endra"
     trigger:
       - platform: state
-        entity_id: sensor.helthjem
+        entity_id: sensor.elkjop_order_status
+    condition: []
     action:
-      - service: script.turn_on
-        entity_id: script.notify
+      - service: notify.mobile_app_erlend_mobil
         data:
-          variables:
-            title: Klokka nærmer seg!
-            message: "{{ states('sensor.helthjem') }}"
+          title: "Elkjøp-ordren har endra status"
+          message: >
+            Ny status: {{ states('sensor.elkjop_order_status') }}
+    mode: single
 
   - alias: NotifyNorrona
     trigger:
@@ -94,19 +120,19 @@ automation:
             ttl: 0
             priority: high
 
-  - alias: NotifyPosten
-    trigger:
-      - platform: state
-        entity_id: sensor.posten_tracking
-    condition:
-      - condition: template
-        value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
-    action:
-      - service: notify.mobile_app_erlend_mobil
-        data_template:
-          title: "Pakke rører på seg: {{ states('sensor.posten_tracking') }}"
-          message: "{{ states('sensor.posten_tracking') }}"
-          data:
-            clickAction: "https://sporing.posten.no/sporing/370730259853369118"
-            ttl: 0
-            priority: high
+  # - alias: NotifyPosten
+  #   trigger:
+  #     - platform: state
+  #       entity_id: sensor.posten_tracking
+  #   condition:
+  #     - condition: template
+  #       value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
+  #   action:
+  #     - service: notify.mobile_app_erlend_mobil
+  #       data_template:
+  #         title: "Pakke rører på seg: {{ states('sensor.posten_tracking') }}"
+  #         message: "{{ states('sensor.posten_tracking') }}"
+  #         data:
+  #           clickAction: "https://sporing.posten.no/sporing/370730259853369118"
+  #           ttl: 0
+  #           priority: high

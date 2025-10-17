@@ -1,0 +1,77 @@
+# packages/family_screen_time.yaml
+##########################################################
+# Family Screen Time Tracker
+# Teller skjermtid for Erlend og Caroline
+##########################################################
+
+##################################
+# Binary Sensors
+##################################
+template:
+  - binary_sensor:
+      - name: "Erlend Screen Time Active"
+        unique_id: erlend_screen_time_active
+        device_class: running
+        state: >
+          {{ is_state('binary_sensor.erlend_mobil_device_locked', 'off')
+             and not is_state('person.erlend', 'Work')
+             and not is_state('binary_sensor.motion_downstairs_office', 'on') }}
+
+      - name: "Caroline Screen Time Active"
+        unique_id: caroline_screen_time_active
+        device_class: running
+        state: >
+          {{ is_state('binary_sensor.caroline_pixel_device_locked', 'off')
+             and not is_state('person.caroline', 'Sykehuset') }}
+  - sensor:
+      - name: "family_screen_time_today"
+        unit_of_measurement: "hours"
+        state: >
+          {{ (states('sensor.erlend_screen_time_today')|float(0) +
+              states('sensor.caroline_screen_time_today')|float(0)) }}
+
+##################################
+# History Stats Sensors
+##################################
+sensor:
+  - platform: history_stats
+    name: "Erlend Screen Time Today"
+    unique_id: erlend_screen_time_today
+    entity_id: binary_sensor.erlend_screen_time_active
+    state: "on"
+    type: time
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"
+
+  - platform: history_stats
+    name: "Caroline Screen Time Today"
+    unique_id: caroline_screen_time_today
+    entity_id: binary_sensor.caroline_screen_time_active
+    state: "on"
+    type: time
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"
+
+##################################
+# Utility Meters
+##################################
+utility_meter:
+  erlend_screen_time_daily:
+    source: sensor.erlend_screen_time_today
+    cycle: daily
+  erlend_screen_time_weekly:
+    source: sensor.erlend_screen_time_today
+    cycle: weekly
+  erlend_screen_time_monthly:
+    source: sensor.erlend_screen_time_today
+    cycle: monthly
+
+  caroline_screen_time_daily:
+    source: sensor.caroline_screen_time_today
+    cycle: daily
+  caroline_screen_time_weekly:
+    source: sensor.caroline_screen_time_today
+    cycle: weekly
+  caroline_screen_time_monthly:
+    source: sensor.caroline_screen_time_today
+    cycle: monthly
