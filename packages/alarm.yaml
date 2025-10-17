@@ -1142,6 +1142,20 @@ automation:
       - service: scene.turn_on
         target:
           entity_id: scene.before_driveway_light
+
+  - id: NotifyCloseVerandaDoor
+    alias: NotifyCloseVerandaDoor
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.veranda_open
+        to: "on"
+        for:
+          minutes: 60
+    action:
+      - service: notify.me
+        data:
+          message: Verandaen har vært åpen i 60 minutter nå
+
 script:
   alarmtriggered:
     alias: Alarm Triggered

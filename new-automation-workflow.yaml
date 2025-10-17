@@ -1,0 +1,31 @@
+# New Automation Package Workflow
+# Save this as: .windsurf/workflows/new-automation-package.yaml
+
+name: "Create New Automation Package"
+description: "Create a new automation package following HA best practices"
+steps:
+  - name: "Check existing packages"
+    list: "packages/"
+    description: "Review existing package names and structure"
+  - name: "Create package file"
+    create: "packages/{{package_name}}.yaml"
+    template: |
+      # {{package_name}} automations
+      automation:
+        - id: {{package_name}}_template
+          alias: "{{package_name | title}} Template"
+          mode: restart
+          trigger:
+            # Add triggers here
+          condition:
+            # Add conditions here
+          action:
+            # Add actions here
+    description: "Create new package with template structure"
+  - name: "Add to configuration.yaml"
+    read: "configuration.yaml"
+    search: "packages:"
+    description: "Verify packages are included in main config"
+  - name: "Validate package"
+    command: "ssh root@192.168.1.75 'ha core check'"
+    description: "Test the new package doesn't break configuration"

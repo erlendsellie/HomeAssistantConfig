@@ -1,0 +1,86 @@
+automation:
+  - id: TurnOnToiletLight
+    alias: TurnOnToiletLight
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_toilet
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.door_toilet
+        to: "on"
+    condition:
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+    action:
+      - service: light.turn_on
+        entity_id: light.toilet
+        data:
+          brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
+      - service: light.turn_on
+        entity_id: group.hallwaylights
+
+  - id: TurnOffToiletLight
+    alias: TurnOffToiletLight
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_toilet
+        to: "off"
+        for:
+          minutes: 5
+      - platform: state
+        entity_id: binary_sensor.motion_toilet
+        to: "off"
+        for:
+          minutes: 10
+      - platform: state
+        entity_id: light.toilet
+        to: "on"
+        for:
+          minutes: 30
+    action:
+      - service: light.turn_off
+        entity_id: light.toilet
+
+  - id: BathroomHumidityHigh
+    alias: Bathroom Humidity High
+    trigger:
+      - platform: template
+        value_template: "{{states.sensor.bathroom_humidity.state | float(default=0) > float(30)}}"
+    action:
+      - service: switch.turn_on
+        entity_id: switch.bathroom_fan
+
+  - id: BathroomHumidityNormal
+    alias: Bathroom Humidity Normal
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bathroom_humidity
+        below: 30
+        for:
+          minutes: 30
+      - platform: state
+        entity_id: switch.bathroom_fan
+        to: "on"
+        for:
+          minutes: 60
+    action:
+      - service: switch.turn_off
+        entity_id: switch.bathroom_fan
+
+  - id: BathroomFanWhenVVBOn
+    alias: BathroomFanWhenVVBOn
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.using_hot_water
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.motionbathroom
+        state: "on"
+    action:
+      - service: switch.turn_on
+        entity_id: switch.bathroom_fan
+      - delay:
+          minutes: 30
+      - service: switch.turn_off
+        entity_id: switch.bathroom_fan

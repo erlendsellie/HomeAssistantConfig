@@ -40,41 +40,15 @@ trace:
 logger:
   default: warning
   logs:
-    #homeassistant.components.nissan_leaf: debug
-    #pycarwings2: debug
-    #homeassistant.components.websocket_api: debug
-    #homeassistant.components: warning
-    #homeassistant.components.switch.broadlink: info
-    #homeassistant.components.verisure: debug
     homeassistant.components.camera.generic: warning
-    #homeassistant.components.mqtt: notset
-    #homeassistant.components.ffmpeg: debug
-    #tibber: notset
-    #custom_components.hacs.storage: info
-    #custom_components.hacs: info
-    #homeassistant.components.http: warning
-    #homeassistant.components.automation: info
-    #homeassistant.components.script: info
-    #homeassistant.components.device_tracker.nmap_tracker: debug
-    #homeassistant.components.stream: fatal
-    #homeassistant.components.tibber: debug
-    #homeassistant.components.priceanalyzer: debug
-    #homeassistant.components.skisporet_v2: debug
-    #custom_components.priceanalyzer: debug
     libav: fatal
     aiohttp: fatal
     homeassistant.components.websocket_api.http.connection: fatal
-    #custom_components.pyscript: info
-    #homeassistant.components.influxdb: debug
-    #homeassistant.components.upnp: error
-    #remove this later.
     homeassistant.components.stream: fatal
-    #homeassistant.components.recorder: fatal
     homeassistant.components.generic.camera: fatal
-    homeassistant.helpers.template: fatal #error #warning
+    homeassistant.helpers.template: warning
     graphql_subscription_manager: error
     xiaomi_cloud_map_extractor: error
-    #volkswagencarnet: debug
     homeassistant.components.recorder.db_schema: error
     miio.miioprotocol: fatal
     homeassistant.components.nmap: info
@@ -82,7 +56,6 @@ logger:
     ring_doorbell.doorbot: error
     homeassistant.components.waze_travel_time.coordinator: fatal
 
-#upnp:
 
 zone:
   - name: Home
@@ -133,7 +106,6 @@ zone:
     radius: 50
     icon: mdi:ferry
 
-#map:
 
 frontend:
   themes: !include_dir_merge_named themes/
@@ -148,7 +120,6 @@ http:
     - "172.30.33.0/24"
     - "192.168.1.200"
 
-#discovery:
 
 wake_on_lan:
 
@@ -225,25 +196,6 @@ tellstick:
   host: core-tellstick
   port: [50800, 50801]
   #nc core-tellstick 50801
-
-#todo, add when fixing octoprint
-# octoprint:
-#   host: 192.168.1.88
-#   api_key: !secret octoprint
-
-# mqtt:
-#   discovery: true
-#   discovery_prefix: homeassistant
-#   broker: core-mosquitto
-#mqtt:
-#broker: core-mosquitto
-#discovery: true
-#mqtt:
-#broker: 192.168.1.75
-#password: !secret mqtt_password
-#client_id: hassio-mqtt
-#discovery: true
-#discovery_prefix: homeassistant
 
 # xiaomi_aqara:
 #   discovery_retry: 5

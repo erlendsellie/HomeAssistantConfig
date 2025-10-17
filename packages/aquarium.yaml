@@ -217,13 +217,13 @@ automation:
     trigger:
       - platform: template
         value_template: >-
-          {%set temp = states('sensor.aquarium_temp') | float%}
-          {%set target = state_attr('climate.aquarium', 'temperature') | float%}
+          {%set temp = states('sensor.aquarium_temp') | float(0)%}
+          {%set target = state_attr('climate.aquarium', 'temperature') | float(0)%}
           {{(temp - target) > 3}}
       - platform: template
         value_template: >-
-          {%set temp = states('sensor.aquarium_temp') | float%}
-          {%set target = state_attr('climate.aquarium', 'temperature') | float%}
+          {%set temp = states('sensor.aquarium_temp') | float(0)%}
+          {%set target = state_attr('climate.aquarium', 'temperature') | float(0)%}
           {{temp > 28}}
     action:
       - service: notify.me

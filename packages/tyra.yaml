@@ -41,15 +41,10 @@ automation:
     # condition:
     # - condition: state
     #   entity_id:  group.erlend
-    #   state: 'home'
     action:
-      # - service: input_number.set_value
-      #   entity_id: input_number.tyraasleeptime
-      #   data_template:
-      #       value: "{{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveron.attributes.last_triggered)) / 60) | round(0)}}"
       - service: script.turn_on
         entity_id: script.notifyboth
-        data_template:
+        data:
           variables:
             title: "Tyra sover ble slått av"
             message: "Hun sov i {{states.sensor.tyrasleeptimeformatted.state}} minutter."
@@ -338,3 +333,125 @@ automation:
             data: {}
             target:
               entity_id: light.tyra
+
+  - id: trymInKinderGardenChangedToOff
+    alias: trymInKinderGardenChangedToOff
+    trigger:
+      platform: state
+      entity_id: input_boolean.tryminkindergarden
+      to: "off"
+    action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.tyrainkindergarden
+
+  - id: TyraInKinderGardenChangedToON
+    alias: TyraInKinderGardenChangedToON
+    trigger:
+      platform: state
+      entity_id: input_boolean.tryminkindergarden
+      to: "on"
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.tyrainkindergarden
+
+  - id: TyraLeftInKindergarden
+    alias: Tyra left in kindergarden
+    trigger:
+      - platform: state
+        entity_id: person.erlend, person.caroline
+        to: "kindergarden"
+        for:
+          minutes: 2
+    condition:
+      - condition: time
+        before: "13:20:00"
+      - condition: state
+        entity_id: input_boolean.tryminkindergarden
+        state: "off"
+    action:
+      - service: notify.me
+        data:
+          title: Tyra left in kindergarden
+          message: The time is {{ now().hour }}:{{ now().minute }}.
+      - service: input_boolean.turn_off
+        entity_id:
+          - input_boolean.trymasleep
+          - input_boolean.tyraasleep
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.tryminkindergarden
+
+  - id: TyraPickedUpInKindergarden
+    alias: Tyra picked up in kindergarden
+    trigger:
+      - platform: time
+        at: "16:45:00"
+      - platform: state
+        entity_id: person.erlend, person.caroline
+        to: "kindergarden"
+        for:
+          minutes: 3
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+      - condition: time
+        after: "12:00:00"
+      - condition: state
+        entity_id: input_boolean.tryminkindergarden
+        state: "on"
+    action:
+      - service: notify.me
+        data:
+          title: Tyra picked up from kindergarden
+          message: Tyra picked up from kindergarden
+      - service: script.turn_on
+        entity_id: script.say
+        data:
+          variables:
+            message: "Tyra ble hentet i barnehagen"
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.tryminkindergarden
+      - service: script.turn_on
+        entity_id: script.blinkliving
+        data:
+          variables:
+            color: blue
+      - delay:
+          seconds: 20
+      - service: script.turn_on
+        entity_id: script.restorelightcolor
+
+  - id: TrymStillInKindergarden
+    alias: TrymStillInKindergarden
+    trigger:
+      - platform: time
+        at: "15:50:00"
+      - platform: time
+        at: "16:10:00"
+      - platform: time
+        at: "16:00:00"
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+      - condition: state
+        entity_id: input_boolean.tryminkindergarden
+        state: "on"
+    action:
+      - service: notify.me
+        data:
+          title: Tyra is still in kindergarden
+          message: leave now to pick him up before closing.
+      - service: script.turn_on
+        entity_id: script.say
+        data:
+          variables:
+            message: "Husk å hente Tyra i barnehagen"

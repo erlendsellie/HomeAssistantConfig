@@ -1,0 +1,52 @@
+automation:
+  - id: TelegramReply
+    alias: Telegram Reply
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: "/garage"
+    action:
+      - service: notify.me
+        data:
+          message: >
+            {% if states.cover.garage_door.state == "open" %} "The garage is open. do you like to close it?""
+            {% else %} "The Garage is closed. Do you want to open it?"" {% endif %}
+          data:
+            inline_keyboard:
+              - "Open Garage:/openGarage, Close Garage:/closeGarage"
+
+  - id: CloseGarageByTelegram
+    alias: Close Garage by Telegram
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: "/closeGarage"
+    action:
+      - service: cover.close_cover
+        entity_id: cover.garage_door
+      - service: notify.me
+        data:
+          message: "Okay, i'll tell you if it won't close."
+      - delay:
+          seconds: 19
+      - service: script.turn_on
+        data:
+          entity_id: >
+            {% if states.cover.garage_door.state == "open" %} script.garageopen
+            {% else %} {% endif %}
+
+  - id: OpenGarageByTelegram
+    alias: Open Garage by Telegram
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: "/openGarage"
+    action:
+      - service: cover.open_cover
+        entity_id: cover.garage_door
+      - service: notify.me
+        data:
+          message: "Okay, ill open the garage."

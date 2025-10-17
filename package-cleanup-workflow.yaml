@@ -1,0 +1,25 @@
+# Package Cleanup Workflow
+# Save this as: .windsurf/workflows/package-cleanup.yaml
+
+name: "Package Cleanup & Maintenance"
+description: "Clean up commented code and organize packages"
+steps:
+  - name: "Find commented automations"
+    search: "packages/"
+    pattern: "^\\s*#.*automation"
+    description: "Locate commented-out automation blocks"
+  - name: "Find unused scripts"
+    read: "script.yaml"
+    description: "Review script.yaml for unused scripts"
+  - name: "Check for duplicate logic"
+    search: "packages/"
+    pattern: "service:\\s+(.+)"
+    description: "Find repeated service calls that could be extracted"
+  - name: "Validate indentation"
+    command: |
+      find packages/ -name "*.yaml" -exec yamllint {} \;
+    description: "Check YAML indentation and formatting"
+  - name: "Organize by category"
+    list: "packages/"
+    pattern: "*.yaml"
+    description: "Review package naming follows category conventions"

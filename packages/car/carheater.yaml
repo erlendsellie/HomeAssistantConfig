@@ -1,0 +1,134 @@
+automation:
+  - id: AskToTurnOnCarHeater
+    alias: AskToTurnOnCarHeater
+    trigger:
+      - platform: time
+        at: "21:00:00"
+      - platform: time
+        at: "21:30:00"
+    condition:
+      condition: and
+      conditions:
+        - condition: time
+          weekday:
+            - mon
+            - tue
+            - wed
+            - thu
+            - sun
+        - condition: state
+          entity_id: switch.carheater
+          state: "off"
+        - condition: state
+          entity_id: input_boolean.carheatermounted
+          state: "off"
+        - condition: or
+          conditions:
+            - condition: state
+              entity_id: sensor.bad_weather
+              state: "frost"
+            - condition: state
+              entity_id: sensor.bad_weather
+              state: "snow"
+            - condition: state
+              entity_id: sensor.bad_weather
+              state: "freezing overnight"
+        - condition: state
+          entity_id: binary_sensor.erlendhome
+          state: "on"
+    action:
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          title: "Is the Car Heater Mounted?"
+          message: "Its {{states.sensor.ute_temperature.state}} degrees outside."
+          data:
+            actions:
+              - action: turnoncarheater
+                title: "Yes"
+      - service: notify.mobile_app_pixel_7_pro
+        data:
+          title: "Is the Car Heater Mounted?"
+          message: "Its {{states.sensor.ute_temperature.state}} degrees outside."
+          data:
+            actions:
+              - action: turnoncarheater
+                title: "Yes"
+
+  - id: TurnOnCarHeaterMounted
+    alias: TurnOnCarHeaterMounted
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: turnoncarheater
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.carheatermounted
+
+  - id: TurnOnCarHeater
+    alias: TurnOnCarHeater
+    trigger:
+      - platform: time
+        at: "05:30:00"
+    condition:
+      condition: and
+      conditions:
+        - condition: time
+          weekday:
+            - mon
+            - tue
+            - wed
+            - thu
+            - fri
+        - condition: state
+          entity_id: group.people
+          state: "home"
+        - condition: state
+          entity_id: input_boolean.carheatermounted
+          state: "on"
+    action:
+      - service: switch.turn_on
+        entity_id: switch.carheater
+      - service: notify.me
+        data:
+          message: "Car Heater turned on."
+
+  - id: TurnOnCarHeaterReallyCold
+    alias: TurnOnCarHeaterReallyCold
+    trigger:
+      - platform: time
+        at: "05:00:00"
+    condition:
+      condition: and
+      conditions:
+        - condition: time
+          weekday:
+            - mon
+            - tue
+            - wed
+            - thu
+            - fri
+        - condition: state
+          entity_id: group.people
+          state: "home"
+        - condition: state
+          entity_id: input_boolean.carheatermounted
+          state: "on"
+        - condition: numeric_state
+          entity_id: sensor.ute_temperature
+          below: -8
+    action:
+      - service: switch.turn_on
+        entity_id: switch.carheater
+      - service: notify.me
+        data:
+          message: "Car Heater turned on."
+
+  - id: TurnOffCarHeaterMounted
+    alias: TurnOffCarHeaterMounted
+    trigger:
+      - platform: time
+        at: "14:00:00"
+    action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.carheatermounted

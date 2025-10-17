@@ -1,0 +1,20 @@
+# HA Config Validation Workflow
+# Save this as: .windsurf/workflows/ha-config-validation.yaml
+
+name: "HA Config Validation"
+description: "Validate Home Assistant configuration and check for common issues"
+steps:
+  - name: "Check YAML syntax"
+    command: "ssh root@192.168.1.75 'ha core check'"
+    description: "Run Home Assistant configuration check"
+  - name: "Validate Jinja templates"
+    search: "packages/"
+    pattern: "\\{\\{.*\\}\\}"
+    description: "Find all Jinja template usages for manual review"
+  - name: "Check for duplicate entity IDs"
+    search: "packages/"
+    pattern: "id:\\s+(.+)"
+    description: "Search for automation/script IDs to check for duplicates"
+  - name: "Verify package structure"
+    list: "packages/"
+    description: "Review package organization follows naming conventions"

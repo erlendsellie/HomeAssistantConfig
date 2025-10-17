@@ -35,7 +35,6 @@
 #         entity_id: cover.veranda_window
 
 # automation:
-#   - alias: Open Curtains
 #     trigger:
 #       - platform: event
 #         event_type: deconz_event

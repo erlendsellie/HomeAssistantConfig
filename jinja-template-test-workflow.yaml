@@ -1,0 +1,24 @@
+# Jinja Template Testing Workflow
+# Save this as: .windsurf/workflows/jinja-template-test.yaml
+
+name: "Test Jinja Templates"
+description: "Test and debug Jinja templates in automations"
+steps:
+  - name: "Find template triggers"
+    search: "packages/"
+    pattern: "platform:\\s+template"
+    description: "Locate all template-based triggers"
+  - name: "Check sensor availability"
+    search: "packages/"
+    pattern: "states\\('sensor\\.(.+)'\\)"
+    description: "Find all sensor references in templates"
+  - name: "Validate climate attributes"
+    search: "packages/"
+    pattern: "state_attr\\('climate\\.(.+)'"
+    description: "Check climate entity attribute usage"
+  - name: "Test template logic"
+    command: |
+      # Test common template patterns
+      echo "Testing template: {{ 'unknown' | float(0) }}"
+      echo "Testing template: {{ none | default(0) }}"
+    description: "Validate template filter usage"

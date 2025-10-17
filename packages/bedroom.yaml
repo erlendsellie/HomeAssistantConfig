@@ -1,0 +1,291 @@
+automation:
+  - id: carolinenatta70
+    alias: Caroline legger seg + 60 min
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bedtvon
+        to: "on"
+        for:
+          minutes: 60
+      - platform: state
+        entity_id: binary_sensor.ccharging
+        to: "on"
+        for:
+          minutes: 60
+    condition:
+      - condition: state
+        entity_id: binary_sensor.ccharging
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.easleep
+        state: "off"
+    action:
+      - service: media_player.turn_off
+        entity_id: media_player.tv_soverommet
+      - service: media_player.turn_off
+        entity_id: media_player.bedroom_tv
+
+  - id: TVStillOn
+    alias: TV Still on
+    trigger:
+      platform: state
+      entity_id: input_boolean.casleep
+      to: "on"
+      for:
+        minutes: 90
+    condition:
+      - condition: state
+        entity_id: input_boolean.easleep
+        state: "off"
+    action:
+      - service: notify.me
+        data:
+          message: "TV på soverommet er fortsatt på"
+      - service: media_player.turn_off
+        entity_id: media_player.tv_soverommet
+      - service: media_player.turn_off
+        entity_id: media_player.bedroom_tv
+
+  - id: erlendnatta70
+    alias: Erlend legger seg + 70 min
+    trigger:
+      platform: template
+      value_template: >-
+        {{states.input_boolean.easleep.state == 'on' and
+          states.binary_sensor.bedtvon == 'on'}}
+      for:
+        minutes: 60
+    action:
+      - service: media_player.turn_off
+        entity_id: media_player.tv_soverommet
+      - service: media_player.turn_off
+        entity_id: media_player.bedroom_tv
+
+  - id: tv2long
+    alias: tv2long
+    trigger:
+      - platform: state
+        entity_id: sensor.tvsource
+        to: "TV 2 Sumo"
+        for:
+          minutes: 120
+    action:
+      - service: notify.tv_stua
+        data:
+          message: "TV2 Sumo har stått på i 1 time nå. Bytt til en annen kilde eller slå av innen 5 minutter"
+      - delay:
+          minutes: 5
+      - condition: state
+        entity_id: sensor.tvsource
+        state: "TV 2 Sumo"
+      - service: notify.tv_stua
+        data:
+          message: "Slår av TV."
+      - delay:
+          seconds: 10
+      - service: media_player.turn_off
+        entity_id: media_player.tv_stua
+
+  - id: tvWrongChromecast
+    alias: Castet to wrong cromecast
+    trigger:
+      - platform: state
+        entity_id: media_player.tv_stua
+        to: "Playing"
+      - platform: state
+        entity_id: media_player.tv_stua
+        to: "on"
+    condition:
+      - condition: template
+        value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
+    action:
+      - service: notify.tv_stua
+        data:
+          message: "Castet til chromecast når ingen er der."
+      - delay:
+          seconds: 10
+      - service: media_player.turn_off
+        entity_id: media_player.tv_stua
+
+  - id: bedroomtvOnWrong
+    alias: bedroomtvOnWrong
+    trigger:
+      - platform: state
+        entity_id: media_player.bedroom_tv
+        to: "Idle"
+        for:
+          seconds: 20
+      - platform: state
+        entity_id: media_player.bedroom_tv
+        to: "Playing"
+        for:
+          seconds: 20
+      - platform: state
+        entity_id: media_player.bedroom_tv
+        to: "Paused"
+        for:
+          seconds: 20
+    condition:
+      condition: and
+      conditions:
+        - condition: state
+          entity_id: binary_sensor.motion_bedroom
+          state: "off"
+        - condition: state
+          entity_id: input_boolean.casleep
+          state: "off"
+        - condition: state
+          entity_id: input_boolean.easleep
+          state: "off"
+    action:
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          title: "Castet til Soverommet."
+          message: " Var det feil?"
+          data:
+            actions:
+              - action: tvbedroomoff
+                title: Ja, slå av TV på soverommet igjen
+                destructive: true
+      - service: notify.mobile_app_pixel_7_pro
+        data:
+          title: "Castet til Soverommet."
+          message: " Var det feil?"
+          data:
+            actions:
+              - action: tvbedroomoff
+                title: Ja, slå av TV på soverommet igjen
+                destructive: true
+
+  - id: bedroomoffWebhook
+    alias: bedroomoffWebhook
+    trigger:
+      platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: tvbedroomoff
+    action:
+      - service: media_player.turn_off
+        entity_id: media_player.tv_soverommet
+      - service: media_player.turn_off
+        entity_id: media_player.bedroom_tv
+
+  - id: bedroomtvoff
+    alias: bedroomtvoff
+    trigger:
+      - platform: state
+        entity_id: media_player.tv_soverommet
+        to: "off"
+        for:
+          minutes: 2
+      - platform: state
+        entity_id: media_player.tv_soverommet
+        to: "unavailable"
+      - platform: state
+        entity_id: media_player.bedroom_tv
+        to: "off"
+        for:
+          minutes: 5
+    action:
+      - service: media_player.media_stop
+        entity_id: media_player.bedroom_tv
+      - service: media_player.turn_off
+        entity_id: media_player.tv_soverommet
+
+  - id: bedroomtvonfor120
+    alias: bedroomtvonfor120
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bedtvon
+        to: "on"
+        for:
+          minutes: 120
+      - platform: state
+        entity_id: binary_sensor.bedtvon
+        to: "on"
+        for:
+          minutes: 240
+      - platform: state
+        entity_id: media_player.bedroom_tv
+        to: "on"
+        for:
+          minutes: 118
+    action:
+      - service: media_player.turn_off
+        entity_id: media_player.tv_soverommet
+      - service: media_player.turn_off
+        entity_id: media_player.bedroom_tv
+
+  - id: BedroomChromecastNotPlaying
+    alias: BedroomChromecastNotPlaying
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bed_tv_idle
+        to: "on"
+      - platform: state
+        entity_id: media_player.bedroom_tv
+        to: "off"
+        for:
+          minutes: 15
+      - platform: state
+        entity_id: media_player.bedroom_tv
+        to: "idle"
+        for:
+          minutes: 5
+      - platform: state
+        entity_id: media_player.bedroom_tv
+        to: "Idle"
+        for:
+          minutes: 5
+      - platform: state
+        entity_id: media_player.bedroom_tv
+        to: "Paused"
+        for:
+          minutes: 15
+    action:
+      - service: media_player.turn_off
+        entity_id: media_player.tv_soverommet
+      - service: media_player.turn_off
+        entity_id: media_player.bedroom_tv
+
+  - id: OfficeCasleep
+    alias: OfficeCasleep
+    trigger:
+      - platform: state
+        entity_id: input_boolean.casleep
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.motion_downstairs_office
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.guestmode
+        state: "off"
+    action:
+      - service: light.turn_on
+        entity_id: light.play
+        data:
+          color_name: purple
+      - service: script.restoreofficecolor
+
+  - id: TurnoffbedroomlightwhenHallMotion
+    alias: TurnoffbedroomlightwhenHallMotion
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_hallway
+        to: "on"
+    condition:
+      condition: or
+      conditions:
+        - condition: state
+          entity_id: group.caroline
+          state: not_home
+        - condition: state
+          entity_id: group.erlend
+          state: "not_home"
+    action:
+      - service: light.turn_off
+        entity_id:
+          - light.bedroom
+          - light.caroline_bedroom
+          - light.erlend_bedroom

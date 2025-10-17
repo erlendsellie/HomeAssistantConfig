@@ -6,6 +6,20 @@ multiscrape:
   #       select: ".promotions h1"
   #       icon: "mdi:beer"
 
+  - resource: https://sporing.posten.no/sporing/370733746531437124
+    scan_interval: 900
+    headers:
+      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+      Accept-Language: "en-US,en;q=0.5"
+      Accept-Encoding: "gzip, deflate"
+      Connection: "keep-alive"
+      Upgrade-Insecure-Requests: "1"
+    sensor:
+      - name: "Posten Tracking Status"
+        select: "title"
+        value_template: "{{ value }}"
+
 sensor:
   #sensor for checking total matces for a specific search from Norrøna Online Outlet.
   - platform: rest
@@ -28,13 +42,6 @@ sensor:
     unit_of_measurement: "°C"
     scan_interval: 900 # oppdater hvert 15. min
 
-  - platform: rest
-    name: "Elkjop Order Status"
-    resource: "https://www.elkjop.no/api/no-b2c/track-and-trace/order/v2/2120081010"
-    method: GET
-    scan_interval: 900 # sjekk hvert 15. minutt (kan sett kortere om du vil)
-    value_template: >
-      {{ value_json.order.deliveries[0].activeStatusId }}
 
   # - platform: rest
   #   name: posten_tracking
@@ -87,17 +94,21 @@ automation:
   #           title: Klokka nærmer seg!
   #           message: "{{ states('sensor.helthjem') }}"
 
-  - alias: "Elkjop status endra"
+  - alias: "Posten status endra"
     trigger:
       - platform: state
-        entity_id: sensor.elkjop_order_status
+        entity_id: sensor.posten_tracking_status
     condition: []
     action:
       - service: notify.mobile_app_erlend_mobil
         data:
-          title: "Elkjøp-ordren har endra status"
+          title: "Posten-pakken har endra status"
           message: >
-            Ny status: {{ states('sensor.elkjop_order_status') }}
+            Ny status: {{ states('sensor.posten_tracking_status') }}
+          data:
+            clickAction: "https://sporing.posten.no/sporing/370733746531437124"
+            ttl: 0
+            priority: high
     mode: single
 
   - alias: NotifyNorrona
