@@ -102,7 +102,7 @@ automation:
           - device_tracker.caroline_pixel
           - sensor.nordpool
           - sensor.stua_temperature
-          - lock.ytterdor
+          - ytterdor_bluetooth
           - binary_sensor.front_door_ding_mqtt
           - light.trym_balloon
           - light.tyra_ball
@@ -140,7 +140,7 @@ automation:
           #   - binary_sensor.vindfang_door
           - sensor.nordpool
           - media_player.living_room_tv
-          - lock.ytterdor
+          - ytterdor_bluetooth
           - switch.garage_esp32
           - device_tracker.erlend_mobil
           - device_tracker.caroline_pixel

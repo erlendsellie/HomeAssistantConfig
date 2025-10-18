@@ -38,7 +38,7 @@ automation:
       - service: script.turn_on
         entity_id: script.smoketriggered
       - service: lock.unlock
-        entity_id: lock.ytterdor
+        entity_id: ytterdor_bluetooth
 
   - alias: Smoke cleared
     trigger:

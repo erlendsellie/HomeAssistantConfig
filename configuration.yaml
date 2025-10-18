@@ -174,7 +174,7 @@ logbook:
       - script
       - device_tracker
     entities:
-      - lock.ytterdor
+      - ytterdor_bluetooth
       - input_select.alarm
       - light.play
       - sensor.alarm
@@ -279,46 +279,6 @@ light:
   # - platform: hyperion
   #   host: 192.168.1.144
 
-#https://github.com/basnijholt/adaptive-lighting
-
-# adaptive_lighting:
-#   - name: "adaptive_stua"
-#     lights:
-#       - light.tv
-#       - light.chillsofa
-#       - light.peis
-#       - light.sofa
-#       - light.kjokkenbord
-#     prefer_rgb_color: false
-#     transition: 45
-#     initial_transition: 1
-#     interval: 90
-#     min_brightness: 1
-#     max_brightness: 100
-#     min_color_temp: 2300
-#     max_color_temp: 6500
-#     sleep_brightness: 1
-#     sleep_color_temp: 1000
-#     take_over_control: false
-#     detect_non_ha_changes: false
-#     only_once: false
-
-# - name: "adaptive_kontoret"
-#   lights:
-#     - light.play
-#   prefer_rgb_color: yes
-#   transition: 45
-#   initial_transition: 1
-#   interval: 90
-#   min_brightness: 1
-#   max_brightness: 100
-#   min_color_temp: 2300
-#   max_color_temp: 6500
-#   sleep_brightness: 1
-#   sleep_color_temp: 1000
-#   take_over_control: false
-#   detect_non_ha_changes: false
-#   only_once: false
 proxmoxve:
   - host: 192.168.1.100
     username: homeassistant
@@ -333,14 +293,7 @@ proxmoxve:
           - 102
           - 103
 mqtt:
-  # switch:
-  #   - name: "fan_bathroom"
-  #     state_topic: "stat/SONOFF-2/POWER"
-  #     command_topic: "cmnd/SONOFF-2/POWER"
-  #     qos: 1
-  #     payload_on: "ON"
-  #     payload_off: "OFF"
-  #     retain: true
+
   sensor:
     - name: "Fan Bathroom energy"
       state_topic: "tele/SONOFF-2/ENERGY"
@@ -356,25 +309,7 @@ mqtt:
       unit_of_measurement: "V"
 
 switch:
-  # - platform: rest
-  #   resource: http://192.168.1.88/api/printer/tool
-  #   name: "preheatPrinterTool"
-  #   body_on: '{"command": "target","targets": {"tool0": 210}}'
-  #   body_off: '{"command": "target","targets": {"tool0": 0}}'
-  #   is_on_template: "{{ float(states.sensor.octoprint_target_tool0_temp.state) > 40}}"
-  #   headers:
-  #     Content-Type: application/json
-  #     X-Api-Key: !secret octoprint
 
-  # - platform: rest
-  #   resource: http://192.168.1.88/api/printer/bed
-  #   name: "preheatPrinterBed"
-  #   body_on: '{"command": "target","target": 60}'
-  #   body_off: '{"command": "target","target": 0}'
-  #   is_on_template: "{{ float(states.sensor.octoprint_target_bed_temp.state) > 40}}"
-  #   headers:
-  #     Content-Type: application/json
-  #     X-Api-Key: !secret octoprint
 
   - platform: tellstick
 
@@ -406,19 +341,6 @@ rest_command:
 
 shell_command:
   restart_container: docker restart homeassistant
-  # pb_send_image: "perl sendpicture.pl"
-  # pb_send_image2: "perl sendpicture2.pl"
-  # test: "touch /tmp/hass-shell-command-test"
-  # backup_configuration: cp -a /home/homeassistant/.homeassistant/configuration.yaml "/mnt/my_ftp/backup/configuration.yaml-$(date +"%m%d%Y-%H%M")"
-  # backup_groups: cp -a /home/homeassistant/.homeassistant/groups.yaml "/mnt/my_ftp/backup/groups.yaml-$(date +"%m%d%Y-%H%M")"
-  # backup_automations: cp -a /home/homeassistant/.homeassistant/automations.yaml "/mnt/my_ftp/backup/automations.yaml-$(date +"%m%d%Y-%H%M")"
-  # backup_known_devices: cp -a /home/homeassistant/.homeassistant/known_devices.yaml "/mnt/my_ftp/backup/known_devices.yaml-$(date +"%m%d%Y-%H%M")"
-  # backup_script: cp -a /home/homeassistant/.homeassistant/script.yaml "/mnt/my_ftp/backup/script.yaml-$(date +"%m%d%Y-%H%M")"
-  # backup_media_player: cp -a /home/homeassistant/.homeassistant/media_player.yaml "/mnt/my_ftp/backup/media_player.yaml-$(date +"%m%d%Y-%H%M")"
-  # backup_secrets: cp -a /home/homeassistant/.homeassistant/secrets.yaml "/mnt/my_ftp/backup/secrets.yaml-$(date +"%m%d%Y-%H%M")"
-  # backup_notify: cp -a /home/homeassistant/.homeassistant/notify.yaml "/mnt/my_ftp/backup/notify.yaml-$(date +"%m%d%Y-%H%M")"
-  # backup_climate: cp -a /home/homeassistant/.homeassistant/climate.yaml "/mnt/my_ftp/backup/climate.yaml-$(date +"%m%d%Y-%H%M")"
-  # backup_cameras: cp -a /home/homeassistant/.homeassistant/cameras.yaml "/mnt/my_ftp/backup/cameras.yaml-$(date +"%m%d%Y-%H%M")"
 
 input_select:
   light_profile:
@@ -512,18 +434,6 @@ input_number:
     min: 0
     max: 99999
 
-# proximity:
-#   homeerlend:
-#     devices:
-#       - person.erlend
-#     tolerance: 10
-#   homecaroline:
-#     devices:
-#       - person.caroline
-#     tolerance: 10
-
-#device_tracker: []
-
 input_boolean:
   cleandustbin:
     name: Clean DustBin
@@ -574,21 +484,10 @@ input_boolean:
   vacuum_when_away:
     name: Vacuum When Away
 
-# var: # !include_dir_merge_list variables
-#   x:
-#     friendly_name: "X"
-#     initial_value: 0
-#     icon: mdi:bug
 
 binary_sensor: !include_dir_merge_list binary_sensors
-#automation: !include_dir_merge_list automations
 automation: !include automations.yaml
 sensor: !include_dir_merge_list sensors
-
-#google_calendar: integration:
-# google:
-#   client_id: !secret google_cal_client_id
-#   client_secret: !secret google_cal_client_secret
 
 tts:
   - platform: google_translate
@@ -627,7 +526,6 @@ tts:
   #   profiles:
   #     - small-bluetooth-speaker-class-device
   #     - medium-bluetooth-speaker-class-device
-script: !include script.yaml
 
 ffmpeg:
   ffmpeg_bin: /usr/bin/ffmpeg
@@ -642,27 +540,6 @@ telegram_bot:
     allowed_chat_ids:
       - !secret telegram_chatid
 
-# twilio:
-#   account_sid: !secret twilio_sid
-#   auth_token: !secret twilio_auth_token
-
 notify: !include notify.yaml
 climate: !include climate.yaml
 group: !include groups.yaml
-# smartir:
-
-# browser_mod:
-#   prefix: "browser_"
-#   devices:
-#     de19dd99-fd6892f6:
-#       name: "erlendPhone"
-#     ad36a65f-9b5fc91d:
-#       name: "work"
-
-#browser:
-
-# panel_iframe:
-#   tautulli:
-#     title: Tautulli
-#     icon: mdi:filmstrip
-#     url: !secret tautulliurl

@@ -271,6 +271,36 @@ automation:
             data:
               entity_id: light.trym_aquarium
 
+  - id: weekend_aquarium_schedule
+    alias: "Weekend Aquarium Schedule"
+    mode: restart
+    trigger:
+      - platform: time
+        at: "09:00:00"
+        id: co2_on
+      - platform: time
+        at: "10:00:00"
+        id: lights_on
+    condition:
+      - condition: time
+        weekday:
+          - sat
+          - sun
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id == 'co2_on' }}"
+            sequence:
+              - service: switch.turn_on
+                entity_id: switch.aquarium_co2
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id == 'lights_on' }}"
+            sequence:
+              - service: light.turn_on
+                entity_id: light.aquarium
+
 script:
   vannskifte:
     alias: "Vannskifte"

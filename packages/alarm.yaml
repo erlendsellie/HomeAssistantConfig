@@ -285,7 +285,7 @@ automation:
   #     for:
   #       minutes: 5
   #   - platform: state
-  #     entity_id: lock.ytterdor
+  #     entity_id: ytterdor_bluetooth
   #     to: 'locked'
   #     for:
   #       minutes: 5
@@ -622,7 +622,7 @@ automation:
       #   entity_id: binary_sensor.hoveddor
       #   to: 'on'
       - platform: state
-        entity_id: lock.ytterdor
+        entity_id: ytterdor_bluetooth
         from: "unlocked"
         to: "locked"
     # condition:
@@ -653,7 +653,7 @@ automation:
       #   entity_id: binary_sensor.hoveddor
       #   to: 'on'
       - platform: state
-        entity_id: lock.ytterdor
+        entity_id: ytterdor_bluetooth
         to: "unlocked"
         from: "locked"
     # condition:
@@ -670,7 +670,7 @@ automation:
       - delay:
           seconds: 1
       - condition: template
-        value_template: "{{states.lock.ytterdor.state == 'unlocked'}}"
+        value_template: "{{states.ytterdor_bluetooth.state == 'unlocked'}}"
       # - service: light.turn_on
       #   entity_id: light.hyperion
       #   data_template:
@@ -705,7 +705,7 @@ automation:
       # - condition: templa= 'Disarm' }}"
       - service: lock.lock
         target:
-          entity_id: lock.ytterdor
+          entity_id: ytterdor_bluetooth
       - service: notify.me
         data:
           title: "door unlocked"
@@ -793,7 +793,7 @@ automation:
   #   #   for:
   #   #     seconds: 10
   #   # - platform: state
-  #   #   entity_id: lock.ytterdor
+  #   #   entity_id: ytterdor_bluetooth
   #   #   to: 'unlocked'
   #   action:
   #   - condition: template

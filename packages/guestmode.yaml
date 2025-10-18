@@ -10,7 +10,7 @@ automation:
     action:
       - service: lock.lock
         data:
-          entity_id: lock.ytterdor
+          entity_id: ytterdor_bluetooth
           code: !secret lock_code
 
       - entity_id: script.alllightsoff
@@ -35,7 +35,7 @@ automation:
     action:
       - service: lock.lock
         data:
-          entity_id: lock.ytterdor
+          entity_id: ytterdor_bluetooth
           code: !secret lock_code
 
   - alias: Guestmode Notify Movement
@@ -61,38 +61,36 @@ automation:
         data_template:
           message: "Motion detected in {{ trigger.from_state.name }}."
 
-  - alias: GuestmodeChangedNotify
-    mode: restart
+  - alias: Auto Disable Guestmode
     trigger:
       - platform: state
-        entity_id: input_boolean.guestmode
-      - platform: state
         entity_id: sensor.alarm
+        to: "Disarm"
+        from: 
+          - "Arm Home"
+          - "Arm Away"
+          - "Arm Night"
+        for:
+          minutes: 10
     condition:
       - condition: state
         entity_id: input_boolean.guestmode
         state: "on"
     action:
-      - service: notify.mobile_app_erlend_mobil
-        data_template:
-          title: "Guest mode is activated"
-          message: "Guestmode is activated"
-          data:
-            ttl: 0
-            priority: high
-            actions:
-              - action: toggleguestmode
-                title: Turn off
-                destructive: false
-      - wait_for_trigger:
-          - platform: event
-            event_type: mobile_app_notification_action
-            event_data:
-              action: toggleguestmode
-        timeout: "12:00:00"
-        continue_on_timeout: false
       - service: input_boolean.turn_off
         entity_id: input_boolean.guestmode
+      - service: notify.me
+        data:
+          message: "Gjestemodus automatisk slått av fordi du er hjemme og våken."
+      - service: script.turn_on
+        entity_id: script.notifycaroline
+        data:
+          variables:
+            message: "Gjestemodus automatisk slått av fordi noen er hjemme og våken."
+      - service: script.turn_on
+        entity_id: script.ai_say
+        data:
+          prompt: "Gjestemodus er nå slått av."
 
 binary_sensor:
   - platform: template
