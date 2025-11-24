@@ -2,8 +2,8 @@ lock:
   - platform: template
     name: ytterdor
     unique_id: "22aceadb-488c-4bf9-a387-c70ea9fe81c1"
-    value_template: "{{ is_state('ytterdor_bluetooth', 'locked') }}"
-    availability_template: "{{ is_state('ytterdor_bluetooth', 'locked') or is_state('ytterdor_bluetooth', 'unlocked') }}"
+    value_template: "{{ is_state('lock.ytterdor_bluetooth', 'locked') }}"
+    availability_template: "{{ is_state('lock.ytterdor_bluetooth', 'locked') or is_state('lock.ytterdor_bluetooth', 'unlocked') }}"
     lock:
       service: script.lockdoor
     unlock:
@@ -14,9 +14,9 @@ script:
     alias: "Lock door"
     sequence:
       # - condition: template
-      #   value_template: "{{ states.ytterdor_bluetooth.state != 'locked' }}"
+      #   value_template: "{{ states.lock.ytterdor_bluetooth.state != 'locked' }}"
       - service: lock.lock
-        entity_id: ytterdor_bluetooth
+        entity_id: lock.ytterdor_bluetooth
         data:
           code: !secret lock_code
 
@@ -24,7 +24,7 @@ script:
     alias: "Unlock door"
     sequence:
       - service: lock.unlock
-        entity_id: ytterdor_bluetooth
+        entity_id: lock.ytterdor_bluetooth
         data:
           code: !secret lock_code
 
@@ -34,28 +34,28 @@ automation:
     mode: restart
     trigger:
       # - platform: state
-      #   entity_id: ytterdor_bluetooth
+      #   entity_id: lock.ytterdor_bluetooth
       #   to: "unlocking"
       # - platform: state
-      #   entity_id: ytterdor_bluetooth
+      #   entity_id: lock.ytterdor_bluetooth
       #   to: "locking"
       # - platform: state
-      #   entity_id: ytterdor_bluetooth
+      #   entity_id: lock.ytterdor_bluetooth
       #   to: "unlocking"
       #   for:
       #     seconds: 10
       # - platform: state
-      #   entity_id: ytterdor_bluetooth
+      #   entity_id: lock.ytterdor_bluetooth
       #   to: "locking"
       #   for:
       #     seconds: 10
       - platform: state
-        entity_id: ytterdor_bluetooth
+        entity_id: lock.ytterdor_bluetooth
         to: "unlocking"
         for:
           minutes: 10
       - platform: state
-        entity_id: ytterdor_bluetooth
+        entity_id: lock.ytterdor_bluetooth
         to: "locking"
         for:
           minutes: 10
@@ -81,10 +81,10 @@ automation:
           - condition: or
             conditions:
               - condition: state
-                entity_id: ytterdor_bluetooth
+                entity_id: lock.ytterdor_bluetooth
                 state: "unlocking"
               - condition: state
-                entity_id: ytterdor_bluetooth
+                entity_id: lock.ytterdor_bluetooth
                 state: "locking"
       - service: notify.me
         data:
@@ -108,10 +108,10 @@ automation:
       - condition: or
         conditions:
           - condition: state
-            entity_id: ytterdor_bluetooth
+            entity_id: lock.ytterdor_bluetooth
             state: "unlocked"
           - condition: state
-            entity_id: ytterdor_bluetooth
+            entity_id: lock.ytterdor_bluetooth
             state: "unlocking"
     action:
       - service: script.turn_on
@@ -137,10 +137,10 @@ automation:
       - condition: or
         conditions:
           - condition: state
-            entity_id: ytterdor_bluetooth
+            entity_id: lock.ytterdor_bluetooth
             state: "locked"
           - condition: state
-            entity_id: ytterdor_bluetooth
+            entity_id: lock.ytterdor_bluetooth
             state: "locking"
     action:
       - service: script.turn_on
@@ -159,7 +159,7 @@ automation:
       - delay:
           minutes: 5
       - condition: template
-        value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed)) / 60) | round(0)) > 5) and (states.ytterdor_bluetooth.state == 'unlocked') }}"
+        value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed)) / 60) | round(0)) > 5) and (states.lock.ytterdor_bluetooth.state == 'unlocked') }}"
       - service: script.turn_on
         entity_id: script.lockdoor
       - service: camera.snapshot
@@ -194,7 +194,7 @@ automation:
       condition: and
       conditions:
         - condition: state
-          entity_id: ytterdor_bluetooth
+          entity_id: lock.ytterdor_bluetooth
           state: "locked"
     action:
       - service: script.turn_on
@@ -215,7 +215,7 @@ automation:
       - delay:
           minutes: 5
       - condition: template
-        value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed, default=0)) / 60) | round(0)) > 5) and (states.ytterdor_bluetooth.state == 'unlocked')}}"
+        value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed, default=0)) / 60) | round(0)) > 5) and (states.lock.ytterdor_bluetooth.state == 'unlocked')}}"
       - service: script.turn_on
         entity_id: script.lockdoor
       - service: camera.snapshot

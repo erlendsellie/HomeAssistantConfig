@@ -62,26 +62,26 @@ template:
       - name: "VVB Average"
         unit_of_measurement: "°C"
         state: >-
-          {%set bottom = states('sensor.vvb_bottom') | float%}
-          {%set top = states('sensor.vvb_top') | float%}
+          {%set bottom = states('sensor.vvb_bottom') | float(default=50)%}
+          {%set top = states('sensor.vvb_top') | float(default=50)%}
           {{average(top,bottom)}}
       - name: "VVB Average2"
         unit_of_measurement: "°C"
         state: >-
-          {%set bottom = states('sensor.vvb_bottom') | float%}
-          {%set avg = states('sensor.vvb_average') | float%}
+          {%set bottom = states('sensor.vvb_bottom') | float(default=50)%}
+          {%set avg = states('sensor.vvb_average') | float(default=50)%}
           {{average(bottom,avg)}}
       - name: "VVB Min"
         unit_of_measurement: "°C"
         state: >-
-          {%set bottom = states('sensor.vvb_bottom') | float%}
-          {%set top = states('sensor.vvb_top') | float%}
+          {%set bottom = states('sensor.vvb_bottom') | float(default=50)%}
+          {%set top = states('sensor.vvb_top') | float(default=50)%}
           {{min(top,bottom)}}
       - name: "VVB Max"
         unit_of_measurement: "°C"
         state: >-
-          {%set bottom = states('sensor.vvb_bottom') | float%}
-          {%set top = states('sensor.vvb_top') | float%}
+          {%set bottom = states('sensor.vvb_bottom') | float(default=50)%}
+          {%set top = states('sensor.vvb_top') | float(default=50)%}
           {{max(top,bottom)}}
       - name: "VVB Calculated"
         unit_of_measurement: "°C"
@@ -96,8 +96,8 @@ template:
       - name: "VVB Difference"
         unit_of_measurement: "°C"
         state: >-
-          {%set bottom = states.sensor.vvb_bottom.state | float%}
-          {%set top = states.sensor.vvb_top.state | float%}
+          {%set bottom = states.sensor.vvb_bottom.state | float(default=50)%}
+          {%set top = states.sensor.vvb_top.state | float(default=50)%}
           {{bottom - top}}
 
 #Set to on always at some hours at night, to ensure hot water at morning?
@@ -218,12 +218,66 @@ automation:
           temperature: "{{states('sensor.vvb_temp') | int(default=70)}}"
         target:
           entity_id: climate.varmtvannsbereder
-
       - alias: "TurnOn VVB"
         service: >-
           climate.turn_on
         target:
           entity_id: climate.varmtvannsbereder
+
+  - id: NotifyLowVVBTemperature
+    alias: "Notify low VVB temperature"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.vvb_calculated
+        below: 40
+        for:
+          hours: 3
+      - platform: template
+        value_template: >-
+          {{ states('sensor.vvb_calculated') | float(0) < states('sensor.vvb_temp') | float(0) }}
+        for:
+          hours: 3
+    condition:
+      - condition: state
+        entity_id: input_boolean.keep_vvb_off
+        state: "off"
+      - condition: template
+        value_template: >-
+          {{
+            is_state('switch.varmtvannsbereder', 'off')
+            and (as_timestamp(now()) - as_timestamp(states.switch.varmtvannsbereder.last_changed)) > 12 * 3600
+          }}
+    action:
+      - service: notify.me
+        data:
+          message: >-
+            VVB temperature warning:
+            - VVB Calculated: {{ states('sensor.vvb_calculated') }} °C
+            - VVB target (vvb_temp): {{ states('sensor.vvb_temp') }} °C
+            - VVB switch state: {{ states('switch.varmtvannsbereder') }}
+
+  - id: NotifyVVBSwitchOffTooLong
+    alias: "Notify VVB switch off too long"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: switch.varmtvannsbereder
+        to: "off"
+        for:
+          hours: 12
+    condition:
+      - condition: state
+        entity_id: input_boolean.keep_vvb_off
+        state: "off"
+    action:
+      - service: notify.me
+        data:
+          message: >-
+            VVB has been OFF for more than 12 hours while keep_vvb_off is not enabled.
+            - VVB Calculated: {{ states('sensor.vvb_calculated') }} °C
+            - VVB target (vvb_temp): {{ states('sensor.vvb_temp') }} °C
+            - VVB switch state: {{ states('switch.varmtvannsbereder') }}
 
   # - id: ToggleHeavyDutyToFixPowerReading
   #   alias: ToggleHeavyDutyToFixPowerReading

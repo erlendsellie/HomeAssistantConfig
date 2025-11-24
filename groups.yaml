@@ -241,7 +241,6 @@ upstairs:
   name: Upstairs
   entities:
     - light.upstairs
-    - light.bathroom
 
 lights:
   name: Lights

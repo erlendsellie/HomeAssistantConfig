@@ -78,7 +78,7 @@ automation:
       local_only: false
     action:
       - service: lock.lock
-        entity_id: ytterdor_bluetooth
+        entity_id: lock.ytterdor_bluetooth
         data_template:
           code: "{{ trigger.json.value}}"
 

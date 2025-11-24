@@ -1,3 +1,9 @@
+input_datetime:
+  lock_glitch_last_notification:
+    name: "Last Lock Glitch Notification"
+    has_date: true
+    has_time: true
+
 alarm_control_panel:
   - platform: manual
     name: Home Alarm
@@ -285,7 +291,7 @@ automation:
   #     for:
   #       minutes: 5
   #   - platform: state
-  #     entity_id: ytterdor_bluetooth
+  #     entity_id: lock.ytterdor_bluetooth
   #     to: 'locked'
   #     for:
   #       minutes: 5
@@ -622,7 +628,7 @@ automation:
       #   entity_id: binary_sensor.hoveddor
       #   to: 'on'
       - platform: state
-        entity_id: ytterdor_bluetooth
+        entity_id: lock.ytterdor_bluetooth
         from: "unlocked"
         to: "locked"
     # condition:
@@ -653,7 +659,7 @@ automation:
       #   entity_id: binary_sensor.hoveddor
       #   to: 'on'
       - platform: state
-        entity_id: ytterdor_bluetooth
+        entity_id: lock.ytterdor_bluetooth
         to: "unlocked"
         from: "locked"
     # condition:
@@ -667,10 +673,30 @@ automation:
     #       {%-set notmotionvindfang = states.binary_sensor.motion_vindfang.state == 'off' -%}
     #       {{alarmNotJustSet and notDisarmedAndGarageClosed and notmotionvindfang}}
     action:
-      - delay:
-          seconds: 1
       - condition: template
-        value_template: "{{states.ytterdor_bluetooth.state == 'unlocked'}}"
+        value_template: "{{states.lock.ytterdor_bluetooth.state == 'unlocked'}}"
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ (as_timestamp(now()) - as_timestamp(trigger.from_state.last_changed, default=0)) <= 60 }}"
+            sequence:
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: >
+                          {% set last_notify = states('input_datetime.lock_glitch_last_notification') %}
+                          {{ last_notify == 'unknown' or (as_timestamp(now()) - as_timestamp(last_notify, default=0)) >= 86400 }}
+                    sequence:
+                      - service: notify.me
+                        data_template:
+                          title: "Lock glitch detected"
+                          message: "The door lock reported unlocked only {{ ((as_timestamp(now()) - as_timestamp(trigger.from_state.last_changed, default=0)) | int) }} seconds after being locked. Ignoring to prevent alarm loop."
+                      - service: input_datetime.set_datetime
+                        target:
+                          entity_id: input_datetime.lock_glitch_last_notification
+                        data:
+                          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+              - stop: "Lock was just locked, likely a glitch"
       # - service: light.turn_on
       #   entity_id: light.hyperion
       #   data_template:
@@ -705,7 +731,7 @@ automation:
       # - condition: templa= 'Disarm' }}"
       - service: lock.lock
         target:
-          entity_id: ytterdor_bluetooth
+          entity_id: lock.ytterdor_bluetooth
       - service: notify.me
         data:
           title: "door unlocked"
@@ -793,7 +819,7 @@ automation:
   #   #   for:
   #   #     seconds: 10
   #   # - platform: state
-  #   #   entity_id: ytterdor_bluetooth
+  #   #   entity_id: lock.ytterdor_bluetooth
   #   #   to: 'unlocked'
   #   action:
   #   - condition: template
@@ -1155,6 +1181,56 @@ automation:
       - service: notify.me
         data:
           message: Verandaen har vært åpen i 60 minutter nå
+
+  - id: close_garage_lock_door_no_person
+    alias: "Close garage and lock door when no person detected"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: sensor.garage_person_count
+        to: "0"
+        for:
+          minutes: 10
+        id: person_timeout
+      - platform: state
+        entity_id: sensor.driveway_person_count
+        to: "0"
+        for:
+          minutes: 10
+        id: person_timeout
+      - platform: state
+        entity_id: input_select.alarm
+        to: "Arm Away"
+        id: alarm_armed
+      - platform: state
+        entity_id: input_select.alarm
+        to: "Arm Home"
+        id: alarm_armed
+    action:
+      - if:
+          - condition: trigger
+            id: person_timeout
+          - condition: template
+            value_template: >
+              {{ states('sensor.garage_person_count') != '0' 
+                 or states('sensor.driveway_person_count') != '0' }}
+        then:
+          - stop: "Person still detected, not closing"
+      - if:
+          - condition: state
+            entity_id: cover.garage_door
+            state: "open"
+        then:
+          - service: cover.close_cover
+            target:
+              entity_id: cover.garage_door
+      - if:
+          - condition: template
+            value_template: "{{ states('lock.ytterdor') != 'locked' }}"
+        then:
+          - service: lock.lock
+            target:
+              entity_id: lock.ytterdor
 
 script:
   alarmtriggered:

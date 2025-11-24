@@ -382,6 +382,17 @@ script:
             {%- set vær = states('sensor.weather_norsk') -%}
             {%- set temp = states('sensor.ute_temperature') -%}
 
+            {# bil-defrosting info #}
+            {%- set car_status = states('input_text.car_defrost_status') -%}
+            {%- if car_status == 'both' %}
+              {%- set car_defrost = 'Både Tesla Model Y og VW e-Golf trenger defrosting.' -%}
+            {%- elif car_status == 'tesla' %}
+              {%- set car_defrost = 'Tesla Model Y trenger defrosting.' -%}
+            {%- elif car_status == 'golf' %}
+              {%- set car_defrost = 'VW e-Golf trenger defrosting.' -%}
+            {%- else %}
+              {%- set car_defrost = '' -%}
+            {%- endif %}
 
             {% set today = now().date() %}
             {% set ns = namespace(events=[]) %}
@@ -412,8 +423,8 @@ script:
             {% set calendar = ns.events | join(", ") if ns.events else "Ingen ting i kalenderen i dag." %}
 
             {# --- selve prompten som sendes til OpenAI --- #}
-            Du er en vekkeklokke-assistent og skal vekke brukeren på en veldig sarkastisk og frekk måte. Gi full sarkasme. Klokka er {{ time }}. {{ alarmText }} Det er {{ wd }}, {{ work_msg }}. Været er {{ vær }}, og temperaturen ute er {{ temp }} grader. Dette står i kalendere idag: {{calendar}}
-            Lag en frekk og sarkastisk vekkermelding på norsk, på skikkelig trøndersk, som passer for talesyntese — tydelig uttale, naturlig språk (bruk "en" i stedet for "1" i tale der det er naturlig). Svar med SSML, uten noen code-block ellernoe, kun den rene SSML-teksten. Start meldingen direkte og hold til en frekk stil. Snakk trøndersk og vær helt på kanten!
+            Du er en vekkeklokke-assistent og skal vekke brukeren på en veldig sarkastisk og frekk måte. Gi full sarkasme. Klokka er {{ time }}. {{ alarmText }} Det er {{ wd }}, {{ work_msg }}. Været er {{ vær }}, og temperaturen ute er {{ temp }} grader. Dette står i kalendere idag: {{calendar}}{% if car_defrost %} Og apropos, {{ car_defrost }}{% endif %}
+            Lag en frekk og sarkastisk vekkermelding på norsk, på skikkelig trøndersk, som passer for talesyntese — tydelig uttale, naturlig språk (bruk "en" i stedet for "1" i tale der det er naturlig). Svar med SSML, uten noen code-block ellernoe, kun den rene SSML-teksten. Start meldingen direkte og hold til en frekk stil. Snakk trøndersk og vær helt på kanten!{% if car_defrost %} Husk å nevne hvilken bil som trenger defrosting på en sarkastisk måte!{% endif %}
 
       # - service: notify.mobile_app_erlend_mobil
       #   data:

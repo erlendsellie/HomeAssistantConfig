@@ -10,7 +10,7 @@ automation:
     action:
       - service: lock.lock
         data:
-          entity_id: ytterdor_bluetooth
+          entity_id: lock.ytterdor_bluetooth
           code: !secret lock_code
 
       - entity_id: script.alllightsoff
@@ -35,7 +35,7 @@ automation:
     action:
       - service: lock.lock
         data:
-          entity_id: ytterdor_bluetooth
+          entity_id: lock.ytterdor_bluetooth
           code: !secret lock_code
 
   - alias: Guestmode Notify Movement

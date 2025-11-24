@@ -88,20 +88,14 @@ automation:
           sudo_text: >-
             {% if sudo_skip %}Ikke mat Sudo{% else %}Mat Sudo{% endif %}
           combined_message: "{{ pixel_text }}, {{ sudo_text }}"
-
-      # - service: script.notifyhome
-      #   data:
-      #     variables:
-      #       title: "Hundemiddag"
-      #       message: "{{ combined_message }}"
-      - service: notify.mobile_app_erlend_mobil
-        data:
-          title: "Hundemiddag"
-          message: "{{ combined_message }}"
-          data:
-            actions:
-              - action: FEED_CONFIRMED
-                title: "Bekreft at de er matet"
+      - service: script.turn_on
+        entity_id: script.notifyhome
+        data_template:
+          variables:
+            title: "Hundefrokost"
+            message: "{{ combined_message }}"
+      #         - action: FEED_CONFIRMED
+      #           title: "Bekreft at de er matet"
 
   # Smart Reminder based on motion in kitchen
   - alias: Remind to Feed Dogs in Kitchen
@@ -149,7 +143,7 @@ automation:
       #       actions:
       #         - action: FEED_CONFIRMED
       #           title: "Bekreft at de er matet"
-      # - service: notify.mobile_app_pixel_7_pro
+      # - service: notify.mobile_app_pixel_10_pro
       #   data:
       #     title: "Hundemiddag"
       #     message: "{{ combined_message }}"

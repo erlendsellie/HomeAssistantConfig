@@ -14,7 +14,7 @@ sensor:
       #   value_template: "{{states.climate.varmepumpe.attributes.last_on_operation}}"
       pricelevel:
         friendly_name: "Price Level"
-        value_template: "{{states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.price_level}}"
+        value_template: "{{ state_attr('sensor.electricity_price_sivert_thonstads_vei_6b', 'price_level') | default('unknown') }}"
       # tibberheatdifference:
       #   friendly_name: "Tibber Heat Difference"
       #   unit_of_measurement: "°C"

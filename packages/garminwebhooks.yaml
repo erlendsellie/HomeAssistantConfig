@@ -158,11 +158,11 @@ automation:
             sequence:
               - service: light.turn_off
                 entity_id: light.sofa
-          - conditions:
-              - condition: template
-                value_template: "{{ states.input_select.garmincontrol.state == 'Cover'}}"
-            sequence:
-              - service: script.verandahalfway
+          # - conditions:
+          #     - condition: template
+          #       value_template: "{{ states.input_select.garmincontrol.state == 'Cover'}}"
+          #   sequence:
+          #     - service: script.verandahalfway
           - conditions:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrol.state == 'Media'}}"

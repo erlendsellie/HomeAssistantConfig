@@ -187,38 +187,47 @@ automation:
       - service: input_boolean.turn_off
         entity_id: input_boolean.casleep
 
-  - alias: "CarolineAsleepWebhook"
+  - id: caroline_asleep
+    alias: "Caroline Asleep"
+    mode: restart
     trigger:
       - platform: state
         entity_id: binary_sensor.ccharging
-        to: "on"
-        # for:
-        #   minutes: 5
-    condition:
-      - condition: time
-        after: "20:00:00"
-        before: "06:00:00"
-      - condition: state
-        entity_id: person.caroline
-        state: "home"
-    action:
-      - service: input_boolean.turn_on
-        entity_id: input_boolean.casleep
-
-  - alias: "CarolineAsleepTime"
-    trigger:
+        to: "on"  x
+        id: charging
       - platform: time
         at: "22:00:00"
+        id: nightly_check
     condition:
-      - condition: state
-        entity_id: binary_sensor.ccharging
-        state: "on"
       - condition: state
         entity_id: person.caroline
         state: "home"
+      - condition: template
+        value_template: >-
+          {% set last_change = as_timestamp(states.binary_sensor.motion_bedroom.last_changed, 0) %}
+          {{ is_state('binary_sensor.motion_bedroom', 'on') or (last_change and (as_timestamp(now()) - last_change) < 600) }}
     action:
-      - service: input_boolean.turn_on
-        entity_id: input_boolean.casleep
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: charging
+              - condition: time
+                after: "20:00:00"
+                before: "06:00:00"
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.casleep
+          - conditions:
+              - condition: trigger
+                id: nightly_check
+              - condition: state
+                entity_id: binary_sensor.ccharging
+                state: "on"
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.casleep
 
   - alias: "CarolineAsleepWithMotion"
     trigger:
@@ -336,6 +345,10 @@ automation:
         - condition: state
           entity_id: person.erlend
           state: "home"
+        - condition: template
+          value_template: >-
+            {% set last_change = as_timestamp(states.binary_sensor.motion_bedroom.last_changed, 0) %}
+            {{ is_state('binary_sensor.motion_bedroom', 'on') or (last_change and (as_timestamp(now()) - last_change) < 600) }}
     action:
       - service: input_boolean.turn_on
         entity_id: input_boolean.easleep

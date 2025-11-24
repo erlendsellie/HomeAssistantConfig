@@ -480,11 +480,30 @@
       value_template: >-
         {% set dummy = states("sensor.time") %}
         {% if states.input_boolean.trymasleep.state == 'on' %}
-            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trymsoveron.attributes.last_triggered,0, default=0)) / 60) | round(0)}}
+            {% if states.automation.trymsoveron %}
+            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trymsoveron.attributes.last_triggered, default=0)) / 60) | round(0)}}
+            {% else %}
+            0
+            {% endif %}
         {% elif states.input_boolean.tryminkindergarden.state == 'on' %}
+            {% if states.automation.trym_left_in_school %}
             {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trym_left_in_school.attributes.last_triggered, default=0)) / 60) | round(0)}}
+            {% else %}
+            0
+            {% endif %}
         {% else %}
-            {{((as_timestamp(utcnow()) - as_timestamp([states.automation.trymsoveroff.attributes.last_triggered, states.automation.trym_picked_up_in_kindergarden.attributes.last_triggered] | max, default=0)) / 60) | round(0)}}
+            {% set triggers = [] %}
+            {% if states.automation.trymsoveroff %}
+            {% set triggers = triggers + [states.automation.trymsoveroff.attributes.last_triggered] %}
+            {% endif %}
+            {% if states.automation.trym_picked_up_in_kindergarden %}
+            {% set triggers = triggers + [states.automation.trym_picked_up_in_kindergarden.attributes.last_triggered] %}
+            {% endif %}
+            {% if triggers %}
+            {{((as_timestamp(utcnow()) - as_timestamp(triggers | max, default=0)) / 60) | round(0)}}
+            {% else %}
+            0
+            {% endif %}
         {% endif %}
     trymsleeptimeformatted:
       friendly_name: "Trym Sleep time"
@@ -501,9 +520,17 @@
       value_template: >-
         {% set dummy = states("sensor.time") %}
         {% if states.input_boolean.tyraasleep.state  == 'on'%}
-            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveron.attributes.last_triggered, default=0)) / 60) | round(0)}} 
+            {% if states.automation.tyrasoveron %}
+            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveron.attributes.last_triggered, default=0)) / 60) | round(0)}}
+            {% else %}
+            0
+            {% endif %}
         {% else %}
-            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveroff.attributes.last_triggered, default=0)) / 60) | round(0)}}                
+            {% if states.automation.tyrasoveroff %}
+            {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveroff.attributes.last_triggered, default=0)) / 60) | round(0)}}
+            {% else %}
+            0
+            {% endif %}
         {% endif %}
     # trymsleeptime:
     #   friendly_name: "Trym Sleep time"
@@ -549,7 +576,12 @@
 
     tvsource:
       friendly_name: "TV Source"
-      value_template: '{{ states.media_player.tv_stua.attributes.source or "off"}}'
+      value_template: >-
+        {% if is_state('media_player.tv_stua', 'unavailable') or is_state('media_player.tv_stua', 'unknown') %}
+          off
+        {% else %}
+          {{ state_attr("media_player.tv_stua", "source") | default("off") }}
+        {% endif %}
 
       #working great, just unused.
     # powerprice:
@@ -576,7 +608,7 @@
         {%-set trymasleep = states.input_boolean.trymasleep.state == 'on' -%}
         {%-set tyraasleep = states.input_boolean.tyraasleep.state == 'on' -%}
         {% if trymasleep or tyraasleep %}
-          0.3
+          0.5
         {% elif states.input_boolean.powernap.state == 'on' %} 
           0.0
         {% elif states.input_select.alarm.state == 'Disarm' %} 
@@ -588,7 +620,7 @@
         {% endif %}
     unlockedby:
       friendly_name: "Door unlocked by"
-      value_template: "{{states.ytterdor_bluetooth.attributes.changed_by}}"
+      value_template: "{{states.lock.ytterdor.attributes.changed_by}}"
     # {% if states.input_select.alarm.state == 'Disarm' %}
     #   {% if float(states.sensor.ute_temperature.state) < float(states.input_number.coldthreshold.state) %}
     #     {{ float(states.input_number.hjemmetemp.state) + float(states.input_number.extradegrees.state) }}

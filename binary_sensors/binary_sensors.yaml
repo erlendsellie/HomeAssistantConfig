@@ -71,9 +71,9 @@
     #   friendly_name: "Mail Today"
     #   value_template: "{{states.sensor.mailtoday.state == 'True'}}"
     echarging:
-      value_template: "{{states.binary_sensor.erlend_mobil_is_charging.state == 'on'}}"
+      value_template: "{{states.sensor.erlend_mobil_charger_type.state != 'none'}}"
     ccharging:
-      value_template: "{{states.binary_sensor.caroline_is_charging.state == 'on'}}"
+      value_template: "{{states.sensor.pixel_10_pro_battery_state.state != 'discharging'}}"
     tv_on:
       value_template: "{{ states.media_player.tv_stua.state == 'Playing'}}"
     stairsexposed:

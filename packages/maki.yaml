@@ -111,7 +111,7 @@ automation:
             actions:
               - action: MAKI_MEDISIN_GITT
                 title: "Har gitt medisin"
-      - service: notify.mobile_app_pixel_7_pro
+      - service: notify.mobile_app_pixel_10_pro
         data:
           title: "Husk Maki sin medisin 💊"
           message: "Maki er inne. Har du gitt henne pillen?"

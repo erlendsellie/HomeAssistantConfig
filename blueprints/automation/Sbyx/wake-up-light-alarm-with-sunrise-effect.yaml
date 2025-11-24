@@ -129,7 +129,7 @@ action:
     - service: light.turn_on
       data:
         brightness: '{{start_brightness}}'
-        color_temp: '{{start_mired}}'
+        color_temp_kelvin: '{{(1000000 / float(start_mired)) | int(default=0)}}'
       entity_id: !input 'light_entity'
   default:
   - service: light.turn_on
@@ -161,9 +161,9 @@ action:
                   (as_timestamp(states(sensor) if sensor != ''none'' else states(''sensor.date'')
                   ~ '' '' ~ manual_time) - as_timestamp(now())) / float(seconds)))
                   | int(default=0)}}'
-                color_temp: '{{(float(end_mired) + (float(start_mired) - float(end_mired))
+                color_temp_kelvin: '{{(1000000 / (float(end_mired) + (float(start_mired) - float(end_mired))
                   * ((as_timestamp(states(sensor) if sensor != ''none'' else states(''sensor.date'')
-                  ~ '' '' ~ manual_time) - as_timestamp(now())) / float(seconds)))
+                  ~ '' '' ~ manual_time) - as_timestamp(now())) / float(seconds))))
                   | int(default=0)}}'
               entity_id: !input 'light_entity'
           default:

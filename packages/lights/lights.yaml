@@ -391,7 +391,9 @@ automation:
     condition:
       # Somewhat before the sun sets.
       - condition: template
-        value_template: "{{ states.sensor.illuminance_living.state | float(default=0)< 40}}"
+        value_template: "{{ state_attr('sun.sun', 'elevation') | float < 4 }}"
+      # - condition: template
+      #   value_template: "{{ states.sensor.illuminance_living.state | float(default=0)< 40}}"
     action:
       - action: script.turn_on
         target:

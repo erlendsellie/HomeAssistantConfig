@@ -229,18 +229,18 @@ automation:
   #       data_template:
   #         brightness_pct: "{{ states.sensor.brightnessfortrymlight.state }}"
 
-  - alias: turnOffTrymLightBall
-    trigger:
-      - platform: state
-        entity_id: light.trym_roof
-        to: "off"
-    condition:
-      - condition: state
-        entity_id: input_boolean.trymasleep
-        state: "off"
-    action:
-      - service: light.turn_off
-        entity_id: light.trym_balloon
+  # - alias: turnOffTrymLightBall
+  #   trigger:
+  #     - platform: state
+  #       entity_id: light.trym_roof
+  #       to: "off"
+  #   condition:
+  #     - condition: state
+  #       entity_id: input_boolean.trymasleep
+  #       state: "off"
+  #   action:
+  #     - service: light.turn_off
+  #       entity_id: light.trym_balloon
 
   # - alias: turnOffTrymLight
   #   trigger:

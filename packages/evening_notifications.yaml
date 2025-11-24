@@ -1,0 +1,45 @@
+# Package for evening notifications
+
+# Automasjon: Varsling om morgendagens aktiviteter ved bevegelse på kjøkkenet
+automation:
+  - id: kitchen_motion_morning_activities
+    alias: "Varsle om morgendagens aktiviteter"
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_kitchen
+        to: "on"
+    condition:
+      - condition: time
+        after: "19:00:00"
+      - condition: template
+        value_template: >
+          {{ not state_attr('automation.varsle_om_morgendagens_aktiviteter', 'last_triggered')
+             or (as_timestamp(now()) - as_timestamp(state_attr('automation.varsle_om_morgendagens_aktiviteter', 'last_triggered'))) > 86400 }}
+    action:
+      - choose:
+          # Mandag kveld - varsle om Tyra sin turdag (tirsdag)
+          - conditions:
+              - condition: time
+                weekday:
+                  - mon
+            sequence:
+              - service: script.ai_say
+                data:
+                  prompt: "Husk at Tyra har turdag i morgen!"
+              - service: script.notifyhome
+                data:
+                  message: "Tyra har turdag i morgen!"
+          # Onsdag kveld - varsle om Trym sin turdag (torsdag)
+          - conditions:
+              - condition: time
+                weekday:
+                  - wed
+            sequence:
+              - service: script.ai_say
+                data:
+                  prompt: "Husk at Trym har turdag i morgen!"
+              - service: script.notifyhome
+                data:
+                  message: "Trym har turdag i morgen!"

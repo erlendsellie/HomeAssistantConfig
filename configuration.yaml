@@ -40,6 +40,7 @@ trace:
 logger:
   default: warning
   logs:
+    custom_components.tibber_data: fatal
     homeassistant.components.camera.generic: warning
     libav: fatal
     aiohttp: fatal
@@ -55,7 +56,7 @@ logger:
     custom_components.bambu_lab.pybambu: fatal
     ring_doorbell.doorbot: error
     homeassistant.components.waze_travel_time.coordinator: fatal
-
+    custom_components.priceanalyzer: debug
 
 zone:
   - name: Home
@@ -106,7 +107,6 @@ zone:
     radius: 50
     icon: mdi:ferry
 
-
 frontend:
   themes: !include_dir_merge_named themes/
 
@@ -119,7 +119,6 @@ http:
   trusted_proxies:
     - "172.30.33.0/24"
     - "192.168.1.200"
-
 
 wake_on_lan:
 
@@ -174,7 +173,7 @@ logbook:
       - script
       - device_tracker
     entities:
-      - ytterdor_bluetooth
+      - lock.ytterdor_bluetooth
       - input_select.alarm
       - light.play
       - sensor.alarm
@@ -293,7 +292,6 @@ proxmoxve:
           - 102
           - 103
 mqtt:
-
   sensor:
     - name: "Fan Bathroom energy"
       state_topic: "tele/SONOFF-2/ENERGY"
@@ -309,8 +307,6 @@ mqtt:
       unit_of_measurement: "V"
 
 switch:
-
-
   - platform: tellstick
 
 # webostv:
@@ -484,7 +480,6 @@ input_boolean:
   vacuum_when_away:
     name: Vacuum When Away
 
-
 binary_sensor: !include_dir_merge_list binary_sensors
 automation: !include automations.yaml
 sensor: !include_dir_merge_list sensors
@@ -539,6 +534,10 @@ telegram_bot:
     api_key: !secret telegram_bot
     allowed_chat_ids:
       - !secret telegram_chatid
+
+twilio:
+  account_sid: !secret twilio_sid
+  auth_token: !secret twilio_auth_token
 
 notify: !include notify.yaml
 climate: !include climate.yaml

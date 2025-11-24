@@ -23,7 +23,7 @@ sensor:
   - platform: rest
     name: Erlend Current Temperatur
     resource_template: >
-      https://api.open-meteo.com/v1/forecast?latitude={{ states.person.erlend.attributes.latitude | default(63.357) }}&longitude={{ states.person.erlend.attributes.longitude | default(10.354) }}&current_weather=true
+      https://api.open-meteo.com/v1/forecast?latitude={{ state_attr('person.erlend', 'latitude') | default(63.357) }}&longitude={{ state_attr('person.erlend', 'longitude') | default(10.354) }}&current_weather=true
     value_template: "{{ value_json.current_weather.temperature }}"
     unit_of_measurement: "°C"
     scan_interval: 900 # oppdater hvert 15. min

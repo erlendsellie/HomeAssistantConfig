@@ -94,12 +94,12 @@ automation:
     mode: single
     trigger:
       - platform: state
-        entity_id: sensor.modely_charge_limit
+        entity_id: number.modely_charge_limit
       - platform: state
         entity_id: sensor.alarm
     condition:
       - condition: numeric_state
-        entity_id: sensor.modely_charge_limit
+        entity_id: number.modely_charge_limit
         above: 80
     action:
       - service: script.turn_on
@@ -109,7 +109,7 @@ automation:
           variables:
             title: "Charge Limit Warning"
             message: >
-              Charge limit is {{ states('sensor.modely_charge_limit') }}% 🚨
+              Charge limit is {{ states('number.modely_charge_limit') }}% 🚨
 
   - alias: CarLowChargeAfter21
     id: CarLowChargeAfter21
@@ -493,6 +493,23 @@ automation:
               variables:
                 title: "Lad bil"
                 message: "Sett en av bilene på lading"
+
+  - alias: "Car Started Charging"
+    id: "car_started_charging"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.modely_charger_sensor
+        to: "on"
+    action:
+      - service: script.turn_on
+        target:
+          entity_id: script.notify
+        data_template:
+          variables:
+            title: "Car Started Charging"
+            message: >
+              The Model Y has started charging. Current battery level: {{ states('sensor.modely') }}%
 
 script:
   defrostcar:

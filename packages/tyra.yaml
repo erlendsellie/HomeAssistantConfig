@@ -72,7 +72,7 @@ automation:
   #           - action: tyrasoveron
   #             title: Ja
   #             destructive: true
-  #   - service: notify.mobile_app_pixel_7_pro
+  #   - service: notify.mobile_app_pixel_10_pro
   #     data_template:
   #       title: 'Slå på'
   #       message: 'Tyra sover?'

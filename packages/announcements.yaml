@@ -678,7 +678,7 @@ automation:
               - action: garageRemind
                 title: Remind me in 5 minutes
                 destructive: true
-      - service: notify.mobile_app_pixel_7_pro
+      - service: notify.mobile_app_pixel_10_pro
         data_template:
           title: "Garage has been open for 60 minutes"
           message: "Close it?"
@@ -831,13 +831,13 @@ automation:
         entity_id: script.warmupcominghome
       - service: notify.me
         data_template:
-          title: "Caroline is probably home within {{states.sensor.here_caroline_to_home_bike_duration.state | int - 10	}} minutes."
+          title: "Caroline is probably home within 25 minutes."
           message: "The time is {{ now().hour }}:{{ now().minute }}."
       - service: script.turn_on
         entity_id: script.sayai
         data_template:
           variables:
-            message: "Mamma er på vei hjem, og er hjemme om  ca {{states.sensor.here_caroline_to_home_bike_duration.state | int - 10}} minutter"
+            message: "Mamma er på vei hjem, og er hjemme om  ca 25 minutter"
       - service: script.turn_on
         entity_id: script.blinkliving
         data_template:

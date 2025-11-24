@@ -13,16 +13,18 @@ template:
         unique_id: erlend_screen_time_active
         device_class: running
         state: >
-          {{ is_state('binary_sensor.erlend_mobil_device_locked', 'off')
-             and not is_state('person.erlend', 'Work')
-             and not is_state('binary_sensor.motion_downstairs_office', 'on') }}
+          {% set phone_unlocked = is_state('binary_sensor.erlend_mobil_device_locked', 'off') %}
+          {% set at_work = is_state('person.erlend', 'Work') or is_state('binary_sensor.motion_downstairs_office', 'on') %}
+          {{ phone_unlocked and not at_work }}
 
       - name: "Caroline Screen Time Active"
         unique_id: caroline_screen_time_active
         device_class: running
         state: >
-          {{ is_state('binary_sensor.caroline_pixel_device_locked', 'off')
-             and not is_state('person.caroline', 'Sykehuset') }}
+          {% set phone_unlocked = is_state('binary_sensor.caroline_pixel_device_locked', 'off') %}
+          {% set at_hospital = is_state('person.caroline', 'Sykehuset') %}
+          {{ phone_unlocked and not at_hospital }}
+
   - sensor:
       - name: "family_screen_time_today"
         unit_of_measurement: "hours"

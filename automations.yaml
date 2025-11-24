@@ -1,68 +1,68 @@
-- id: "1612620277117"
+- id: '1612620277117'
   alias: Cast to Google Hub
   mode: restart
-  description: ""
+  description: ''
   use_blueprint:
     path: kind3r/cast-and-re-cast-a-lovelace-view-to-a-google-hub.yaml
     input:
       dashboard: lovelace
       player: media_player.kitchen_display
       view: cast
-- id: "1649081912664"
+- id: '1649081912664'
   alias: Tibber - Reload Integration Blueprint
-  description: ""
+  description: ''
   use_blueprint:
     path: erlendsellie/tibber_reload.yaml
     input:
       entity: sensor.pulse_power
       notify: false
-- id: "1649098665941"
+- id: '1649098665941'
   alias: Nordpool - Reload Integration Blueprint
-  description: ""
+  description: ''
   use_blueprint:
     path: erlendsellie/nordpool_reload.yaml
     input:
       entity: sensor.nordpool
       notify: true
-- id: "1666519974103"
+- id: '1666519974103'
   alias: PriceAnalyzer - Control Hot Water Tank
-  description: ""
+  description: ''
   use_blueprint:
     path: erlendsellie/priceanalyzer_vvb.yaml
     input:
       sensor: sensor.vvbsensor
       climate: climate.varmtvannsbereder
   mode: single
-- id: "1670796220883"
+- id: '1670796220883'
   alias: Reload Integration - Mill Trym
-  description: ""
+  description: ''
   use_blueprint:
     path: erlendsellie/reload_integration.yaml
     input:
       entity: climate.trym
       notify: true
-- id: "1670796277164"
+- id: '1670796277164'
   alias: Reload Integration Tyra Mill
-  description: ""
+  description: ''
   use_blueprint:
     path: erlendsellie/reload_integration.yaml
     input:
       entity: climate.tyra_heater
       notify: true
-- id: "1671622551793"
+- id: '1671622551793'
   alias: Tag Jobb is scanned - start defrost
-  description: ""
+  description: ''
   trigger:
-    - platform: tag
-      tag_id: a5a72966-28f2-45b3-9004-7eba690b8e4b
+  - platform: tag
+    tag_id: a5a72966-28f2-45b3-9004-7eba690b8e4b
   condition: []
   action:
-    - service: script.defrostcar
-      data: {}
+  - service: script.defrostcar
+    data: {}
   mode: single
-- id: "1675106320563"
+- id: '1675106320563'
   alias: PriceAnalyzer - Control Climate Office Floor
-  description: ""
+  description: ''
   use_blueprint:
     path: erlendsellie/priceanalyzer.yaml
     input:
@@ -71,120 +71,116 @@
       climate: climate.office_floor
 - id: 1675106320563Aquarium
   alias: PriceAnalyzer - Control Climate Aquarium
-  description: ""
+  description: ''
   use_blueprint:
     path: erlendsellie/priceanalyzer.yaml
     input:
       sensor: sensor.pricecorrection
       number: input_number.aquarium_temperature
       climate: climate.aquarium
-- id: "1675356794858"
+- id: '1675356794858'
   alias: PriceAnalyzer - Varmepumpe Opp
-  description: ""
+  description: ''
   use_blueprint:
     path: erlendsellie/priceanalyzer.yaml
     input:
       sensor: sensor.pricecorrection
       number: input_number.varmepumpe_opp_temperature
       climate: climate.varmepumpe_opp
-- id: "1676932383512"
+- id: '1676932383512'
   alias: PriceAnalyzer - Control Climate Living Room Heater
-  description: ""
+  description: ''
   use_blueprint:
     path: erlendsellie/priceanalyzer.yaml
     input:
       sensor: sensor.pricecorrection
       number: sensor.tempsenttoheater
       climate: climate.living_heater
-- id: "1679003666458"
+- id: '1679003666458'
   alias: ToggleOfficeLightsAqaraSwitch
-  description: ""
+  description: ''
   trigger:
-    - platform: state
-      entity_id:
-        - sensor.office_aqara_switch_action
-      to: single
+  - platform: state
+    entity_id:
+    - sensor.office_aqara_switch_action
+    to: single
   condition: []
   action:
-    - if:
-        - condition: state
-          entity_id: light.office_light
-          state: "on"
-      then:
-        - service: light.turn_off
-          data: {}
-          target:
-            entity_id: light.office_lights
-      else:
-        - service: light.turn_on
-          data: {}
-          target:
-            entity_id: light.office_lights
+  - if:
+    - condition: state
+      entity_id: light.office_light
+      state: 'on'
+    then:
+    - service: light.turn_off
+      data: {}
+      target:
+        entity_id: light.office_lights
+    else:
+    - service: light.turn_on
+      data: {}
+      target:
+        entity_id: light.office_lights
   mode: single
-- id: "1683626857839"
+- id: '1683626857839'
   alias: Frigate Blueprint Driveway TV
-  description: ""
+  description: ''
   use_blueprint:
     path: SgtBatten/Stable.yaml
     input:
       camera: camera.driveway
       notify_device: 727474a5d18e36e7d6bd3039605a5748
-      message: "{{label}} detected in {{camera_name}}"
-      critical: "true"
+      message: '{{label}} detected in {{camera_name}}'
+      critical: 'true'
       tv: true
       update_thumbnail: false
-      icon:
-        mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog'
+      icon: mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog'
         else 'cat' if label == 'Cat' else 'car' if label == 'Car' else 'home-assistant'}}
       channel: cctv
       labels:
-        - person
-        - dog
-        - cat
-        - package
-        - bird
-        - bicycle
-        - mouse
+      - person
+      - dog
+      - cat
+      - package
+      - bird
+      - bicycle
+      - mouse
       color: teal
       loiter_timer: 4
-      url_2:
-        "{{base_url}}/api/camera_proxy_stream/camera.{{trigger.payload_json['after']['camera']}}?token={{state_attr(
-        'camera.' ~ camera, 'access_token')}}"
+      url_2: '{{base_url}}/api/camera_proxy_stream/camera.{{trigger.payload_json[''after''][''camera'']}}?token={{state_attr(
+        ''camera.'' ~ camera, ''access_token'')}}'
       button_2: View Stream
       notify_group: tv_notifications
       base_url: https://hjem.sellie.no
       tv_transparency: 50%
       tv_size: small
       tv_position: top-left
-- id: "16836268578392"
+- id: '16836268578392'
   alias: Frigate Blueprint Driveway Phone
-  description: ""
+  description: ''
   use_blueprint:
     path: SgtBatten/Stable.yaml
     input:
       camera: camera.driveway
-      notify_device: f9128d37022ff73e005f0099f88573d0
-      message: "{{label}} detected in {{camera_name}}"
-      critical: "false"
+      notify_device: 553b5ea0f39246a5714812d164fee35a
+      message: '{{label}} detected in {{camera_name}}'
+      critical: 'false'
       tv: false
       update_thumbnail: false
-      icon:
-        mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog'
+      icon: mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog'
         else 'cat' if label == 'Cat' else 'car' if label == 'Car' else 'home-assistant'}}
       channel: cctv
       labels:
-        - person
-        - dog
-        - cat
-        - package
-        - bird
-        - bicycle
-        - mouse
+      - person
+      - dog
+      - cat
+      - package
+      - bird
+      - bicycle
+      - mouse
       color: amber
       loiter_timer: 4
-      url_2:
-        "{{base_url}}/api/camera_proxy_stream/camera.{{trigger.payload_json['after']['camera']}}?token={{state_attr(
-        'camera.' ~ camera, 'access_token')}}"
+      url_2: '{{base_url}}/api/camera_proxy_stream/camera.{{trigger.payload_json[''after''][''camera'']}}?token={{state_attr(
+        ''camera.'' ~ camera, ''access_token'')}}'
       button_2: View Stream
       base_url: https://hjem.sellie.no
       cooldown: 120
@@ -192,81 +188,79 @@
       state_filter: true
       state_entity: cover.garage_door
       state_filter_states:
-        - closed
-        - "off"
+      - closed
+      - 'off'
       android_auto: true
-- id: "1685997323075"
+- id: '1685997323075'
   alias: Low battery level detection & notification for all battery sensors
-  description: ""
+  description: ''
   use_blueprint:
     path: sbyx/low-battery-level-detection-notification-for-all-battery-sensors.yaml
     input:
-      time: "20:30:00"
+      time: '20:30:00'
       day: 7
       actions:
-        - service: script.notify
-          data:
-            variables:
-              message: Following devices have low battery:{{sensors}}
-- id: "1691690023642"
+      - service: script.notify
+        data:
+          variables:
+            message: Following devices have low battery:{{sensors}}
+- id: '1691690023642'
   alias: Jaktbod Light Motion
-  description: ""
+  description: ''
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
       motion_entity: binary_sensor.motion_jaktbod
       light_target:
         entity_id: light.jaktbod
-- id: "1706098134872"
+- id: '1706098134872'
   alias: Tag Bad is scanned
-  description: ""
+  description: ''
   trigger:
-    - platform: tag
-      tag_id: 28dff421-e592-4301-857c-0ac447f28fa6
-    - platform: tag
-      tag_id: 0eb24c08-d759-4d0b-acce-dfe2032f9a97
-    - platform: state
-      entity_id: sensor.upstairs_knapp_click
+  - platform: tag
+    tag_id: 28dff421-e592-4301-857c-0ac447f28fa6
+  - platform: tag
+    tag_id: 0eb24c08-d759-4d0b-acce-dfe2032f9a97
+  - platform: state
+    entity_id: sensor.upstairs_knapp_click
   condition: []
   action:
-    - service: input_boolean.turn_off
-      metadata: {}
-      data: {}
-      target:
-        entity_id: input_boolean.force_to_wake_up
-    - service: media_player.media_stop
-      target:
-        entity_id: media_player.clock
-      data: {}
+  - service: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.force_to_wake_up
+  - service: media_player.media_stop
+    target:
+      entity_id: media_player.clock
+    data: {}
   mode: single
-- id: "1722256179647"
+- id: '1722256179647'
   alias: Frigate Garden
-  description: ""
+  description: ''
   use_blueprint:
     path: SgtBatten/Stable.yaml
     input:
       camera: camera.garden
-      notify_device: f9128d37022ff73e005f0099f88573d0
-      message: "{{label}} detected in {{camera_name}}"
-      critical: "false"
+      notify_device: 553b5ea0f39246a5714812d164fee35a
+      message: '{{label}} detected in {{camera_name}}'
+      critical: 'false'
       tv: false
       update_thumbnail: false
-      icon:
-        mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog'
+      icon: mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog'
         else 'cat' if label == 'Cat' else 'car' if label == 'Car' else 'home-assistant'}}
       channel: cctv
       labels:
-        - person
-        - dog
-        - cat
-        - package
-        - bicycle
-        - mouse
+      - person
+      - dog
+      - cat
+      - package
+      - bicycle
+      - mouse
       color: amber
       loiter_timer: 4
-      url_2:
-        "{{base_url}}/api/camera_proxy_stream/camera.{{trigger.payload_json['after']['camera']}}?token={{state_attr(
-        'camera.' ~ camera, 'access_token')}}"
+      url_2: '{{base_url}}/api/camera_proxy_stream/camera.{{trigger.payload_json[''after''][''camera'']}}?token={{state_attr(
+        ''camera.'' ~ camera, ''access_token'')}}'
       button_2: View Stream
       base_url: https://hjem.sellie.no
       cooldown: 120
@@ -274,54 +268,52 @@
       state_filter: false
       state_filter_states: []
       android_auto: true
-- id: "1728649042797"
+- id: '1728649042797'
   alias: Nordlysvarsel
-  description: ""
+  description: ''
   triggers:
-    - type: turned_on
-      device_id: 52a6957244c9b54fc0fa4148943b7190
-      entity_id: d06f022b2ef86532009d9a66e80f20bb
-      domain: binary_sensor
-      trigger: device
+  - type: turned_on
+    device_id: 52a6957244c9b54fc0fa4148943b7190
+    entity_id: d06f022b2ef86532009d9a66e80f20bb
+    domain: binary_sensor
+    trigger: device
   conditions: []
   actions:
-    - service: script.turn_on
-      target:
-        entity_id: script.notify
-      data_template:
-        variables:
-          title: Nordlysvarsel
-          message:
-            I kveld er det {{states.sensor.aurora_visibility_visibility.state}}
-            % sjanse for å se nordlys
+  - service: script.turn_on
+    target:
+      entity_id: script.notify
+    data_template:
+      variables:
+        title: Nordlysvarsel
+        message: I kveld er det {{states.sensor.aurora_visibility_visibility.state}}
+          % sjanse for å se nordlys
   mode: single
-- id: "1743949122224"
+- id: '1743949122224'
   alias: Led bedroom follow
-  description: ""
+  description: ''
   triggers:
-    - trigger: state
-      entity_id:
-        - light.0x001788010b3ef1fe
-      to:
-        - "on"
-        - "off"
+  - trigger: state
+    entity_id:
+    - light.0x001788010b3ef1fe
+    to:
+    - 'on'
+    - 'off'
   conditions: []
   actions:
-    - action: light.turn_{{trigger.to_state.state}}
-      metadata: {}
-      data: {}
-      target:
-        entity_id: light.bedroom_led_strip
+  - action: light.turn_{{trigger.to_state.state}}
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.bedroom_led_strip
   mode: single
-- id: "1754551538980"
+- id: '1754551538980'
   alias: Driveway AI camera analysis
-  description: ""
+  description: ''
   use_blueprint:
     path: balloob/ai-camera-analysis.yaml
     input:
       motion_entity: binary_sensor.motion_driveway
       camera_target: camera.driveway
-      extra_instructions:
-        Look for things in my driveway camera, and tell me what's
+      extra_instructions: Look for things in my driveway camera, and tell me what's
         there.
       analysis_delay: 2

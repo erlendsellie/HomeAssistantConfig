@@ -55,7 +55,11 @@ template:
         state: >-
           {%set cost = states('sensor.garage_cost_month') | float(default=0)%}
           {%set consumption = states('sensor.easee_cost_month') | float(default=0)%}
-          {{(cost / consumption) | round(4)}}
+          {% if consumption > 0 %}
+            {{(cost / consumption) | round(4)}}
+          {% else %}
+            0
+          {% endif %}
 
       #kanskjefjern:
       - name: "Subsidy"

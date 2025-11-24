@@ -140,9 +140,10 @@ automation:
       - platform: time
         at: "01:00:00"
         id: night
-      - platform: state
-        entity_id: input_boolean.easleep
-        to: "on"
+      - platform: template
+        value_template: >-
+          {{ is_state('input_boolean.easleep', 'on') 
+             and is_state('input_boolean.guestmode', 'off') }}
         id: night
       # - platform: time
       #   at: "08:15:00"

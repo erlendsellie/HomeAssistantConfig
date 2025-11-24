@@ -147,7 +147,7 @@ automation:
               - action: tvbedroomoff
                 title: Ja, slå av TV på soverommet igjen
                 destructive: true
-      - service: notify.mobile_app_pixel_7_pro
+      - service: notify.mobile_app_pixel_10_pro
         data:
           title: "Castet til Soverommet."
           message: " Var det feil?"

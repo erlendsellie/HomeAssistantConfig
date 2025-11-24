@@ -20,7 +20,7 @@ automation:
               - action: opengarage
                 title: "Åpne Garasjen"
             tag: drive-motion
-      - service: notify.mobile_app_pixel_7_pro
+      - service: notify.mobile_app_pixel_10_pro
         data:
           message: Ringeklokke!
           title: DingDong!

@@ -102,7 +102,7 @@ automation:
           - device_tracker.caroline_pixel
           - sensor.nordpool
           - sensor.stua_temperature
-          - ytterdor_bluetooth
+          - lock.ytterdor_bluetooth
           - binary_sensor.front_door_ding_mqtt
           - light.trym_balloon
           - light.tyra_ball
@@ -113,7 +113,7 @@ automation:
           - sensor.pricecorrection
           #- switch.toilet_heater
           - climate.tyra_heater
-       #   - climate.trym
+          #   - climate.trym
           - switch.office_heater
           - switch.blanket
           - light.tv
@@ -140,7 +140,7 @@ automation:
           #   - binary_sensor.vindfang_door
           - sensor.nordpool
           - media_player.living_room_tv
-          - ytterdor_bluetooth
+          - lock.ytterdor_bluetooth
           - switch.garage_esp32
           - device_tracker.erlend_mobil
           - device_tracker.caroline_pixel
@@ -156,7 +156,7 @@ automation:
           - sensor.pricecorrection
           #- switch.toilet_heater
           - climate.tyra_heater
-       #   - climate.trym
+          #   - climate.trym
           - switch.office_heater
           - switch.blanket
           - light.toilet
@@ -178,25 +178,41 @@ automation:
         at: "19:30:00"
       - platform: template
         value_template: >
-          {% from 'tools.jinja' import important_devices %} 
+          {% from 'tools.jinja' import important_devices %}
           {% from 'tools.jinja' import low_battery %}
-          {{important_devices()}}
-    # condition:
-    #   - condition: template
-    #     value_template: >
-    #       {% from 'tools.jinja' import important_devices %}
-    #       {% from 'tools.jinja' import low_battery %}
-    #       {{important_devices()}}
+          {{ (important_devices() ~ low_battery()) | trim | length > 0 }}
+    variables:
+      device_status: >
+        {% from 'tools.jinja' import important_devices %}
+        {% from 'tools.jinja' import low_battery %}
+        {{ important_devices() }}{{ low_battery() }}
+    condition:
+      - condition: template
+        value_template: "{{ device_status | trim | length > 0 }}"
     action:
       - service: script.turn_on
         entity_id: script.notify
         data_template:
           variables:
             title: Important Devices
-            message: >
-              {% from 'tools.jinja' import important_devices %} 
-              {% from 'tools.jinja' import low_battery %}
-              {{important_devices()}}
+            message: "{{ device_status }}"
+
+  - alias: NotifyLockUnavailable
+    id: notify_lock_unavailable
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: lock.ytterdor_bluetooth
+        to:
+          - unavailable
+          - unknown
+        for:
+          minutes: 5
+    action:
+      - service: notify.me
+        data:
+          title: "Lock unavailable"
+          message: "Door lock ({{ trigger.to_state.name }}) has been {{ trigger.to_state.state }} for 5 minutes. Check Bluetooth connection."
 
   - alias: "Turn On Living Room TV with WakeOnLan"
     trigger:
@@ -207,25 +223,25 @@ automation:
         data:
           mac: "14:C9:13:2C:44:1F"
 
-  - alias: NotifyGoogleWifiDown
-    mode: single
-    trigger:
-      - platform: template
-        value_template: "{{states.binary_sensor.google_wifi_connected.state != 'on' and states.binary_sensor.google_wifi_connected.state != 'off'}}"
-        for:
-          minutes: 5
-    action:
-      - service: notify.me
-        data_template:
-          message: "Google Wifi seems to be down. Try https://1q4u4bxleoi6poeenew920ecy5g1z4te.ui.nabu.casa"
-      - wait_for_trigger:
-          - platform: template
-            value_template: "{{states.binary_sensor.google_wifi_connected.state == 'on' or states.binary_sensor.google_wifi_connected.state == 'off'}}"
-        timeout: "10:00:00"
-        continue_on_timeout: false
-      - service: notify.me
-        data_template:
-          message: "Google Wifi is up again"
+  # - alias: NotifyGoogleWifiDown
+  #   mode: single
+  #   trigger:
+  #     - platform: template
+  #       value_template: "{{states.binary_sensor.google_wifi_connected.state != 'on' and states.binary_sensor.google_wifi_connected.state != 'off'}}"
+  #       for:
+  #         minutes: 5
+  #   action:
+  #     - service: notify.me
+  #       data_template:
+  #         message: "Google Wifi seems to be down. Try https://1q4u4bxleoi6poeenew920ecy5g1z4te.ui.nabu.casa"
+  #     - wait_for_trigger:
+  #         - platform: template
+  #           value_template: "{{states.binary_sensor.google_wifi_connected.state == 'on' or states.binary_sensor.google_wifi_connected.state == 'off'}}"
+  #       timeout: "10:00:00"
+  #       continue_on_timeout: false
+  #     - service: notify.me
+  #       data_template:
+  #         message: "Google Wifi is up again"
 
   - alias: NotifyZWaveDown
     mode: single
@@ -504,7 +520,7 @@ script:
     alias: Request Location
     mode: restart
     sequence:
-      - service: notify.mobile_app_pixel_7_pro
+      - service: notify.mobile_app_pixel_10_pro
         data:
           message: "request_location_update"
       - service: notify.mobile_app_erlend_mobil

@@ -45,7 +45,7 @@ automation:
             actions:
               - action: turnoncarheater
                 title: "Yes"
-      - service: notify.mobile_app_pixel_7_pro
+      - service: notify.mobile_app_pixel_10_pro
         data:
           title: "Is the Car Heater Mounted?"
           message: "Its {{states.sensor.ute_temperature.state}} degrees outside."

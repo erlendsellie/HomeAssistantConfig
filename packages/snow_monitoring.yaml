@@ -1,0 +1,455 @@
+input_boolean:
+  snow_shoveling_acknowledged:
+    name: Snow shoveling acknowledged
+    icon: mdi:snowflake-check
+  car_defrost_acknowledged:
+    name: Car defrost acknowledged
+    icon: mdi:car-defrost-front
+
+input_text:
+  car_defrost_status:
+    name: Car defrost status
+    initial: "none"
+    max: 255
+  car_defrost_message:
+    name: Car defrost AI message
+    initial: ""
+    max: 255
+
+template:
+  - sensor:
+      - name: Snow conditions
+        unique_id: snow_conditions
+        state: >
+          {% set weather_state = states('weather.home') %}
+          {% set temp = state_attr('weather.home', 'temperature') | float(0) %}
+          {% if weather_state in ['snowy', 'snowy-rainy'] and temp < 0 %}
+            snowing
+          {% elif weather_state in ['snowy', 'snowy-rainy'] and temp >= 0 %}
+            snowing_melting
+          {% elif temp < 0 %}
+            freezing
+          {% else %}
+            clear
+          {% endif %}
+        attributes:
+          temperature: "{{ state_attr('weather.home', 'temperature') | float(0) }}"
+          weather_state: "{{ states('weather.home') }}"
+          is_snowing: "{{ states('weather.home') in ['snowy', 'snowy-rainy'] }}"
+          is_freezing: "{{ state_attr('weather.home', 'temperature') | float(0) < 0 }}"
+
+script:
+  check_car_snow:
+    alias: Check if cars have snow on windows with AI
+    mode: single
+    sequence:
+      - action: ai_task.generate_data
+        data:
+          task_name: Check car snow on windshield
+          entity_id: ai_task.openai_ai_task
+          instructions: >-
+            Look at this driveway image carefully. Identify if any cars are present and if they have
+            snow covering their windshield or windows. 
+
+            Look for:
+            - A white Tesla Model Y (distinctive Tesla design, white color)
+            - A silver VW e-Golf (smaller compact car, VW design)
+
+            For each car present, determine if there is visible snow accumulation on:
+            - Windshield (front window)
+            - Side windows
+            - Rear window
+
+            Snow indicators:
+            - White/snowy covering on glass surfaces
+            - Reduced visibility through windows
+            - Snow piled on roof that would fall on windows
+            - Frost or ice visible on glass
+
+            Return true for tesla_needs_defrost if the Tesla Model Y is visible AND has snow on windows.
+            Return true for golf_needs_defrost if the VW e-Golf is visible AND has snow on windows.
+            Return false if car is not present or windows are clear.
+
+            Be accurate - only return true if you can clearly see the specific car AND snow on its windows.
+            Since the car is white, and there is probably snow around it, be very specific by looking at the windows and windshield.
+            If the windows are dark, there is probably not snow present. If the cars needs defrosting, the windows should not be visible at all almost.
+            If they are, they probably don't need defrosting.
+          structure:
+            tesla_detected:
+              required: true
+              selector:
+                boolean:
+            tesla_needs_defrost:
+              required: true
+              selector:
+                boolean:
+            golf_detected:
+              required: true
+              selector:
+                boolean:
+            golf_needs_defrost:
+              required: true
+              selector:
+                boolean:
+            message:
+              required: true
+              selector:
+                text:
+          attachments:
+            media_content_id: media-source://camera/camera.driveway
+            media_content_type: image/jpeg
+        response_variable: result
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.car_defrost_status
+        data:
+          value: >-
+            {% if result.data.tesla_needs_defrost and result.data.golf_needs_defrost %}
+            both
+            {% elif result.data.tesla_needs_defrost %}
+            tesla
+            {% elif result.data.golf_needs_defrost %}
+            golf
+            {% else %}
+            none
+            {% endif %}
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.car_defrost_message
+        data:
+          value: "{{ result.data.message }}"
+      - condition: template
+        value_template: "{{ result.data.tesla_needs_defrost == true or result.data.golf_needs_defrost == true }}"
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ result.data.tesla_needs_defrost and result.data.golf_needs_defrost }}"
+            sequence:
+              - service: notify.mobile_app_erlend_mobil
+                data:
+                  title: "🚗❄️ Bil(er) trenger defrosting!"
+                  message: "{{ result.data.message }}\n\nBegge bilene har snø på vinduene."
+                  data:
+                    image: "https://hjem.sellie.no{{ state_attr('camera.driveway', 'entity_picture') }}"
+                    ttl: 0
+                    priority: high
+                    channel: car_snow_alert
+                    actions:
+                      - action: DEFROST_TESLA
+                        title: "🔥 Defrost Tesla"
+                      - action: DEFROST_GOLF
+                        title: "🔥 Defrost Golf"
+                      - action: CAR_DEFROST_ACKNOWLEDGED
+                        title: "✓ Ordner det selv"
+          - conditions:
+              - condition: template
+                value_template: "{{ result.data.tesla_needs_defrost }}"
+            sequence:
+              - service: notify.mobile_app_erlend_mobil
+                data:
+                  title: "🚗❄️ Tesla trenger defrosting!"
+                  message: "{{ result.data.message }}\n\nTesla Model Y har snø på vinduene."
+                  data:
+                    image: "https://hjem.sellie.no{{ state_attr('camera.driveway', 'entity_picture') }}"
+                    ttl: 0
+                    priority: high
+                    channel: car_snow_alert
+                    actions:
+                      - action: DEFROST_TESLA
+                        title: "🔥 Defrost Tesla"
+                      - action: CAR_DEFROST_ACKNOWLEDGED
+                        title: "✓ Ordner det selv"
+          - conditions:
+              - condition: template
+                value_template: "{{ result.data.golf_needs_defrost }}"
+            sequence:
+              - service: notify.mobile_app_erlend_mobil
+                data:
+                  title: "🚗❄️ Golf trenger defrosting!"
+                  message: "{{ result.data.message }}\n\nVW e-Golf har snø på vinduene."
+                  data:
+                    image: "https://hjem.sellie.no{{ state_attr('camera.driveway', 'entity_picture') }}"
+                    ttl: 0
+                    priority: high
+                    channel: car_snow_alert
+                    actions:
+                      - action: DEFROST_GOLF
+                        title: "🔥 Defrost Golf"
+                      - action: CAR_DEFROST_ACKNOWLEDGED
+                        title: "✓ Ordner det selv"
+
+  check_driveway_snow:
+    alias: Check driveway snow depth with AI
+    mode: single
+    sequence:
+      - action: ai_task.generate_data
+        data:
+          task_name: Check driveway snow depth
+          entity_id: ai_task.openai_ai_task
+          instructions: >-
+            Look at this driveway and front porch area. Is there fresh snow accumulation
+            that is deeper than 10 cm (approximately 4 inches) that would need to be
+            shoveled? Consider these factors:
+            - Deep snow covering most of the driveway surface
+            - Snow piled up or drifted in certain areas
+            - Fresh powder that hasn't been disturbed
+            - Pavement barely visible under snow
+
+            If some parts looks newly shoveled in front of the car, count it a a false. 
+
+            Note: It's maybe winter in Norway, so there may be a solid layer of snow/frost normally.
+            Only return true if there's significant NEW accumulation of at least 10cm that actually needs shoveling.
+
+            Be conservative - only return true if you're confident shoveling is needed.
+          structure:
+            needs_shoveling:
+              required: true
+              selector:
+                boolean:
+            snow_depth_estimate:
+              required: true
+              selector:
+                text:
+            message:
+              required: true
+              selector:
+                text:
+            snow_depth:
+              required: true
+              selector:
+                number:
+          attachments:
+            media_content_id: media-source://camera/camera.driveway
+            media_content_type: image/jpeg
+        response_variable: result
+      - condition: template
+        value_template: "{{ result.data.needs_shoveling == true }}"
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          title: "❄️ Tid å måke snø!"
+          message: "{{ result.data.message }}\n\nEstimert dybde: {{ result.data.snow_depth_estimate }}"
+          data:
+            image: "https://hjem.sellie.no{{ state_attr('camera.driveway', 'entity_picture') }}"
+            ttl: 0
+            priority: high
+            channel: snow_alert
+            actions:
+              - action: SNOW_ACKNOWLEDGED
+                title: "✓ Måker snart"
+
+automation:
+  - id: check_snow_shoveling_needed
+    alias: "Check if snow shoveling is needed"
+    mode: restart
+    trigger:
+      # - platform: state
+      #   entity_id: weather.home
+      #   to: snowy
+      #   id: weather_snowy
+      # - platform: state
+      #   entity_id: weather.home
+      #   to: snowy-rainy
+      #   id: weather_snowy_rainy
+      - platform: time_pattern
+        hours: "/3"
+        id: periodic_check
+    condition:
+      - condition: state
+        entity_id: input_boolean.snow_shoveling_acknowledged
+        state: "off"
+      - condition: template
+        value_template: "{{ state_attr('weather.home', 'temperature') | float(0) < 0 }}"
+      - condition: time
+        after: "07:00:00"
+        before: "22:00:00"
+      - condition: or
+        conditions:
+          - condition: trigger
+            id: weather_snowy
+          - condition: trigger
+            id: weather_snowy_rainy
+          - condition: and
+            conditions:
+              - condition: trigger
+                id: periodic_check
+              - condition: template
+                value_template: "{{ states('weather.home') in ['snowy', 'snowy-rainy'] }}"
+    action:
+      - delay:
+          minutes: 5
+      - service: script.turn_on
+        target:
+          entity_id: script.check_driveway_snow
+
+  - id: reset_snow_acknowledgment_after_clear
+    alias: "Reset snow acknowledgment after conditions clear"
+    mode: restart
+    trigger:
+      - platform: template
+        value_template: "{{ states('weather.home') not in ['snowy', 'snowy-rainy'] }}"
+        for:
+          hours: 6
+      - platform: time
+        at: "06:00:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.snow_shoveling_acknowledged
+        state: "on"
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.snow_shoveling_acknowledged
+
+  - id: acknowledge_snow_shoveling_from_notification
+    alias: "Acknowledge snow shoveling from notification"
+    mode: single
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: SNOW_ACKNOWLEDGED
+    action:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.snow_shoveling_acknowledged
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          message: clear_notification
+          data:
+            tag: snow_alert
+
+  - id: check_car_snow_defrost_needed
+    alias: "Check if cars need defrosting"
+    mode: restart
+    trigger:
+      # - platform: state
+      #   entity_id: weather.home
+      #   to: snowy
+      #   id: snowy_weather
+      # - platform: state
+      #   entity_id: weather.home
+      #   to: snowy-rainy
+      #   id: snowy_rainy_weather
+      # - platform: time_pattern
+      #   hours: "/2"
+      #   id: periodic_check
+      - platform: time
+        at: "05:45:00"
+        id: morning_check
+      # - platform: time
+      #   at: "15:30:00"
+      #   id: afternoon_check
+      - platform: state
+        entity_id: input_boolean.easleep
+        to: "off"
+        id: wake_up_check
+      - platform: template
+        value_template: >-
+          {%-set nextAlarm = states.sensor.erlend_mobil_next_alarm.state -%}
+          {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
+          {{(nextAlarmAsTimestamp - as_timestamp(utcnow())) < 10}}
+        id: alarm_imminent
+    condition:
+      - condition: state
+        entity_id: input_boolean.car_defrost_acknowledged
+        state: "off"
+      - condition: template
+        value_template: "{{ state_attr('weather.home', 'temperature') | float(0) < 2 }}"
+      - condition: or
+        conditions:
+          - condition: trigger
+            id: morning_check
+          - condition: trigger
+            id: wake_up_check
+          - condition: trigger
+            id: alarm_imminent
+          - condition: and
+            conditions:
+              - condition: time
+                after: "06:00:00"
+                before: "23:00:00"
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: device_tracker.modely_location_tracker
+            state: "home"
+          - condition: state
+            entity_id: device_tracker.e_golf_position
+            state: "home"
+    action:
+      - delay:
+          minutes: 3
+      - service: script.turn_on
+        target:
+          entity_id: script.check_car_snow
+
+  - id: reset_car_defrost_acknowledgment
+    alias: "Reset car defrost acknowledgment"
+    mode: restart
+    trigger:
+      - platform: template
+        value_template: "{{ state_attr('weather.home', 'temperature') | float(0) > 5 }}"
+        for:
+          hours: 4
+      - platform: time
+        at: "06:00:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.car_defrost_acknowledged
+        state: "on"
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.car_defrost_acknowledged
+
+  - id: defrost_tesla_from_notification
+    alias: "Defrost Tesla from notification"
+    mode: single
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: DEFROST_TESLA
+    action:
+      - service: script.defrostcar
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.car_defrost_acknowledged
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          message: "🚗 Starter defrosting av Tesla Model Y"
+
+  - id: defrost_golf_from_notification
+    alias: "Defrost e-Golf from notification"
+    mode: single
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: DEFROST_GOLF
+    action:
+      - service: script.climate_egolf
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.car_defrost_acknowledged
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          message: "🚗 Starter defrosting av VW e-Golf"
+
+  - id: acknowledge_car_defrost_from_notification
+    alias: "Acknowledge car defrost from notification"
+    mode: single
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: CAR_DEFROST_ACKNOWLEDGED
+    action:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.car_defrost_acknowledged
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          message: clear_notification
+          data:
+            tag: car_snow_alert

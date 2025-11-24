@@ -1,12 +1,14 @@
 automation:
   - alias: UpstairsDoorLeftOpen
+    id: UpstairsDoorLeftOpen
     trigger:
       # - platform: state
       #   entity_id: binary_sensor.trymdoorleftopen
       #   to: "on"
-      - platform: state
-        entity_id: binary_sensor.bathroomleftopen
-        to: "on"
+      #SENSOR NOT WORKING..
+      # - platform: state
+      #   entity_id: binary_sensor.bathroomleftopen
+      #   to: "on"
       # - platform: state
       #   entity_id: binary_sensor.tyradoorleftopen
       #   to: "on"

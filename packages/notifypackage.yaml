@@ -93,7 +93,7 @@ automation:
               - action: garageRemind
                 title: Remind me in 5 minutes
                 destructive: true
-      - service: notify.mobile_app_pixel_7_pro
+      - service: notify.mobile_app_pixel_10_pro
         data_template:
           title: "Garage has been open for 90 minutes"
           message: "Close it?"
@@ -459,12 +459,12 @@ script:
         data:
           message: "remove_channel"
           data:
-            channel: "{{channel}}"
-      - service: notify.mobile_app_pixel_7_pro
+            channel: "{{channel | default('Home Assistant')}}"
+      - service: notify.mobile_app_pixel_10_pro
         data:
           message: "remove_channel"
           data:
-            channel: "{{channel}}"
+            channel: "{{channel | default('Home Assistant')}}"
 
   notifyhome:
     alias: Simple Notification To Both Home
@@ -482,14 +482,14 @@ script:
           variables:
             title: "{{title}}"
             message: "{{message}}"
-            channel: "{{channel}}"
+            channel: "{{channel | default('Home Assistant')}}"
       - service: script.turn_on
         entity_id: script.notifycarolinehome
         data_template:
           variables:
             title: "{{title}}"
             message: "{{message}}"
-            channel: "{{channel}}"
+            channel: "{{channel | default('Home Assistant')}}"
       - condition: template
         value_template: "{{ states.media_player.tv_stua.state != 'off'}}"
       - service: notify.tv_stua
@@ -507,7 +507,7 @@ script:
           title: "{{title}}"
           message: "{{message}}"
           data:
-            channel: '"{{channel}}"'
+            channel: "{{channel | default('Home Assistant')}}"
             ttl: 0
             priority: high
 
@@ -517,13 +517,13 @@ script:
       - condition: state
         entity_id: person.caroline
         state: "home"
-      - service: notify.mobile_app_pixel_7_pro
+      - service: notify.mobile_app_pixel_10_pro
         data:
           title: "{{title}}"
           message: "{{message}}"
           data:
             ttl: 0
-            channel: '"{{channel}}"'
+            channel: "{{channel | default('Home Assistant')}}"
             priority: high
 
   notify_tts_max_if_home:
@@ -604,19 +604,19 @@ script:
           data:
             ttl: 0
             priority: high
-            channel: '"{{channel}}"'
+            channel: "{{channel | default('Home Assistant')}}"
 
   notifycaroline:
     alias: Simple Notification to Caroline
     sequence:
-      - service: notify.mobile_app_pixel_7_pro
+      - service: notify.mobile_app_pixel_10_pro
         data_template:
           title: "{{title}}"
           message: "{{message}}"
           data:
             ttl: 0
             priority: high
-            channel: '"{{channel}}"'
+            channel: "{{channel | default('Home Assistant')}}"
 
   notifymotionshield:
     alias: Notify When Motion Outside On Shield

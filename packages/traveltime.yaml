@@ -1,19 +1,19 @@
 template:
-  - sensor:
-      - name: Erlend Travel Time
-        unit_of_measurement: min
-        state: >-
-          {% set erlend = states('person.erlend') %}
-          {% if erlend == 'home' %}
-              {{ states('sensor.here_erlend_to_work') }}
-          {% else %}
-              {{ states('sensor.here_erlend_to_home') }}
-          {% endif %}
-        attributes:
-          label: >-
-            {% set erlend = states('person.erlend') %}
-            {% if erlend == 'home' %}
-                Erlend bruker %s minutter til jobb
-            {% else %}
-                Erlend bruker %s minutter hjem 
-            {% endif %}
+  # - sensor:
+  #     - name: Erlend Travel Time
+  #       unit_of_measurement: min
+  #       state: >-
+  #         {% set erlend = states('person.erlend') %}
+  #         {% if erlend == 'home' %}
+  #             {{ states('sensor.here_erlend_to_work') }}
+  #         {% else %}
+  #             {{ states('sensor.here_erlend_to_home') }}
+  #         {% endif %}
+  #       attributes:
+  #         label: >-
+  #           {% set erlend = states('person.erlend') %}
+  #           {% if erlend == 'home' %}
+  #               Erlend bruker %s minutter til jobb
+  #           {% else %}
+  #               Erlend bruker %s minutter hjem 
+  #           {% endif %}

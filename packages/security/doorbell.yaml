@@ -16,11 +16,12 @@ automation:
         to: "on"
       - platform: template
         value_template: >-
-          {{ 
-            (as_timestamp(states('sensor.front_door_last_ding') | default('2025-09-10T12:23:51+00:00')) | int) 
-            - as_timestamp(utcnow()) > 30 
-          }}
-
+          {% set last_ding = states('sensor.front_door_last_ding') %}
+          {% if last_ding not in ['unknown', 'unavailable', 'none'] %}
+            {{ (as_timestamp(last_ding, 0) | int(0) - as_timestamp(utcnow())) > 30 }}
+          {% else %}
+            false
+          {% endif %}
 
       # - platform: event
       #   event_type: deconz_event
@@ -56,6 +57,9 @@ automation:
         entity_id: script.doorbell
       - service: script.turn_off
         entity_id: script.blink_lights_doorbell
+      - service: media_player.media_stop
+        target:
+          entity_id: media_player.minis
       - service: script.turn_on
         entity_id: script.restorelightcolor
       # - delay:
@@ -145,7 +149,7 @@ script:
             image: >-
               /api/camera_proxy/camera.driveway
             tag: drive-motion
-      - service: notify.mobile_app_pixel_7_pro
+      - service: notify.mobile_app_pixel_10_pro
         data:
           message: Ringeklokke!
           title: DingDong!
@@ -162,17 +166,15 @@ script:
       - service: media_player.play_media
         data:
           entity_id: media_player.minis
-          media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
-          #media_content_id: https://hjem.sellie.no/local/sounds/screams/goosebumps.mp3
+          media_content_id: https://hjem.sellie.no/local/sounds/mii_channel.mp3
           media_content_type: "music"
-      - delay:
-          seconds: 8
-      - service: media_player.play_media
-        data:
-          entity_id: media_player.minis
-          media_content_id: https://hjem.sellie.no/local/sounds/cooking_great.mp3
-          #media_content_id: https://hjem.sellie.no/local/sounds/screams/goosebumps.mp3
-          media_content_type: "music"
+      # - delay:
+      #     seconds: 8
+      # - service: media_player.play_media
+      #   data:
+      #     entity_id: media_player.minis
+      #     media_content_id: https://hjem.sellie.no/local/sounds/mii_channel.mp3
+      #     media_content_type: "music"
       - delay:
           seconds: 15
       - service: media_player.media_stop
