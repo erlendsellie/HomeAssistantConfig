@@ -961,7 +961,7 @@ automation:
           # - binary_sensor.motion_kitchen #kitchen
           #- binary_sensor.motion_toilet
           #- binary_sensor.motion_sokkel
-          #- binary_sensor.motion_hallway
+          #- binary_sensor.motion_hallway_occupancy
           #- binary_sensor.motion_vindfang #Vindfang
           #- binary_sensor.motion_downstairs_office
           - binary_sensor.garage_backdoor

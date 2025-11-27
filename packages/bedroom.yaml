@@ -272,7 +272,7 @@ automation:
     alias: TurnoffbedroomlightwhenHallMotion
     trigger:
       - platform: state
-        entity_id: binary_sensor.motion_hallway
+        entity_id: binary_sensor.motion_hallway_occupancy
         to: "on"
     condition:
       condition: or

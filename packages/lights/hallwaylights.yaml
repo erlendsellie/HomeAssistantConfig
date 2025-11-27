@@ -6,7 +6,7 @@ template:
           minutes: 2
         state: >-
           {{
-            (states.binary_sensor.motion_hallway.state == 'on' or
+            (states.binary_sensor.motion_hallway_occupancy.state == 'on' or
             (states.binary_sensor.should_upstair_lights_be_on.state == 'on' and states.input_select.alarm.state  == 'Disarm') or
             states.binary_sensor.motion_sokkel.state == 'on' or
             states.binary_sensor.motion_vindfang.state == 'on' or
@@ -24,7 +24,7 @@ template:
             states.binary_sensor.motion_upstairs.state == 'on' or
             states.binary_sensor.motion_bathroom.state == 'on' or
             states.binary_sensor.door_bathroom.state == 'on' or
-            (states.binary_sensor.motion_hallway.state == 'on' and states.input_select.alarm.state  == 'Disarm') or
+            (states.binary_sensor.motion_hallway_occupancy.state == 'on' and states.input_select.alarm.state  == 'Disarm') or
             (states.binary_sensor.motion_sokkel.state == 'on' and states.input_select.alarm.state  == 'Disarm') or
             (states.binary_sensor.motion_vindfang.state == 'on' and states.input_select.alarm.state  == 'Disarm') or
             (states.binary_sensor.motion_bedroom.state == 'on' and states.input_select.alarm.state  == 'Disarm') or
@@ -35,7 +35,7 @@ template:
           upstairs: "{{states.binary_sensor.motion_upstairs.state == 'on'}}"
           bathroom: "{{states.binary_sensor.motion_bathroom.state == 'on'}}"
           door_bathroom: "{{states.binary_sensor.door_bathroom.state == 'on'}}"
-          motion_hallway: "{{(states.binary_sensor.motion_hallway.state == 'on' and states.input_select.alarm.state  == 'Disarm')}}"
+          motion_hallway: "{{(states.binary_sensor.motion_hallway_occupancy.state == 'on' and states.input_select.alarm.state  == 'Disarm')}}"
           motion_sokkel: "{{(states.binary_sensor.motion_sokkel.state == 'on' and states.input_select.alarm.state  == 'Disarm')}}"
           motion_vindfang: "{{(states.binary_sensor.motion_vindfang.state == 'on' and states.input_select.alarm.state  == 'Disarm')}}"
           motion_bedroom: "{{(states.binary_sensor.motion_bedroom.state == 'on' and states.input_select.alarm.state  == 'Disarm')}}"
@@ -183,7 +183,7 @@ automation:
   #         - binary_sensor.door_kitchen
   #       to: "on"
   #     - platform: state
-  #       entity_id: binary_sensor.motion_hallway
+  #       entity_id: binary_sensor.motion_hallway_occupancy
   #       to: "on"
   #   action:
   #     # TODO Do not turn on group, but each light induvidually and brigthness with * multiplier to account for different bulbs.
@@ -204,7 +204,7 @@ automation:
   #   alias: turnOffHallwayLightWhenMotion
   #   trigger:
   #     - platform: state
-  #       entity_id: binary_sensor.motion_hallway
+  #       entity_id: binary_sensor.motion_hallway_occupancy
   #       to: "off"
   #       for:
   #         minutes: 2
@@ -241,6 +241,6 @@ script:
     alias: Turn off hallway lights
     sequence:
       # - condition: template
-      #   value_template: "{{ states.binary_sensor.motion_hallway.state == 'off'}}"
+      #   value_template: "{{ states.binary_sensor.motion_hallway_occupancy.state == 'off'}}"
       - action: light.turn_off
         entity_id: light.hallway, light.trapp

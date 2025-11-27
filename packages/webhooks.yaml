@@ -193,7 +193,7 @@ automation:
     trigger:
       - platform: state
         entity_id: binary_sensor.ccharging
-        to: "on"  x
+        to: "on"
         id: charging
       - platform: time
         at: "22:00:00"
@@ -271,7 +271,6 @@ automation:
   #   - service: input_boolean.turn_on
   #     entity_id: input_boolean.easleep
 
-
   # - alias: "ErlendAsleepByConfidence"
   #   id: "ErlendAsleepByConfidence"
   #   trigger:
@@ -291,18 +290,17 @@ automation:
   #     - service: input_boolean.turn_on
   #       entity_id: input_boolean.easleep
 
-
-    # - service: script.turn_on
-    #   entity_id: script.notify
-    #   data_template:
-    #     variables:
-    #       message: You are asleep!
-    # - wait_for_trigger:
-    #     - platform: state
-    #       entity_id: binary_sensor.eprobablyasleep
-    #       to: 'off'
-    #   timeout: '13:00:00'
-    #   continue_on_timeout: false
+  # - service: script.turn_on
+  #   entity_id: script.notify
+  #   data_template:
+  #     variables:
+  #       message: You are asleep!
+  # - wait_for_trigger:
+  #     - platform: state
+  #       entity_id: binary_sensor.eprobablyasleep
+  #       to: 'off'
+  #   timeout: '13:00:00'
+  #   continue_on_timeout: false
 
   # - alias: 'ErlendAwakeByConfidence'
   #   id: 'ErlendAwakeByConfidence'
