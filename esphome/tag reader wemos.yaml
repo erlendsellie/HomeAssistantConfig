@@ -1,0 +1,72 @@
+# Insert your SSID and Your PWD after inital setup
+wifi:
+  networks:
+    - ssid: !secret wifi_ssid
+      password: !secret wifi_password
+  ap:
+    ssid: ${devicename}
+
+# Enable the captive portal for inital WiFi setup
+captive_portal:
+
+substitutions:
+  devicename: tag_reader_wemos
+  friendly_name: tag_reader_wemos
+
+esphome:
+  name: $devicename
+  platform: ESP8266
+  board: d1_mini
+
+# If buzzer is enabled, notify on api connection success
+  on_boot:
+    priority: -10
+    then:
+    - wait_until:
+        api.connected:
+    - logger.log: API is connected!
+    
+logger:
+  # level: VERY_VERBOSE
+  # level: VERBOSE
+
+# Enable Home Assistant API
+api:
+
+# Enable OTA upgrade
+ota:
+  - platform: esphome
+    password: !secret api_password
+
+
+
+i2c:
+  scan: False
+  frequency: 400kHz
+
+pn532_i2c:
+  id: pn532_board
+  on_tag:
+    then:
+    - homeassistant.tag_scanned: !lambda |
+        if (!tag.has_ndef_message()) {
+          ESP_LOGD("tagreader", "No NDEF");
+          return x;
+        }
+        auto message = tag.get_ndef_message();
+        auto records = message->get_records();
+        for (auto &record : records) {
+          std::string payload = record->get_payload();
+          size_t pos = payload.find("https://www.home-assistant.io/tag/");
+          if (pos != std::string::npos) {
+            return payload.substr(pos + 34);
+          }
+        }
+        ESP_LOGD("tagreader", "Bad NDEF, fallback to uid");
+        return x;
+
+
+
+binary_sensor:
+  - platform: status
+    name: "${friendly_name} Status"

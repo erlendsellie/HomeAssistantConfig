@@ -1,0 +1,85 @@
+esphome:
+  name: ambilight
+
+esp32:  
+  board: esp32doit-devkit-v1
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: !secret api_password
+
+ota:
+  - platform: esphome
+    password: !secret api_password
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Ambilight Fallback Hotspot"
+    password: !secret wifi_password
+
+captive_portal:
+
+
+
+#esp32_ble_beacon:
+#  type: iBeacon
+#  uuid: 'e00c62a3-1a6e-c193-9901-064cc9197e5b'
+wled:
+e131:
+  method: multicast # default: register E1.31 to Multicast group
+
+light:
+  # - platform: fastled_clockless
+  #   chipset: SK6812
+  #   pin: GPIO23 #D23
+  #   num_leds: 100
+  #   rgb_order: RGB
+  #   name: "FastLED SK6812 Light"
+  #   effects:
+  #     - wled:
+  #     - addressable_rainbow:
+  #     - addressable_fireworks:
+  #     - addressable_color_wipe:
+  #     - addressable_scan:
+  #     - addressable_twinkle:
+  #     - addressable_random_twinkle:
+  #     - addressable_flicker:
+  #     - random:
+  #     - strobe:
+  #     - flicker:
+
+  - platform: neopixelbus
+    type: GRBW
+    variant: WS2812 #SK6812
+    pin: GPIO23 #D23
+    num_leds: 130 #128
+    name: "NeoPixel Light"        
+    effects:
+      - wled:
+      - addressable_rainbow:
+      - addressable_fireworks:
+      - addressable_color_wipe:
+      - addressable_scan:
+      - addressable_twinkle:
+      - addressable_random_twinkle:
+      - addressable_flicker:
+      - random:
+      - strobe:
+      - flicker:
+      - e131:
+          universe: 1
+          channels: RGB
+        
+esp32_ble_tracker:
+bluetooth_proxy:
+
+
+    

@@ -19,7 +19,7 @@ broadlink_media_codes
 broadlink_fan_codes
 custom_components (copy)
 downloads
-esphome
+# esphome - now tracked, uses its own .gitignore
 magicmirror
 old_custom_components
 out

@@ -1,0 +1,170 @@
+esphome:
+  name: fingerprint
+
+esp32:
+  board: esp32doit-devkit-v1
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+
+web_server:
+  port: 80
+  include_internal: true
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_key_fingerprint
+  password: !secret api_password
+  services:
+  - service: enroll
+    variables:
+      finger_id: int
+      num_scans: int
+    then:
+      - fingerprint_grow.enroll:
+          finger_id: !lambda 'return finger_id;'
+          num_scans: !lambda 'return num_scans;'
+  - service: cancel_enroll
+    then:
+      - fingerprint_grow.cancel_enroll:
+  - service: delete
+    variables:
+      finger_id: int
+    then:
+      - fingerprint_grow.delete:
+          finger_id: !lambda 'return finger_id;'
+  - service: delete_all
+    then:
+      - fingerprint_grow.delete_all:
+
+#Tracking for BLE devices, and mesh-connection to HA.
+esp32_ble_tracker:
+bluetooth_proxy:
+  
+ota:
+  - platform: esphome
+    id: fingerprint
+    password: !secret api_password
+
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Fingerprint Fallback Hotspot"
+    password: !secret wifi_password
+
+captive_portal:
+
+
+uart:
+  tx_pin: GPIO17 #TX2
+  rx_pin: GPIO16 #RX2
+  baud_rate: 57600
+
+fingerprint_grow:
+  sensing_pin: GPIO4 #D4
+  on_finger_scan_matched:
+    - fingerprint_grow.aura_led_control:
+        state: BREATHING
+        speed: 200
+        color: GREEN
+        #color: BLUE
+        count: 1        
+    - text_sensor.template.publish:
+        id: fingerprint_state
+        state: "Authorized finger"
+    - delay: 10s
+    - text_sensor.template.publish:
+        id: fingerprint_state
+        state: "Scan your finger"
+    - fingerprint_grow.aura_led_control:
+        state: ALWAYS_ON
+        speed: 0
+        color: BLUE
+        count: 0        
+  on_finger_scan_unmatched:
+    - fingerprint_grow.aura_led_control:
+        state: FLASHING
+        speed: 25
+        color: RED
+        count: 2
+    - text_sensor.template.publish:
+        id: fingerprint_state
+        state: "Unauthorized finger"
+    - delay: 10s
+    - text_sensor.template.publish:
+        id: fingerprint_state
+        state: "Scan your finger"
+    - fingerprint_grow.aura_led_control:
+        state: ALWAYS_ON
+        speed: 0
+        color: BLUE
+        count: 0        
+  on_enrollment_scan:
+    - fingerprint_grow.aura_led_control:
+        state: FLASHING
+        speed: 25
+        color: BLUE
+        count: 2
+    - text_sensor.template.publish:
+        id: fingerprint_state
+        state: "Finger scanned"
+    - fingerprint_grow.aura_led_control:
+        state: ALWAYS_ON
+        speed: 0
+        color: BLUE
+        count: 0        
+  on_enrollment_done:
+    - fingerprint_grow.aura_led_control:
+        state: BREATHING
+        speed: 100
+        color: BLUE
+        count: 2
+    - text_sensor.template.publish:
+        id: fingerprint_state
+        state: "Enrolled fingerprint"
+    - fingerprint_grow.aura_led_control:
+        state: ALWAYS_ON
+        speed: 0
+        color: BLUE
+        count: 0        
+  on_enrollment_failed:
+    - fingerprint_grow.aura_led_control:
+        state: FLASHING
+        speed: 25
+        color: RED
+        count: 4
+    - text_sensor.template.publish:
+        id: fingerprint_state
+        state: "Failed to enroll fingerprint"
+    - fingerprint_grow.aura_led_control:
+        state: ALWAYS_ON
+        speed: 0
+        color: BLUE
+        count: 0
+text_sensor:
+  - platform: template
+    id: fingerprint_state
+    name: "Garage Fingerprint State"
+
+sensor:
+  - platform: fingerprint_grow
+    fingerprint_count:
+      name: "Garage Fingerprint Count"
+    last_finger_id:
+      name: "Garage Fingerprint Last Finger ID"
+    last_confidence:
+      name: "Garage Fingerprint Last Confidence"
+    status:
+      name: "Garage Fingerprint Status"
+    capacity:
+      name: "Garage Fingerprint Capacity"
+    security_level:
+      name: "Garage Fingerprint Security Level"

@@ -1,0 +1,67 @@
+esphome:
+  name: aquarium
+  friendly_name: aquarium
+  includes:
+    - ingics_parser.h
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf   # Riktig for BT-proxy
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_key_aquarium
+
+ota:
+  - platform: esphome
+    password: !secret api_password
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Aquarium Fallback Hotspot"
+    password: !secret fallback_password_aquarium
+
+captive_portal:
+
+
+#Tracking for BLE devices, and mesh-connection to HA.
+bluetooth_proxy:
+esp32_ble_tracker:
+  on_ble_advertise:
+    - then:
+        lambda: |-
+          std::string mac = x.address_str();
+
+          if (mac == "3C:E0:02:27:0C:8E") {
+            if (auto temp = parse_ingics_temp(x)) id(fridge_temp).publish_state(*temp);
+          }
+
+
+  
+
+one_wire:
+  - platform: gpio
+    pin: GPIO15
+    #update_interval: 20s
+
+sensor:
+  - platform: dallas_temp
+    address: 0x8a3cd904571e0c28
+    name: "Aquarium Temp"
+    update_interval: 10s
+
+  - platform: template
+    id: fridge_temp
+    name: "Fridge Temp"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
