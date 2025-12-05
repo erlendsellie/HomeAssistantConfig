@@ -9,163 +9,139 @@ template:
               {%endif%}
           {%- endfor %}
 automation:
-  - alias: smokesensorsunavailable
+  - id: smokesensorsunavailable
+    alias: "Røykvarsler utilgjengelig"
+    mode: single
     trigger:
-      platform: state
-      entity_id:
-        - binary_sensor.smoke_kontoret
-        - binary_sensor.smoke_stua
-        - binary_sensor.smoke_loftet
-      to: "unavailable"
-      for:
-        minutes: 60
+      - platform: state
+        entity_id:
+          - binary_sensor.smoke_kontoret
+          - binary_sensor.smoke_stua
+          - binary_sensor.smoke_loftet
+        to: "unavailable"
+        for:
+          minutes: 60
     action:
-      - service: notify.me #earlier erlendpush
-        data_template:
-          title: Røykvarsler utilgjengelig!
-          message: Røykvarsleren {{ trigger.from_state.name }} er utilgjengelig!
+      - service: script.notifyboth
+        data:
+          title: "⚠️ Røykvarsler utilgjengelig!"
+          message: "Røykvarsleren {{ trigger.from_state.name }} er utilgjengelig!"
 
   - id: smokesensors2
-    alias: smokesensors2
+    alias: "Røykvarsler utløst"
+    mode: single
     trigger:
-      platform: state
-      entity_id:
-        - binary_sensor.smoke_kontoret
-        - binary_sensor.smoke_stua
-        - binary_sensor.smoke_loftet
-      to: "on"
+      - platform: state
+        entity_id:
+          - binary_sensor.smoke_kontoret
+          - binary_sensor.smoke_stua
+          - binary_sensor.smoke_loftet
+        to: "on"
     action:
       - service: script.turn_on
-        entity_id: script.smoketriggered
-      - service: lock.unlock
-        entity_id: lock.ytterdor_bluetooth
+        target:
+          entity_id: script.smoketriggered
 
-  - alias: Smoke cleared
+  - id: smoke_cleared
+    alias: "Røyk klarert"
+    mode: single
     trigger:
-      platform: state
-      entity_id:
-        - binary_sensor.smoke_kontoret
-        - binary_sensor.smoke_stua
-        - binary_sensor.smoke_loftet
-      to: "off"
-      from: "on"
+      - platform: template
+        value_template: >-
+          {{ expand('group.smokesensors') | selectattr('state', 'eq', 'on') | list | count == 0 }}
+    condition:
+      - condition: state
+        entity_id: script.smoketriggered
+        state: "on"
     action:
-      - service: script.turn_off
-        entity_id: script.smoketriggered
-      - service: script.notifycaroline
+      - service: script.notifyboth
         data:
-          message: "Smoke cleared"
-      - service: notify.me #earlier erlendpush
-        data:
-          message: "Smoke cleared"
-      - service: script.turn_off
-        entity_id: script.smoketriggered
+          title: "✅ Røyk klarert"
+          message: "Alle røykvarslere er nå stille."
 
   - id: 3dprinteronfire
-    alias: 3D-Printer on fire
+    alias: "3D-Printer brannvern"
+    mode: single
     trigger:
-      platform: state
-      entity_id: binary_sensor.smoke_kontoret
-      to: "on"
+      - platform: state
+        entity_id: binary_sensor.smoke_kontoret
+        to: "on"
     action:
       - service: switch.turn_off
-        entity_id: switch.3d_printer_failsafe
+        target:
+          entity_id: switch.3d_printer_failsafe
 
 script:
   smoketriggered:
     alias: Smoke Triggered
+    mode: restart
     sequence:
-      - service: switch.turn_off
-        entity_id: switch.blanket
-      #spill av denne flere ganger.
-      # - service: xiaomi_aqara.play_ringtone
-      #   data:
-      #     gw_mac: 7C:49:EB:1C:2D:6B
-      #     ringtone_id: 1
-      #     ringtone_vol: 100
-      # - service: light.turn_on
-      #   entity_id: light.gateway_light_7c49eb1c2d6b
-      #   data:
-      #     color_name: red
-      - service: notify.me #earlier erlendpush
-        data_template:
-          title: Alarm!
-          message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - service: script.notifycaroline
-        data_template:
-          title: Alarm!
-          message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - service: notify.me
-        data_template:
-          title: Alarm!
-          message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - service: notify.me #earlier erlendpush
-        data_template:
-          title: Alarm!
-          message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - service: script.notifycaroline
-        data_template:
-          title: Alarm!
-          message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - service: script.notifycaroline
-        data_template:
-          title: Alarm!
-          message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - service: notify.me #earlier erlendpush
-        data_template:
-          title: Alarm!
-          message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - service: script.notifycaroline
-        data_template:
-          title: Alarm!
-          message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
+      - variables:
+          smoke_message: "BRANNALARM! Røykvarsler {{ states('sensor.smoke_triggered') }} utløst!"
+      # Umiddelbare tiltak
+      - parallel:
+          - service: switch.turn_off
+            target:
+              entity_id: switch.blanket
+          - service: lock.unlock
+            target:
+              entity_id: lock.ytterdor_bluetooth
+      # Første varsling til alle kanaler
+      - parallel:
+          - service: script.notifyboth
+            data:
+              title: "🔥 BRANNALARM!"
+              message: "{{ smoke_message }}"
+              channel: alarm_stream_max
+          - service: script.notify_tts_max
+            data:
+              message: "{{ smoke_message }}"
+      # Loop så lenge røyk er detektert
+      - repeat:
+          while:
+            - condition: template
+              value_template: >-
+                {{ expand('group.smokesensors') | selectattr('state', 'eq', 'on') | list | count > 0 }}
+          sequence:
+            # Sett volum til maks på alle høyttalere
+            - service: media_player.volume_set
+              target:
+                entity_id:
+                  - media_player.minis
+                  - media_player.clock
+                  - media_player.living_room_speaker
+                  - media_player.hallway_speaker
+              data:
+                volume_level: 1
+            # TTS-varsling på alle høyttalere
+            - service: tts.google_cloud_say
+              target:
+                entity_id:
+                  - media_player.minis
+                  - media_player.clock
+                  - media_player.living_room_speaker
+                  - media_player.hallway_speaker
+              data:
+                message: "{{ smoke_message }}"
+            - delay:
+                seconds: 8
+            # Push-varsling hver 3. iterasjon
+            - if:
+                - condition: template
+                  value_template: "{{ repeat.index % 3 == 0 }}"
+              then:
+                - service: script.notifyboth
+                  data:
+                    title: "🔥 BRANNALARM FORTSETTER!"
+                    message: "{{ smoke_message }} (Varsling #{{ repeat.index }})"
+                    channel: alarm_stream_max
+      # Når loopen er ferdig, sett volum tilbake
       - service: media_player.volume_set
-        data_template:
-          entity_id: media_player.living_room_speaker
-          volume_level: 1
-      - service: tts.google_cloud_say
-        entity_id:
-          - media_player.minis
-          - media_player.clock
-        data_template:
-          message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - delay:
-          seconds: 5
-          #varsler bare en gang.
-      - service: tts.google_cloud_say
-        entity_id:
-          - media_player.minis
-          - media_player.clock
-        data_template:
-          message: Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. '
-      - delay:
-          seconds: 5
-      - service: tts.google_cloud_say
-        entity_id:
-          - media_player.minis
-          - media_player.clock
-        data_template:
-          message: "Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. "
-      - delay:
-          seconds: 5
-      - service: tts.google_cloud_say
-        entity_id:
-          - media_player.minis
-          - media_player.clock
-        data_template:
-          message: "Røykvarsler {{states.sensor.smoke_triggered.state}} utløst! {{states.sensor.peoplehome.state}} er hjemme. "
-      - delay:
-          seconds: 12
-      - service: media_player.volume_set
-        data_template:
+        target:
           entity_id:
             - media_player.minis
             - media_player.clock
+            - media_player.living_room_speaker
+            - media_player.hallway_speaker
+        data:
           volume_level: 0.5
-      # - service: xiaomi_aqara.play_ringtone
-      #   data:
-      #     gw_mac: 7C:49:EB:1C:2D:6B
-      #     ringtone_id: 1
-      #     ringtone_vol: 100
-      # - service: light.turn_off
-      #   entity_id: light.gateway_light_7c49eb1c2d6b

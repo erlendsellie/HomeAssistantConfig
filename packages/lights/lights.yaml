@@ -485,7 +485,7 @@ script:
       - service: light.turn_on
         entity_id:
           - light.trym_balloon
-          #- light.trym_roof
+          - light.trym_roof
           - light.tyra_ball
 
   restorelightcolor:

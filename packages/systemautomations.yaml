@@ -106,7 +106,7 @@ automation:
           - binary_sensor.front_door_ding_mqtt
           - light.trym_balloon
           - light.tyra_ball
-          #- light.trym_roof
+          - light.trym_roof
           - switch.varmtvannsbereder
           - light.tv
           - sensor.priceanalyzer
@@ -149,7 +149,7 @@ automation:
           - binary_sensor.front_door_ding_mqtt
           - light.trym_balloon
           - light.tyra_ball
-          #- light.trym_roof
+          - light.trym_roof
           - switch.varmtvannsbereder
           - light.tv
           - sensor.priceanalyzer

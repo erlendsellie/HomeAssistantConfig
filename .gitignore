@@ -19,6 +19,7 @@ broadlink_media_codes
 broadlink_fan_codes
 custom_components (copy)
 downloads
+teststuff
 # esphome - now tracked, uses its own .gitignore
 magicmirror
 old_custom_components
@@ -107,3 +108,6 @@ tesla_fleet.key
 
 kodepanel.yaml
 home-assistant-priceanalyzerbug.log.1
+
+# UniFi backup - contains passwords and sensitive network config
+unifi_backup

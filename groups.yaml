@@ -26,7 +26,7 @@ important_devices:
     - binary_sensor.front_door_ding_mqtt
     - light.trym_balloon
     - light.tyra_ball
-    #- light.trym_roof
+    - light.trym_roof
     - switch.varmtvannsbereder
     - light.tv
     - sensor.priceanalyzer
@@ -168,7 +168,7 @@ notdimmableliving:
     - light.ledstrip_kitchen
     - light.peis
     - light.bird
-    - light.go
+    #- light.go
   #- switch.table_light
   # - light.hallwaymiddle
 
@@ -221,7 +221,7 @@ andrelys:
     #- light.guestroom
     - light.toilet
     - group.bedroomlights
-    #    - light.trym_roof
+    - light.trym_roof
     - light.trym_balloon
     - light.lavalamp
     - light.tyra_ball
@@ -286,7 +286,7 @@ awaysensors:
     #- binary_sensor.grind
     - binary_sensor.door_downstairs
     - binary_sensor.lilleveranda
-    - binary_sensor.trym_door
+    #- binary_sensor.trym_door
     #- binary_sensor.trym_window
     - binary_sensor.door_bathroom
     #Motion:

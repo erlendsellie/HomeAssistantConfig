@@ -6,11 +6,11 @@ esphome:
 esp32:
   board: esp32doit-devkit-v1
   framework:
-    type: arduino
+    type: esp-idf
 
-web_server:
-  port: 80
-  include_internal: true
+#web_server:
+  #port: 80
+  #include_internal: true
 
 logger:
 
@@ -20,6 +20,8 @@ ota:
   - platform: esphome
     password: !secret api_password
 
+
+
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
@@ -28,24 +30,21 @@ wifi:
     password: !secret fallback_password_vvb
 
 captive_portal:
-bluetooth_proxy:
-  active: true
 
+bluetooth_proxy:
 esp32_ble_tracker:
-  scan_parameters:
-    active: true
   on_ble_advertise:
     - then:
         lambda: |-
           std::string mac = x.address_str();
-
           if (mac == "A0:6C:65:E2:1A:25") {
-            if (auto temp = parse_ingics_temp(x)) id(fryser_temp).publish_state(*temp);
+            if (auto temp = parse_ingics_temp_full(x, "fryser")) {
+              id(fryser_internal).publish_state(temp->internal);
+              if (temp->has_probe) {
+                id(fryser_probe).publish_state(temp->probe);
+              }
+            }
           }
-          // else if (mac == "XX:XX:XX:XX:XX:XX") {
-          //   if (auto temp = parse_ingics_temp(x)) id(another_sensor).publish_state(*temp);
-          // }
-
 
 one_wire:
   - platform: gpio
@@ -64,8 +63,16 @@ sensor:
     update_interval: 15s
 
   - platform: template
-    id: fryser_temp
-    name: "Ingics Fryser Temp"
+    id: fryser_internal
+    name: "Fryser Internal Temp"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+
+  - platform: template
+    id: fryser_probe
+    name: "Fryser Probe Temp"
     unit_of_measurement: "°C"
     device_class: temperature
     state_class: measurement

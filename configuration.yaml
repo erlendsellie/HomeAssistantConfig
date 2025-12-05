@@ -58,6 +58,7 @@ logger:
     homeassistant.components.waze_travel_time.coordinator: fatal
     custom_components.priceanalyzer: debug
 
+
 zone:
   - name: Home
     latitude: !secret latitude

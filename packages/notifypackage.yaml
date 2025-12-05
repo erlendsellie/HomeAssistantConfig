@@ -424,7 +424,7 @@ automation:
   - alias: lunchtime
     trigger:
       - platform: time
-        at: "10:55:00"
+        at: "11:00:00"
     condition:
       - condition: template
         value_template: "{{ states.person.erlend.state == 'Work' }}"

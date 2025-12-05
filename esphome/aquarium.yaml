@@ -39,13 +39,11 @@ esp32_ble_tracker:
     - then:
         lambda: |-
           std::string mac = x.address_str();
-
           if (mac == "3C:E0:02:27:0C:8E") {
-            if (auto temp = parse_ingics_temp(x)) id(fridge_temp).publish_state(*temp);
+            if (auto temp = parse_ingics_temp(x, "fridge")) id(fridge_temp).publish_state(*temp);
           }
 
 
-  
 
 one_wire:
   - platform: gpio

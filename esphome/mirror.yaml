@@ -12,7 +12,6 @@ esp32:
 # Viktig: ikke bruk web_server samtidig (minneproblemer)
 
 logger:
-  level: DEBUG
 api:
   encryption:
     key: !secret api_key_mirror
@@ -33,42 +32,19 @@ wifi:
 # BLE Proxy (aktiv er nå default)
 bluetooth_proxy:
   active: true
-  cache_services: true
-  connection_slots: 8            # må ikke overstige max_connections over
 
 # BLE Scanner – bruk standardverdiene på Wi-Fi
 esp32_ble_tracker:
-  max_connections: 8            # anbefalt å holde ≤5 for minne
-  scan_parameters:
-    # bruk standarder på Wi-Fi for stabilitet
-    interval: 320ms
-    window: 30ms
-    active: true
-    # software_coexistence: true  # er som regel default nå
   on_ble_advertise:
     - then:
         lambda: |-
           std::string mac = x.address_str();
-
           if (mac == "84:72:93:A1:55:4C") {
-            // Debug: dump manufacturer data
-            auto md = x.get_manufacturer_datas();
-            ESP_LOGD("ingics", "MAC %s has %d manufacturer data entries", mac.c_str(), md.size());
-            for (size_t i = 0; i < md.size(); i++) {
-              auto &entry = md[i];
-              std::string hex;
-              for (auto b : entry.data) {
-                char buf[4];
-                snprintf(buf, sizeof(buf), "%02X ", b);
-                hex += buf;
+            if (auto temp = parse_ingics_temp_full(x, "outside")) {
+              id(outside_temp).publish_state(temp->internal);
+              if (temp->has_probe) {
+                id(outside_probe_temp).publish_state(temp->probe);
               }
-              ESP_LOGD("ingics", "  Entry %d: data[%d]=%s", i, entry.data.size(), hex.c_str());
-            }
-            if (auto temp = parse_ingics_temp(x)) {
-              ESP_LOGD("ingics", "  Parsed temp: %.2f", *temp);
-              id(outside_temp).publish_state(*temp);
-            } else {
-              ESP_LOGD("ingics", "  Failed to parse temp");
             }
           }
 
@@ -77,7 +53,15 @@ captive_portal:
 sensor:
   - platform: template
     id: outside_temp
-    name: "Ingics Outside Temp"
+    name: "Outside Temp"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+
+  - platform: template
+    id: outside_probe_temp
+    name: "Outside Probe Temp"
     unit_of_measurement: "°C"
     device_class: temperature
     state_class: measurement

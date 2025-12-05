@@ -1,28 +1,53 @@
 #pragma once
 #include "esphome/components/esp32_ble_tracker/esp32_ble_tracker.h"
 
-// Parse Ingics iBS sensor temperature from BLE manufacturer data
-// Supports both external probe sensors (temp at bytes 8-9) and
-// built-in sensors (temp at bytes 11-12)
-inline optional<float> parse_ingics_temp(const esphome::esp32_ble_tracker::ESPBTDevice &dev) {
-  auto md = dev.get_manufacturer_datas();
-  if (md.empty()) return {};
-  auto &data = md[0].data;
-  if (data.size() < 13) return {};
+// Ingics iBS03T/iBS03TP sensor temperature data
+struct IngicsTemp {
+  float internal;     // Internal sensor (bytes 5-6)
+  float probe;        // Probe sensor (bytes 7-8)
+  bool has_probe;     // True if probe value is valid (not 0x7FFF)
+};
 
-  // Check sensor subtype byte to determine temp location
-  // 0x83 = built-in temp sensor (iBS01T, iBS03T, etc) - temp at bytes 11-12 (little-endian)
-  // 0x85 = external probe sensor (iBS03TP, etc) - temp at bytes 8-9 (big-endian)
-  uint8_t subtype = data[0];
-  int16_t raw;
+// Parse Ingics iBS sensor temperature from BLE manufacturer data
+// iBS03T/iBS03TP sensors:
+//   - Bytes 5-6: Internal temp (little-endian, signed int16, /100 for °C)
+//   - Bytes 7-8: Probe temp (little-endian, signed int16, /100 for °C), 0x7FFF if no probe
+
+inline optional<IngicsTemp> parse_ingics_temp_full(const esphome::esp32_ble_tracker::ESPBTDevice &dev, const char* sensor_name = "unknown") {
+  auto md = dev.get_manufacturer_datas();
   
-  if (subtype == 0x85) {
-    // External probe: big-endian at bytes 8-9
-    raw = (data[8] << 8) | data[9];
-  } else {
-    // Built-in sensor: little-endian at bytes 11-12
-    raw = (data[12] << 8) | data[11];
+  if (md.empty()) {
+    ESP_LOGD("ingics", "[%s] No manufacturer data", sensor_name);
+    return {};
   }
   
-  return raw / 100.0f;
+  auto &data = md[0].data;
+  
+  if (data.size() < 9) {
+    ESP_LOGW("ingics", "[%s] Data too short: %d bytes", sensor_name, data.size());
+    return {};
+  }
+
+  IngicsTemp result;
+  
+  // Internal temp (bytes 5-6, little-endian signed)
+  int16_t internal_raw = (int16_t)((data[6] << 8) | data[5]);
+  result.internal = internal_raw / 100.0f;
+  
+  // Probe temp (bytes 7-8, little-endian signed)
+  int16_t probe_raw = (int16_t)((data[8] << 8) | data[7]);
+  result.probe = probe_raw / 100.0f;
+  result.has_probe = (probe_raw != 0x7FFF);  // 0x7FFF indicates no probe connected
+  
+  ESP_LOGD("ingics", "[%s] Internal=%.2f°C, Probe=%.2f°C (has_probe=%d)", 
+           sensor_name, result.internal, result.probe, result.has_probe);
+  
+  return result;
+}
+
+// Simple wrapper returning just internal temp (for sensors without probe)
+inline optional<float> parse_ingics_temp(const esphome::esp32_ble_tracker::ESPBTDevice &dev, const char* sensor_name = "unknown") {
+  auto result = parse_ingics_temp_full(dev, sensor_name);
+  if (!result) return {};
+  return result->internal;
 }

@@ -1,0 +1,91 @@
+automation:
+  - id: fp2_dining_table_kjokkenbord_light
+    alias: "FP2 dining table - control kjokkenbord light"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.fp2_dining_table
+        to: "on"
+        id: presence_on
+      - platform: state
+        entity_id: binary_sensor.fp2_dining_table
+        to: "off"
+        id: presence_off
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: presence_on
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.kjokkenbord
+          - conditions:
+              - condition: trigger
+                id: presence_off
+            sequence:
+              - service: light.turn_off
+                target:
+                  entity_id: light.kjokkenbord
+
+  - id: fp2_kitchen_light
+    alias: "FP2 kitchen - control kitchen light"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.fp2_kitchen
+        to: "on"
+        id: presence_on
+      - platform: state
+        entity_id: binary_sensor.fp2_kitchen
+        to: "off"        
+        id: presence_off
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: presence_on
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: 
+                    - light.kitchen
+                    - light.kitchen_ceiling_led
+          - conditions:
+              - condition: trigger
+                id: presence_off
+            sequence:
+              - service: light.turn_off
+                target:
+                  entity_id:
+                    - light.kitchen
+                    - light.kitchen_ceiling_led
+
+  - id: fp2_chill_sofa_light
+    alias: "FP2 chill sofa - control chillsofa light"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.fp2_chill_sofa
+        to: "on"
+        id: presence_on
+      - platform: state
+        entity_id: binary_sensor.fp2_chill_sofa
+        to: "off"
+        id: presence_off
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: presence_on
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.chillsofa
+          - conditions:
+              - condition: trigger
+                id: presence_off
+            sequence:
+              - service: light.turn_off
+                target:
+                  entity_id: light.chillsofa
