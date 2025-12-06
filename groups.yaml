@@ -133,6 +133,15 @@ smokesensors:
     - binary_sensor.smoke_stua
     - binary_sensor.smoke_loftet
 
+watersensors:
+  name: water sensors
+  entities:
+    - binary_sensor.water_aquarium
+    - binary_sensor.watersensor_aquarium
+    - binary_sensor.oppvaskmaskin_water_leak
+    - binary_sensor.water_kitchen
+    - binary_sensor.water_laundry_room
+
 living:
   name: Stuelys
   entities:
