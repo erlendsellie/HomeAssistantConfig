@@ -54,6 +54,29 @@ automation:
         entity_id: script.smoketriggered
         state: "on"
     action:
+      - service: script.turn_off
+        target:
+          entity_id: script.smoketriggered
+      - service: media_player.media_stop
+        target:
+          entity_id:
+            - media_player.minis
+            - media_player.clock
+            - media_player.living_room_speaker
+            - media_player.hallway_speaker
+            - media_player.bathroom
+            - media_player.kitchen_display
+      - service: tts.google_cloud_say
+        target:
+          entity_id:
+            - media_player.minis
+            - media_player.clock
+            - media_player.living_room_speaker
+            - media_player.hallway_speaker
+            - media_player.bathroom
+            - media_player.kitchen_display
+        data:
+          message: "Faren er over. Alle røykvarslere er nå stille."
       - service: script.notifyboth
         data:
           title: "✅ Røyk klarert"
@@ -103,28 +126,60 @@ script:
               value_template: >-
                 {{ expand('group.smokesensors') | selectattr('state', 'eq', 'on') | list | count > 0 }}
           sequence:
-            # Sett volum til maks på alle høyttalere
-            - service: media_player.volume_set
+            # Sørg for at høyttalerne er ledige før ny varsling
+            - service: media_player.media_stop
+              continue_on_error: true
               target:
                 entity_id:
                   - media_player.minis
                   - media_player.clock
                   - media_player.living_room_speaker
                   - media_player.hallway_speaker
+                  - media_player.bathroom
+                  - media_player.kitchen_display
+            # Sett volum til maks på alle høyttalere
+            - service: media_player.volume_set
+              continue_on_error: true
+              target:
+                entity_id:
+                  - media_player.minis
+                  - media_player.clock
+                  - media_player.living_room_speaker
+                  - media_player.hallway_speaker
+                  - media_player.bathroom
+                  - media_player.kitchen_display
               data:
                 volume_level: 1
             # TTS-varsling på alle høyttalere
             - service: tts.google_cloud_say
+              continue_on_error: true
               target:
                 entity_id:
                   - media_player.minis
                   - media_player.clock
                   - media_player.living_room_speaker
                   - media_player.hallway_speaker
+                  - media_player.bathroom
+                  - media_player.kitchen_display
               data:
                 message: "{{ smoke_message }}"
             - delay:
-                seconds: 8
+                seconds: 4
+            - service: media_player.play_media
+              continue_on_error: true
+              target:
+                entity_id:
+                  - media_player.minis
+                  - media_player.clock
+                  - media_player.living_room_speaker
+                  - media_player.hallway_speaker
+                  - media_player.bathroom
+                  - media_player.kitchen_display
+              data:
+                media_content_id: "https://hjem.sellie.no/local/sounds/screams/airraid.mp3"
+                media_content_type: "music"
+            - delay:
+                seconds: 12
             # Push-varsling hver 3. iterasjon
             - if:
                 - condition: template
@@ -137,11 +192,14 @@ script:
                     channel: alarm_stream_max
       # Når loopen er ferdig, sett volum tilbake
       - service: media_player.volume_set
+        continue_on_error: true
         target:
           entity_id:
             - media_player.minis
             - media_player.clock
             - media_player.living_room_speaker
             - media_player.hallway_speaker
+            - media_player.bathroom
+            - media_player.kitchen_display
         data:
           volume_level: 0.5
