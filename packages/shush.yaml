@@ -1,16 +1,17 @@
-switch:
-  - platform: template
-    switches:
-      tyra_shush:
-        value_template: "{{ states.media_player.tyra.state == 'playing' }}"
+template:
+  - switch:
+      - name: "tyra_shush"
+        unique_id: tyra_shush_switch
+        state: "{{ states.media_player.tyra.state == 'playing' }}"
         turn_on:
-          service: script.turn_on
-          data:
-            entity_id: script.shush_tyra
+          - service: script.turn_on
+            data:
+              entity_id: script.shush_tyra
         turn_off:
-          service: media_player.turn_off
-          data:
-            entity_id: media_player.tyra
+          - service: media_player.turn_off
+            data:
+              entity_id: media_player.tyra
+
 script:
   shush_tyra:
     alias: Play Shushing Tyra

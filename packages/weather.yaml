@@ -1,6 +1,7 @@
 template:
   - sensor:
       - name: weather_norsk
+        unique_id: weather_norsk_sensor
         state: >
           {%- set state = states('weather.home') -%}
           {% if state == 'clear-night' %} stjerneklart
@@ -35,3 +36,16 @@ template:
         unique_id: temperature_forecast_next_hour
         state: "{{ hourly['weather.home'].forecast[0].temperature }}"
         unit_of_measurement: °C
+
+      - name: "bad_weather"
+        unique_id: bad_weather_sensor
+        state: "Nice"
+
+  - binary_sensor:
+      - name: "sun_above_horizon"
+        unique_id: sun_above_horizon_sensor
+        state: "{{ states('sun.sun') == 'above_horizon' }}"
+
+      - name: "dark_outside"
+        unique_id: dark_outside_sensor
+        state: "{{ states.sun.sun.attributes.elevation < 5 }}"

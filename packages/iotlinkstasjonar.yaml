@@ -18,6 +18,23 @@ automation:
     action:
       - service: switch.turn_off
         entity_id: switch.stasjonar
+template:
+  - binary_sensor:
+      - name: "motion_office_nexa"
+        unique_id: motion_office_nexa_sensor
+        device_class: motion
+        state: "{{ is_state('switch.soverombevegelse', 'on') }}"
+
+  - switch:
+      - name: "stasjonar"
+        unique_id: stasjonar_switch
+        state: "{{ is_state('binary_sensor.stasjonar_connected', 'on') }}"
+        turn_on:
+          - service: script.stasjonar_wake
+        turn_off:
+          - service: script.stasjonar_suspend
+        icon: mdi:laptop
+
 mqtt:
   binary_sensor:
     - name: "Stasjonar - Connected"
@@ -28,17 +45,6 @@ mqtt:
       device_class: "connectivity"
       qos: 1
 
-switch:
-  - platform: template
-    switches:
-      stasjonar:
-        friendly_name: "Stasjonær"
-        value_template: "{{ is_state('binary_sensor.stasjonar_connected', 'on') }}"
-        turn_on:
-          service: script.stasjonar_wake
-        turn_off:
-          service: script.stasjonar_suspend
-        icon_template: mdi:laptop
 script:
   stasjonar_wake:
     # To enable see https://www.home-assistant.io/components/wake_on_lan/

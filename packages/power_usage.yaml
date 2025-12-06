@@ -34,26 +34,21 @@ utility_meter:
     name: Power Other consumption current day
     unique_id: sensor.power_other_consumption_current_day
 
-sensor:
-  - platform: template
-    sensors:
-      power_without_easee:
-        friendly_name: Power Without Easee
+template:
+  - sensor:
+      - name: "power_without_easee"
         unique_id: "e6681b9d-8ce0-46fd-a2ff-3f92a48e768a"
         unit_of_measurement: W
-        value_template: >-
+        state: >-
           {% set main = states.sensor.pulse_power.state | float(default=0)%}
-          {{max(0,main
-          - (states.sensor.garage_power.state | float(default=0)* 1000) 
-          )
-          }}
-      power_other:
-        friendly_name: Power other
+          {{ max(0,main - (states.sensor.garage_power.state | float(default=0)* 1000)) }}
+
+      - name: "power_other"
         unique_id: "d6f067a2-aacb-439f-86b0-ea0ce7024686"
         unit_of_measurement: W
-        value_template: >-
+        state: >-
           {% set main = states('sensor.pulse_power') | float(default=0)%}
-          {{max(0,main
+          {{ max(0,main
           - (states('sensor.garage_power') | float(default=0)* 1000) 
           - (states('sensor.varmtvannsbereder_electric_consumption_w') | float(default=0)) 
           - (states('sensor.sokkel_electric_consumption_w_2') | float(default=0)) 
@@ -71,87 +66,58 @@ sensor:
           - (states('sensor.varmepumpe_watt') | float(default=0)) 
           - (states('sensor.varmepumpe_oppe_watt') | float(default=0)) 
           - (states('sensor.aquarium_power') | float(default=0)) 
-          )}}
-      power_other_kwh:
-        friendly_name: Power other kWh
+          ) }}
+
+      - name: "power_other_kwh"
         unique_id: "1ea69479-05ca-4379-af01-32c5d5d599a2"
         unit_of_measurement: kWh
-        value_template: >-
+        state: >-
           {% set powerUsageBeforeNewSensor = 6405%}
           {% set main = states('sensor.power_other_kwh_raw') | float(default=0)%}
           {% set heat_pump = 396.8 | float(default=0)%}
-          {{
-          main - 
-          heat_pump
-          + powerUsageBeforeNewSensor
-          }}
-      easee_w:
-        friendly_name: Easee Watt
+          {{ main - heat_pump + powerUsageBeforeNewSensor }}
+
+      - name: "easee_w"
         unique_id: "661e7393-1ebf-4c4e-95b5-94b4d74cb0e6"
         unit_of_measurement: W
-        value_template: >-
-          {{states.sensor.garage_power.state | float(default=0)* 1000}}
-      office_heater_w:
-        friendly_name: Office Heater W
+        state: >-
+          {{ states.sensor.garage_power.state | float(default=0)* 1000 }}
+
+      - name: "office_heater_w"
         unique_id: "03a239d5-8a63-4d92-bbde-ce4b19f15ee6"
         unit_of_measurement: W
-        value_template: >-
+        state: >-
           {% set on = states.switch.office_heater.state == 'on'%}
-          {%if on%}
-            2000
-          {%else%}
-            0
-          {%endif%}
-      toilet_heater_w:
-        friendly_name: Toilet Heater W
+          {% if on %}2000{% else %}0{% endif %}
+
+      - name: "toilet_heater_w"
         unique_id: "e57c00aa-b2d9-46d3-b762-3b94d4906a4b"
         unit_of_measurement: W
-        value_template: >-
+        state: >-
           {% set on = states.switch.toilet_heater.state == 'on'%}
-          {%if on%}
-            500
-          {%else%}
-            0
-          {%endif%}
-      tyra_heater_w:
-        friendly_name: Tyra Heater W
+          {% if on %}500{% else %}0{% endif %}
+
+      - name: "tyra_heater_w"
         unique_id: "1604a7be-12ae-42d3-9b17-955532d918ef"
         unit_of_measurement: W
-        value_template: >-
+        state: >-
           {% set on = states.climate.tyra_heater.attributes.hvac_action == 'heating' %}
-          {%if on%}
-            1000
-          {%else%}
-            0
-          {%endif%}
-      trym_heater_w:
-        friendly_name: Trym Heater W
+          {% if on %}1000{% else %}0{% endif %}
+
+      - name: "trym_heater_w"
         unique_id: "0caf0648-2e15-4fc0-8348-9e40c7f88cc7"
         unit_of_measurement: W
-        value_template: >-
+        state: >-
           {% set on = states.climate.trym.attributes.hvac_action == 'heating' %}
-          {%if on%}
-            900
-          {%else%}
-            0
-          {%endif%}
-      # varmepumpe_voltage:
-      #   value_template: >-
-      #     {{ states.switch.varmepumpe.attributes.voltage }}
-      #   unit_of_measurement: "V"
-      # varmepumpe_m_ampere:
-      #   value_template: >-
-      #     {{ states.switch.varmepumpe.attributes.current }}
-      #   unit_of_measurement: "mA"
-      # varmepumpe_w_wrong:
-      #   value_template: >-
-      #     {{ states.switch.varmepumpe.attributes.current_consumption }}
-      #   unit_of_measurement: "W"
-      # varmepumpe_w:
-      #   value_template: >-
-      #     {{ (states.switch.varmepumpe.attributes.current * states.switch.varmepumpe.attributes.voltage / 1000) | round(0)  }}
-      #   unit_of_measurement: "W"
+          {% if on %}900{% else %}0{% endif %}
 
+  - binary_sensor:
+      - name: "vvb_heating"
+        unique_id: "e7f7e3e8-510b-4a6d-8937-1bcdb23dc75b"
+        state: >-
+          {{ states.sensor.varmtvannsbereder_electric_consumption_w.state | int > 0 }}
+
+sensor:
   - platform: filter
     name: "power other filtered"
     entity_id: sensor.power_other
@@ -287,11 +253,4 @@ sensor:
       - filter: lowpass
         time_constant: 10
 
-binary_sensor:
-  - platform: template
-    sensors:
-      vvb_heating:
-        friendly_name: VVB Heating
-        unique_id: "e7f7e3e8-510b-4a6d-8937-1bcdb23dc75b"
-        value_template: >-
-          {{states.sensor.varmtvannsbereder_electric_consumption_w.state | int > 0}}
+# Legacy binary_sensor template migrated to template: block above

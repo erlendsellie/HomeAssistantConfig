@@ -36,12 +36,12 @@ sensor:
     entity_id: "sensor.pulse_power"
     target_energy: 10
 
-  - platform: template
-    sensors:
-      effekt_denne_timen_trend:
-        friendly_name: Effekttrend inneværende time
+template:
+  - sensor:
+      - name: "effekt_denne_timen_trend"
+        unique_id: effekt_denne_timen_trend_sensor
         unit_of_measurement: kWh
-        value_template: >-
+        state: >-
           {% set usage = states.sensor.accumulated_consumption_current_hour.state | float(default=0)%}
           {% set minutes = now().minute %}
           {% set seconds = now().second %}
@@ -51,10 +51,11 @@ sensor:
           {%else%}
             {{usage | round (2)}}
           {%endif%}
-      effekt_denne_dagen_trend:
-        friendly_name: Effekttrend inneværende dag
+
+      - name: "effekt_denne_dagen_trend"
+        unique_id: effekt_denne_dagen_trend_sensor
         unit_of_measurement: kWh
-        value_template: >-
+        state: >-
           {% set usage = states.sensor.accumulated_consumption_current_hour.state | float(default=0)%}
           {% set minutes = now().minute %}
           {% set hour = now().hour %}
@@ -64,39 +65,36 @@ sensor:
           {%else%}
             {{usage | round (2)}}
           {%endif%}
-      amshan_increase_possible:
-        friendly_name: "Amshan increase possible"
+
+      - name: "amshan_increase_possible"
+        unique_id: amshan_increase_possible_sensor
         unit_of_measurement: "kW"
-        value_template: >-
+        state: >-
           {% set usage  = states('sensor.effekt_denne_timen_trend') | float(0) %}
           {% set limit  = states('input_number.effektledd') | float(0) %}
           {% set safe   = 0.0 %}
           {% set minutes = now().minute | int(0) %}
           {% set seconds = now().second | int(0) %}
           {% set timeLeft = 3600 - ((minutes * 60) + seconds) %}
-
           {% if timeLeft > 0 %}
             {{ [30, ((limit - usage - safe) * (3600 / timeLeft))] | min | round(2) }}
           {% else %}
             {{ 0 }}
           {% endif %}
-      ampere_increase_possible:
-        friendly_name: "Ampere Increase Possible"
+
+      - name: "ampere_increase_possible"
+        unique_id: ampere_increase_possible_sensor
         unit_of_measurement: A
-        value_template: >-
+        state: >-
           {% set W = states('sensor.amshan_increase_possible') | float(default=0) * 1000%}
           {% set pf = states('sensor.power_factor_sivert_thonstads_vei_6b')| float(default=99) / 100%}
           {% set V = states('sensor.garage_voltage') | float(default=240)%}
           {{min(40,(W / ((sqrt(3)) * pf * V))) | round(0)}}
-      easee_ampere_limit:
-        friendly_name: "Easee Ampere Limit"
+
+      - name: "easee_ampere_limit"
+        unique_id: easee_ampere_limit_sensor
         unit_of_measurement: A
-        #Todo:
-        # We have to be over effektledd before this sensor will go under dynamic_limit(20), which will never happen.
-        # dynamic_limit number have to be pretty low, to we rather boost much, and then boost little to stay inside
-        # safe values.
-        # let's try with 10 amps, and see what happens
-        value_template: >-
+        state: >-
           {% set default = states('input_number.easee_dynamic_limit') | float(default=20)%}
           {% set adjustment = states('sensor.ampere_increase_possible')| float(default=0)%}
           {% set effect_cap = states('input_number.effektledd') | float(default=9.9)%}
@@ -108,32 +106,33 @@ sensor:
               {% set return = 15%}
           {%endif%}
           {{return}}
-binary_sensor:
-  - platform: template
-    sensors:
-      effect_is_high:
-        friendly_name: "Effect Is High"
+
+  - binary_sensor:
+      - name: "effect_is_high"
+        unique_id: effect_is_high_sensor
         delay_off:
           minutes: 2
-        value_template: >-
+        state: >-
           {% set effect = states.sensor.effekt_denne_timen_trend.state | float(default=0)%}
           {% set minutes = now().minute %}
           {% set effektledd = states('input_number.effektledd') | float(default=9.8) %}
           {%-set threshold = effektledd | float(default=0)-%}
           {{effect >= threshold and minutes > 15}}
-      effect_is_high_immidiate:
-        friendly_name: "Effect Is High Immidiate"
-        value_template: >-
+
+      - name: "effect_is_high_immidiate"
+        unique_id: effect_is_high_immidiate_sensor
+        state: >-
           {% set effect = states.sensor.effekt_denne_timen_trend.state | float(default=0)%}
           {% set minutes = now().minute %}
           {% set effektledd = states('input_number.effektledd') | float(default=9.8) %}
           {%-set threshold = effektledd | float(default=0)-%}
           {{effect >= threshold and minutes > 15}}
-      effect_is_really_high:
-        friendly_name: "Effect Is Really High"
+
+      - name: "effect_is_really_high"
+        unique_id: effect_is_really_high_sensor
         delay_off:
           minutes: 5
-        value_template: >-
+        state: >-
           {% set effect = states.sensor.effekt_denne_timen_trend.state | float(default=0)%}
           {% set minutes = now().minute %}
           {% set effektledd = states('input_number.effektledd') | float(default=9.8) %}

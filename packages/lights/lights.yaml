@@ -1,3 +1,42 @@
+template:
+  - sensor:
+      - name: "brightnessforlights"
+        unique_id: brightnessforlights_sensor
+        unit_of_measurement: "%"
+        state: >-
+          {% if states.input_select.alarm.state == 'Arm Home' %} 
+          20
+          {% elif now().hour < 9 %}
+          70
+          {% else %}
+          100
+          {% endif %}
+
+      - name: "brightnessforupstairslights"
+        unique_id: brightnessforupstairslights_sensor
+        unit_of_measurement: "%"
+        state: >-
+          {% if states.input_boolean.trymasleep.state == 'on' or states.input_boolean.tyraasleep.state == 'on' %}
+          40
+          {% elif (states.input_boolean.casleep.state == 'on' or states.input_boolean.easleep.state == 'on')
+          and (now().hour < 23 or now().hour > 6)  %} 
+          30
+          {% else %}
+          {{ states.sensor.brightnessforlights.state }}
+          {% endif %}
+
+  - binary_sensor:
+      - name: "drivewaylightshouldbeon"
+        unique_id: drivewaylightshouldbeon_sensor
+        delay_off:
+          minutes: 5
+        state: >-
+          {{ states.sun.sun.attributes.elevation < 0 and (
+          states.cover.garage_door.state == 'open' or
+          states.binary_sensor.hoveddor.state == 'on' or  
+          states.binary_sensor.motion_driveway_or_garage.state == 'on'
+          ) }}
+
 input_boolean:
   automatic_bedroom_lights:
     name: "Automatic Bedroom Lights"

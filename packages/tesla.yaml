@@ -16,6 +16,40 @@ template:
           {%set is_unplugged = sensor.state == 'off' %}
           {%set is_afternoon = now().hour > 15%}
           {{just_unplugged and is_afternoon and is_unplugged}}
+
+      - name: "garage_occupied"
+        unique_id: garage_occupied_sensor
+        device_class: occupancy
+        delay_off:
+          minutes: 2
+        delay_on:
+          minutes: 2
+        state: "{{ (states.sensor.ultrasonic_sensor.state | float(default=0) < 1.5) }}"
+        icon: >
+          {% if is_state('binary_sensor.garage_occupied', 'off') %}
+          mdi:car-off
+          {% else %}
+          mdi:car
+          {% endif %}
+
+      - name: "tesla_in_garage"
+        unique_id: tesla_in_garage_sensor
+        device_class: occupancy
+        delay_off:
+          minutes: 2
+        delay_on:
+          seconds: 15
+        state: >-
+          {{
+          (states.sensor.ultrasonic_sensor.state | float(default=0) < 0.5)
+          and (states.sensor.ultrasonic_sensor.state | float(default=0) > 0.0) 
+          }}
+        icon: >
+          {% if is_state('binary_sensor.tesla_in_garage', 'off') %}
+          mdi:car-off
+          {% else %}
+          mdi:car-electric
+          {% endif %}
   - sensor:
       - name: "ModelY Charge Time Left"
         unit_of_measurement: "hours"

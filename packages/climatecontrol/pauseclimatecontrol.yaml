@@ -17,10 +17,9 @@ automation:
         target:
           entity_id: input_boolean.pauseclimatecontrol
 
-binary_sensor:
-  - platform: template
-    scan_interval: 3600
-    sensors:
-      usingspot:
-        value_template: >-
-          {{states('input_boolean.pauseclimatecontrol') == 'off'}}
+template:
+  - binary_sensor:
+      - name: "usingspot"
+        unique_id: usingspot_sensor
+        state: >-
+          {{ states('input_boolean.pauseclimatecontrol') == 'off' }}

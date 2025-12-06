@@ -83,16 +83,18 @@ input_boolean:
   gametimer:
     name: "Mørningstimer"
 
-sensor:
-  - platform: template
-    sensors:
-      dogngrader1:
+template:
+  - sensor:
+      - name: "dogngrader1"
+        unique_id: dogngrader1_sensor
         unit_of_measurement: "Døgngrader"
-        value_template: >
+        state: >
           {{((states.input_number.gametimer1.state | int(default=0) / 24)) | round(1)}}
-      gametemp:
+
+      - name: "gametemp"
+        unique_id: gametemp_sensor
         unit_of_measurement: "C"
-        value_template: >
+        state: >
           {% set valgt = states('input_select.gametemp') %}
           {% set temp_dict = {
               "Sleipner Utside": states('sensor.modely_temperature_sensor_outside'),
@@ -107,18 +109,10 @@ sensor:
           {% set temp_float = temp | float(default=states('input_number.gametemp_temp') | float(10)) %}
           {{ temp_float }}
 
-      # dogngrader2:
-      #   unit_of_measurement: 'Døgngrader'
-      #   value_template: >
-      #     {{((states.input_number.gametimer2.state | int(default=0) / 24)) | round(1)}}
-
-binary_sensor:
-  - platform: template
-    scan_interval: 100000
-    sensors:
-      huntingseason:
-        friendly_name: "Hunting Season"
-        value_template: >
+  - binary_sensor:
+      - name: "huntingseason"
+        unique_id: huntingseason_sensor
+        state: >
           {{states.sensor.date_time.state.split('-')[1] | int(default=0) > 7 or states.sensor.date_time.state.split('-')[1] | int(default=0) < 3}}
 
 input_select:

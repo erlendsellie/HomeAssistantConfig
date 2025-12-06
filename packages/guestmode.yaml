@@ -92,10 +92,9 @@ automation:
         data:
           prompt: "Gjestemodus er nå slått av."
 
-binary_sensor:
-  - platform: template
-    scan_interval: 10
-    sensors:
-      guestmode_activated:
-        value_template: >
-          {{states.input_boolean.guestmode.state == 'on' and states.sensor.alarm.state != 'Disarm' }}
+template:
+  - binary_sensor:
+      - name: "guestmode_activated"
+        unique_id: guestmode_activated_sensor
+        state: >
+          {{ states.input_boolean.guestmode.state == 'on' and states.sensor.alarm.state != 'Disarm' }}

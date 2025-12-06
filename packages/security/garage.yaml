@@ -1,45 +1,19 @@
-cover:
-  - platform: template
-    covers:
-      garage_door:
-        friendly_name: "Garage Door"
-        value_template: "{{is_state('binary_sensor.garage', 'on')}}"
+template:
+  - cover:
+      - name: "garage_door"
+        unique_id: garage_door_cover
+        state: "{{ is_state('binary_sensor.garage', 'on') }}"
         open_cover:
           - service: script.open_garage_door
-          # - delay:
-          #     seconds: 60
-          # - service: script.checkgarage
-          # - delay:
-          #     seconds: 15
-          # - condition: template
-          #   value_template: "{{ states.cover.garage_door.state == 'closed' }}"
-          # - service: script.turn_on
-          #   entity_id: script.notify
-          #   data_template:
-          #     variables:
-          #       title: Seems like the garage could not open
-          #       message: Seems like the garage could not open
-          # - service: script.open_garage_door
-
         close_cover:
           - service: script.close_garage_door
           - delay:
               seconds: 30
           - service: script.checkgarage
-          # - delay:
-          #     seconds: 25
-          # - condition: template
-          #   value_template: "{{ states.cover.garage_door.state == 'open' }}"
-          # - service: script.turn_on
-          #   entity_id: script.notify
-          #   data_template:
-          #     variables:
-          #       title: Seems like the garage could not close
-          #       message: Seems like the garage could not close
           - service: script.close_garage_door
         stop_cover:
-          service: script.stop_garage_door
-        icon_template: >-
+          - service: script.stop_garage_door
+        icon: >-
           {% if is_state('binary_sensor.garage', 'on')%}
             mdi:garage-open
           {% elif is_state('binary_sensor.garage_occupied', 'on') %}
@@ -48,20 +22,13 @@ cover:
             mdi:garage
           {% endif %}
 
-input_boolean:
-  automatic_garage:
-    name: "Automatic Garage"
-
-binary_sensor:
-  - platform: template
-    scan_interval: 10
-    sensors:
-      motion_driveway_or_garage:
-        friendly_name: "Motion Driveway or Garage"
+  - binary_sensor:
+      - name: "motion_driveway_or_garage"
+        unique_id: motion_driveway_or_garage_sensor
         device_class: motion
         delay_off:
           minutes: 5
-        value_template: >-
+        state: >-
           {{
             states.binary_sensor.motion_garage.state == 'on' or
             states.binary_sensor.motion_driveway.state == 'on' or
@@ -73,16 +40,23 @@ binary_sensor:
             states.sensor.driveway_person_count.state != 'unavailable' and 
             states.sensor.driveway_person_count.state != '0')
           }}
-      garageanddooropen:
+
+      - name: "garageanddooropen"
+        unique_id: garageanddooropen_sensor
         device_class: opening
-        value_template: "{{(states.binary_sensor.garage_backdoor.state == 'on' and states.cover.garage_door.state == 'on') and (states.binary_sensor.door_downstair.state == 'on' or states.binary_sensor.veranda.state == 'on') }}"
-      garagelightshouldbeon:
-        friendly_name: "Garage Light should be on"
+        state: "{{ (states.binary_sensor.garage_backdoor.state == 'on' and states.cover.garage_door.state == 'on') and (states.binary_sensor.door_downstair.state == 'on' or states.binary_sensor.veranda.state == 'on') }}"
+
+      - name: "garagelightshouldbeon"
+        unique_id: garagelightshouldbeon_sensor
         delay_off:
           minutes: 5
-        value_template: >-
-          {{states.binary_sensor.motion_garage.state == 'on' or states.cover.garage_door.state == 'open' or 
-            states.sensor.garage_person_count.state != '0'}}
+        state: >-
+          {{ states.binary_sensor.motion_garage.state == 'on' or states.cover.garage_door.state == 'open' or 
+            states.sensor.garage_person_count.state != '0' }}
+
+input_boolean:
+  automatic_garage:
+    name: "Automatic Garage"
 
 script:
   open_garage_door:

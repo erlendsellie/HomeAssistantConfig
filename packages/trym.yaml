@@ -15,6 +15,61 @@ template:
       - name: "erlend_last_notification_title"
         state: >-
           {{states.sensor.erlend_mobil_last_notification.attributes['android.title']}}
+
+      - name: "brightnessfortrymlight"
+        unique_id: brightnessfortrymlight_sensor
+        unit_of_measurement: "%"
+        state: >-
+          {% if states.input_boolean.trymasleep.state == 'on' %} 
+          5
+          {% elif now().hour < 7 %}
+          70
+          {% else %}
+          100
+          {% endif %}
+
+      - name: "trymsleeptime"
+        unique_id: trymsleeptime_sensor
+        unit_of_measurement: "minutes"
+        state: >-
+          {% set dummy = states("sensor.time") %}
+          {% if states.input_boolean.trymasleep.state == 'on' %}
+              {% if states.automation.trymsoveron %}
+              {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trymsoveron.attributes.last_triggered, default=0)) / 60) | round(0)}}
+              {% else %}
+              0
+              {% endif %}
+          {% elif states.input_boolean.tryminkindergarden.state == 'on' %}
+              {% if states.automation.trym_left_in_school %}
+              {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trym_left_in_school.attributes.last_triggered, default=0)) / 60) | round(0)}}
+              {% else %}
+              0
+              {% endif %}
+          {% else %}
+              {% set triggers = [] %}
+              {% if states.automation.trymsoveroff %}
+              {% set triggers = triggers + [states.automation.trymsoveroff.attributes.last_triggered] %}
+              {% endif %}
+              {% if states.automation.trym_picked_up_in_kindergarden %}
+              {% set triggers = triggers + [states.automation.trym_picked_up_in_kindergarden.attributes.last_triggered] %}
+              {% endif %}
+              {% if triggers %}
+              {{((as_timestamp(utcnow()) - as_timestamp(triggers | max, default=0)) / 60) | round(0)}}
+              {% else %}
+              0
+              {% endif %}
+          {% endif %}
+
+      - name: "trymsleeptimeformatted"
+        unique_id: trymsleeptimeformatted_sensor
+        state: >-
+          {{ (states.sensor.trymsleeptime.state | int(default=0)) // 60 }}:{{ '{:0>2d}'.format((states.sensor.trymsleeptime.state | int(default=0))%60) }} hours
+
+  - binary_sensor:
+      - name: "trym_home"
+        unique_id: trym_home_sensor
+        device_class: occupancy
+        state: "{{ is_state('input_boolean.tryminkindergarden', 'off') }}"
 automation:
   #todo implement better logic, so yellow is on for a longer time if erlend
   # is home alone with the kids. And add triggers based on when we wake up.

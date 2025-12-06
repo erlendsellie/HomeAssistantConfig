@@ -73,12 +73,11 @@ script:
           device: kubbelys
           command: light_mode
 
-light:
-  - platform: template
-    lights:
-      irlights:
-        friendly_name: "Kubbelys"
+template:
+  - light:
+      - name: "irlights"
+        unique_id: irlights_template
         turn_on:
-          service: script.turn_on_kubbelys_4_hours
+          - service: script.turn_on_kubbelys_4_hours
         turn_off:
-          service: script.turn_off_kubbelys
+          - service: script.turn_off_kubbelys

@@ -1,3 +1,18 @@
+template:
+  - sensor:
+      - name: "brightnessforbedroomlights"
+        unique_id: brightnessforbedroomlights_sensor
+        unit_of_measurement: "%"
+        state: >-
+          {% if states.input_boolean.trymasleep.state == 'on' or states.input_boolean.tyraasleep.state == 'on' %}
+          40
+          {% elif (states.input_boolean.casleep.state == 'on' or states.input_boolean.easleep.state == 'on')
+          and (now().hour < 23 or now().hour > 8)  %} 
+          30
+          {% else %}
+            {{ states.sensor.brightnessforlights.state }}
+          {% endif %}
+
 automation:
   - id: carolinenatta70
     alias: Caroline legger seg + 60 min

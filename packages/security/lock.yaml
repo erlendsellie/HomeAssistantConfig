@@ -1,13 +1,13 @@
-lock:
-  - platform: template
-    name: ytterdor
-    unique_id: "22aceadb-488c-4bf9-a387-c70ea9fe81c1"
-    value_template: "{{ is_state('lock.ytterdor_bluetooth', 'locked') }}"
-    availability_template: "{{ is_state('lock.ytterdor_bluetooth', 'locked') or is_state('lock.ytterdor_bluetooth', 'unlocked') }}"
-    lock:
-      service: script.lockdoor
-    unlock:
-      service: script.unlockdoor
+template:
+  - lock:
+      - name: "ytterdor"
+        unique_id: "22aceadb-488c-4bf9-a387-c70ea9fe81c1"
+        state: "{{ is_state('lock.ytterdor_bluetooth', 'locked') }}"
+        availability: "{{ is_state('lock.ytterdor_bluetooth', 'locked') or is_state('lock.ytterdor_bluetooth', 'unlocked') }}"
+        lock:
+          - service: script.lockdoor
+        unlock:
+          - service: script.unlockdoor
 
 script:
   lockdoor:

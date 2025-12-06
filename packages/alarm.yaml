@@ -1,3 +1,33 @@
+template:
+  - sensor:
+      - name: "alarm"
+        unique_id: alarm_sensor
+        state: >
+          {% if states.binary_sensor.erlendhome.state == 'on' or states.binary_sensor.carolinehome.state == 'on' or states.group.people.state == 'home' %}
+            {% if (states.input_boolean.easleep.state == 'on' or states.binary_sensor.erlendhome.state == 'off')
+                and 
+                (states.input_boolean.casleep.state == 'on' or states.binary_sensor.carolinehome.state == 'off')
+                and 
+                (states.binary_sensor.erlendhome.state == 'on' or states.binary_sensor.carolinehome.state == 'on')  %}
+              Arm Home
+            {% elif 
+            (states.binary_sensor.erlendhome.state == 'off' and states.binary_sensor.carolinehome.state == 'off')
+              and
+              states.device_tracker.stian.state == 'home'
+              and states.input_boolean.stianasleep.state == 'on'
+            %}
+              Arm Home
+            {% else %}
+              Disarm
+            {% endif %}
+          {% else %}
+              Arm Away
+          {% endif %}
+
+      - name: "unlockedby"
+        unique_id: unlockedby_sensor
+        state: "{{ states.lock.ytterdor.attributes.changed_by }}"
+
 input_datetime:
   lock_glitch_last_notification:
     name: "Last Lock Glitch Notification"

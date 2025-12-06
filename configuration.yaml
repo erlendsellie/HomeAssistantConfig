@@ -379,9 +379,9 @@ input_select:
     options:
       - auto
       - 1_up
-      - 2
-      - 3
-      - 4
+      - "2"
+      - "3"
+      - "4"
       - 5_down
       - swing
       - auto_tv

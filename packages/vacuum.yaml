@@ -63,13 +63,12 @@ automation:
       - service: input_boolean.turn_off
         entity_id: input_boolean.vacuum_just_emptied
 
-sensor:
-  - platform: template
-    sensors:
-      vacuum_battery:
-        friendly_name: "Vacuum Battery"
+template:
+  - sensor:
+      - name: "vacuum_battery"
+        unique_id: vacuum_battery_sensor
         unit_of_measurement: "%"
-        value_template: "{{states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level}}"
+        state: "{{ states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level }}"
 
 script:
   sendvacuumtokitchen:

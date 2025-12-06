@@ -56,33 +56,33 @@ automation:
           variables:
             message: "Temperaturen på Soverommet er {{states.sensor.temp_bedroom.state}}"
 
-binary_sensor:
-  - platform: template
-    scan_interval: 10
-    sensors:
-      trymtemphigh:
-        friendly_name: "Trym Temp High"
-        value_template: >-
+template:
+  - binary_sensor:
+      - name: "trymtemphigh"
+        unique_id: trymtemphigh_sensor
+        state: >-
           {%-set hour = now().hour | float(default=0)-%}
           {%-set home = states.input_select.alarm.state == 'Disarm'%}
           {%-set windowclosed = states.binary_sensor.trym_window.state == 'off'%}
           {%-set trymtemp = states.sensor.trym_temp.state | float(default=0)%}
           {%-set trymawake = states.input_boolean.trymasleep.state == 'off' %}
           {{trymawake and home and windowclosed and (hour > 17) and (trymtemp > 24)}}
-      tyratemphigh:
-        friendly_name: "Tyra Temp High"
-        value_template: >-
+
+      - name: "tyratemphigh"
+        unique_id: tyratemphigh_sensor
+        state: >-
           {%-set hour = now().hour | float(default=0)-%}
           {%-set home = states.input_select.alarm.state == 'Disarm'%}
           {%-set windowclosed = states.binary_sensor.tyra_window.state == 'off'%}
           {%-set tyratemp = states.sensor.tyra_temp.state | float(default=0)%}
           {%-set tyraawake = states.input_boolean.tyraawake.state == 'off' %}
           {{tyraawake and home and windowclosed and (hour > 17) and (tyratemp > 24)}}
-      bedroomtemphigh:
-        friendly_name: "Bedroom Temp High"
+
+      - name: "bedroomtemphigh"
+        unique_id: bedroomtemphigh_sensor
         delay_off:
           minutes: 120
-        value_template: >-
+        state: >-
           {%-set hour = now().hour | float(default=0)-%}
           {%-set home = states.input_select.alarm.state == 'Disarm'%}
           {%-set windowclosed = states.binary_sensor.bedroom_window.state == 'off'%}

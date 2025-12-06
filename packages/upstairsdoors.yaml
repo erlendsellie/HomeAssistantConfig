@@ -58,32 +58,46 @@ automation:
           - delay:
               minutes: 10
 
-binary_sensor:
-  - platform: template
-    sensors:
-      bathroomleftopen:
+template:
+  - binary_sensor:
+      - name: "stairsexposed"
+        unique_id: stairsexposed_sensor
         device_class: opening
-        friendly_name: "Baderomsdøren ble ikke lukket"
+        state: >-
+          {{ (states.binary_sensor.grind.state == 'on' and states.group.innedorsensorer.state == 'on')
+          and ((states.input_boolean.trymasleep.state == 'off' and states.binary_sensor.trym_home.state == 'on') 
+          or (states.input_boolean.tyraasleep.state == 'off' and states.binary_sensor.tyra_home.state == 'on')) }}
+
+      - name: "upstairstairs"
+        unique_id: upstairstairs_sensor
+        device_class: opening
+        state: "{{ states.binary_sensor.grind_oppe.state == 'on' and states.binary_sensor.tyra_home.state == 'on' and states.input_boolean.tyraasleep.state == 'on' }}"
+
+      - name: "bathroomleftopen"
+        unique_id: bathroomleftopen_sensor
+        device_class: opening
         delay_on:
           minutes: 5
-        value_template: >-
-          {{states.binary_sensor.motionupstairs.state == 'off' and
-          states.binary_sensor.door_bathroom.state == 'on'}}
-      trymdoorleftopen:
+        state: >-
+          {{ states.binary_sensor.motionupstairs.state == 'off' and
+          states.binary_sensor.door_bathroom.state == 'on' }}
+
+      - name: "trymdoorleftopen"
+        unique_id: trymdoorleftopen_sensor
         device_class: opening
-        friendly_name: "Trym dør ble ikke lukket"
         delay_on:
           minutes: 5
-        value_template: >-
-          {{states.binary_sensor.motionupstairs.state == 'off' and
+        state: >-
+          {{ states.binary_sensor.motionupstairs.state == 'off' and
           states.binary_sensor.trym_door.state == 'on' and
-          states.input_boolean.trymasleep.state == 'off'}}
-      tyradoorleftopen:
+          states.input_boolean.trymasleep.state == 'off' }}
+
+      - name: "tyradoorleftopen"
+        unique_id: tyradoorleftopen_sensor
         device_class: opening
-        friendly_name: "Tyra dør ble ikke lukket"
         delay_on:
           minutes: 5
-        value_template: >-
-          {{states.binary_sensor.motionupstairs.state == 'off' and
+        state: >-
+          {{ states.binary_sensor.motionupstairs.state == 'off' and
           states.binary_sensor.tyra_door.state == 'on' and
-          states.input_boolean.tyraasleep.state == 'off'}}
+          states.input_boolean.tyraasleep.state == 'off' }}

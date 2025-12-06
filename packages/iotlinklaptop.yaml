@@ -8,17 +8,17 @@ mqtt:
       device_class: "connectivity"
       qos: 1
 
-switch:
-  - platform: template
-    switches:
-      laptop:
-        friendly_name: "Laptop"
-        value_template: "{{ is_state('binary_sensor.laptop_connected', 'on') }}"
+template:
+  - switch:
+      - name: "laptop"
+        unique_id: laptop_switch
+        state: "{{ is_state('binary_sensor.laptop_connected', 'on') }}"
         turn_on:
-          service: script.laptop_wake
+          - service: script.laptop_wake
         turn_off:
-          service: script.laptop_shutdown
-        icon_template: mdi:laptop
+          - service: script.laptop_shutdown
+        icon: mdi:laptop
+
 script:
   laptop_wake:
     # To enable see https://www.home-assistant.io/components/wake_on_lan/

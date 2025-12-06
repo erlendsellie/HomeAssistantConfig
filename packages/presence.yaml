@@ -1,0 +1,69 @@
+template:
+  - sensor:
+      - name: "peoplehome"
+        unique_id: peoplehome_sensor
+        state: >
+          {% if(states.person.erlend.state == 'home' and states.person.caroline.state != 'home') %}
+          Erlend
+          {% elif(states.person.caroline.state == 'home' and states.person.erlend.state != 'home') %}
+          Caroline
+          {% elif(states.person.erlend.state == 'home' and states.person.caroline.state == 'home') %}
+          Both
+          {% elif(states.group.people.state == 'home') %}
+          Guests
+          {% else %}
+          No one
+          {% endif %}
+        icon: >-
+          {% if(states.person.erlend.state == 'home' and states.person.caroline.state != 'home') %}
+          mdi:human-male
+          {% elif(states.person.caroline.state == 'home' and states.person.erlend.state != 'home') %}
+          mdi:human-female
+          {% elif(states.person.erlend.state == 'home' and states.person.caroline.state == 'home') %}
+          mdi:human-male-female
+          {% elif(states.group.people.state == 'home') %}
+          mdi:account
+          {% else %}
+          mdi:account-off
+          {% endif %}
+
+      - name: "ebattery"
+        unique_id: ebattery_sensor
+        unit_of_measurement: "%"
+        state: "{{ states.sensor.erlend_mobil_battery_level.state }}"
+
+  - binary_sensor:
+      - name: "echarging"
+        unique_id: echarging_sensor
+        state: "{{ states.sensor.erlend_mobil_charger_type.state != 'none' }}"
+
+      - name: "ccharging"
+        unique_id: ccharging_sensor
+        state: "{{ states.sensor.pixel_10_pro_battery_state.state != 'discharging' }}"
+
+      - name: "erlend_living_room"
+        unique_id: erlend_living_room_sensor
+        device_class: occupancy
+        state: "{{ states('sensor.phone_beacon_living')|float(default=-100) > -80 }}"
+
+      - name: "anykidshomeandawake"
+        unique_id: anykidshomeandawake_sensor
+        device_class: occupancy
+        state: >-
+          {{
+            (states.input_boolean.tyraasleep.state == 'off' and states.binary_sensor.tyra_home.state == 'on')
+              or
+            (states.input_boolean.trymasleep.state == 'off' and states.binary_sensor.trym_home.state == 'on')
+          }}
+
+      - name: "erlendhome"
+        unique_id: erlendhome_sensor
+        device_class: presence
+        picture: /local/CVbilde.jpg
+        state: "{{ is_state('person.erlend','home') }}"
+
+      - name: "carolinehome"
+        unique_id: carolinehome_sensor
+        device_class: presence
+        picture: /local/caroline.png
+        state: "{{ states.person.caroline.state == 'home' }}"

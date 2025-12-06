@@ -24,13 +24,39 @@ template:
             {%set lights = 20%}
           {% endif %}
           {{lights}}
-binary_sensor:
-  - platform: template
-    sensors:
-      tyrasleepingoutside:
-        friendly_name: Tyra Probably sleeping outside
-        value_template: >
-          {{false}}
+
+      - name: "tyrasleeptime"
+        unique_id: tyrasleeptime_sensor
+        unit_of_measurement: "minutes"
+        state: >-
+          {% set dummy = states("sensor.time") %}
+          {% if states.input_boolean.tyraasleep.state  == 'on'%}
+              {% if states.automation.tyrasoveron %}
+              {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveron.attributes.last_triggered, default=0)) / 60) | round(0)}}
+              {% else %}
+              0
+              {% endif %}
+          {% else %}
+              {% if states.automation.tyrasoveroff %}
+              {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveroff.attributes.last_triggered, default=0)) / 60) | round(0)}}
+              {% else %}
+              0
+              {% endif %}
+          {% endif %}
+
+      - name: "tyrasleeptimeformatted"
+        unique_id: tyrasleeptimeformatted_sensor
+        state: >-
+          {{ (states.sensor.tyrasleeptime.state | int(default=0)) // 60 }}:{{ '{:0>2d}'.format((states.sensor.tyrasleeptime.state | int(default=0))%60) }} hours
+
+  - binary_sensor:
+      - name: "tyra_home"
+        unique_id: tyra_home_sensor
+        device_class: occupancy
+        state: "{{ is_state('input_boolean.tyrainkindergarden', 'off') }}"
+
+# Legacy binary_sensor template migrated to template: block above
+# tyrasleepingoutside is now in the template block
 
 automation:
   - alias: "tyraSoverOff"

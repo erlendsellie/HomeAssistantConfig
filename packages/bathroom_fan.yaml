@@ -1,13 +1,12 @@
-fan:
-  - platform: template
-    fans:
-      bathroom:
-        friendly_name: "Bathroom"
-        value_template: "{{ states('switch.bathroom_fan') }}"
+template:
+  - fan:
+      - name: "bathroom"
+        unique_id: bathroom_fan_template
+        state: "{{ states('switch.bathroom_fan') }}"
         turn_on:
-          service: script.bathroom_fan_on
+          - service: script.bathroom_fan_on
         turn_off:
-          service: script.bathroom_fan_off
+          - service: script.bathroom_fan_off
 
 generic_hygrostat:
   - name: Bathroom

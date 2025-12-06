@@ -111,3 +111,6 @@ home-assistant-priceanalyzerbug.log.1
 
 # UniFi backup - contains passwords and sensitive network config
 unifi_backup
+
+
+TEMPLATE_MIGRATION_PLAN.md
