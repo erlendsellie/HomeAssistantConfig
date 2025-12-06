@@ -4,7 +4,7 @@ automation:
   #     platform: state
   #     entity_id: binary_sensor.updater
   #   action:
-  #     - service: notify.me
+  #     - service: script.telegram_notify
   #       data:
   #         title: "Update for Home Assistant is available."
   #         message: |
@@ -41,7 +41,7 @@ automation:
         entity_id: sensor.memory_use_percent
         above: 90
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "Restarted Home Assistant due to high Memory Usage at {{states.sensor.memory_use_percent.state}}"
       - service: homeassistant.restart
@@ -52,7 +52,7 @@ automation:
         entity_id: sensor.disk_use_percent
         above: 90
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "Disk usage of Ubuntu VM is at {{states.sensor.disk_use_percent.state}}"
 
@@ -62,7 +62,7 @@ automation:
         entity_id: sensor.speedtest_download
         below: 100
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "The last Speedtest had a download speed of {{states.sensor.speedtest_download.state}}"
 
@@ -76,7 +76,7 @@ automation:
         entity_id: sensor.front_door_battery
         below: 20
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "The Door bell battery is getting low: {{states.sensor.front_door_battery.state}}"
 
@@ -166,7 +166,7 @@ automation:
         for:
           minutes: 30
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           title: Important device unavailable
           message: "{{trigger.from_state.name}} ({{trigger.from_state.entity_id}}) is unavailable"
@@ -209,7 +209,7 @@ automation:
         for:
           minutes: 5
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           title: "Lock unavailable"
           message: "Door lock ({{ trigger.to_state.name }}) has been {{ trigger.to_state.state }} for 5 minutes. Check Bluetooth connection."
@@ -231,7 +231,7 @@ automation:
   #       for:
   #         minutes: 5
   #   action:
-  #     - service: notify.me
+  #     - service: script.telegram_notify
   #       data_template:
   #         message: "Google Wifi seems to be down. Try https://1q4u4bxleoi6poeenew920ecy5g1z4te.ui.nabu.casa"
   #     - wait_for_trigger:
@@ -239,7 +239,7 @@ automation:
   #           value_template: "{{states.binary_sensor.google_wifi_connected.state == 'on' or states.binary_sensor.google_wifi_connected.state == 'off'}}"
   #       timeout: "10:00:00"
   #       continue_on_timeout: false
-  #     - service: notify.me
+  #     - service: script.telegram_notify
   #       data_template:
   #         message: "Google Wifi is up again"
 
@@ -251,7 +251,7 @@ automation:
         for:
           minutes: 15
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "The Z-wave network seems to be down, restarting"
       # - delay:
@@ -267,7 +267,7 @@ automation:
               minutes: 2
         timeout: "03:00:00"
         continue_on_timeout: false
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "The Z-wave network is up again"
       - delay:
@@ -293,7 +293,7 @@ automation:
         for:
           minutes: 4
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "The Zigbee network seems to be down"
       - service: hassio.addon_restart
@@ -315,7 +315,7 @@ automation:
               minutes: 2
         timeout: "03:00:00"
         continue_on_timeout: false
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "The Zigbee network is up again"
 
@@ -330,7 +330,7 @@ automation:
   #         seconds: 10
   #     - condition: template
   #       value_template: "{{states.switch.bathroom_fan.state == 'off'}}"
-  #     - service: notify.me
+  #     - service: script.telegram_notify
   #       data_template:
   #         message: "The MQTT network seems to be down"
 
@@ -355,7 +355,7 @@ automation:
       - platform: homeassistant
         event: start
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           title: Home Asistant started
           message: "{{ states.input_select.alarm.state }}"
@@ -378,7 +378,7 @@ automation:
         for:
           hours: 13
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           title: "Alarm:"
           message: "VVB har vært avslått i 13 timer nå, sjekk temp."
@@ -442,7 +442,7 @@ automation:
             {%- endif -%}
             {%- endfor -%}
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: >-
             {%- set threshold = 30 -%}

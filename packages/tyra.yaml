@@ -395,7 +395,7 @@ automation:
         entity_id: input_boolean.tryminkindergarden
         state: "off"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           title: Tyra left in kindergarden
           message: The time is {{ now().hour }}:{{ now().minute }}.
@@ -430,7 +430,7 @@ automation:
         entity_id: input_boolean.tryminkindergarden
         state: "on"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           title: Tyra picked up from kindergarden
           message: Tyra picked up from kindergarden
@@ -472,7 +472,7 @@ automation:
         entity_id: input_boolean.tryminkindergarden
         state: "on"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           title: Tyra is still in kindergarden
           message: leave now to pick him up before closing.

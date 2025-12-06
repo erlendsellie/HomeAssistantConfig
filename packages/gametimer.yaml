@@ -26,7 +26,7 @@ automation:
         entity_id: input_number.gametimer1
         above: 960
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "Mørningstimer er ferdig! Nåværende døgngrader er {{((states.input_number.gametimer1.state | int(default=0) / 24)) | round(1)}}"
 
@@ -40,7 +40,7 @@ automation:
         entity_id: input_boolean.gametimer
         state: "on"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "Mørningstemperaturen er under null grader, mens vilt henger til mørning. Temp nå: {{states.sensor.gametemp.state}}"
 

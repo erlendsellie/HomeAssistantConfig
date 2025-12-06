@@ -170,7 +170,7 @@
 #           entity_id: sensor.leaf_charge_filtered
 #           below: 20
 #       action:
-#         - service: notify.me #earlier erlendpush
+#         - service: script.telegram_notify #earlier erlendpush
 #           data_template:
 #             message: "Leaf is at {{states.sensor.leaf_charge_filtered.state}}% battery. Turning off heating if not plugged in."
 #         - condition: state

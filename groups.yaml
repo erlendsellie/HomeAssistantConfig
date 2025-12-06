@@ -223,7 +223,7 @@ andrelys:
     - group.bedroomlights
     - light.trym_roof
     - light.trym_balloon
-    - light.lavalamp
+    #- light.lavalamp
     - light.tyra_ball
     - light.tyra
     #- light.bathroom

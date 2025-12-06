@@ -241,7 +241,7 @@ automation:
       - condition: template
         value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
     action:
-      # - service: notify.me
+      # - service: script.telegram_notify
       #   data:
       #     title: 'Motion Driveway'
       #     message: 'Motion in driveway when armed.'
@@ -540,7 +540,7 @@ automation:
       - condition: template
         value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           title: "Svetlana was paused."
           message: "Why?"
@@ -570,7 +570,7 @@ automation:
         entity_id: sensor.bonsai2_moisture
         below: 40
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "Bonsai vil ha vann. Nåværende fuktighet er  {{ states.sensor.bonsai2_moisture.state }}"
       - service: script.turn_on
@@ -591,7 +591,7 @@ automation:
         entity_id: sensor.efoy_moisture
         below: 40
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           title: "Eføy"
           message: "Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.efoy_moisture.state }}"
@@ -606,7 +606,7 @@ automation:
   #     entity_id: plant.avocado
   #     to: 'problem'
   #   action:
-  #   - service: notify.me
+  #   - service: script.telegram_notify
   #     data_template:
   #       message: 'Avocado needs attention: {{ states.plant.avocado.attributes.problem }}' #z2m-problem
   #   - service: media_player.volume_set
@@ -632,7 +632,7 @@ automation:
       entity_id: vacuum.xiaomi_vacuum_cleaner
       to: "error"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "Something is wrong with Svetlana. Error message: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.error }}"
           data:
@@ -829,7 +829,7 @@ automation:
     action:
       - service: script.turn_on
         entity_id: script.warmupcominghome
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           title: "Caroline is probably home within 25 minutes."
           message: "The time is {{ now().hour }}:{{ now().minute }}."
@@ -894,7 +894,7 @@ automation:
         data:
           variables:
             color: green
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           title: >-
             Left work at {{now().hour}}:{{now().minute}}.
@@ -945,7 +945,7 @@ automation:
   #           entity_id: sensor.erlend_to_home
   #       timeout: "00:10:00"
   #       continue_on_timeout: false
-  #     - service: notify.me
+  #     - service: script.telegram_notify
   #       data:
   #         title: "left some place. ETA : {{ states.sensor.erlend_to_home.state	}} minutes"
   #         message: The time is {{ now().hour }}:{{ now().minute }}
@@ -981,7 +981,7 @@ automation:
           - fri
 
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           title: Erlend just got to work
           message: The time is {{ now().hour }}:{{ now().minute }}.
@@ -989,7 +989,7 @@ automation:
         entity_id: input_boolean.alarmclock
       - condition: template
         value_template: "{{ states.person.caroline.state == 'Sykehuset' and states.input_boolean.tryminkindergarden.state == 'off'}}"
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           title: Forgot kids? Caroline at work, but kids is not in kindergarden.
           message: Please check.

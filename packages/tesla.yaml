@@ -464,7 +464,7 @@ automation:
   #     entity_id: update.modely_update
   #     to: "on"
   #   action:
-  #     - service: notify.me
+  #     - service: script.telegram_notify
   #       data:
   #         title: "Update for Tesla is available."
   #         message: |

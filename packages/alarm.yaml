@@ -95,7 +95,7 @@ automation:
 
   # - delay:
   #     seconds: 2
-  # - service: notify.me
+  # - service: script.telegram_notify
   #   data:
   #     title: "Motion Driveway"
   #     message: "Motion in driveway when armed."
@@ -195,8 +195,8 @@ automation:
         - binary_sensor.water_laundry_room
       to: "on"
     action:
-      - service: notify.me #earlier erlendpush
-        data_template:
+      - service: script.telegram_notify
+        data:
           title: "ALARM!"
           message: "Vannlekkasje på {{ trigger.from_state.name }}!"
       - service: script.notify_tts_max
@@ -356,7 +356,7 @@ automation:
       entity_id: input_select.alarm
       to: "Arm Away"
     action:
-      # - service: notify.me
+      # - service: script.telegram_notify
       #   data_template:
       #     message: 'Arm Away'
       - service: script.turn_on
@@ -535,7 +535,7 @@ automation:
         platform: state
         to: "Arm Home"
     action:
-      # - service: notify.me
+      # - service: script.telegram_notify
       #   data_template:
       #     message: 'Arm Home'
       - service: script.turn_on
@@ -627,7 +627,7 @@ automation:
     # - condition: template
     #   value_template: "{{ states.input_select.alarm.state != 'Arm Home' }}"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           message: "The Vacuum has cleaned for 45 minutes, so it won't clean more today."
       - service: input_boolean.turn_off
@@ -678,7 +678,7 @@ automation:
         data_template:
           entity_id: input_select.alarm
           option: "{{states.sensor.alarm.state}}"
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           title: "Arm away by door lock"
           message: "The door was locked by {{states.sensor.unlockedby.state}}. The alarm is {{states.input_select.alarm.state}} and the time is {{ now().hour }}:{{ now().minute }}."
@@ -717,7 +717,7 @@ automation:
                           {% set last_notify = states('input_datetime.lock_glitch_last_notification') %}
                           {{ last_notify == 'unknown' or (as_timestamp(now()) - as_timestamp(last_notify, default=0)) >= 86400 }}
                     sequence:
-                      - service: notify.me
+                      - service: script.telegram_notify
                         data_template:
                           title: "Lock glitch detected"
                           message: "The door lock reported unlocked only {{ ((as_timestamp(now()) - as_timestamp(trigger.from_state.last_changed, default=0)) | int) }} seconds after being locked. Ignoring to prevent alarm loop."
@@ -733,11 +733,11 @@ automation:
       #     rgb_color: [0, 255, 0]
       - condition: template
         value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           title: "door unlocked"
           message: "The door was unlocked by {{states.sensor.unlockedby.state}}. The alarm is {{states.input_select.alarm.state}} and the time is {{ now().hour }}:{{ now().minute }}."
-      # - service: notify.me
+      # - service: script.telegram_notify
       #   data:
       #     title: 'door unlocked'
       #     message: 'The door was unlocked by someone.'
@@ -762,11 +762,11 @@ automation:
       - service: lock.lock
         target:
           entity_id: lock.ytterdor_bluetooth
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           title: "door unlocked"
           message: "The door was locked again since no one opened it within the time frame.."
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           title: "door unlocked"
           message: "The door was locked again since no one opened it within the time frame.."
@@ -896,7 +896,7 @@ automation:
           entity_id: vacuum.xiaomi_vacuum_cleaner
         data:
           fan_speed: Silent
-    # - service: notify.me
+    # - service: script.telegram_notify
     #   data_template:
     #     message: 'Alarm deaktivert.'
 
@@ -1045,7 +1045,7 @@ automation:
         entity_id: media_player.minis
         data_template:
           message: "Inntrenger oppdaget. Deaktiver alarmen innen 30 sekunder for å unngå utrykning!"
-      - service: notify.me #earlier erlendpush
+      - service: script.telegram_notify #earlier erlendpush
         data:
           message: "Alarmen er i ferd med å utløses!"
           title: "Alarm"
@@ -1053,10 +1053,10 @@ automation:
           seconds: 30
       - condition: template
         value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
-      - service: notify.me #earlier erlendpush
+      - service: script.telegram_notify #earlier erlendpush
         data:
           message: "ALARM! The alarm has been triggered"
-      - service: notify.me #earlier erlendpush
+      - service: script.telegram_notify #earlier erlendpush
         data:
           message: "ALARM! The alarm has been triggered"
       - service: script.turn_on
@@ -1208,7 +1208,7 @@ automation:
         for:
           minutes: 60
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           message: Verandaen har vært åpen i 60 minutter nå
 
@@ -1266,7 +1266,7 @@ script:
   alarmtriggered:
     alias: Alarm Triggered
     sequence:
-      - service: notify.me #earlier erlendpush
+      - service: script.telegram_notify #earlier erlendpush
         data_template:
           title: Alarmen er utløst!
           message: >-
@@ -1353,7 +1353,7 @@ script:
       #     data:
       #       # the same works for video
       #       video: "/api/camera_proxy/camera.driveway"
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           title: "Test video"
           message: "Test video."

@@ -190,7 +190,7 @@ automation:
         entity_id: input_boolean.vvb_keep_state
         state: "on"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           message: >-
             Keep VVB State is Turned on. 
@@ -240,7 +240,7 @@ automation:
           hours: 3
     condition:
       - condition: state
-        entity_id: input_boolean.keep_vvb_off
+        entity_id: input_boolean.vvb_keep_state
         state: "off"
       - condition: template
         value_template: >-
@@ -249,7 +249,7 @@ automation:
             and (as_timestamp(now()) - as_timestamp(states.switch.varmtvannsbereder.last_changed)) > 12 * 3600
           }}
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           message: >-
             VVB temperature warning:
@@ -271,7 +271,7 @@ automation:
         entity_id: input_boolean.vvb_keep_state
         state: "off"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           message: >-
             VVB has been OFF for more than 12 hours while vvb_keep_state is not enabled.

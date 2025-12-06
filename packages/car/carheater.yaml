@@ -89,7 +89,7 @@ automation:
     action:
       - service: switch.turn_on
         entity_id: switch.carheater
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           message: "Car Heater turned on."
 
@@ -120,7 +120,7 @@ automation:
     action:
       - service: switch.turn_on
         entity_id: switch.carheater
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           message: "Car Heater turned on."
 

@@ -7,14 +7,12 @@ automation:
       event_data:
         command: "/garage"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data:
-          message: >
-            {% if states.cover.garage_door.state == "open" %} "The garage is open. do you like to close it?""
-            {% else %} "The Garage is closed. Do you want to open it?"" {% endif %}
-          data:
-            inline_keyboard:
-              - "Open Garage:/openGarage, Close Garage:/closeGarage"
+          message: >-
+            {% if states.cover.garage_door.state == "open" %}The garage is open. Do you want to close it?
+            {% else %}The Garage is closed. Do you want to open it?{% endif %}
+          inline_keyboard: "Open Garage:/openGarage, Close Garage:/closeGarage"
 
   - id: CloseGarageByTelegram
     alias: Close Garage by Telegram
@@ -26,7 +24,7 @@ automation:
     action:
       - service: cover.close_cover
         entity_id: cover.garage_door
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           message: "Okay, i'll tell you if it won't close."
       - delay:
@@ -47,6 +45,6 @@ automation:
     action:
       - service: cover.open_cover
         entity_id: cover.garage_door
-      - service: notify.me
+      - service: script.telegram_notify
         data:
-          message: "Okay, ill open the garage."
+          message: "Okay, I'll open the garage."

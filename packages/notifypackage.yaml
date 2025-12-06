@@ -167,7 +167,7 @@ automation:
         new_state:
           state: "unavailable"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           title: Device unavailable!
           message: >-
@@ -186,7 +186,7 @@ automation:
   #   - platform: homeassistant
   #     event: start
   #   action:
-  #     - service: notify.me
+  #     - service: script.telegram_notify
   #       data_template:
   #         title: "Devices with low battery "
   #         message: >-
@@ -353,7 +353,7 @@ automation:
   #     for:
   #       minutes: 10
   #   action:
-  #     - service: notify.me
+  #     - service: script.telegram_notify
   #       data_template:
   #         message: "Home Assistant på Byåsen er nede!"
 
@@ -605,6 +605,33 @@ script:
             ttl: 0
             priority: high
             channel: "{{channel | default('Home Assistant')}}"
+
+  telegram_notify:
+    alias: Telegram Notification
+    fields:
+      message:
+        description: "Message to send"
+        required: true
+        example: "Hello from Home Assistant"
+      title:
+        description: "Optional title"
+        example: "Alert"
+      inline_keyboard:
+        description: "Optional inline keyboard buttons"
+        example: "Button1:/cmd1, Button2:/cmd2"
+    sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.telegram_bot_712278218_760178173
+        data:
+          title: "{{ title | default('') }}"
+          message: "{{ message }}"
+          data: >
+            {% set d = {} %}
+            {% if inline_keyboard is defined and inline_keyboard %}
+              {% set d = {'inline_keyboard': [inline_keyboard]} %}
+            {% endif %}
+            {{ d if d else omit }}
 
   notifycaroline:
     alias: Simple Notification to Caroline

@@ -657,7 +657,7 @@ automation:
   #   - platform: time
   #     at: 06:00:00
   #   action:
-  #   - service: notify.me
+  #   - service: script.telegram_notify
   #     data:
   #       message: "Price spike today is {{states.sensor.pricespike.state}}"
 
@@ -1033,7 +1033,7 @@ automation:
     action:
       - service: script.turn_on
         entity_id: script.warmupmorning
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           message: "Warmup morning started. Temp is {{states.climate.varmepumpe.attributes.current_temperature}}"
 
@@ -1147,7 +1147,7 @@ script:
         state: "heat"
       - condition: template
         value_template: "{{(states.climate.varmepumpe.attributes.current_temperature | int(default=0)) < (states.input_number.hjemmetemp.state | int(default=0))}}"
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "Warmup started. Temp is {{states.climate.varmepumpe.attributes.current_temperature}}"
       - service: climate.set_hvac_mode

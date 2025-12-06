@@ -128,7 +128,7 @@
     path: SgtBatten/Stable.yaml
     input:
       camera: camera.driveway
-      notify_device: 727474a5d18e36e7d6bd3039605a5748
+      notify_device: 553b5ea0f39246a5714812d164fee35a
       message: '{{label}} detected in {{camera_name}}'
       critical: 'true'
       tv: true

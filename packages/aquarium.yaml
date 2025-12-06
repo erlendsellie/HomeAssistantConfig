@@ -196,7 +196,7 @@ automation:
         entity_id: binary_sensor.aquarium_water_change_done
         to: "on"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "Vannskifte fullført?"
       - delay:
@@ -227,7 +227,7 @@ automation:
           {%set target = state_attr('climate.aquarium', 'temperature') | float(0)%}
           {{temp > 28}}
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "Oisann! Temperaturen i akvariet er på {{states('sensor.aquarium_temp')}}"
       - delay:

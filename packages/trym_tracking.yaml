@@ -26,7 +26,7 @@ automation:
         entity_id: input_boolean.trym_in_school
         state: "off"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           title: Trym kom på skolen
           message: The time is {{ now().hour }}:{{ now().minute }}.
@@ -64,7 +64,7 @@ automation:
         entity_id: input_boolean.trym_in_school
         state: "on"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           title: Trym dro fra skolen
           message: Trym dro fra skolen
@@ -108,7 +108,7 @@ automation:
         entity_id: input_boolean.trym_in_school
         state: "off"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           title: Trym kom på skolen
           message: The time is {{ now().hour }}:{{ now().minute }}.
@@ -143,7 +143,7 @@ automation:
         entity_id: input_boolean.trym_in_school
         state: "on"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           title: Trym dro fra skolen (Vigilo)
           message: Trym dro fra skolen (Vigilo)

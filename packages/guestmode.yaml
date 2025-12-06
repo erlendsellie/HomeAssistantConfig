@@ -57,7 +57,7 @@ automation:
           entity_id: input_boolean.guestmode
           state: "on"
     action:
-      - service: notify.me
+      - service: script.telegram_notify
         data_template:
           message: "Motion detected in {{ trigger.from_state.name }}."
 
@@ -79,7 +79,7 @@ automation:
     action:
       - service: input_boolean.turn_off
         entity_id: input_boolean.guestmode
-      - service: notify.me
+      - service: script.telegram_notify
         data:
           message: "Gjestemodus automatisk slått av fordi du er hjemme og våken."
       - service: script.turn_on

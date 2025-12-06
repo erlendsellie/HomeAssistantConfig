@@ -39,7 +39,7 @@ automation:
               - service: light.turn_off
                 entity_id: light.play, light.office_light
         default:
-          - service: notify.me
+          - service: script.telegram_notify
             data:
               message: Triggered unregistered event on Styrbar remote {{trigger.event.data.event}}"
 

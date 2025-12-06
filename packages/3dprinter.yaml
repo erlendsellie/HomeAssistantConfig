@@ -91,7 +91,7 @@ automation:
   #       entity_id: switch.3d_printer_failsafe
   #       state: "on"
   #   action:
-  #     - service: notify.me
+  #     - service: script.telegram_notify
   #       data_template:
   #         message: "The 3D printer has been left on while not printing. Temp: {{ states.sensor.octoprint_target_tool0_temp.state }}"
   #     - service: switch.turn_off
@@ -155,7 +155,7 @@ automation:
   #         entity_id: switch.3d_printer_failsafe
   #         state: "on"
   #   action:
-  #     - service: notify.me #earlier erlendpush
+  #     - service: script.telegram_notify #earlier erlendpush
   #       data_template:
   #         message: "The 3D-printer is printing, but reporting a temp of {{states.sensor.octoprint_actual_tool0_temp.state}}. Turning off the printer."
   #     - service: switch.turn_off

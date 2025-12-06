@@ -87,7 +87,7 @@ automation:
           entity_id: binary_sensor.erlendhome
           state: "on"
     action:
-      # - service: notify.me
+      # - service: script.telegram_notify
       #   data:
       #     message: 'Vekking av deg startet'
       # - service: script.turn_on
@@ -132,7 +132,7 @@ automation:
   #         entity_id: binary_sensor.erlendhome
   #         state: "on"
   #   action:
-  #     - service: notify.me
+  #     - service: script.telegram_notify
   #       data:
   #         message: "Vekking av deg startet"
   #     - service: script.turn_on
@@ -467,7 +467,7 @@ script:
         data:
           title: Erlend har ikke stått opp enda.
           message: Han burde vekkes.!
-      - service: notify.me #earlier erlendpush
+      - service: script.telegram_notify #earlier erlendpush
         data:
           title: Erlend har ikke stått opp enda.
           message: Han burde vekkes!
@@ -488,7 +488,7 @@ script:
 
   stilloverslept:
     sequence:
-      - service: notify.me #earlier erlendpush
+      - service: script.telegram_notify #earlier erlendpush
         data:
           title: Erlend har ikke dratt på jobb enda
           message: Vekk han om han skal på jobb!

@@ -334,7 +334,7 @@ automation:
           color_name: "{{states('sensor.trym_traffic_color')}}"
           entity_id:
             - light.trym_balloon
-            - light.lavalamp
+            #- light.lavalamp
 
   - alias: "Stop Trym Media Player After Duration or Motion"
     id: "stop_trym_media_player_duration_motion" # Good, unique ID
@@ -382,14 +382,14 @@ automation:
               - condition: trigger
                 id: checked_in
             sequence:
-              - service: notify.me
+              - service: script.telegram_notify
                 data:
                   message: "Trym ble sjekket inn."
           - conditions:
               - condition: trigger
                 id: checked_out
             sequence:
-              - service: notify.me
+              - service: script.telegram_notify
                 data:
                   message: "Trym ble sjekket ut."
 

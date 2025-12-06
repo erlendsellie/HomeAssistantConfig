@@ -31,8 +31,8 @@ automation:
         entity_id: binary_sensor.z2m_devices_unavailable
         to: "on"
     action:
-      - service: notify.me #z2m-problem below
-        data_template:
+      - service: script.telegram_notify
+        data:
           message: >-
             Zigbee Device unavailable?:  
             {%-for item in states.sensor if (item.attributes.linkquality is defined)-%}
@@ -52,8 +52,8 @@ automation:
         entity_id: binary_sensor.z2m_lights_unavailable
         to: "on"
     action:
-      - service: notify.me
-        data_template:
+      - service: script.telegram_notify
+        data:
           message: >-
             Zigbee Lights unavailable?
       - service: hassio.addon_restart

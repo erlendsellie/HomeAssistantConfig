@@ -70,6 +70,6 @@
 #       # - delay:
 #       #     seconds: 1
 #       # default:
-#       #   - service: notify.me
+#       #   - service: script.telegram_notify
 #       #     data:
 #       #       message: Triggered unregistered event on {{trigger.to_state.entity_id}} remote {{action}}"
