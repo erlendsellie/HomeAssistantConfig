@@ -1,0 +1,19 @@
+automation:
+  - id: mill_reload_after_startup
+    alias: "Mill reload after startup"
+    mode: single
+    trigger:
+      - platform: homeassistant
+        event: start
+    action:
+      - delay:
+          minutes: 5
+      - condition: state
+        entity_id: climate.trym
+        state: "unavailable"
+      - service: homeassistant.reload_config_entry
+        data:
+          entry_id: 01K8KH18DYHH8NMSPWQY57WDTA
+      - service: homeassistant.reload_config_entry
+        data:
+          entry_id: 01K8NGXCTMZ6N9V2T14ZFGHVD2
