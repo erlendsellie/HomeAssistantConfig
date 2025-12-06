@@ -184,84 +184,6 @@ automation:
           variables:
             message: "Alarmen ble deaktivert."
 
-  - id: waterLeakage
-    alias: "Vannlekkasje utløst"
-    mode: single
-    trigger:
-      - platform: state
-        entity_id: group.watersensors
-        to: "on"
-    action:
-      - service: script.turn_on
-        target:
-          entity_id: script.water_leak_triggered
-
-  - id: water_cleared
-    alias: "Vannlekkasje klarert"
-    mode: single
-    trigger:
-      - platform: template
-        value_template: >-
-          {{ expand('group.watersensors') | selectattr('state', 'eq', 'on') | list | count == 0 }}
-    condition:
-      - condition: state
-        entity_id: script.water_leak_triggered
-        state: "on"
-    action:
-      - service: script.turn_off
-        target:
-          entity_id: script.water_leak_triggered
-      - service: media_player.media_stop
-        target:
-          entity_id:
-            - media_player.minis
-            - media_player.clock
-            - media_player.living_room_speaker
-            - media_player.hallway_speaker
-            - media_player.bathroom
-            - media_player.kitchen_display
-      - service: tts.google_cloud_say
-        target:
-          entity_id:
-            - media_player.minis
-            - media_player.clock
-            - media_player.living_room_speaker
-            - media_player.hallway_speaker
-            - media_player.bathroom
-            - media_player.kitchen_display
-        data:
-          message: "Vannlekkasje alarm avsluttet. Alle sensorer er nå tørre."
-      - service: script.notifyboth
-        data:
-          title: "✅ Vannlekkasje klarert"
-          message: "Alle vannsensorer er nå tørre."
-
-  - id: water_leak_dismiss
-    alias: "Vannlekkasje avvist"
-    mode: single
-    trigger:
-      - platform: event
-        event_type: mobile_app_notification_action
-        event_data:
-          action: DISMISS_WATER_ALARM
-    action:
-      - service: script.turn_off
-        target:
-          entity_id: script.water_leak_triggered
-      - service: media_player.media_stop
-        target:
-          entity_id:
-            - media_player.minis
-            - media_player.clock
-            - media_player.living_room_speaker
-            - media_player.hallway_speaker
-            - media_player.bathroom
-            - media_player.kitchen_display
-      - service: script.notifyboth
-        data:
-          title: "🔇 Vannlekkasje alarm avvist"
-          message: "Alarmen er avvist manuelt. Sensorer er fortsatt aktive."
-
   - alias: "DisarmByGuestModeOrGuests"
     trigger:
       - platform: state
@@ -1053,39 +975,121 @@ automation:
       - service: alarm_control_panel.alarm_trigger
         entity_id: alarm_control_panel.home_alarm
 
-  #What to do when the alarm triggers. Make Xiaomi Gateway play alarm sound and the G Home
-  - alias: "Send notification when alarm triggered"
+  - id: burglary_alarm_pre_warning
+    alias: "Innbruddsalarm - Pre-varsling"
+    mode: single
     trigger:
       - platform: state
         entity_id: alarm_control_panel.home_alarm
         to: "triggered"
+        id: alarm_triggered
     action:
+      - variables:
+          triggered_sensors: >-
+            {%- for entity_id in states.group.awaysensors.attributes.entity_id -%}
+              {%- set entity = states[entity_id] -%}
+              {%- if entity.state == 'on' -%}
+                {{ entity.attributes.friendly_name }}, 
+              {%- endif -%}
+            {%- endfor %}
       - service: media_player.volume_set
-        data_template:
-          entity_id: media_player.minis
+        target:
+          entity_id:
+            - media_player.minis
+            - media_player.clock
+            - media_player.living_room_speaker
+            - media_player.hallway_speaker
+            - media_player.bathroom
+            - media_player.kitchen_display
+        data:
           volume_level: 1
       - service: tts.google_cloud_say
-        entity_id: media_player.minis
-        data_template:
-          message: "Inntrenger oppdaget. Deaktiver alarmen innen 30 sekunder for å unngå utrykning!"
-      - service: script.telegram_notify #earlier erlendpush
+        target:
+          entity_id:
+            - media_player.minis
+            - media_player.clock
+            - media_player.living_room_speaker
+            - media_player.hallway_speaker
+            - media_player.bathroom
+            - media_player.kitchen_display
         data:
-          message: "Alarmen er i ferd med å utløses!"
-          title: "Alarm"
-      - delay:
+          message: "Advarsel! Husalarm utløst! Politiet blir kontaktet om 30 sekunder om alarmen ikke blir deaktivert!"
+      - parallel:
+          - service: notify.mobile_app_erlend_mobil
+            data:
+              title: "⚠️ ALARM AKTIVERES!"
+              message: "Inntrenger oppdaget! Utløste sensorer: {{ triggered_sensors }}. Alarmen utløses om 30 sekunder."
+              data:
+                ttl: 0
+                priority: high
+                channel: alarm_stream_max
+                actions:
+                  - action: DISMISS_BURGLARY_ALARM
+                    title: "Avbryt alarm"
+          - service: script.notifycaroline
+            data:
+              title: "⚠️ ALARM AKTIVERES!"
+              message: "Inntrenger oppdaget! Utløste sensorer: {{ triggered_sensors }}. Alarmen utløses om 30 sekunder."
+      - wait_for_trigger:
+          - platform: state
+            entity_id: alarm_control_panel.home_alarm
+            from: "triggered"
+          - platform: state
+            entity_id: input_select.alarm
+            to: "Disarm"
+        timeout:
           seconds: 30
+        continue_on_timeout: true
+      - if:
+          - condition: template
+            value_template: "{{ wait.trigger is not none }}"
+        then:
+          - service: script.notifyboth
+            data:
+              title: "✅ Alarm avbrutt"
+              message: "Alarmen ble deaktivert i tide."
+          - stop: "Alarm was disarmed during pre-warning"
       - condition: template
-        value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
-      - service: script.telegram_notify #earlier erlendpush
-        data:
-          message: "ALARM! The alarm has been triggered"
-      - service: script.telegram_notify #earlier erlendpush
-        data:
-          message: "ALARM! The alarm has been triggered"
-      - service: script.turn_on
-        entity_id: script.alarmtriggered
+        value_template: "{{ states('alarm_control_panel.home_alarm') == 'triggered' }}"
+      - condition: template
+        value_template: "{{ states('input_select.alarm') != 'Disarm' }}"
+      - action: script.burglary_alarm_triggered
 
-  #post_pending_state: triggered for å varsle om at alarmen er på vei.
+  - id: burglary_alarm_dismiss
+    alias: "Innbruddsalarm - Avvist via telefon"
+    mode: single
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: DISMISS_BURGLARY_ALARM
+    action:
+      - service: alarm_control_panel.alarm_disarm
+        target:
+          entity_id: alarm_control_panel.home_alarm
+        data:
+          code: !secret alarm_code
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.alarm
+        data:
+          option: Disarm
+      - service: script.turn_off
+        target:
+          entity_id: script.burglary_alarm_triggered
+      - service: media_player.media_stop
+        target:
+          entity_id:
+            - media_player.minis
+            - media_player.clock
+            - media_player.living_room_speaker
+            - media_player.hallway_speaker
+            - media_player.bathroom
+            - media_player.kitchen_display
+      - service: script.notifyboth
+        data:
+          title: "🔇 Innbruddsalarm avvist"
+          message: "Alarmen ble avvist manuelt via telefon."
 
   - alias: "Disarm by Input Select"
     mode: restart
@@ -1286,73 +1290,198 @@ automation:
               entity_id: lock.ytterdor
 
 script:
-  alarmtriggered:
-    alias: Alarm Triggered
+  burglary_alarm_triggered:
+    alias: "Innbruddsalarm utløst"
+    mode: restart
     sequence:
-      - service: script.telegram_notify #earlier erlendpush
-        data_template:
-          title: Alarmen er utløst!
-          message: >-
-            Utløste sensorer:
-
-            {%for entity_id in states.group.awaysensors.attributes.entity_id%}
-            {%- set state = states[entity_id]%}
-            {%-if state.state == 'on'%}
-            - {{state.attributes.friendly_name}}
-            {%- endif -%}
-            {%endfor %}
-      - service: script.notifycaroline
-        data_template:
-          title: Alarmen er utløst!
-          message: >-
-            Utløste sensorer:
-
-            {%for entity_id in states.group.awaysensors.attributes.entity_id%}
-            {%- set state = states[entity_id]%}
-            {%-if state.state == 'on'%}
-            - {{state.attributes.friendly_name}}
-            {%- endif -%}
-            {%endfor %}
-      - action: vacuum.set_fan_speed
-        target:
-          entity_id: vacuum.xiaomi_vacuum_cleaner
-        data:
-          fan_speed: Turbo
-      - service: vacuum.start
-        entity_id: vacuum.xiaomi_vacuum_cleaner
-      - service: script.turn_on
-        entity_id: script.lightsoff
-      - service: script.turn_on
-        entity_id: script.blink_lights_danger
+      - variables:
+          triggered_sensors: >-
+            {%- for entity_id in states.group.awaysensors.attributes.entity_id -%}
+              {%- set entity = states[entity_id] -%}
+              {%- if entity.state == 'on' -%}
+                {{ entity.attributes.friendly_name }}, 
+              {%- endif -%}
+            {%- endfor %}
+          alarm_message: "INNBRUDDSALARM! Utløste sensorer: {{ triggered_sensors }}"
+      # Første varsling - push og TTS
+      - parallel:
+          - service: notify.mobile_app_erlend_mobil
+            data:
+              title: "🚨 INNBRUDDSALARM!"
+              message: "{{ alarm_message }}"
+              data:
+                ttl: 0
+                priority: high
+                channel: alarm_stream_max
+                actions:
+                  - action: DISMISS_BURGLARY_ALARM
+                    title: "Avbryt alarm"
+          - service: notify.mobile_app_erlend_mobil
+            data:
+              message: TTS
+              title: "{{ alarm_message }}"
+              data:
+                tts_text: "{{ alarm_message }}"
+                ttl: 0
+                priority: high
+                channel: alarm_stream_max
+          - service: script.notifycaroline
+            data:
+              title: "🚨 INNBRUDDSALARM!"
+              message: "{{ alarm_message }}"
+          - service: notify.mobile_app_pixel_10_pro
+            data:
+              message: TTS
+              title: "{{ alarm_message }}"
+              data:
+                tts_text: "{{ alarm_message }}"
+                ttl: 0
+                priority: high
+                channel: alarm_stream_max
+      # Start robotstøvsuger
+      - parallel:
+          - sequence:
+              - action: vacuum.set_fan_speed
+                target:
+                  entity_id: vacuum.xiaomi_vacuum_cleaner
+                data:
+                  fan_speed: Turbo
+              - service: vacuum.start
+                target:
+                  entity_id: vacuum.xiaomi_vacuum_cleaner
+          - service: vacuum.start
+            target:
+              entity_id: vacuum.neato
+      # Loop så lenge alarmen er aktiv
+      - repeat:
+          while:
+            - condition: template
+              value_template: "{{ states('alarm_control_panel.home_alarm') == 'triggered' }}"
+          sequence:
+            # Stopp eksisterende lyd
+            - service: media_player.media_stop
+              continue_on_error: true
+              target:
+                entity_id:
+                  - media_player.minis
+                  - media_player.clock
+                  - media_player.living_room_speaker
+                  - media_player.hallway_speaker
+                  - media_player.bathroom
+                  - media_player.kitchen_display
+            # Sett volum til maks
+            - service: media_player.volume_set
+              continue_on_error: true
+              target:
+                entity_id:
+                  - media_player.minis
+                  - media_player.clock
+                  - media_player.living_room_speaker
+                  - media_player.hallway_speaker
+                  - media_player.bathroom
+                  - media_player.kitchen_display
+              data:
+                volume_level: 1
+            # TTS-varsling - "politiet er varslet"
+            - service: tts.google_cloud_say
+              continue_on_error: true
+              target:
+                entity_id:
+                  - media_player.minis
+                  - media_player.clock
+                  - media_player.living_room_speaker
+                  - media_player.hallway_speaker
+                  - media_player.bathroom
+                  - media_player.kitchen_display
+              data:
+                message: "Alarm! Innbrudd oppdaget! Politiet er varslet og er på vei! Utløste sensorer: {{ triggered_sensors }}"
+            - delay:
+                seconds: 5
+            # Spill airraid-lyd
+            - service: media_player.play_media
+              continue_on_error: true
+              target:
+                entity_id:
+                  - media_player.minis
+                  - media_player.clock
+                  - media_player.living_room_speaker
+                  - media_player.hallway_speaker
+                  - media_player.bathroom
+                  - media_player.kitchen_display
+              data:
+                media_content_id: "https://hjem.sellie.no/local/sounds/screams/airraid.mp3"
+                media_content_type: "music"
+            # Blink lys rødt
+            - service: script.turn_on
+              target:
+                entity_id: script.blink_lights_danger
+            - delay:
+                seconds: 15
+            # Push-varsling hver 3. iterasjon
+            - if:
+                - condition: template
+                  value_template: "{{ repeat.index % 3 == 0 }}"
+              then:
+                - parallel:
+                    - service: notify.mobile_app_erlend_mobil
+                      data:
+                        title: "🚨 INNBRUDDSALARM FORTSETTER!"
+                        message: "{{ alarm_message }} (Varsling #{{ repeat.index }})"
+                        data:
+                          ttl: 0
+                          priority: high
+                          channel: alarm_stream_max
+                          actions:
+                            - action: DISMISS_BURGLARY_ALARM
+                              title: "Avbryt alarm"
+                    - service: script.notifycaroline
+                      data:
+                        title: "🚨 INNBRUDDSALARM FORTSETTER!"
+                        message: "{{ alarm_message }} (Varsling #{{ repeat.index }})"
+      # Når loopen er ferdig, sett volum tilbake
       - service: media_player.volume_set
-        data_template:
-          entity_id: media_player.living_room_speaker
-          volume_level: 1
-      - service: tts.google_cloud_say
-        entity_id:
-          - media_player.minis
-          - media_player.clock
+        continue_on_error: true
+        target:
+          entity_id:
+            - media_player.minis
+            - media_player.clock
+            - media_player.living_room_speaker
+            - media_player.hallway_speaker
+            - media_player.bathroom
+            - media_player.kitchen_display
         data:
-          message: "Alarm! Husalarm utløst!."
-      - delay:
-          seconds: 2
-      - service: script.airraid
-      - delay:
-          seconds: 30
-      - service: script.airraid
+          volume_level: 0.5
+
+  alarmtriggered:
+    alias: "Alarm Triggered (legacy)"
+    sequence:
+      - service: script.turn_on
+        target:
+          entity_id: script.burglary_alarm_triggered
 
   alarmdone:
-    alias: "alarm done"
+    alias: "Alarm avsluttet"
     sequence:
+      - service: script.turn_off
+        target:
+          entity_id: script.burglary_alarm_triggered
       - service: script.stopplyd
-      # - service: light.turn_off
-      #   entity_id: light.gateway_light_7c49eb1c2d6b
-      # - service: xiaomi_aqara.stop_ringtone
-      #   data:
-      #     gw_mac: 7C:49:EB:1C:2D:6B
-      # - service: xiaomi_aqara.stop_ringtone
-      #   data:
-      #     gw_mac: 7C:49:EB:1C:2D:6B
+      - service: media_player.media_stop
+        continue_on_error: true
+        target:
+          entity_id:
+            - media_player.minis
+            - media_player.clock
+            - media_player.living_room_speaker
+            - media_player.hallway_speaker
+            - media_player.bathroom
+            - media_player.kitchen_display
+      - service: vacuum.return_to_base
+        continue_on_error: true
+        target:
+          entity_id:
+            - vacuum.xiaomi_vacuum_cleaner
+            - vacuum.neato
 
   sendvideodriveway:
     alias: Send Video Test
@@ -1384,123 +1513,3 @@ script:
             video:
               file: /config/www/snapshot.mp4
 
-  water_leak_triggered:
-    alias: Water Leak Triggered
-    mode: restart
-    sequence:
-      - variables:
-          water_message: >-
-            VANNLEKKASJE! Sensor utløst: 
-            {%- for entity_id in states.group.watersensors.attributes.entity_id -%}
-              {%- set entity = states[entity_id] -%}
-              {%- if entity.state == 'on' -%}
-                {{ entity.name }}, 
-              {%- endif -%}
-            {%- endfor %}
-      # Første varsling til alle kanaler
-      - parallel:
-          - service: notify.mobile_app_erlend_mobil
-            data:
-              title: "💧 VANNLEKKASJE!"
-              message: "{{ water_message }}"
-              data:
-                ttl: 0
-                priority: high
-                channel: alarm_stream_max
-                actions:
-                  - action: DISMISS_WATER_ALARM
-                    title: "Avvis alarm"
-          - service: script.notifycaroline
-            data:
-              title: "💧 VANNLEKKASJE!"
-              message: "{{ water_message }}"
-          - service: script.notify_tts_max
-            data:
-              message: "{{ water_message }}"
-      # Loop så lenge vann er detektert
-      - repeat:
-          while:
-            - condition: template
-              value_template: >-
-                {{ expand('group.watersensors') | selectattr('state', 'eq', 'on') | list | count > 0 }}
-          sequence:
-            - service: media_player.media_stop
-              continue_on_error: true
-              target:
-                entity_id:
-                  - media_player.minis
-                  - media_player.clock
-                  - media_player.living_room_speaker
-                  - media_player.hallway_speaker
-                  - media_player.bathroom
-                  - media_player.kitchen_display
-            - service: media_player.volume_set
-              continue_on_error: true
-              target:
-                entity_id:
-                  - media_player.minis
-                  - media_player.clock
-                  - media_player.living_room_speaker
-                  - media_player.hallway_speaker
-                  - media_player.bathroom
-                  - media_player.kitchen_display
-              data:
-                volume_level: 1
-            - service: tts.google_cloud_say
-              continue_on_error: true
-              target:
-                entity_id:
-                  - media_player.minis
-                  - media_player.clock
-                  - media_player.living_room_speaker
-                  - media_player.hallway_speaker
-                  - media_player.bathroom
-                  - media_player.kitchen_display
-              data:
-                message: "{{ water_message }}"
-            - delay:
-                seconds: 4
-            - service: media_player.play_media
-              continue_on_error: true
-              target:
-                entity_id:
-                  - media_player.minis
-                  - media_player.clock
-                  - media_player.living_room_speaker
-                  - media_player.hallway_speaker
-                  - media_player.bathroom
-                  - media_player.kitchen_display
-              data:
-                media_content_id: "https://hjem.sellie.no/local/sounds/screams/airraid.mp3"
-                media_content_type: "music"
-            - delay:
-                seconds: 12
-            # Push-varsling hver 3. iterasjon
-            - if:
-                - condition: template
-                  value_template: "{{ repeat.index % 3 == 0 }}"
-              then:
-                - service: notify.mobile_app_erlend_mobil
-                  data:
-                    title: "💧 VANNLEKKASJE FORTSETTER!"
-                    message: "{{ water_message }} (Varsling #{{ repeat.index }})"
-                    data:
-                      ttl: 0
-                      priority: high
-                      channel: alarm_stream_max
-                      actions:
-                        - action: DISMISS_WATER_ALARM
-                          title: "Avvis alarm"
-      # Når loopen er ferdig, sett volum tilbake
-      - service: media_player.volume_set
-        continue_on_error: true
-        target:
-          entity_id:
-            - media_player.minis
-            - media_player.clock
-            - media_player.living_room_speaker
-            - media_player.hallway_speaker
-            - media_player.bathroom
-            - media_player.kitchen_display
-        data:
-          volume_level: 0.5
