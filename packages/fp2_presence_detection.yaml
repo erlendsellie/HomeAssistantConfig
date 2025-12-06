@@ -61,31 +61,31 @@ automation:
                     - light.kitchen
                     - light.kitchen_ceiling_led
 
-  - id: fp2_chill_sofa_light
-    alias: "FP2 chill sofa - control chillsofa light"
-    mode: restart
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.fp2_chill_sofa
-        to: "on"
-        id: presence_on
-      - platform: state
-        entity_id: binary_sensor.fp2_chill_sofa
-        to: "off"
-        id: presence_off
-    action:
-      - choose:
-          - conditions:
-              - condition: trigger
-                id: presence_on
-            sequence:
-              - service: light.turn_on
-                target:
-                  entity_id: light.chillsofa
-          - conditions:
-              - condition: trigger
-                id: presence_off
-            sequence:
-              - service: light.turn_off
-                target:
-                  entity_id: light.chillsofa
+  # - id: fp2_chill_sofa_light
+  #   alias: "FP2 chill sofa - control chillsofa light"
+  #   mode: restart
+  #   trigger:
+  #     - platform: state
+  #       entity_id: binary_sensor.fp2_chill_sofa
+  #       to: "on"
+  #       id: presence_on
+  #     - platform: state
+  #       entity_id: binary_sensor.fp2_chill_sofa
+  #       to: "off"
+  #       id: presence_off
+  #   action:
+  #     - choose:
+  #         - conditions:
+  #             - condition: trigger
+  #               id: presence_on
+  #           sequence:
+  #             - service: light.turn_on
+  #               target:
+  #                 entity_id: light.chillsofa
+  #         - conditions:
+  #             - condition: trigger
+  #               id: presence_off
+  #           sequence:
+  #             - service: light.turn_off
+  #               target:
+  #                 entity_id: light.chillsofa

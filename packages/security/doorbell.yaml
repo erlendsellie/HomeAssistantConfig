@@ -93,18 +93,6 @@ automation:
       - service: switch.turn_off
         entity_id: switch.doorbutton
 
-  - alias: doorbellShowCamera
-    trigger:
-      platform: state
-      entity_id: switch.doorbutton
-      to: "on"
-    action:
-      - service: camera.play_stream
-        entity_id: camera.driveway
-        data:
-          format: hls
-          media_player: media_player.chromecast9350
-
 script:
   doorbell:
     alias: Doorbell

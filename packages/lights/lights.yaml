@@ -486,7 +486,7 @@ automation:
     action:
       - service: light.turn_{{trigger.to_state.state}}
         entity_id:
-          - light.garage_bulb
+          #- light.garage_bulb
           - light.garage_led_strip
 
 script:

@@ -6,25 +6,18 @@ homeassistant:
     sensor.spotpris_average_today:
       state_class: measurement
 
-sensor:
-  - platform: template
-    sensors:
-      # heatpumpmode:
-      #   friendly_name: "Heat Pump Mode"
-      #   value_template: "{{states.climate.varmepumpe.attributes.last_on_operation}}"
-      pricelevel:
-        friendly_name: "Price Level"
-        value_template: "{{ state_attr('sensor.electricity_price_sivert_thonstads_vei_6b', 'price_level') | default('unknown') }}"
-      # tibberheatdifference:
-      #   friendly_name: "Tibber Heat Difference"
-      #   unit_of_measurement: "°C"
-      #   # The Heater is always set to 22 in Tibber. This way, we can see if Tibber wants to increase or decrease the temperature.
-      #   value_template: >-
-      #     {%-set targetTemp = 22 -%}
-      #     {%-set actualtemp = states.climate.stua_heater.attributes.temperature | float(default=0)-%}
-      #     {{actualtemp - targetTemp}}
-      today_max_price:
-        value_template: >-
+# Temperature Control Template Sensors and Binary Sensors
+# Migrated from legacy platform: template format
+
+template:
+  - sensor:
+      - name: "pricelevel"
+        unique_id: pricelevel_sensor
+        state: "{{ state_attr('sensor.electricity_price_sivert_thonstads_vei_6b', 'price_level') | default('unknown') }}"
+
+      - name: "today_max_price"
+        unique_id: today_max_price_sensor
+        state: >-
           {% set today = state_attr('sensor.nordpool', 'raw_today') | default([]) | sort(attribute='value') %}
           {% if today | length > 0 %}
             {{ (today[-1].value * 100) | round(2) }}
@@ -32,8 +25,9 @@ sensor:
             0
           {% endif %}
 
-      tomorrow_max_price:
-        value_template: >-
+      - name: "tomorrow_max_price"
+        unique_id: tomorrow_max_price_sensor
+        state: >-
           {% set tomorrow = state_attr('sensor.nordpool', 'raw_tomorrow') | default([]) | sort(attribute='value') %}
           {% if tomorrow | length > 0 %}
             {{ (tomorrow[-1].value * 100) | round(2) }}
@@ -41,8 +35,9 @@ sensor:
             0
           {% endif %}
 
-      tomorrow_low_price:
-        value_template: >-
+      - name: "tomorrow_low_price"
+        unique_id: tomorrow_low_price_sensor
+        state: >-
           {% set tomorrow = state_attr('sensor.nordpool', 'raw_tomorrow') | default([]) | sort(attribute='value') %}
           {% if tomorrow | length > 0 %}
             {{ (tomorrow[0].value * 100) | round(2) }}
@@ -50,8 +45,9 @@ sensor:
             0
           {% endif %}
 
-      today_low_price:
-        value_template: >-
+      - name: "today_low_price"
+        unique_id: today_low_price_sensor
+        state: >-
           {% set today = state_attr('sensor.nordpool', 'raw_today') | default([]) | sort(attribute='value') %}
           {% if today | length > 0 %}
             {{ (today[0].value * 100) | round(2) }}
@@ -59,8 +55,9 @@ sensor:
             0
           {% endif %}
 
-      price_difference_tomorrow:
-        value_template: >-
+      - name: "price_difference_tomorrow"
+        unique_id: price_difference_tomorrow_sensor
+        state: >-
           {% set today = state_attr('sensor.nordpool', 'raw_today') | default([]) | sort(attribute='value') %}
           {% set tomorrow = state_attr('sensor.nordpool', 'raw_tomorrow') | default([]) | sort(attribute='value') %}
           {% if today | length > 0 and tomorrow | length > 0 %}
@@ -69,14 +66,16 @@ sensor:
             0
           {% endif %}
 
-      price_difference_nights:
-        value_template: >-
+      - name: "price_difference_nights"
+        unique_id: price_difference_nights_sensor
+        state: >-
           {% set today = states('sensor.billigste_pris_ikveld') | float(0) %}
           {% set tomorrow = states('sensor.billigste_pris_imorgen_ettermiddag') | float(0) %}
           {{ ((tomorrow - today) * 100) | round(2) }}
 
-      rest_of_today_low_price:
-        value_template: >-
+      - name: "rest_of_today_low_price"
+        unique_id: rest_of_today_low_price_sensor
+        state: >-
           {% set today = state_attr('sensor.nordpool', 'raw_today') | default([]) %}
           {% set now_hour = now().hour %}
           {% set future_hours = today | selectattr('start', 'ge', now()) | list %}
@@ -87,19 +86,9 @@ sensor:
             0
           {% endif %}
 
-      # price_rest_of_day:
-      #   value_template: >-
-      #     {% set today=state_attr('sensor.nordpool', 'raw_today') %}
-      #     {%-set now = now().hour | float(default=0)-%}
-      #     {% set futureHours = namespace(values=[]) %}
-      #     {% for hour in today %}
-      #         {% if hour.start.hour >= now %}
-      #         {% set futureHours.values = futureHours.values + [{'start':hour.start,'end':hour.end,'value': hour.value}] %}
-      #         {% endif %}
-      #     {%- endfor -%}
-      #     {{futureHours.values}}
-      billigste_pris_ikveld:
-        value_template: >-
+      - name: "billigste_pris_ikveld"
+        unique_id: billigste_pris_ikveld_sensor
+        state: >-
           {%-set nowTime = now().hour | float(default=0)-%}
           {% set tonight = namespace(values=[]) %}
           {% set today=state_attr('sensor.nordpool', 'raw_today') %}
@@ -111,8 +100,10 @@ sensor:
           {% set tonight_min = tonight.values |sort(attribute='value') %}
           {% set cheapest = tonight_min[0] or None %}
           {{cheapest.value or 0}}
-      billigste_pris_imorgen_ettermiddag:
-        value_template: >-
+
+      - name: "billigste_pris_imorgen_ettermiddag"
+        unique_id: billigste_pris_imorgen_ettermiddag_sensor
+        state: >-
           {% if states.sensor.nordpool.attributes.tomorrow_valid  %}
             {% set tomorrow=state_attr('sensor.nordpool', 'raw_tomorrow') %}
             {% set tomorrow_night = namespace(values=[]) %}
@@ -125,8 +116,10 @@ sensor:
             {% set cheapest = tomorrow_min[0] or None %}
           {{cheapest.value or 0}}  
           {% endif %}
-      billigste_time:
-        value_template: >-
+
+      - name: "billigste_time"
+        unique_id: billigste_time_sensor
+        state: >-
           {%-set nowTime = now().hour | float(default=0)-%}
           {% set tonight = namespace(values=[]) %}
           {% set today=state_attr('sensor.nordpool', 'raw_today') %}
@@ -149,64 +142,60 @@ sensor:
             {% set cheapest = tomorrow_min[0] %}
           {% endif %}
           {{cheapest.start}}
-      pricespike:
-        friendly_name: "Price spike today"
-        value_template: >-
+
+      - name: "pricespike"
+        unique_id: pricespike_sensor
+        state: >-
           {%-set nordpool = states.sensor.nordpool -%}
           {{nordpool.attributes.max / nordpool.attributes.min - 1 | round(2)}}
-      spotpris_today:
-        friendly_name: "Spotpris today"
-        icon_template: "mdi:cash-multiple"
+
+      - name: "spotpris_today"
+        unique_id: spotpris_today_sensor
+        icon: "mdi:cash-multiple"
         unit_of_measurement: "NOK"
-        value_template: >-
+        state: >-
           {{
             ((states('sensor.accumulated_consumption_sivert_thonstads_vei_6b')| float(default=0))
             *(state_attr('sensor.nordpool', 'average')| float(default=0)))
             |round(2)
           }}
-      spotpris_average_today:
-        friendly_name: "Spotpris Avergage today"
-        icon_template: "mdi:cash-multiple"
+
+      - name: "spotpris_average_today"
+        unique_id: spotpris_average_today_sensor
+        icon: "mdi:cash-multiple"
         unit_of_measurement: "NOK"
-        value_template: >-
+        state: >-
           {{state_attr('sensor.nordpool', 'average') | float(default=0)|round(2)}}
-      fastpris_today:
-        friendly_name: "Fastpris today"
-        icon_template: "mdi:cash-multiple"
+
+      - name: "fastpris_today"
+        unique_id: fastpris_today_sensor
+        icon: "mdi:cash-multiple"
         unit_of_measurement: "NOK"
-        value_template: >-
+        state: >-
           {{
             ((states('sensor.accumulated_consumption_sivert_thonstads_vei_6b')| float(default=0))
             *(states('sensor.powerprice')| float(default=0)))
             |round(2)
           }}
-      # difference_spotpris:
-      #   friendly_name: "Besparelse i dag"
-      #   icon_template: "mdi:cash-multiple"
-      #   unit_of_measurement: "NOK"
-      #   value_template: >-
-      #     {{
-      #       (states('sensor.fastpris_today')| float(default=0))
-      #       -
-      #       (states('sensor.spotpris_today')| float(default=0))
-      #       |round(2)
-      #     }}
-      total_powerprice:
-        friendly_name: Power Price
+
+      - name: "total_powerprice"
+        unique_id: total_powerprice_sensor
         unit_of_measurement: NOK
-        value_template: >-
+        state: >-
           {%set gridprice = states.sensor.gridprice.state | float(default=0)%}
           {%set powerprice = states.sensor.powerprice.state | float(default=0)%}
           {{powerprice + gridprice}}
-      powerprice:
-        friendly_name: Power Price
+
+      - name: "powerprice"
+        unique_id: powerprice_sensor
         unit_of_measurement: NOK/kWh
-        value_template: >-
+        state: >-
           {{0.54}}
-      gridprice:
-        friendly_name: New gridprice
+
+      - name: "gridprice"
+        unique_id: gridprice_sensor
         unit_of_measurement: NOK
-        value_template: >-
+        state: >-
           {% set hour = now().hour %}
           {% set day = now().day %}
           {% set month = now().month %}
@@ -215,20 +204,11 @@ sensor:
             {% set pricePerKwh = 0.283625 %}
           {% endif %}
           {{pricePerKwh}}
-      # gridprice:
-      #   friendly_name: GridPrice
-      #   unit_of_measurement: "NOK"
-      #   value_template: >-
-      #     {% set annualConsumption = states.sensor.electricity_price_sivert_thonstads_vei_6b.attributes.estimated_annual_consumption | float(default=0)%}
-      #     {% set yearlyPriceGridPower = 2375 %}
-      #     {% set yearlyPriceTibber = 39*12 %}
-      #     {% set yearlyPrice = yearlyPriceTibber + yearlyPriceGridPower %}
-      #     {% set kwhprice = 0.452375%}
-      #     {{ (yearlyPrice + (kwhprice * annualConsumption)) / annualConsumption}}
-      refheat:
-        friendly_name: "Reference Heat"
+
+      - name: "refheat"
+        unique_id: refheat_sensor
         unit_of_measurement: "°C"
-        value_template: >-
+        state: >-
           {%-set alarm = states.input_select.alarm.state -%}
           {%-set hjemmeTemp = states.input_number.hjemmetemp.state | float(default=0)%}
           {%-set borteTemp = states.input_number.bortetemp.state | float(default=0)%}
@@ -241,12 +221,13 @@ sensor:
             {%-set temp = borteTemp -%} 
           {% endif %}        
           {{temp}}
-      pricecorrection:
-        friendly_name: "Price Analyzer"
+
+      - name: "pricecorrection"
+        unique_id: pricecorrection_sensor
         unit_of_measurement: "°C"
-        attribute_templates:
+        attributes:
           source: "{{ states.sensor.priceanalyzer.state }}"
-        value_template: >-
+        state: >-
           {%set analyzer = states.sensor.priceanalyzer%}
           {%set current_hour = analyzer.attributes.current_hour%}
           {%set temp = analyzer.state | float %}
@@ -272,57 +253,11 @@ sensor:
             {%set temp = temp - 1 %}
           {%endif%}
           {{temp}}
-      # pricecorrection_old:
-      #   friendly_name: "Price Correction"
-      #   unit_of_measurement: "°C"
-      #   value_template: >-
-      #     {%-set usingSpot = states.binary_sensor.usingspot.state == 'on' -%}
-      #     {%-set priceGaining = states.binary_sensor.pricegaining.state == 'on' -%}
-      #     {%-set priceFalling = states.binary_sensor.pricefalling.state == 'on' -%}
-      #     {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
-      #     {%-set isMaxPrice = states.binary_sensor.ismaxprice.state == 'on' -%}
-      #     {%-set isPeak = states.binary_sensor.pricerelativycheap.state == 'off' -%}
-      #     {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' or states.binary_sensor.pricerelativycheap.state == 'on' -%}
-      #     {%-set isNordPoolLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
-      #     {%-set minPrice = states.sensor.nordpool.attributes.min | float(default=0)-%}
-      #     {%-set price = states.sensor.nordpool.state | float(default=0)-%}
-      #     {%-set nextPrice = states.sensor.nordpool.attributes.raw_today[now().hour + 1].value-%}
-      #     {%-set isExtremePrice = (price * 100) > 100-%}
-      #     {%-set pricecorrectiondownnexthour = states.binary_sensor.pricecorrectiondownnexthour.state -%}
-      #     {%-set isMinPrice = minPrice == price -%}
-      #     {%-set pricedifference = states.sensor.pricespike.state | float(default=0)%}
-      #     {%-set tempDownToLong = states.binary_sensor.pricecorrection_down_for_3_hours.state == 'on' -%}
-      #     {%-set tempDownToLong = false -%}
-      #     {%-set tempDown = isMaxPrice or ((isPeak or priceFalling) and tempDownToLong == False) -%}
-      #     {%-set catchUp = states.binary_sensor.afterpricereduction.state -%}
-      #     {%-set catchUp = 'off' -%}
-      #     {%-set temp =  0 -%}
-      #     {%-set tempcorrection = 1 %}
-      #     {% if ((price * 100) > 200) or ((nextPrice * 100) > 200) %}
-      #       {%-set tempcorrection = 4 %}
-      #     {% elif ((price * 100) > 100) or ((nextPrice * 100) > 100) %}
-      #       {%-set tempcorrection = 3 %}
-      #     {% elif pricedifference > 0.8 or isMaxPrice or isMinPrice %}
-      #       {%-set tempcorrection = 2 %}
-      #     {% endif %}
-      #     {% if isHeating and pricedifference > 0.1%}
-      #       {% if ((isLowPrice and priceGaining) or (tempDownToLong) or catchUp == 'on') %}
-      #           {%-set temp =  temp + tempcorrection -%}
-      #       {% elif (isLowPrice and (priceGaining == false or priceFalling == true and isMaxPrice == false)) %}
-      #           {%-set temp = temp -%}
-      #       {% elif (tempDown)%}
-      #           {%-set temp =  temp - tempcorrection -%}
-      #       {% endif %}
-      #     {% endif %}
-      #     {%if usingSpot == true%}
-      #     {{temp | float}}
-      #     {% else %}
-      #       0
-      #     {%endif%}
-      baseheat:
-        friendly_name: "Base Heat"
+
+      - name: "baseheat"
+        unique_id: baseheat_sensor
         unit_of_measurement: "°C"
-        value_template: >-
+        state: >-
           {%-set alarm = states.input_select.alarm.state -%}
           {%-set hjemmeTemp = states.input_number.hjemmetemp.state | float(default=0)%}
           {%-set borteTemp = states.input_number.bortetemp.state | float(default=0)%}
@@ -351,10 +286,11 @@ sensor:
             {%-set temp = temp - 4 -%}                 
           {% endif %}
           {{temp}}
-      sokkeltemp:
-        friendly_name: "Sokkel temp"
+
+      - name: "sokkeltemp"
+        unique_id: sokkeltemp_sensor
         unit_of_measurement: "°C"
-        value_template: >-
+        state: >-
           {%-set baseTemp = states.input_number.sokkeltemp.state | float(default=0)%}
           {%-set priceCorrection = states.sensor.pricecorrection.state | float(default=0)%}
           {%-set temp = baseTemp + priceCorrection -%}
@@ -363,10 +299,11 @@ sensor:
             {%-set temp = temp - 8 -%}
           {% endif %}
           {{temp}}
-      vindfangtemp:
-        friendly_name: "Vindfang temp"
+
+      - name: "vindfangtemp"
+        unique_id: vindfangtemp_sensor
         unit_of_measurement: "°C"
-        value_template: >-
+        state: >-
           {%-set baseTemp = states.input_number.vindfangtemp.state | float(default=0)%}
           {%-set priceCorrection = states.sensor.pricecorrection.state | float(default=0)%}
           {%-set temp = baseTemp + priceCorrection -%}
@@ -375,10 +312,11 @@ sensor:
             {%-set temp = temp - 8 -%}
           {% endif %}
           {{temp}}
-      bathroomtemp:
-        friendly_name: "Bathroom temp"
+
+      - name: "bathroomtemp"
+        unique_id: bathroomtemp_sensor
         unit_of_measurement: "°C"
-        value_template: >-
+        state: >-
           {%-set baseTemp = states.input_number.bathroomtemp.state | float(default=0)%}
           {%-set priceCorrection = states.sensor.pricecorrection.state | float(default=0)%}
           {%-set temp = baseTemp + priceCorrection -%}
@@ -387,10 +325,11 @@ sensor:
             {%-set temp = temp - 8 -%}                 
           {% endif %}
           {{temp}}
-      toilettemp:
-        friendly_name: "Toilet temp"
+
+      - name: "toilettemp"
+        unique_id: toilettemp_sensor
         unit_of_measurement: "°C"
-        value_template: >-
+        state: >-
           {%-set baseTemp =  states.sensor.baseheat.state | float(default=0)%}
           {%-set doorOpen = states.binary_sensor.toilet_door_left_open.state == 'on' -%}
           {%-set temp = baseTemp -%}
@@ -398,10 +337,11 @@ sensor:
             {%-set temp = 16 -%}
           {% endif %}
           {{temp}}
-      tempsenttoheater:
-        friendly_name: "Temp Sent To Heater"
+
+      - name: "tempsenttoheater"
+        unique_id: tempsenttoheater_sensor
         unit_of_measurement: "°C"
-        value_template: >-
+        state: >-
           {%-set alarm = states.input_select.alarm.state -%}
           {%-set uteTemp = states.sensor.ute_temperature.state | float(default=0)or states.sensor.netatmo_home_temperature.state | float(default=0) -%}
           {%-set prettyCold = float(uteTemp) < float(states.input_number.coldthreshold.state) -%}
@@ -430,9 +370,10 @@ sensor:
             {%-set temp = temp - priceCorrection -%}
           {% endif %}
           {{temp | round() or 22}}
-      fanmode:
-        friendly_name: "Fan Mode"
-        value_template: >-
+
+      - name: "fanmode"
+        unique_id: fanmode_sensor
+        state: >-
           {%-set targetTemp = states.climate.varmepumpe.attributes.temperature | float(default=0)%}
           {%-set currentTemp = states.climate.varmepumpe.attributes.current_temperature | float(default=0)%}
           {%-set operation = states.input_select.operationmode.state -%}
@@ -452,15 +393,16 @@ sensor:
           {% else %}
             auto
           {%endif%}
-      priceforgraph:
-        friendly_name: Power Price
+
+      - name: "priceforgraph"
+        unique_id: priceforgraph_sensor
         unit_of_measurement: "W"
-        value_template: "{{states.sensor.nordpool.state | float(default=0)* 10000}}"
-        #{{(priceNow < priceNextHour) and (states.sensor.pricelevel.state != 'EXPENSIVE')}}
-      trymtemp:
-        friendly_name: "Trym Temp"
+        state: "{{states.sensor.nordpool.state | float(default=0)* 10000}}"
+
+      - name: "trymtemp"
+        unique_id: trymtemp_sensor
         unit_of_measurement: "C"
-        value_template: >-
+        state: >-
           {%-set priceCorrection =  states.sensor.priceanalyzer.state | float(default=0) %}
           {%-set hour = now().hour | int(default=0)-%}
           {%-set trymasleep = states.input_boolean.trymasleep.state == 'on' -%}
@@ -469,7 +411,6 @@ sensor:
           {%-set windowopen = states.binary_sensor.trym_window.state == 'on'%}
           {%-set bedroomheateron = states.switch.bedroom_heater.state == 'on' %}
           {%-set trymtemp = states.input_number.trym_temp.state | float %}
-
           {% if away or trymaway or windowopen %}
             {%-set temp = trymtemp - 5%}
           {% elif trymasleep or hour > 17 %}
@@ -485,10 +426,11 @@ sensor:
             {%-set temp = 4 -%}
           {% endif %}
           {{temp + priceCorrection}}
-      tyratemp:
-        friendly_name: "Tyra Temp"
+
+      - name: "tyratemp"
+        unique_id: tyratemp_sensor
         unit_of_measurement: "C"
-        value_template: >-
+        state: >-
           {%-set priceCorrection =  states.sensor.priceanalyzer.state | float(default=0) %}
           {%-set hour = now().hour | float(default=0)-%}
           {%-set tyraasleep = states.input_boolean.tyraasleep.state == 'on' -%}
@@ -513,48 +455,58 @@ sensor:
           {% endif %}
           {{temp + priceCorrection}}
 
-binary_sensor:
-  - platform: template
-    scan_interval: 3600
-    sensors:
-      pricedifferenceissmall:
-        value_template: >-
+  - binary_sensor:
+      - name: "pricedifferenceissmall"
+        unique_id: pricedifferenceissmall_sensor
+        state: >-
           {%-set pricedifference = states.sensor.pricespike.state | float(default=0)%}
           {%-set max = states.sensor.priceanalyzer.attributes.max | float(default=0)%}
           {{pricedifference < 0.10 or max < 0.20}}
-      pricecorrection_up:
+
+      - name: "pricecorrection_up"
+        unique_id: pricecorrection_up_sensor
         delay_off:
           minutes: 2
-        value_template: >-
+        state: >-
           {%-set priceCorrection =  states.sensor.pricecorrection.state | float(default=0) %}
           {{priceCorrection > 0}}
-      pricecorrection_down:
+
+      - name: "pricecorrection_down"
+        unique_id: pricecorrection_down_sensor
         delay_off:
           minutes: 2
-        value_template: >-
+        state: >-
           {%-set priceCorrection =  states.sensor.pricecorrection.state | float(default=0) %}
           {{priceCorrection < 0}}
-      pricecorrection_down_for_3_hours:
+
+      - name: "pricecorrection_down_for_3_hours"
+        unique_id: pricecorrection_down_for_3_hours_sensor
         delay_on:
           hours: 4
         delay_off:
           hours: 1
-        value_template: >-
+        state: >-
           {%-set priceCorrection =  states.sensor.pricecorrection.state | float(default=0) %}
           {{priceCorrection < 0}}
-      pricecorrection_down_delayed:
+
+      - name: "pricecorrection_down_delayed"
+        unique_id: pricecorrection_down_delayed_sensor
         delay_off:
           hours: 1
-        value_template: >-
+        state: >-
           {%-set priceCorrection =  states.sensor.pricecorrection.state | float(default=0) %}
           {{priceCorrection < 0}}
-      afterpricereduction:
-        value_template: >-
+
+      - name: "afterpricereduction"
+        unique_id: afterpricereduction_sensor
+        state: >-
           {%set delayed = states.binary_sensor.pricecorrection_down_delayed.state %}
           {%set down = states.binary_sensor.pricecorrection_down.state %}
           {{delayed == 'on' and down == 'off'}}
-      should_charge_car_tonight:
-        value_template: >-
+
+      - name: "should_charge_car_tonight"
+        unique_id: should_charge_car_tonight_sensor
+        state: >-
           {% if states.sensor.nordpool.attributes.tomorrow_valid
               and states.binary_sensor.usingspot.state == 'on'%}
             {% set today=state_attr('sensor.nordpool', 'raw_today') %}
@@ -583,9 +535,10 @@ binary_sensor:
           {% else %}
             true
           {% endif %}
-      pricelowertomorrow:
-        friendly_name: "Price Is Lower Tomorrow"
-        value_template: >-
+
+      - name: "pricelowertomorrow"
+        unique_id: pricelowertomorrow_sensor
+        state: >-
           {%-set hour = now().hour | float(default=0)-%}
           {%-set nordpool = states.sensor.nordpool -%}
           {% if nordpool.attributes.tomorrow_valid %}
@@ -595,20 +548,26 @@ binary_sensor:
           {% else %}
             False
           {% endif %}
-      dyreste_3_timer:
-        value_template: >-
+
+      - name: "dyreste_3_timer"
+        unique_id: dyreste_3_timer_sensor
+        state: >-
           {% set l=state_attr('sensor.nordpool', 'raw_today')|sort(attribute='value') %}
           {{ (now() >= l[23].start and now() <= l[23].end)
           or (now() >= l[22].start and now() <= l[22].end)
           or (now() >= l[21].start and now() <= l[21].end) }}
-      billigste_3_timer:
-        value_template: >-
+
+      - name: "billigste_3_timer"
+        unique_id: billigste_3_timer_sensor
+        state: >-
           {% set l=state_attr('sensor.nordpool', 'raw_today')|sort(attribute='value') %}
           {{ (now() >= l[0].start and now() <= l[0].end)
           or (now() >= l[1].start and now() <= l[1].end)
           or (now() >= l[2].start and now() <= l[2].end) }}
-      billigste_8_timer:
-        value_template: >-
+
+      - name: "billigste_8_timer"
+        unique_id: billigste_8_timer_sensor
+        state: >-
           {% set timer=state_attr('sensor.nordpool', 'raw_today')|sort(attribute='value') %}           
           {%set vars = namespace(count= 0, found = false)%}
           {%-for time in timer%}
@@ -620,18 +579,21 @@ binary_sensor:
             {%endif%}
           {%-endfor%}
           {{vars.found}}
-      islowprice:
-        friendly_name: "Is Low Price"
-        value_template: >-
+
+      - name: "islowprice"
+        unique_id: islowprice_sensor
+        state: >-
           {{states.sensor.priceanalyzer.attributes['low price'] == true}}
-      pricerelativycheap:
-        friendly_name: "price Relativy Cheap"
-        value_template: >-
+
+      - name: "pricerelativycheap"
+        unique_id: pricerelativycheap_sensor
+        state: >-
           {%- set price = states.sensor.nordpool -%}
           {{price.state | float(default=0)< price.attributes.peak | float}}
-      pricecorrectiondownnexthour:
-        friendly_name: "Pricecorrection down next hour"
-        value_template: >-
+
+      - name: "pricecorrectiondownnexthour"
+        unique_id: pricecorrectiondownnexthour_sensor
+        state: >-
           {%-set nordpool = states.sensor.nordpool -%}
           {%-set percentThreshold = ((nordpool.attributes.max / nordpool.attributes.min) - 1) -%}
           {% set percentThreshold = (percentThreshold / 4) + 1 %}
@@ -641,14 +603,16 @@ binary_sensor:
           {%-set priceNextNextHour = (nordpool.attributes.today[hour + 2] or nordpool.attributes.tomorrow[0]) | float(default=0)-%}
           {% set priceFallingNextNextHour = (priceNextNextHour / priceNextHour) < percentThreshold %}
           {{(priceNextHour | float(default=0)> nordpool.attributes.peak | float) or (priceNextHour == nordpool.attributes.max) or (priceFallingNextNextHour)}}
-      ismaxprice:
-        friendly_name: "Is Max price?"
-        value_template: >-
+
+      - name: "ismaxprice"
+        unique_id: ismaxprice_sensor
+        state: >-
           {%- set price = states.sensor.nordpool -%}
           {{price.state | float(default=0) == price.attributes.max | float}}
-      pricegaining:
-        friendly_name: "Price Gaining Next Hour"
-        value_template: >-
+
+      - name: "pricegaining"
+        unique_id: pricegaining_sensor
+        state: >-
           {%-set nordpool = states.sensor.nordpool -%}
           {%-set percentThreshold = ((nordpool.attributes.max / nordpool.attributes.min) - 1) -%}
           {% set percentThreshold = (percentThreshold / 4) + 1 %}
@@ -663,9 +627,10 @@ binary_sensor:
           {% set priceGainingNextNextHour = ((priceNextNextHour / priceNow)) > percentThreshold  %}
           {% set priceGainingNextNextNextHour = ((priceNextNextNextHour / priceNow)) > percentThreshold  %}
           {{priceGainingNextHour or (priceGainingNextNextHour) or (priceGainingNextNextNextHour)}}
-      pricefalling:
-        friendly_name: "Price Falling Next Hours"
-        value_template: >-
+
+      - name: "pricefalling"
+        unique_id: pricefalling_sensor
+        state: >-
           {%-set nordpool = states.sensor.nordpool -%}
           {%-set percentThreshold = ((nordpool.attributes.min/ nordpool.attributes.max) - 1) -%}
           {% set percentThreshold = (percentThreshold / 4) + 1 %}
@@ -679,14 +644,13 @@ binary_sensor:
           {% set priceFallingNextNextHour = (priceNextNextHour / priceNow) < percentThreshold %}
           {% set priceGaining =  states.binary_sensor.pricegaining.state == 'on' %}
           {{(priceFallingNextHour or priceFallingNextNextHour) and priceGaining == false}}
-      #TODO if price is falling next hour, but not nextnext hour because of threshold, keep on if is still lower, to not start warmup before at lowest price possible.
-      hot_water_probably_running:
-        friendly_name: "Hot Water Probably Running"
+
+      - name: "hot_water_probably_running"
+        unique_id: hot_water_probably_running_sensor
         device_class: power
         delay_off:
           hours: 2
-        value_template: "{{states.switch.bathroom_fan.state == 'on' and states.input_select.alarm.state == 'Disarm'}}"
-
+        state: "{{states.switch.bathroom_fan.state == 'on' and states.input_select.alarm.state == 'Disarm'}}"
 automation:
   # - alias: NotifySpikeToday
   #   trigger:
@@ -800,7 +764,7 @@ automation:
       - platform: homeassistant
         event: start
       - platform: state
-        entity_id: sensor.tempsenttoheater, input_select.operationmode, binary_sensor.pricegaining, sensor.toilettemp
+        entity_id: sensor.tempsenttoheater, input_select.operationmode
     condition:
       condition: and
       conditions:

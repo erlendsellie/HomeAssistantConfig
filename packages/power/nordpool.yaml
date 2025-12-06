@@ -47,26 +47,26 @@ automation:
             title: Nordpool var utilgjengelig
             message: Lastet på nytt. Verdi nå er {{states.sensor.nordpool.state}}
 
-  - alias: NotifyPriceTomorrow
-    trigger:
-      # - platform: time
-      #   at: "13:10:00"
-      - platform: state
-        entity_id: binary_sensor.nordpool_tomorrow_valid
-        to: "on"
-        for:
-          minutes: 3
-    condition:
-      - condition: time
-        after: "12:50:00"
-        before: "14:00:00"
-    action:
-      - service: notify.me
-        data:
-          title: >-
-            Tomorrows spotpris is ready
-          message: >-
-            Tomorrows price is {{states.sensor.tomorrow_low_price.state}} / {{states.sensor.tomorrow_max_price.state}}, todays is {{states.sensor.today_low_price.state}} / {{states.sensor.today_max_price.state}}.
+  # - alias: NotifyPriceTomorrow
+  #   trigger:
+  #     # - platform: time
+  #     #   at: "13:10:00"
+  #     - platform: state
+  #       entity_id: binary_sensor.nordpool_tomorrow_valid
+  #       to: "on"
+  #       for:
+  #         minutes: 3
+  #   condition:
+  #     - condition: time
+  #       after: "12:50:00"
+  #       before: "14:00:00"
+  #   action:
+  #     - service: notify.me
+  #       data:
+  #         title: >-
+  #           Tomorrows spotpris is ready
+  #         message: >-
+  #           Tomorrows price is {{states.sensor.tomorrow_low_price.state}} / {{states.sensor.tomorrow_max_price.state}}, todays is {{states.sensor.today_low_price.state}} / {{states.sensor.today_max_price.state}}.
 
   # - platform: pioneer
   #   host: 192.168.1.105

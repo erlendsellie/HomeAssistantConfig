@@ -548,17 +548,17 @@ script:
   #     - service: shell_command.lights_on_php
 
 sensor:
-  - platform: sql
-    name: mariadb
-    db_url: !secret external_db_url
-    scan_interval: 3600
-    queries:
-      - name: MariaDB database size
-        #query: 'SELECT table_schema AS "database", ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) "value" FROM information_schema.tables WHERE table_schema="homeassistant" GROUP BY table_schema;'
-        query: 'SELECT table_schema "homeassistant", Round(Sum(data_length + index_length) / POWER(1024,2), 0) "value" FROM information_schema.tables WHERE table_schema="homeassistant" GROUP BY table_schema;'
-        #queey: 'SELECT table_schema "database", Round(Sum(data_length + index_length) / 1048576, 2) "value" FROM information_schema.tables WHERE table_schema="homeassistant" GROUP BY table_schema'
-        column: "value"
-    unit_of_measurement: MB
+  # - platform: sql
+  #   name: mariadb
+  #   db_url: !secret external_db_url
+  #   scan_interval: 3600
+  #   queries:
+  #     - name: MariaDB database size
+  #       #query: 'SELECT table_schema AS "database", ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) "value" FROM information_schema.tables WHERE table_schema="homeassistant" GROUP BY table_schema;'
+  #       query: 'SELECT table_schema "homeassistant", Round(Sum(data_length + index_length) / POWER(1024,2), 0) "value" FROM information_schema.tables WHERE table_schema="homeassistant" GROUP BY table_schema;'
+  #       #queey: 'SELECT table_schema "database", Round(Sum(data_length + index_length) / 1048576, 2) "value" FROM information_schema.tables WHERE table_schema="homeassistant" GROUP BY table_schema'
+  #       column: "value"
+  #   unit_of_measurement: MB
 
 command_line:
   - sensor:

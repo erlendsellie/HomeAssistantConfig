@@ -268,13 +268,13 @@ automation:
           hours: 12
     condition:
       - condition: state
-        entity_id: input_boolean.keep_vvb_off
+        entity_id: input_boolean.vvb_keep_state
         state: "off"
     action:
       - service: notify.me
         data:
           message: >-
-            VVB has been OFF for more than 12 hours while keep_vvb_off is not enabled.
+            VVB has been OFF for more than 12 hours while vvb_keep_state is not enabled.
             - VVB Calculated: {{ states('sensor.vvb_calculated') }} °C
             - VVB target (vvb_temp): {{ states('sensor.vvb_temp') }} °C
             - VVB switch state: {{ states('switch.varmtvannsbereder') }}

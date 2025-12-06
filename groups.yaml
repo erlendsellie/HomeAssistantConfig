@@ -234,7 +234,7 @@ andrelys:
     - light.driveway
     #- light.outdoor_led_strip
     - light.garage
-    - light.garage_bulb
+    #- light.garage_bulb
     - light.garage_led_strip
 
 upstairs:

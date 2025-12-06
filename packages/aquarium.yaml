@@ -168,26 +168,26 @@ automation:
             data:
               entity_id: light.aquarium
 
-  - id: toggleAquariumNightLight
-    alias: toggleAquariumNightLight
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.should_aquarium_night_light_be_on
-    action:
-      - if:
-          - condition: template
-            value_template: >-
-              {{ trigger.to_state.state == 'on'}}
-        then:
-          - service: light.turn_{{trigger.to_state.state}}
-            target:
-              entity_id: light.go
-            data:
-              brightness_pct: 100
-        else:
-          - service: light.turn_off
-            data:
-              entity_id: light.go
+  # - id: toggleAquariumNightLight
+  #   alias: toggleAquariumNightLight
+  #   trigger:
+  #     - platform: state
+  #       entity_id: binary_sensor.should_aquarium_night_light_be_on
+  #   action:
+  #     - if:
+  #         - condition: template
+  #           value_template: >-
+  #             {{ trigger.to_state.state == 'on'}}
+  #       then:
+  #         - service: light.turn_{{trigger.to_state.state}}
+  #           target:
+  #             entity_id: light.go
+  #           data:
+  #             brightness_pct: 100
+  #       else:
+  #         - service: light.turn_off
+  #           data:
+  #             entity_id: light.go
 
   - id: Aquarium Water Change
     alias: Aquarium Water Change

@@ -234,7 +234,7 @@ light:
       - light.ledstrip_kitchen
       - light.ledstrip_kitchen
       - light.peis
-      - light.go
+      #- light.go
 
   - platform: switch
     name: Garage
