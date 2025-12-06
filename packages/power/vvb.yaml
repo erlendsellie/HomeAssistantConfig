@@ -279,22 +279,39 @@ automation:
             - VVB target (vvb_temp): {{ states('sensor.vvb_temp') }} °C
             - VVB switch state: {{ states('switch.varmtvannsbereder') }}
 
-  # - id: ToggleHeavyDutyToFixPowerReading
-  #   alias: ToggleHeavyDutyToFixPowerReading
-  #   trigger:
-  #     - platform: time_pattern
-  #       minutes: "/15"
-  #   condition:
-  #     - condition: state
-  #       entity_id: switch.varmtvannsbereder
-  #       state: "on"
-  #   action:
-  #     - service: switch.turn_off
-  #       entity_id: switch.varmtvannsbereder
-  #     - delay:
-  #         seconds: 3
-  #     - service: switch.turn_on
-  #       entity_id: switch.varmtvannsbereder
+  - id: vvb_switch_unavailable_restart_zwave
+    alias: "VVB switch unavailable - restart Z-Wave"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: switch.varmtvannsbereder
+        to: "unavailable"
+        for:
+          minutes: 2
+    action:
+      - service: script.telegram_notify
+        data:
+          message: "⚠️ VVB switch (switch.varmtvannsbereder) is unavailable. Restarting Z-Wave addon..."
+      - service: hassio.addon_restart
+        data:
+          addon: a0d7b954_zwavejs2mqtt
+      - delay:
+          minutes: 2
+      - choose:
+          - conditions:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: switch.varmtvannsbereder
+                    state: "unavailable"
+            sequence:
+              - service: script.telegram_notify
+                data:
+                  message: "✅ Z-Wave restart successful! VVB switch is now {{ states('switch.varmtvannsbereder') }}."
+        default:
+          - service: script.telegram_notify
+            data:
+              message: "❌ Z-Wave restart did not help. VVB switch is still unavailable. Manual intervention may be needed."
 
 climate:
   - platform: generic_thermostat

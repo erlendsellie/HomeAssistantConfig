@@ -365,7 +365,7 @@ automation:
       - platform: state
         entity_id: input_select.alarm
     action:
-      - action: notify.me
+      - service: script.telegram_notify
         data:
           title: "Alarm:"
           message: "{{ states.input_select.alarm.state }}"
