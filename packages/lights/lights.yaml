@@ -293,17 +293,25 @@ automation:
     #   value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
 
   - alias: TurnOffBedroomLight
+    id: turnoffbedroomlight
+    mode: restart
     trigger:
       - platform: state
         entity_id: binary_sensor.motion_bedroom
         to: "off"
         for:
           minutes: 2
+        id: motion_off
       - platform: state
         entity_id:
           - input_boolean.casleep
           - input_boolean.easleep
         to: "on"
+        id: someone_asleep
+      - platform: state
+        entity_id: input_select.alarm
+        to: "Arm Home"
+        id: alarm_armed
     condition:
       condition: or
       conditions:
@@ -320,10 +328,24 @@ automation:
       - condition: state
         entity_id: input_boolean.automatic_bedroom_lights
         state: "on"
-      - service: light.turn_off
-        entity_id:
-          - group.bedroomlights
-          - light.bedroom_wardrobe_led_strip
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: someone_asleep
+              - condition: state
+                entity_id: input_select.alarm
+                state: "Disarm"
+            sequence:
+              - service: light.turn_on
+                entity_id: group.bedroomlights
+                data:
+                  brightness_pct: 5
+                  transition: 3
+        default:
+          - service: light.turn_off
+            entity_id:
+              - group.bedroomlights
+              - light.bedroom_wardrobe_led_strip
 
   - id: toggleWardrobeLight
     alias: toggleWardrobeLight

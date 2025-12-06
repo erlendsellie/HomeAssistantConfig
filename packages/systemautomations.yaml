@@ -568,12 +568,12 @@ command_line:
         xargs -0 cat | wc -l'
       unit_of_measurement: "lines"
 
-  - sensor:
-      name: "HAstats YAML-line Dashboard count"
-      command: >
-        bash -lc 'find /config/dashboard -type f -name "*.yaml" -print0 |
-        xargs -0 cat | wc -l'
-      unit_of_measurement: "lines"
+  # - sensor:
+  #     name: "HAstats YAML-line Dashboard count"
+  #     command: >
+  #       bash -lc 'find /config/dashboard -type f -name "*.yaml" -print0 |
+  #       xargs -0 cat | wc -l'
+  #     unit_of_measurement: "lines"
 
   - sensor:
       name: "HAstats YAML-line Packages count"

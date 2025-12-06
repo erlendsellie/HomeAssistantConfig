@@ -342,19 +342,19 @@ template:
         unique_id: tempsenttoheater_sensor
         unit_of_measurement: "°C"
         state: >-
-          {%-set alarm = states.input_select.alarm.state -%}
-          {%-set uteTemp = states.sensor.ute_temperature.state | float(default=0)or states.sensor.netatmo_home_temperature.state | float(default=0) -%}
-          {%-set prettyCold = float(uteTemp) < float(states.input_number.coldthreshold.state) -%}
-          {%-set isHeating = states.input_select.operationmode.state == 'heat' -%}
-          {%-set currentTemp = states.climate.varmepumpe.attributes.current_temperature or 20 | float(default=0)%}
-          {%-set currentTemp = states.sensor.bthome_stua_temperature.state | float or 20 | float(default=0)%}
-          {%-set priceCorrection =  states.sensor.pricecorrection.state | float(default=0) %}
-          {%-set baseTemp =  states.sensor.baseheat.state | float(default=0)%}
+          {%-set alarm = states('input_select.alarm') -%}
+          {%-set uteTemp = states('sensor.ute_temperature') | float(default=0) or states('sensor.netatmo_home_temperature') | float(default=0) -%}
+          {%-set prettyCold = uteTemp < states('input_number.coldthreshold') | float(default=-6) -%}
+          {%-set isHeating = states('input_select.operationmode') == 'heat' -%}
+          {%-set currentTemp = state_attr('climate.varmepumpe', 'current_temperature') | float(default=20) %}
+          {%-set currentTemp = states('sensor.bthome_stua_temperature') | float(default=20) %}
+          {%-set priceCorrection = states('sensor.pricecorrection') | float(default=0) %}
+          {%-set baseTemp = states('sensor.baseheat') | float(default=0) %}
           {%-set difference = ([baseTemp - currentTemp] | max) | round(1) %}       
           {%-set difference = 0.0 %}       
           {%-set temp = baseTemp -%}
           {% if prettyCold %} 
-            {%-set temp = temp + float(states.input_number.extradegrees.state) -%}
+            {%-set temp = temp + states('input_number.extradegrees') | float(default=0) -%}
           {% endif %}
           {%-set differenceStr = difference | string %}      
           {%-set decimal = differenceStr.split('.')[1] | int(default=0) %}

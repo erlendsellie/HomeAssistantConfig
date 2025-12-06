@@ -114,3 +114,11 @@ unifi_backup
 
 
 TEMPLATE_MIGRATION_PLAN.md
+delete_2.txt
+home-assistant.log.old
+
+sensor_comparison.md
+sensors_different_values.md
+sensors_ending_with_2.txt
+rename_entities.sh
+sensors_missing_base.txt

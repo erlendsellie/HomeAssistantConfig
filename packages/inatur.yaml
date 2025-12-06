@@ -394,22 +394,20 @@ automation:
       - platform: state
         entity_id: sensor.inatur_midtre_gauldal_updated_yesterday
         attribute: cards
-    condition: []
     action:
       - service: notify.mobile_app_erlend_mobil
         data:
           title: "🎣 Nye jakttilbud tilgjengelig!"
           message: >
-            {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') | from_json %}
+            {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') or [] %}
             {% set ns = namespace(messages = []) %}
             {% for item in results %}
               {% set title = item.tittel | default('Ukjent tittel') %}
               {% set updated = item.sistOppdatertFormatert | default('Ukjent dato') %}
-              {% set description = item.kortBeskrivelse | default('Ingen beskrivelse tilgjengelig.') %}
-              {% set message = "- " ~ title ~ " (Oppdatert: " ~ updated ~ ")\n" %}
+              {% set message = "- " ~ title ~ " (Oppdatert: " ~ updated ~ ")" %}
               {% set ns.messages = ns.messages + [message] %}
             {% endfor %}
-            {{ ns.messages | join('\n\n') }}
+            {{ ns.messages | join('\n') }}
           data:
             ttl: 0
             priority: high
@@ -420,26 +418,25 @@ automation:
               - action: URI
                 title: "Se tilbud"
                 uri: >
-                  {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') | from_json %}
-                  {% if results and (results | length) > 0 %}
+                  {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') or [] %}
+                  {% if results | length > 0 %}
                     {{ "https://www.inatur.no" ~ results[0].url }}
                   {% else %}
-                    {{ "https://www.inatur.no" }}
+                    https://www.inatur.no
                   {% endif %}
       - service: notify.mobile_app_stian_mobil
         data:
           title: "🎣 Nye jakttilbud tilgjengelig!"
           message: >
-            {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') | from_json %}
+            {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') or [] %}
             {% set ns = namespace(messages = []) %}
             {% for item in results %}
               {% set title = item.tittel | default('Ukjent tittel') %}
               {% set updated = item.sistOppdatertFormatert | default('Ukjent dato') %}
-              {% set description = item.kortBeskrivelse | default('Ingen beskrivelse tilgjengelig.') %}
-              {% set message = "- " ~ title ~ " (Oppdatert: " ~ updated ~ ")\n" %}
+              {% set message = "- " ~ title ~ " (Oppdatert: " ~ updated ~ ")" %}
               {% set ns.messages = ns.messages + [message] %}
             {% endfor %}
-            {{ ns.messages | join('\n\n') }}
+            {{ ns.messages | join('\n') }}
           data:
             ttl: 0
             priority: high
@@ -450,10 +447,10 @@ automation:
               - action: URI
                 title: "Se tilbud"
                 uri: >
-                  {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') | from_json %}
-                  {% if results and (results | length) > 0 %}
+                  {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') or [] %}
+                  {% if results | length > 0 %}
                     {{ "https://www.inatur.no" ~ results[0].url }}
                   {% else %}
-                    {{ "https://www.inatur.no" }}
+                    https://www.inatur.no
                   {% endif %}
     mode: single
