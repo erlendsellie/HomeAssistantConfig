@@ -620,18 +620,27 @@ script:
         description: "Optional inline keyboard buttons"
         example: "Button1:/cmd1, Button2:/cmd2"
     sequence:
-      - action: notify.send_message
-        target:
-          entity_id: notify.telegram_bot_712278218_760178173
-        data:
-          title: "{{ title | default('') }}"
-          message: "{{ message }}"
-          data: >
-            {% set d = {} %}
-            {% if inline_keyboard is defined and inline_keyboard %}
-              {% set d = {'inline_keyboard': [inline_keyboard]} %}
-            {% endif %}
-            {{ d if d else omit }}
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ inline_keyboard is defined and inline_keyboard }}"
+            sequence:
+              - action: notify.send_message
+                target:
+                  entity_id: notify.telegram_bot_712278218_760178173
+                data:
+                  title: "{{ title | default('') }}"
+                  message: "{{ message }}"
+                  data:
+                    inline_keyboard:
+                      - "{{ inline_keyboard }}"
+        default:
+          - action: notify.send_message
+            target:
+              entity_id: notify.telegram_bot_712278218_760178173
+            data:
+              title: "{{ title | default('') }}"
+              message: "{{ message }}"
 
   notifycaroline:
     alias: Simple Notification to Caroline
