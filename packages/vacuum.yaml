@@ -8,6 +8,9 @@ automation:
       platform: webhook
       webhook_id: !secret cleanthedustbin
       local_only: false
+      allowed_methods:
+        - POST
+        - PUT
     action:
       - service: input_boolean.turn_on
         entity_id: input_boolean.cleandustbin
@@ -68,7 +71,14 @@ template:
       - name: "vacuum_battery"
         unique_id: vacuum_battery_sensor
         unit_of_measurement: "%"
-        state: "{{ states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level }}"
+        state: >-
+          {% if states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level is defined and states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level != '' %}
+            {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level }}
+          {% else %}
+            unknown
+          {% endif %}
+        availability: >-
+          {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level is defined and states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level != '' }}
 
 script:
   sendvacuumtokitchen:
@@ -107,18 +117,18 @@ script:
           params: [[25099, 28207, 29799, 31207, 2]]
 
   #with broadlink remote on old Roomba
-  startroomba:
-    sequence:
-      # - service: switch.turn_on
-      #   entity_id: switch.roomba
-      - service: switch.broadlink_send_packet_192_168_1_239
-        data:
-          packet:
-            - "JgCkAFsgHF0cXRxdWiEcXRtdHAACfVsgHFseXRxdWiEcXRxcHAACfVshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxcHAACfVsgHF0cXRxcWyEcXBxdHAACfVsgHF0cXBxdWyAcXRxdHAACfVohHF0cXBxdWyAcXRxdHIwNAA0FAAAAAA=="
+  # startroomba:
+  #   sequence:
+  #     # - service: switch.turn_on
+  #     #   entity_id: switch.roomba
+  #     - service: switch.broadlink_send_packet_192_168_1_239
+  #       data:
+  #         packet:
+  #           - "JgCkAFsgHF0cXRxdWiEcXRtdHAACfVsgHFseXRxdWiEcXRxcHAACfVshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxdHAACfFshHFwcXRxdWyAcXRxcHAACfVsgHF0cXRxcWyEcXBxdHAACfVsgHF0cXBxdWyAcXRxdHAACfVohHF0cXBxdWyAcXRxdHIwNAA0FAAAAAA=="
 
-  stoproomba:
-    sequence:
-      - service: switch.broadlink_send_packet_192_168_1_239
-        data:
-          packet:
-            - "JgCiAFohHF0cXRxcHVtcIB1cWwACRlohHF0cXRxcHVxbIRxcWwACRlohHF0cXB1cHF1bIBxdWwACRVsgHF0cXRxdHFpdIRxcWwACRVsgHVwcWx5dHFxbIRxcWwACRVsgHVwcXRxdHFxbIRxcWwACRVsgHVwcXRxcHVxbIB1cWwACRVohHF0cXRxcHF1bIBxdWwACRVsgHF0cXRxcHVxbIB1cWwANBQAAAAAAAA=="
+  # stoproomba:
+  #   sequence:
+  #     - service: switch.broadlink_send_packet_192_168_1_239
+  #       data:
+  #         packet:
+  #           - "JgCiAFohHF0cXRxcHVtcIB1cWwACRlohHF0cXRxcHVxbIRxcWwACRlohHF0cXB1cHF1bIBxdWwACRVsgHF0cXRxdHFpdIRxcWwACRVsgHVwcWx5dHFxbIRxcWwACRVsgHVwcXRxdHFxbIRxcWwACRVsgHVwcXRxcHVxbIB1cWwACRVohHF0cXRxcHF1bIBxdWwACRVsgHF0cXRxcHVxbIB1cWwANBQAAAAAAAA=="

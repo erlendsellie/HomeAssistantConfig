@@ -57,6 +57,7 @@ logger:
     ring_doorbell.doorbot: error
     homeassistant.components.waze_travel_time.coordinator: fatal
     custom_components.priceanalyzer: debug
+    homeassistant.components.xiaomi_miio: error
 
 
 zone:
@@ -454,7 +455,7 @@ input_boolean:
     icon: mdi:car
   warmupmorning:
     name: warmupmorning
-    initial: off
+    initial: false
   trymasleep:
     name: Trym is asleep
     icon: mhdi:baby-buggy

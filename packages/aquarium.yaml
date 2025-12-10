@@ -37,7 +37,6 @@ template:
           {{power}}
   - binary_sensor:
       - name: "Should Aquarium Night Light Be On"
-        unit_of_measurement: W
         state: >-
           {{states.input_select.alarm.state == 'Disarm' and states.light.aquarium.state == 'off'}}
       - name: "Aquarium Water Change Done"
@@ -295,6 +294,39 @@ automation:
             sequence:
               - service: switch.turn_on
                 entity_id: switch.aquarium_co2
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id == 'lights_on' }}"
+            sequence:
+              - service: light.turn_on
+                entity_id: light.aquarium
+
+  - id: aquarium_algae_prevention
+    alias: "Aquarium Algae Prevention - Daily Off Period"
+    mode: restart
+    trigger:
+      - platform: time
+        at: "14:00:00"
+        id: lights_off
+      - platform: time
+        at: "15:00:00"
+        id: lights_on
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id == 'lights_off' }}"
+            sequence:
+              - service: light.turn_off
+                entity_id: light.aquarium
           - conditions:
               - condition: template
                 value_template: "{{ trigger.id == 'lights_on' }}"

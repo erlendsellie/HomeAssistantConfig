@@ -491,7 +491,7 @@ script:
             message: "{{message}}"
             channel: "{{channel | default('Home Assistant')}}"
       - condition: template
-        value_template: "{{ states.media_player.tv_stua.state != 'off'}}"
+        value_template: "{{ states.media_player.tv_stua.state != 'off' and states.media_player.tv_stua.state != 'unavailable'}}"
       - service: notify.tv_stua
         data_template:
           message: "{{message}}"

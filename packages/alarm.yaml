@@ -1077,15 +1077,28 @@ automation:
       - service: script.turn_off
         target:
           entity_id: script.burglary_alarm_triggered
-      - service: media_player.media_stop
-        target:
-          entity_id:
-            - media_player.minis
-            - media_player.clock
-            - media_player.living_room_speaker
-            - media_player.hallway_speaker
-            - media_player.bathroom
-            - media_player.kitchen_display
+      - choose:
+        - conditions:
+            - condition: template
+              value_template: >
+                {{ 
+                  states('media_player.minis') not in ['off', 'unavailable'] or
+                  states('media_player.clock') not in ['off', 'unavailable'] or
+                  states('media_player.living_room_speaker') not in ['off', 'unavailable'] or
+                  states('media_player.hallway_speaker') not in ['off', 'unavailable'] or
+                  states('media_player.bathroom') not in ['off', 'unavailable'] or
+                  states('media_player.kitchen_display') not in ['off', 'unavailable']
+                }}
+          sequence:
+            - service: media_player.media_stop
+              target:
+                entity_id:
+                  - media_player.minis
+                  - media_player.clock
+                  - media_player.living_room_speaker
+                  - media_player.hallway_speaker
+                  - media_player.bathroom
+                  - media_player.kitchen_display
       - service: script.notifyboth
         data:
           title: "🔇 Innbruddsalarm avvist"
@@ -1466,16 +1479,29 @@ script:
         target:
           entity_id: script.burglary_alarm_triggered
       - service: script.stopplyd
-      - service: media_player.media_stop
-        continue_on_error: true
-        target:
-          entity_id:
-            - media_player.minis
-            - media_player.clock
-            - media_player.living_room_speaker
-            - media_player.hallway_speaker
-            - media_player.bathroom
-            - media_player.kitchen_display
+      - choose:
+        - conditions:
+            - condition: template
+              value_template: >
+                {{ 
+                  states('media_player.minis') not in ['off', 'unavailable'] or
+                  states('media_player.clock') not in ['off', 'unavailable'] or
+                  states('media_player.living_room_speaker') not in ['off', 'unavailable'] or
+                  states('media_player.hallway_speaker') not in ['off', 'unavailable'] or
+                  states('media_player.bathroom') not in ['off', 'unavailable'] or
+                  states('media_player.kitchen_display') not in ['off', 'unavailable']
+                }}
+          sequence:
+            - service: media_player.media_stop
+              continue_on_error: true
+              target:
+                entity_id:
+                  - media_player.minis
+                  - media_player.clock
+                  - media_player.living_room_speaker
+                  - media_player.hallway_speaker
+                  - media_player.bathroom
+                  - media_player.kitchen_display
       - service: vacuum.return_to_base
         continue_on_error: true
         target:
