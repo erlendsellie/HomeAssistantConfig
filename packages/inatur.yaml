@@ -390,10 +390,19 @@ automation:
   - id: "inatur_nytt_tilbud_varsling"
     alias: "Inatur: Nytt jakttilbud"
     description: "Sender varsling når det finnes nye jakttilbud som er oppdatert siden i går."
+    mode: single
     trigger:
       - platform: state
         entity_id: sensor.inatur_midtre_gauldal_updated_yesterday
         attribute: cards
+    condition:
+      - condition: template
+        value_template: >
+          {% set old_cards = trigger.from_state.attributes.cards | default('[]') %}
+          {% set new_cards = trigger.to_state.attributes.cards | default('[]') %}
+          {% set old_list = old_cards if old_cards is list else (old_cards | from_json | default([])) %}
+          {% set new_list = new_cards if new_cards is list else (new_cards | from_json | default([])) %}
+          {{ new_list | length > 0 and old_list != new_list }}
     action:
       - service: notify.mobile_app_erlend_mobil
         data:
@@ -453,4 +462,3 @@ automation:
                   {% else %}
                     https://www.inatur.no
                   {% endif %}
-    mode: single

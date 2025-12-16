@@ -61,8 +61,8 @@ automation:
     action:
       - service: "light.turn_{{trigger.to_state.state}}"
         entity_id: light.upstairs
-        #data_template:
-        #   brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
+        data_template:
+          brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
 
   # - id: turnOffUpstairLights
   #   alias: turnOffUpstairLights

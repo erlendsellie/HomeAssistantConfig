@@ -38,11 +38,25 @@ esp32_ble_tracker:
         lambda: |-
           std::string mac = x.address_str();
           if (mac == "A0:6C:65:E2:1A:25") {
-            if (auto temp = parse_ingics_temp_full(x, "fryser")) {
+            if (auto temp = parse_ingics_ibs03tp(x, "fryser")) {
               id(fryser_internal).publish_state(temp->internal);
               if (temp->has_probe) {
                 id(fryser_probe).publish_state(temp->probe);
               }
+            }
+          }
+          else if (mac == "3C:E0:02:27:0C:BE") {
+            if (auto temp = parse_ingics_ibs03tp(x, "kjoeleskap")) {
+              id(kjoeleskap_internal).publish_state(temp->internal);
+              if (temp->has_probe) {
+                id(kjoeleskap_probe).publish_state(temp->probe);
+              }
+            }
+          }
+          else if (mac == "84:72:93:A1:55:4C") {
+            // iBS01T/iBS01G sensor - temp at bytes 11-12
+            if (auto temp = parse_ingics_ibs01_temp(x, "nede")) {
+              id(nede_temp).publish_state(*temp);
             }
           }
 
@@ -73,6 +87,30 @@ sensor:
   - platform: template
     id: fryser_probe
     name: "Fryser Probe Temp"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+
+  - platform: template
+    id: kjoeleskap_internal
+    name: "Kjøleskap Internal Temp"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+
+  - platform: template
+    id: kjoeleskap_probe
+    name: "Kjøleskap Probe Temp"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    accuracy_decimals: 1
+
+  - platform: template
+    id: nede_temp
+    name: "Nede Temperatur"
     unit_of_measurement: "°C"
     device_class: temperature
     state_class: measurement

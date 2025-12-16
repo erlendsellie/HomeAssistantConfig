@@ -1,0 +1,128 @@
+# Scheduled charging for Elfi charger
+# - Turns off charger during day (when car is plugged in after arriving home)
+# - Turns on charger at night, but only after the other car (Simcon) has finished charging
+
+input_boolean:
+  elfi_charger_schedule_enabled:
+    name: "Elfi Charger Schedule Enabled"
+    icon: mdi:ev-station
+
+input_datetime:
+  elfi_charger_off_time:
+    name: "Elfi Charger Off Time"
+    has_date: false
+    has_time: true
+    icon: mdi:clock-end
+
+  elfi_charger_on_time:
+    name: "Elfi Charger On Time"
+    has_date: false
+    has_time: true
+    icon: mdi:clock-start
+
+  elfi_charger_force_start_time:
+    name: "Elfi Charger Force Start Time"
+    has_date: false
+    has_time: true
+    icon: mdi:clock-alert
+
+input_number:
+  elfi_simcon_idle_threshold:
+    name: "Simcon Idle Power Threshold"
+    min: 0
+    max: 500
+    step: 10
+    unit_of_measurement: "W"
+    icon: mdi:flash
+    initial: 100
+
+automation:
+  - id: elfi_charger_turn_off_scheduled
+    alias: "Elfi Charger - Turn off at scheduled time"
+    mode: single
+    trigger:
+      - platform: time
+        at: input_datetime.elfi_charger_off_time
+    condition:
+      - condition: state
+        entity_id: input_boolean.elfi_charger_schedule_enabled
+        state: "on"
+    action:
+      - service: switch.turn_off
+        target:
+          entity_id: switch.elfi_charger_enabled
+
+  - id: elfi_charger_turn_on_scheduled
+    alias: "Elfi Charger - Turn on at scheduled time"
+    mode: single
+    trigger:
+      - platform: time
+        at: input_datetime.elfi_charger_on_time
+    condition:
+      - condition: state
+        entity_id: input_boolean.elfi_charger_schedule_enabled
+        state: "on"
+    action:
+      - wait_for_trigger:
+          - platform: template
+            value_template: >
+              {{ states('sensor.simcon_power') | float(0) < states('input_number.elfi_simcon_idle_threshold') | float(100) }}
+        timeout: "04:00:00"
+        continue_on_timeout: true
+      - service: switch.turn_on
+        target:
+          entity_id: switch.elfi_charger_enabled
+
+  - id: elfi_charger_force_start
+    alias: "Elfi Charger - Force start at deadline"
+    mode: single
+    trigger:
+      - platform: time
+        at: input_datetime.elfi_charger_force_start_time
+    condition:
+      - condition: state
+        entity_id: input_boolean.elfi_charger_schedule_enabled
+        state: "on"
+      - condition: state
+        entity_id: switch.elfi_charger_enabled
+        state: "off"
+    action:
+      - service: switch.turn_on
+        target:
+          entity_id: switch.elfi_charger_enabled
+
+  - id: elfi_charger_disable_schedule_turns_on
+    alias: "Elfi Charger - Enable charger when schedule disabled"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: input_boolean.elfi_charger_schedule_enabled
+        to: "off"
+    action:
+      - service: switch.turn_on
+        target:
+          entity_id: switch.elfi_charger_enabled
+
+
+# ------------------------------------------------------------------------------
+# Lovelace Card (Norwegian) - Copy this into your dashboard
+# ------------------------------------------------------------------------------
+# type: entities
+# title: Elbillader Styring
+# entities:
+#   - entity: input_boolean.elfi_charger_schedule_enabled
+#     name: Aktiver tidsplan
+#   - entity: switch.elfi_charger_enabled
+#     name: Lader aktiv
+#   - type: divider
+#   - entity: input_datetime.elfi_charger_off_time
+#     name: Slå av lader (klokkeslett)
+#   - entity: input_datetime.elfi_charger_on_time
+#     name: Start lading (klokkeslett)
+#   - entity: input_datetime.elfi_charger_force_start_time
+#     name: Tving start (senest)
+#   - type: divider
+#   - entity: input_number.elfi_simcon_idle_threshold
+#     name: Simcon hvilegrense (W)
+#   - entity: sensor.simcon_power
+#     name: Simcon strømforbruk

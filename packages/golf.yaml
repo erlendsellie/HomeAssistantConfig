@@ -209,10 +209,13 @@ script:
   climate_egolf:
     alias: "Climate E-golf"
     sequence:
-      - service: switch.turn_on
+      - action: climate.turn_on
+        entity_id: climate.e_golf_electric_climatisation
+      - action: switch.turn_on
         entity_id:
           - switch.e_golf_window_heater
-          - switch.e_golf_electric_climatisation
+          #- switch.e_golf_electric_climatisation
+
           #- switch.e_golf_electric_climatisation
           #- switch.e_golf_auxiliary_climatisation
       # - service: climate.turn_on
@@ -239,6 +242,8 @@ script:
   stop_climate_egolf:
     alias: "Stop Climate E-golf"
     sequence:
+      - action: climate.turn_off
+        entity_id: climate.e_golf_electric_climatisation
       - service: switch.turn_off
         entity_id:
           - switch.e_golf_window_heater

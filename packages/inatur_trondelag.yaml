@@ -1,0 +1,92 @@
+command_line:
+  - sensor:
+      name: "iNatur Trøndelag Tilbud"
+      unique_id: inatur_trondelag_tilbud
+      command: "/config/packages/scripts/inatur_trondelag_fetch.sh"
+      scan_interval: 600
+      value_template: "{{ value_json.new_count }}"
+      json_attributes:
+        - new_or_updated
+        - total_filtered
+        - last_check
+
+automation:
+  - id: inatur_trondelag_notify_new_offers
+    alias: "iNatur Trøndelag: Varsle nye tilbud"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: sensor.inatur_trondelag_tilbud
+        attribute: new_or_updated
+    condition:
+      - condition: template
+        value_template: >
+          {% set old_offers = trigger.from_state.attributes.new_or_updated | default([]) if trigger.from_state else [] %}
+          {% set new_offers = trigger.to_state.attributes.new_or_updated | default([]) if trigger.to_state else [] %}
+          {{ new_offers | length > 0 and old_offers != new_offers }}
+    action:
+      - variables:
+          offers: "{{ state_attr('sensor.inatur_trondelag_tilbud', 'new_or_updated') | default([]) }}"
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          title: "🦆 iNatur Trøndelag: {{ offers | length }} tilbud"
+          message: >
+            {% set ns = namespace(messages=[]) %}
+            {% for offer in offers %}
+              {% set status = "🆕 Nytt" if offer.is_new else "📝 Oppdatert" %}
+              {% set kommune = offer.kommuner[0] if offer.kommuner else "Ukjent" %}
+              {% set ns.messages = ns.messages + [status ~ ": " ~ offer.tittel ~ " (" ~ kommune ~ ")"] %}
+            {% endfor %}
+            {{ ns.messages | join('\n') }}
+          data:
+            ttl: 0
+            priority: high
+            channel: inatur
+            vibrationPattern: 1000, 1000, 1000
+            notification_icon: mdi:bird
+            actions:
+              - action: URI
+                title: "Se tilbud"
+                uri: >
+                  {% if offers | length > 0 %}
+                    {{ "https://www.inatur.no" ~ offers[0].url }}
+                  {% else %}
+                    https://www.inatur.no
+                  {% endif %}
+      - service: notify.mobile_app_stian_mobil
+        data:
+          title: "🦆 iNatur Trøndelag: {{ offers | length }} tilbud"
+          message: >
+            {% set ns = namespace(messages=[]) %}
+            {% for offer in offers %}
+              {% set status = "🆕 Nytt" if offer.is_new else "📝 Oppdatert" %}
+              {% set kommune = offer.kommuner[0] if offer.kommuner else "Ukjent" %}
+              {% set ns.messages = ns.messages + [status ~ ": " ~ offer.tittel ~ " (" ~ kommune ~ ")"] %}
+            {% endfor %}
+            {{ ns.messages | join('\n') }}
+          data:
+            ttl: 0
+            priority: high
+            channel: inatur
+            vibrationPattern: 1000, 1000, 1000
+            notification_icon: mdi:bird
+            actions:
+              - action: URI
+                title: "Se tilbud"
+                uri: >
+                  {% if offers | length > 0 %}
+                    {{ "https://www.inatur.no" ~ offers[0].url }}
+                  {% else %}
+                    https://www.inatur.no
+                  {% endif %}
+      - service: persistent_notification.create
+        data:
+          title: "iNatur Trøndelag: {{ offers | length }} nye/oppdaterte tilbud"
+          message: >
+            {% set ns = namespace(messages=[]) %}
+            {% for offer in offers %}
+              {% set status = "🆕 Nytt" if offer.is_new else "📝 Oppdatert" %}
+              {% set kommune = offer.kommuner[0] if offer.kommuner else "Ukjent" %}
+              {% set ns.messages = ns.messages + ["- " ~ status ~ ": [" ~ offer.tittel ~ "](https://www.inatur.no" ~ offer.url ~ ") (" ~ kommune ~ ")"] %}
+            {% endfor %}
+            {{ ns.messages | join('\n') }}
