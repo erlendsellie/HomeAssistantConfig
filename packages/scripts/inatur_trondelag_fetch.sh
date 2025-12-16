@@ -24,7 +24,7 @@ page=0
 total_pages=1
 
 while [ $page -lt $total_pages ]; do
-    url="${BASE_URL}?f=${SEARCH_FILTER}&ledig=false&p=${page}"
+    url="${BASE_URL}?f=${SEARCH_FILTER}&ledig=truee&p=${page}"
     response=$(curl -s "$url")
     
     if [ -z "$response" ]; then
