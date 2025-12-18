@@ -16,7 +16,7 @@ template:
         state: >-
           {% if states.input_select.alarm.state == 'Arm Home' %} 
           20
-          {% elif now().hour >= 21 %}
+          {% elif now().hour >= 21 or now().hour < 6 %}
           50
           {% else %}
           100
