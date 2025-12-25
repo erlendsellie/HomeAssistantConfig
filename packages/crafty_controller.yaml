@@ -244,6 +244,21 @@ template:
             mdi:server-off
           {% endif %}
 
+  - switch:
+      - name: "Minecraft Servers"
+        unique_id: minecraft_servers_control
+        state: "{{ is_state('binary_sensor.minecraft_creative_online', 'on') or is_state('binary_sensor.minecraft_survival_online', 'on') }}"
+        turn_on:
+          - service: script.turn_on
+            entity_id: script.minecraft_creative_start
+          - service: script.turn_on
+            entity_id: script.minecraft_survival_start
+        turn_off:
+          - service: script.turn_on
+            entity_id: script.minecraft_creative_stop
+          - service: script.turn_on
+            entity_id: script.minecraft_survival_stop
+
   - sensor:
       - name: "Minecraft Total Players"
         unique_id: minecraft_total_players
