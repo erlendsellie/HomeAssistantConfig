@@ -1,0 +1,254 @@
+# Crafty Controller - Minecraft Server Management
+# API Token must be set in secrets.yaml as: crafty_api_token
+
+rest:
+  - resource: https://192.168.1.191:8443/api/v2/servers/86274ed1-7662-4029-b0e5-f419aed322e5/stats
+    scan_interval: 30
+    verify_ssl: false
+    headers:
+      Authorization: !secret crafty_api_token
+    sensor:
+      - name: "Minecraft Creative Status"
+        unique_id: minecraft_creative_status
+        value_template: >
+          {% if value_json.status == 'ok' %}
+            {{ 'online' if value_json.data.running else 'offline' }}
+          {% else %}
+            unavailable
+          {% endif %}
+        json_attributes_path: "$.data"
+        json_attributes:
+          - cpu
+          - mem
+          - mem_percent
+          - online
+          - max
+          - players
+          - version
+          - world_size
+          - crashed
+          - updating
+
+      - name: "Minecraft Creative Players"
+        unique_id: minecraft_creative_players
+        value_template: "{{ value_json.data.online | default(0) }}"
+        unit_of_measurement: "players"
+
+      - name: "Minecraft Creative CPU"
+        unique_id: minecraft_creative_cpu
+        value_template: "{{ value_json.data.cpu | default(0) }}"
+        unit_of_measurement: "%"
+
+      - name: "Minecraft Creative Memory"
+        unique_id: minecraft_creative_memory
+        value_template: >
+          {% set mem = value_json.data.mem | default('0MB') %}
+          {% if 'GB' in mem %}
+            {{ (mem | replace('GB', '') | float * 1024) | round(0) }}
+          {% elif 'MB' in mem %}
+            {{ mem | replace('MB', '') | float | round(0) }}
+          {% else %}
+            0
+          {% endif %}
+        unit_of_measurement: "MB"
+        device_class: data_size
+        state_class: measurement
+
+  - resource: https://192.168.1.191:8443/api/v2/servers/db67855d-2826-4fc9-a5b2-d217f5b9bbb7/stats
+    scan_interval: 30
+    verify_ssl: false
+    headers:
+      Authorization: !secret crafty_api_token
+    sensor:
+      - name: "Minecraft Survival Status"
+        unique_id: minecraft_survival_status
+        value_template: >
+          {% if value_json.status == 'ok' %}
+            {{ 'online' if value_json.data.running else 'offline' }}
+          {% else %}
+            unavailable
+          {% endif %}
+        json_attributes_path: "$.data"
+        json_attributes:
+          - cpu
+          - mem
+          - mem_percent
+          - online
+          - max
+          - players
+          - version
+          - world_size
+          - crashed
+          - updating
+
+      - name: "Minecraft Survival Players"
+        unique_id: minecraft_survival_players
+        value_template: "{{ value_json.data.online | default(0) }}"
+        unit_of_measurement: "players"
+
+      - name: "Minecraft Survival CPU"
+        unique_id: minecraft_survival_cpu
+        value_template: "{{ value_json.data.cpu | default(0) }}"
+        unit_of_measurement: "%"
+
+      - name: "Minecraft Survival Memory"
+        unique_id: minecraft_survival_memory
+        value_template: >
+          {% set mem = value_json.data.mem | default('0MB') %}
+          {% if 'GB' in mem %}
+            {{ (mem | replace('GB', '') | float * 1024) | round(0) }}
+          {% elif 'MB' in mem %}
+            {{ mem | replace('MB', '') | float | round(0) }}
+          {% else %}
+            0
+          {% endif %}
+        unit_of_measurement: "MB"
+        device_class: data_size
+        state_class: measurement
+
+rest_command:
+  crafty_creative_start:
+    url: https://192.168.1.191:8443/api/v2/servers/86274ed1-7662-4029-b0e5-f419aed322e5/action/start_server
+    method: POST
+    verify_ssl: false
+    headers:
+      Authorization: !secret crafty_api_token
+
+  crafty_creative_stop:
+    url: https://192.168.1.191:8443/api/v2/servers/86274ed1-7662-4029-b0e5-f419aed322e5/action/stop_server
+    method: POST
+    verify_ssl: false
+    headers:
+      Authorization: !secret crafty_api_token
+
+  crafty_creative_restart:
+    url: https://192.168.1.191:8443/api/v2/servers/86274ed1-7662-4029-b0e5-f419aed322e5/action/restart_server
+    method: POST
+    verify_ssl: false
+    headers:
+      Authorization: !secret crafty_api_token
+
+  crafty_creative_backup:
+    url: https://192.168.1.191:8443/api/v2/servers/86274ed1-7662-4029-b0e5-f419aed322e5/action/backup_server
+    method: POST
+    verify_ssl: false
+    headers:
+      Authorization: !secret crafty_api_token
+
+  crafty_survival_start:
+    url: https://192.168.1.191:8443/api/v2/servers/db67855d-2826-4fc9-a5b2-d217f5b9bbb7/action/start_server
+    method: POST
+    verify_ssl: false
+    headers:
+      Authorization: !secret crafty_api_token
+
+  crafty_survival_stop:
+    url: https://192.168.1.191:8443/api/v2/servers/db67855d-2826-4fc9-a5b2-d217f5b9bbb7/action/stop_server
+    method: POST
+    verify_ssl: false
+    headers:
+      Authorization: !secret crafty_api_token
+
+  crafty_survival_restart:
+    url: https://192.168.1.191:8443/api/v2/servers/db67855d-2826-4fc9-a5b2-d217f5b9bbb7/action/restart_server
+    method: POST
+    verify_ssl: false
+    headers:
+      Authorization: !secret crafty_api_token
+
+  crafty_survival_backup:
+    url: https://192.168.1.191:8443/api/v2/servers/db67855d-2826-4fc9-a5b2-d217f5b9bbb7/action/backup_server
+    method: POST
+    verify_ssl: false
+    headers:
+      Authorization: !secret crafty_api_token
+
+script:
+  minecraft_creative_start:
+    alias: "Start Minecraft Creative"
+    icon: mdi:play
+    mode: single
+    sequence:
+      - service: rest_command.crafty_creative_start
+
+  minecraft_creative_stop:
+    alias: "Stop Minecraft Creative"
+    icon: mdi:stop
+    mode: single
+    sequence:
+      - service: rest_command.crafty_creative_stop
+
+  minecraft_creative_restart:
+    alias: "Restart Minecraft Creative"
+    icon: mdi:restart
+    mode: single
+    sequence:
+      - service: rest_command.crafty_creative_restart
+
+  minecraft_creative_backup:
+    alias: "Backup Minecraft Creative"
+    icon: mdi:backup-restore
+    mode: single
+    sequence:
+      - service: rest_command.crafty_creative_backup
+
+  minecraft_survival_start:
+    alias: "Start Minecraft Survival"
+    icon: mdi:play
+    mode: single
+    sequence:
+      - service: rest_command.crafty_survival_start
+
+  minecraft_survival_stop:
+    alias: "Stop Minecraft Survival"
+    icon: mdi:stop
+    mode: single
+    sequence:
+      - service: rest_command.crafty_survival_stop
+
+  minecraft_survival_restart:
+    alias: "Restart Minecraft Survival"
+    icon: mdi:restart
+    mode: single
+    sequence:
+      - service: rest_command.crafty_survival_restart
+
+  minecraft_survival_backup:
+    alias: "Backup Minecraft Survival"
+    icon: mdi:backup-restore
+    mode: single
+    sequence:
+      - service: rest_command.crafty_survival_backup
+
+template:
+  - binary_sensor:
+      - name: "Minecraft Creative Online"
+        unique_id: minecraft_creative_online
+        state: "{{ states('sensor.minecraft_creative_status') == 'online' }}"
+        device_class: connectivity
+        icon: >
+          {% if is_state('sensor.minecraft_creative_status', 'online') %}
+            mdi:minecraft
+          {% else %}
+            mdi:server-off
+          {% endif %}
+
+      - name: "Minecraft Survival Online"
+        unique_id: minecraft_survival_online
+        state: "{{ states('sensor.minecraft_survival_status') == 'online' }}"
+        device_class: connectivity
+        icon: >
+          {% if is_state('sensor.minecraft_survival_status', 'online') %}
+            mdi:minecraft
+          {% else %}
+            mdi:server-off
+          {% endif %}
+
+  - sensor:
+      - name: "Minecraft Total Players"
+        unique_id: minecraft_total_players
+        state: >
+          {{ (states('sensor.minecraft_creative_players') | int(0)) + 
+             (states('sensor.minecraft_survival_players') | int(0)) }}
+        unit_of_measurement: "players"
+        icon: mdi:account-group

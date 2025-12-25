@@ -18,29 +18,40 @@ if [ ! -f "$STORAGE_FILE" ]; then
     echo '{"offers":{}}' > "$STORAGE_FILE"
 fi
 
-# Fetch all pages
-all_offers="[]"
-page=0
-total_pages=1
+# Fetch first page only (API sorts by sistOppdatert desc, so new/updated offers appear first)
+url="${BASE_URL}?f=${SEARCH_FILTER}&ledig=true&p=0"
+response=$(curl -s "$url")
 
-while [ $page -lt $total_pages ]; do
-    url="${BASE_URL}?f=${SEARCH_FILTER}&ledig=truee&p=${page}"
-    response=$(curl -s "$url")
-    
-    if [ -z "$response" ]; then
-        echo '{"error":"Failed to fetch page '$page'"}' >&2
-        break
-    fi
-    
-    # Get pagination info
-    total_pages=$(echo "$response" | jq -r '.paginering.totaltAntallSider // 1')
-    
-    # Extract results and append
-    page_offers=$(echo "$response" | jq '.resultat // []')
-    all_offers=$(echo "$all_offers" "$page_offers" | jq -s 'add')
-    
-    page=$((page + 1))
-done
+if [ -z "$response" ]; then
+    echo '{"error":"Failed to fetch page 0"}' >&2
+    exit 1
+fi
+
+all_offers=$(echo "$response" | jq '.resultat // []')
+
+# # Fetch all pages (commented out - revert if single page isn't enough)
+# all_offers="[]"
+# page=0
+# total_pages=1
+# 
+# while [ $page -lt $total_pages ]; do
+#     url="${BASE_URL}?f=${SEARCH_FILTER}&ledig=true&p=${page}"
+#     response=$(curl -s "$url")
+#     
+#     if [ -z "$response" ]; then
+#         echo '{"error":"Failed to fetch page '$page'"}' >&2
+#         break
+#     fi
+#     
+#     # Get pagination info
+#     total_pages=$(echo "$response" | jq -r '.paginering.totaltAntallSider // 1')
+#     
+#     # Extract results and append
+#     page_offers=$(echo "$response" | jq '.resultat // []')
+#     all_offers=$(echo "$all_offers" "$page_offers" | jq -s 'add')
+#     
+#     page=$((page + 1))
+# done
 
 # Filter offers:
 # 1. Remove blacklisted municipalities
