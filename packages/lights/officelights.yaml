@@ -1,0 +1,87 @@
+scene:
+  - id: office_default
+    name: Office Default
+    entities:
+      light.play2:
+        state: "on"
+        brightness: 255
+        xy_color: [0.145, 0.218]
+      light.play1:
+        state: "off"
+      light.office_light:
+        state: "off"
+
+  - id: office_full
+    name: Office Full
+    entities:
+      light.play:
+        state: "on"
+        brightness: 255
+      light.office_light:
+        state: "on"
+        brightness: 255
+
+  - id: office_off
+    name: Office Off
+    entities:
+      light.play:
+        state: "off"
+      light.office_light:
+        state: "off"
+
+automation:
+  - id: office_motion_light_on
+    alias: "Office motion light on"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_downstairs_office
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.guestmode
+        state: "off"
+    action:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.office_default
+
+  - id: office_motion_light_off
+    alias: "Office motion light off"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.motion_downstairs_office
+        to: "off"
+        for:
+          minutes: 5
+    condition:
+      - condition: state
+        entity_id: input_boolean.guestmode
+        state: "off"
+    action:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.office_off
+
+script:
+  restoreofficecolor:
+    alias: "Restore Office Color"
+    mode: restart
+    sequence:
+      - service: light.turn_on
+        target:
+          entity_id: light.play
+        data:
+          brightness_pct: 30
+          color_temp_kelvin: 500
+      - delay:
+          minutes: 5
+      - condition: state
+        entity_id: binary_sensor.motion_downstairs_office
+        state: "off"
+        for:
+          minutes: 5
+      - service: scene.turn_on
+        target:
+          entity_id: scene.office_off

@@ -18,26 +18,30 @@ automation:
               - condition: template
                 value_template: "{{ button == up}}"
             sequence:
-              - service: light.turn_on
-                entity_id: light.play, light.office_light
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.office_full
           - conditions:
               - condition: template
                 value_template: "{{ button == down}}"
             sequence:
-              - service: light.turn_off
-                entity_id: light.play, light.office_light
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.office_off
           - conditions:
               - condition: template
                 value_template: "{{ button == left}}"
             sequence:
-              - service: light.turn_on
-                entity_id: light.play, light.office_light
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.office_default
           - conditions:
               - condition: template
                 value_template: "{{ button == right}}"
             sequence:
-              - service: light.turn_off
-                entity_id: light.play, light.office_light
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.office_default
         default:
           - service: script.telegram_notify
             data:

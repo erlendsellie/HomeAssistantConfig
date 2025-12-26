@@ -157,38 +157,6 @@ automation:
   #       variables:
   #         title: Play turned on.
   #         message: Play Turned on.
-  - alias: TurnOnOfficeLight
-    trigger:
-      trigger: state
-      entity_id: binary_sensor.motion_downstairs_office
-      to: "on"
-    condition:
-      - condition: state
-        entity_id: input_boolean.guestmode
-        state: "off"
-    action:
-      - action: light.turn_on
-        entity_id:
-          - light.office_light
-          - light.play
-    # - service: light.turn_on
-    #   entity_id: light.sokkel
-
-  - alias: TurnOffOfficeLight
-    trigger:
-      platform: state
-      entity_id: binary_sensor.motion_downstairs_office
-      to: "off"
-      for:
-        minutes: 5
-    condition:
-      - condition: state
-        entity_id: input_boolean.guestmode
-        state: "off"
-    action:
-      - service: light.turn_off
-        entity_id: light.office_light, light.play
-
   - alias: turnonbedroomlightMorningWakeuplight
     trigger:
       # - platform: time
@@ -586,20 +554,6 @@ script:
         value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
       - service: light.turn_off
         entity_id: group.colorlightsliving
-
-  restoreofficecolor:
-    sequence:
-      - service: light.turn_on
-        entity_id: light.play
-        data_template:
-          brightness_pct: "30"
-          color_temp_kelvin: 500
-      - delay:
-          seconds: 10
-      - condition: template
-        value_template: "{{ states.binary_sensor.motion_downstairs_office.state  == 'off'}}"
-      - service: light.turn_off
-        entity_id: light.play
 
   blink_livingroom_lights:
     alias: Blink Livingroom Lights
