@@ -42,7 +42,7 @@ rest:
       - name: "Minecraft Creative Memory"
         unique_id: minecraft_creative_memory
         value_template: >
-          {% set mem = value_json.data.mem | default('0MB') %}
+          {% set mem = value_json.data.mem | default('0MB') | string %}
           {% if 'GB' in mem %}
             {{ (mem | replace('GB', '') | float * 1024) | round(0) }}
           {% elif 'MB' in mem %}
@@ -94,7 +94,7 @@ rest:
       - name: "Minecraft Survival Memory"
         unique_id: minecraft_survival_memory
         value_template: >
-          {% set mem = value_json.data.mem | default('0MB') %}
+          {% set mem = value_json.data.mem | default('0MB') | string %}
           {% if 'GB' in mem %}
             {{ (mem | replace('GB', '') | float * 1024) | round(0) }}
           {% elif 'MB' in mem %}

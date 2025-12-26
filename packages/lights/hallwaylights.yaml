@@ -59,10 +59,21 @@ automation:
       #     - binary_sensor.tyra_door
       #     - binary_sensor.door_bathroom
     action:
-      - service: "light.turn_{{trigger.to_state.state}}"
-        entity_id: light.upstairs
-        data_template:
-          brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.should_upstair_lights_be_on
+                state: "on"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.upstairs
+                data:
+                  brightness_pct: "{{ states('sensor.brightnessforupstairslights') | int }}"
+        default:
+          - service: light.turn_off
+            target:
+              entity_id: light.upstairs
 
   # - id: turnOffUpstairLights
   #   alias: turnOffUpstairLights

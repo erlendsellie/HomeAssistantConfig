@@ -45,8 +45,9 @@ action:
   - condition: template
     value_template: "{{ states(climate) == 'heat' or states(climate) == 'off'}}"
   - service: climate.set_temperature
-    data_template:
-      entity_id: !input climate
+    target:
+      entity_id: "{{ climate }}"
+    data:
       temperature: >-
         {%-set baseTemp = states(number) | float(default=0)%}
         {%-set priceanalyzer = states(sensor) | float(default=0)%}
