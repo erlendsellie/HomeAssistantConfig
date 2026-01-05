@@ -48,7 +48,9 @@ alarm_control_panel:
     #   delay_time: 0
 
 automation:
-  - alias: Arm Alarm
+  - id: arm_alarm
+    alias: "Arm Alarm"
+    mode: restart
     trigger:
       - platform: state
         entity_id: sensor.alarm
@@ -56,15 +58,39 @@ automation:
         event: start
       - platform: state
         entity_id: input_boolean.guestmode
-    condition:
-      - condition: state
-        entity_id: input_boolean.guestmode
-        state: "off"
     action:
-      - service: input_select.select_option
-        data_template:
-          entity_id: input_select.alarm
-          option: "{{ states.sensor.alarm.state }}"
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.guestmode
+                state: "on"
+            sequence:
+              - stop: "Guest mode is on, not arming"
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.guest_network_count
+                above: 0
+              - condition: state
+                entity_id: sensor.alarm
+                state:
+                  - "Arm Home"
+                  - "Arm Away"
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id:
+                    - input_boolean.guestmode
+                    - input_boolean.guestmode_by_guest_network
+              - service: script.telegram_notify
+                data:
+                  message: >-
+                    Gjestemodus aktivert automatisk i stedet for å armere alarmen.
+                    {{ states('sensor.guest_network_count') }} enheter er koblet til gjestenettet.
+        default:
+          - service: input_select.select_option
+            data_template:
+              entity_id: input_select.alarm
+              option: "{{ states.sensor.alarm.state }}"
 
   - alias: RequestLocation
     trigger:

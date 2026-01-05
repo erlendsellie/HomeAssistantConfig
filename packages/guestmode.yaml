@@ -1,4 +1,35 @@
+input_boolean:
+  guestmode_by_guest_network:
+    name: "Guest mode enabled by guest network"
+    icon: mdi:wifi-alert
+
 automation:
+  - id: guestmode_auto_disable_when_no_guests
+    alias: "Auto disable guest mode when no guests on network"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.guest_network_count
+        below: 1
+        for:
+          minutes: 5
+    condition:
+      - condition: state
+        entity_id: input_boolean.guestmode
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.guestmode_by_guest_network
+        state: "on"
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id:
+            - input_boolean.guestmode
+            - input_boolean.guestmode_by_guest_network
+      - service: script.telegram_notify
+        data:
+          message: "Gjestemodus automatisk deaktivert fordi ingen enheter er på gjestenettet lenger."
+
   - alias: guestmode_turnOffLightsAndHeating
     trigger:
       - platform: time
@@ -61,12 +92,14 @@ automation:
         data_template:
           message: "Motion detected in {{ trigger.from_state.name }}."
 
-  - alias: Auto Disable Guestmode
+  - id: guestmode_auto_disable
+    alias: "Auto Disable Guestmode"
+    mode: single
     trigger:
       - platform: state
         entity_id: sensor.alarm
         to: "Disarm"
-        from: 
+        from:
           - "Arm Home"
           - "Arm Away"
           - "Arm Night"
@@ -78,7 +111,10 @@ automation:
         state: "on"
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.guestmode
+        target:
+          entity_id:
+            - input_boolean.guestmode
+            - input_boolean.guestmode_by_guest_network
       - service: script.telegram_notify
         data:
           message: "Gjestemodus automatisk slått av fordi du er hjemme og våken."
