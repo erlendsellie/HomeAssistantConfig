@@ -35,6 +35,9 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.accumulated_consumption_current_hour_sivert_thonstads_vei_6b
+    condition:
+      - condition: template
+        value_template: "{{ trigger.to_state.state | float(-1) >= 0 }}"
     action:
       - service: utility_meter.calibrate
         target:
@@ -51,6 +54,9 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.accumulated_consumption_sivert_thonstads_vei_6b
+    condition:
+      - condition: template
+        value_template: "{{ trigger.to_state.state | float(-1) >= 0 }}"
     action:
       - service: utility_meter.calibrate
         target:
@@ -66,6 +72,9 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.monthly_net_consumption_sivert_thonstads_vei_6b
+    condition:
+      - condition: template
+        value_template: "{{ trigger.to_state.state | float(-1) >= 0 }}"
     action:
       - service: utility_meter.calibrate
         target:

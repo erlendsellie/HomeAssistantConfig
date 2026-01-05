@@ -169,7 +169,7 @@ automation:
       - service: script.telegram_notify
         data_template:
           title: Important device unavailable
-          message: "{{trigger.from_state.name}} ({{trigger.from_state.entity_id}}) is unavailable"
+          message: "{{trigger.from_state.name}} - {{trigger.from_state.entity_id}} - is unavailable"
 
   - alias: NotifyImportantDevicesDownNew
     id: NotifyImportantDevicesDownNew
