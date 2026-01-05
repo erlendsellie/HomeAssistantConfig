@@ -1,0 +1,7 @@
+template:
+  - binary_sensor:
+      - name: "veranda_open"
+        unique_id: veranda_open_combined
+        device_class: opening
+        state: >
+          {{ is_state('binary_sensor.veranda_open_actual', 'on') and is_state('binary_sensor.veranda', 'on') }}
