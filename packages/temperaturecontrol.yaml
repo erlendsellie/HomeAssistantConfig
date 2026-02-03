@@ -403,27 +403,31 @@ template:
         unique_id: trymtemp_sensor
         unit_of_measurement: "C"
         state: >-
-          {%-set priceCorrection =  states.sensor.priceanalyzer.state | float(default=0) %}
-          {%-set hour = now().hour | int(default=0)-%}
+          {%-set priceCorrection = states.sensor.priceanalyzer.state | float(default=0) %}
+          {%-set hour = now().hour | int(default=0) %}
           {%-set trymasleep = states.input_boolean.trymasleep.state == 'on' -%}
-          {%-set trymaway = states.input_boolean.tryminkindergarden.state == 'on'%}
-          {%-set away = states.input_select.alarm.state == 'Arm Away'%}
-          {%-set windowopen = states.binary_sensor.trym_window.state == 'on'%}
+          {%-set trymaway = states.input_boolean.tryminkindergarden.state == 'on' %}
+          {%-set away = states.input_select.alarm.state == 'Arm Away' %}
+          {%-set windowopen = states.binary_sensor.trym_window.state == 'on' %}
           {%-set bedroomheateron = states.switch.bedroom_heater.state == 'on' %}
-          {%-set trymtemp = states.input_number.trym_temp.state | float %}
-          {% if away or trymaway or windowopen %}
-            {%-set temp = trymtemp - 5%}
-          {% elif trymasleep or hour > 17 %}
-            {%-set temp = trymtemp%}
+          {%-set trymtemp_awake = states.input_number.trym_temp.state | float(default=20) %}
+          {%-set sleeptemp = 18 %}
+          {% if bedroomheateron %}
+            {%-set temp = 4 -%}
+          {% elif away or windowopen %}
+            {%-set temp = trymtemp_awake - 5 %}
+          {% elif trymaway and hour >= 15 %}
+            {%-set temp = trymtemp_awake %}
+          {% elif trymaway %}
+            {%-set temp = 10 %}
+          {% elif trymasleep %}
+            {%-set temp = sleeptemp %}
           {% else %}
-            {%-set temp = trymtemp - 5%}
+            {%-set temp = trymtemp_awake %}
           {% endif %}
           {% set limit = states.input_boolean.limit_heaters.state == 'on' %}
           {% if limit %}
             {%-set temp = temp - 2 -%}
-          {% endif %}
-          {% if bedroomheateron %}
-            {%-set temp = 4 -%}
           {% endif %}
           {{temp + priceCorrection}}
 
@@ -431,27 +435,31 @@ template:
         unique_id: tyratemp_sensor
         unit_of_measurement: "C"
         state: >-
-          {%-set priceCorrection =  states.sensor.priceanalyzer.state | float(default=0) %}
-          {%-set hour = now().hour | float(default=0)-%}
+          {%-set priceCorrection = states.sensor.priceanalyzer.state | float(default=0) %}
+          {%-set hour = now().hour | int(default=0) %}
           {%-set tyraasleep = states.input_boolean.tyraasleep.state == 'on' -%}
-          {%-set tyraaway = states.input_boolean.tyrainkindergarden.state == 'on'%}
-          {%-set away = states.input_select.alarm.state == 'Arm Away'%}
+          {%-set tyraaway = states.input_boolean.tyrainkindergarden.state == 'on' %}
+          {%-set away = states.input_select.alarm.state == 'Arm Away' %}
           {%-set windowopen = states.binary_sensor.tyra_window.state == 'on' %}
           {%-set bedroomheateron = states.switch.bedroom_heater.state == 'on' %}
-          {%-set tyratemp = states.input_number.tyra_temp.state | float %}
-          {% if away or windowopen %}
-            {%-set temp = tyratemp - 5%}
-          {% elif (tyraasleep)  or hour > 17 %}
-            {%-set temp = tyratemp%}
+          {%-set tyratemp_awake = states.input_number.tyra_temp.state | float(default=20) %}
+          {%-set sleeptemp = 18 %}
+          {% if bedroomheateron %}
+            {%-set temp = 4 -%}
+          {% elif away or windowopen %}
+            {%-set temp = tyratemp_awake - 5 %}
+          {% elif tyraaway and hour >= 15 %}
+            {%-set temp = tyratemp_awake %}
+          {% elif tyraaway %}
+            {%-set temp = 10 %}
+          {% elif tyraasleep %}
+            {%-set temp = sleeptemp %}
           {% else %}
-            {%-set temp = tyratemp - 5%}
+            {%-set temp = tyratemp_awake %}
           {% endif %}
           {% set limit = states.input_boolean.limit_heaters.state == 'on' %}
           {% if limit %}
             {%-set temp = temp - 2 -%}
-          {% endif %}
-          {% if bedroomheateron %}
-            {%-set temp = 4 -%}
           {% endif %}
           {{temp + priceCorrection}}
 
