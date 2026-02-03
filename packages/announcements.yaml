@@ -851,7 +851,7 @@ automation:
     trigger:
       - platform: zone
         entity_id: person.erlend
-        zone: zone.park_work
+        zone: zone.work
         event: leave #or enter
         # for:
         #   minutes: 2

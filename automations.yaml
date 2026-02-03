@@ -317,3 +317,24 @@
       extra_instructions: Look for things in my driveway camera, and tell me what's
         there.
       analysis_delay: 2
+- id: '1768244540890'
+  alias: Trym kode test
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.trym_motion
+    to:
+    - 'on'
+  conditions: []
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    target:
+      entity_id: light.trym_balloon
+    data:
+      rgb_color:
+      - 0
+      - 0
+      - 255
+  mode: single

@@ -4,6 +4,27 @@ input_boolean:
     icon: mdi:wifi-alert
 
 automation:
+  - id: guestmode_auto_enable_when_guests
+    alias: "Auto enable guest mode when guests on network"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.guest_network_count
+        above: 0
+    condition:
+      - condition: state
+        entity_id: input_boolean.guestmode
+        state: "off"
+    action:
+      - service: input_boolean.turn_on
+        target:
+          entity_id:
+            - input_boolean.guestmode
+            - input_boolean.guestmode_by_guest_network
+      - service: script.telegram_notify
+        data:
+          message: "Gjestemodus automatisk aktivert fordi en enhet koblet til gjestenettet."
+
   - id: guestmode_auto_disable_when_no_guests
     alias: "Auto disable guest mode when no guests on network"
     mode: single
@@ -30,7 +51,7 @@ automation:
         data:
           message: "Gjestemodus automatisk deaktivert fordi ingen enheter er på gjestenettet lenger."
 
-  - alias: guestmode_turnOffLightsAndHeating
+  - alias: guestmode_turnOffLights
     trigger:
       - platform: time
         at: "23:59:00"
@@ -43,13 +64,12 @@ automation:
         data:
           entity_id: lock.ytterdor_bluetooth
           code: !secret lock_code
-
-      - entity_id: script.alllightsoff
-        service: script.turn_on
-      - entity_id: script.alllightsoff
-        service: script.turn_on
-      - service: switch.turn_off
-        entity_id: switch.nexa3 #Fan Heater
+      # - entity_id: script.alllightsoff
+      #   service: script.turn_on
+      # - entity_id: script.alllightsoff
+      #   service: script.turn_on
+      # - service: switch.turn_off
+      #   entity_id: switch.nexa3 #Fan Heater
 
   - id: guestmode_lockdoors
     alias: guestmode_lockdoors

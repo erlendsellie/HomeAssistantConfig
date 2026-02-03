@@ -196,41 +196,30 @@ automation:
         - condition: state
           entity_id: lock.ytterdor_bluetooth
           state: "locked"
+        - condition: template
+          value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
     action:
       - service: script.turn_on
         entity_id: script.unlockdoor
-      - condition: template
-        value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
-      - service: script.telegram_notify
-        data_template:
-          title: "door unlocked"
-          message: "The door was unlocked by Garage. {{states.sensor.peoplehome.state}} are home. "
-      - service: script.telegram_notify
-        data:
-          title: "door unlocked"
-          message: "The door was unlocked automatically by garage."
-          data:
-            photo:
-              url: !secret outdoorcamerastream
       - delay:
           minutes: 5
       - condition: template
         value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed, default=0)) / 60) | round(0)) > 5) and (states.lock.ytterdor_bluetooth.state == 'unlocked')}}"
       - service: script.turn_on
         entity_id: script.lockdoor
-      - service: camera.snapshot
-        data:
-          entity_id: camera.driveway
-          filename: "/tmp/snapshot.jpg"
-      - service: script.telegram_notify #earlier erlendpush
-        data:
-          title: "door locked"
-          message: "The door was locked since no one opened it. Garage is {{states.cover.garage_door.state}}"
-          data:
-            file: /tmp/snapshot.jpg
-      - condition: template
-        value_template: "{{states.input_boolean.guestmode.state == 'off' and states.sensor.alarm.state != 'Disarm' }}"
-      - service: input_select.select_option
-        data_template:
-          entity_id: input_select.alarm
-          option: "{{ states.sensor.alarm.state }}"
+      # - service: camera.snapshot
+      #   data:
+      #     entity_id: camera.driveway
+      #     filename: "/tmp/snapshot.jpg"
+      # - service: script.telegram_notify #earlier erlendpush
+      #   data:
+      #     title: "door locked"
+      #     message: "The door was locked since no one opened it. Garage is {{states.cover.garage_door.state}}"
+      #     data:
+      #       file: /tmp/snapshot.jpg
+      # - condition: template
+      #   value_template: "{{states.input_boolean.guestmode.state == 'off' and states.sensor.alarm.state != 'Disarm' }}"
+      # - service: input_select.select_option
+      #   data_template:
+      #     entity_id: input_select.alarm
+      #     option: "{{ states.sensor.alarm.state }}"

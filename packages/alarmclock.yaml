@@ -23,6 +23,10 @@ automation:
         {%-set nextAlarm = states.sensor.erlend_mobil_next_alarm.state -%}
         {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
         {{(nextAlarmAsTimestamp - as_timestamp(utcnow())) < 10}}
+    condition:
+      - condition: state
+        entity_id: input_boolean.alarmclock
+        state: "on"
     action:
       - service: input_boolean.turn_on
         entity_id: input_boolean.force_to_wake_up

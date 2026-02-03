@@ -1,0 +1,34 @@
+command_line:
+  - sensor:
+      name: posten_tracking_ll107781905no
+      unique_id: posten_tracking_ll107781905no
+      command: >-
+        curl -s "https://sporing.posten.no/sporing/LL107781905NO" 2>/dev/null |
+        sed 's/\\"/"/g' |
+        grep -oP '"description","[^"]+' |
+        head -1 |
+        cut -d'"' -f4
+      scan_interval: 120
+      command_timeout: 30
+
+automation:
+  - id: notify_posten_tracking_ll107781905no
+    alias: "Notify Posten tracking LL107781905NO"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: sensor.posten_tracking_ll107781905no
+    condition:
+      - condition: template
+        value_template: "{{ trigger.to_state.state != trigger.from_state.state }}"
+      - condition: template
+        value_template: "{{ trigger.to_state.state not in ['unknown', 'unavailable', ''] }}"
+    action:
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          title: "📦 Pakke oppdatering"
+          message: "{{ trigger.to_state.state }}"
+          data:
+            clickAction: "https://sporing.posten.no/sporing/LL107781905NO"
+            ttl: 0
+            priority: high

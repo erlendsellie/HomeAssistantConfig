@@ -51,6 +51,66 @@ template:
           mdi:car-electric
           {% endif %}
   - sensor:
+      - name: "Tesla Current User"
+        unique_id: tesla_current_user
+        icon: mdi:account-car
+        state: >-
+          {% set car_lat = state_attr('device_tracker.modely_location_tracker', 'latitude') | float(0) %}
+          {% set car_lon = state_attr('device_tracker.modely_location_tracker', 'longitude') | float(0) %}
+          {% set erlend_lat = state_attr('person.erlend', 'latitude') | float(0) %}
+          {% set erlend_lon = state_attr('person.erlend', 'longitude') | float(0) %}
+          {% set caroline_lat = state_attr('person.caroline', 'latitude') | float(0) %}
+          {% set caroline_lon = state_attr('person.caroline', 'longitude') | float(0) %}
+          {% set car_zone = states('device_tracker.modely_location_tracker') %}
+          {% set erlend_zone = states('person.erlend') %}
+          {% set caroline_zone = states('person.caroline') %}
+          {% set erlend_dist = distance(car_lat, car_lon, erlend_lat, erlend_lon) | float(999) %}
+          {% set caroline_dist = distance(car_lat, car_lon, caroline_lat, caroline_lon) | float(999) %}
+          {% set last_driver = states('input_text.tesla_last_driver') %}
+          {% set close_threshold = 0.5 %}
+          {% set nearby_threshold = 2 %}
+          {% set ratio_threshold = 3 %}
+          {% set away_threshold = 15 %}
+          {% set erlend_close = erlend_dist < close_threshold %}
+          {% set caroline_close = caroline_dist < close_threshold %}
+          {% set erlend_nearby = erlend_dist < nearby_threshold %}
+          {% set caroline_nearby = caroline_dist < nearby_threshold %}
+          {% set erlend_same_zone = erlend_zone == car_zone and car_zone not in ['home', 'unknown', 'unavailable'] %}
+          {% set caroline_same_zone = caroline_zone == car_zone and car_zone not in ['home', 'unknown', 'unavailable'] %}
+          {% set erlend_much_closer = erlend_dist < caroline_dist / ratio_threshold %}
+          {% set caroline_much_closer = caroline_dist < erlend_dist / ratio_threshold %}
+          {% set both_far = erlend_dist > nearby_threshold and caroline_dist > nearby_threshold %}
+          {% set erlend_on_trip = last_driver in ['Erlend', 'Both'] and erlend_dist < away_threshold and both_far %}
+          {% set caroline_on_trip = last_driver in ['Caroline', 'Both'] and caroline_dist < away_threshold and both_far %}
+          {% set erlend_with_car = erlend_close or erlend_nearby or erlend_same_zone or erlend_much_closer or erlend_on_trip %}
+          {% set caroline_with_car = caroline_close or caroline_nearby or caroline_same_zone or caroline_much_closer or caroline_on_trip %}
+          {% if erlend_with_car and caroline_with_car %}
+            Both
+          {% elif erlend_with_car %}
+            Erlend
+          {% elif caroline_with_car %}
+            Caroline
+          {% elif car_zone == 'home' %}
+            Home
+          {% else %}
+            Unknown
+          {% endif %}
+        attributes:
+          erlend_distance_km: >-
+            {% set car_lat = state_attr('device_tracker.modely_location_tracker', 'latitude') | float(0) %}
+            {% set car_lon = state_attr('device_tracker.modely_location_tracker', 'longitude') | float(0) %}
+            {% set erlend_lat = state_attr('person.erlend', 'latitude') | float(0) %}
+            {% set erlend_lon = state_attr('person.erlend', 'longitude') | float(0) %}
+            {{ distance(car_lat, car_lon, erlend_lat, erlend_lon) | round(2) }}
+          caroline_distance_km: >-
+            {% set car_lat = state_attr('device_tracker.modely_location_tracker', 'latitude') | float(0) %}
+            {% set car_lon = state_attr('device_tracker.modely_location_tracker', 'longitude') | float(0) %}
+            {% set caroline_lat = state_attr('person.caroline', 'latitude') | float(0) %}
+            {% set caroline_lon = state_attr('person.caroline', 'longitude') | float(0) %}
+            {{ distance(car_lat, car_lon, caroline_lat, caroline_lon) | round(2) }}
+          car_zone: "{{ states('device_tracker.modely_location_tracker') }}"
+          last_driver: "{{ states('input_text.tesla_last_driver') }}"
+
       - name: "ModelY Charge Time Left"
         unit_of_measurement: "hours"
         state: >-
@@ -109,7 +169,47 @@ template:
           {% set kr = states('sensor.priceanalyzer_price') | float(default=1) %}
           {{ (kwh * kr) | round(2)}}
 
+input_text:
+  tesla_last_driver:
+    name: Tesla Last Driver
+    initial: Unknown
+
 automation:
+  - id: tesla_track_last_driver
+    alias: Tesla Track Last Driver
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.user_present
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.user_present
+        from: "on"
+        to: "off"
+    action:
+      - variables:
+          car_lat: "{{ state_attr('device_tracker.modely_location_tracker', 'latitude') | float(0) }}"
+          car_lon: "{{ state_attr('device_tracker.modely_location_tracker', 'longitude') | float(0) }}"
+          erlend_lat: "{{ state_attr('person.erlend', 'latitude') | float(0) }}"
+          erlend_lon: "{{ state_attr('person.erlend', 'longitude') | float(0) }}"
+          caroline_lat: "{{ state_attr('person.caroline', 'latitude') | float(0) }}"
+          caroline_lon: "{{ state_attr('person.caroline', 'longitude') | float(0) }}"
+          erlend_dist: "{{ distance(car_lat, car_lon, erlend_lat, erlend_lon) | float(999) }}"
+          caroline_dist: "{{ distance(car_lat, car_lon, caroline_lat, caroline_lon) | float(999) }}"
+          closest: >-
+            {% if erlend_dist < caroline_dist %}
+              Erlend
+            {% elif caroline_dist < erlend_dist %}
+              Caroline
+            {% else %}
+              Both
+            {% endif %}
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.tesla_last_driver
+        data:
+          value: "{{ closest }}"
+
   # - alias: "upgradeInsurance"
   #   id: "upgradeInsurance"
   #   trigger:

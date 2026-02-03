@@ -172,19 +172,44 @@ automation:
 
   - alias: Forgot To Lock Golf
     id: forgotToLockGolf
+    mode: single
     trigger:
       - platform: state
         entity_id: binary_sensor.forgot_to_lock_golf
         from: "off"
         to: "on"
     action:
-      - service: script.turn_on
-        entity_id: script.notify
-        data_template:
-          variables:
-            title: Noen glemte å låse golfen!
-            message: Noen glemte å låse golfen!
-
+      - variables:
+          car_lat: "{{ state_attr('device_tracker.e_golf_position', 'latitude') | float }}"
+          car_lon: "{{ state_attr('device_tracker.e_golf_position', 'longitude') | float }}"
+          erlend_lat: "{{ state_attr('person.erlend', 'latitude') | float }}"
+          erlend_lon: "{{ state_attr('person.erlend', 'longitude') | float }}"
+          caroline_lat: "{{ state_attr('person.caroline', 'latitude') | float }}"
+          caroline_lon: "{{ state_attr('person.caroline', 'longitude') | float }}"
+          erlend_distance: "{{ distance(car_lat, car_lon, erlend_lat, erlend_lon) }}"
+          caroline_distance: "{{ distance(car_lat, car_lon, caroline_lat, caroline_lon) }}"
+          closest_person: "{{ 'erlend' if erlend_distance < caroline_distance else 'caroline' }}"
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ closest_person == 'erlend' }}"
+            sequence:
+              - service: notify.mobile_app_erlend_mobil
+                data:
+                  title: "Du glemte å låse Golfen!"
+                  message: "Du er nærmest bilen – husk å låse!"
+          - conditions:
+              - condition: template
+                value_template: "{{ closest_person == 'caroline' }}"
+            sequence:
+              - service: notify.mobile_app_pixel_10_pro
+                data:
+                  title: "Du glemte å låse Golfen!"
+                  message: "Du er nærmest bilen – husk å låse!"
+              - service: notify.mobile_app_erlend_mobil
+                data:
+                  title: "Caroline glemte å låse Golfen!"
+                  message: "Aiaiai!"
   - id: e_golf_windhshield_heater_still_on
     alias: e_golf_windhshield_heater_still_on
     trigger:

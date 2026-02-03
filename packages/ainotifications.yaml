@@ -38,7 +38,7 @@ script:
           task_name: Garage open or close
           entity_id: ai_task.openai_ai_task
           instructions: >-
-           This is my garage. In the far back of the image, there is a garage door. It may be behind a car. Is it fully closed? Don't respond false if you can't see the picture, or can't be certain. Only return true if you are sure it's not fully closed.
+            This is my garage. In the far back of the image, there is a garage door. It may be behind a car. Is it fully closed? Don't respond false if you can't see the picture, or can't be certain. Only return true if you are sure it's not fully closed.
           # instructions: >-
           #   This is my driveway. Is the garage door on the right side for the black garage fully closed? It should be a brown garage door.
           structure:
@@ -51,7 +51,7 @@ script:
               selector:
                 text:
           attachments:
-            media_content_id: media-source://camera/camera.garage
+            media_content_id: media-source://camera/camera.driveway
             media_content_type: image/jpeg
         response_variable: result
       - condition: template

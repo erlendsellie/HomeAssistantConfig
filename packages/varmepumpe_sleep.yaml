@@ -1,0 +1,77 @@
+timer:
+  varmepumpe_opp_sleep:
+    name: "Varmepumpe Opp Sleep Timer"
+    duration: "02:00:00"
+    icon: mdi:timer-outline
+
+automation:
+  - id: varmepumpe_opp_sleep_on_arm_home
+    alias: "Varmepumpe Opp - Turn off on Arm Home"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: input_select.alarm
+        to: "Arm Home"
+    condition:
+      - condition: time
+        after: "21:00:00"
+        before: "04:00:00"
+    action:
+      - service: climate.turn_off
+        target:
+          entity_id: climate.varmepumpe_opp
+      - service: timer.start
+        target:
+          entity_id: timer.varmepumpe_opp_sleep
+
+  - id: varmepumpe_opp_restore_after_sleep
+    alias: "Varmepumpe Opp - Restore after sleep timer"
+    mode: restart
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.varmepumpe_opp_sleep
+    action:
+      - service: climate.set_hvac_mode
+        target:
+          entity_id: climate.varmepumpe_opp
+        data:
+          hvac_mode: heat
+      - service: climate.set_temperature
+        target:
+          entity_id: climate.varmepumpe_opp
+        data:
+          temperature: >-
+            {%-set baseTemp = states('input_number.varmepumpe_opp_temperature') | float(default=22)%}
+            {%-set priceanalyzer = states('sensor.pricecorrection') | float(default=0)%}
+            {{baseTemp + priceanalyzer}}
+
+  - id: varmepumpe_opp_cancel_sleep_on_disarm
+    alias: "Varmepumpe Opp - Cancel sleep on Disarm"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: input_select.alarm
+        to: "Disarm"
+    condition:
+      - condition: state
+        entity_id: timer.varmepumpe_opp_sleep
+        state: "active"
+    action:
+      - service: timer.cancel
+        target:
+          entity_id: timer.varmepumpe_opp_sleep
+      - service: climate.set_hvac_mode
+        target:
+          entity_id: climate.varmepumpe_opp
+        data:
+          hvac_mode: heat
+      - service: climate.set_temperature
+        target:
+          entity_id: climate.varmepumpe_opp
+        data:
+          temperature: >-
+            {%-set baseTemp = states('input_number.varmepumpe_opp_temperature') | float(default=22)%}
+            {%-set priceanalyzer = states('sensor.pricecorrection') | float(default=0)%}
+            {{baseTemp + priceanalyzer}}
