@@ -649,7 +649,7 @@ automation:
         data_template:
           entity_id: input_select.alarm
           option: "{{states.sensor.alarm.state}}"
-      - service: script.telegram_notify
+      - service: script.telegram_security_notify
         data_template:
           title: "Arm away by door lock"
           message: "The door was locked by {{states.sensor.unlockedby.state}}. The alarm is {{states.input_select.alarm.state}} and the time is {{ now().hour }}:{{ now().minute }}."
@@ -688,7 +688,7 @@ automation:
                           {% set last_notify = states('input_datetime.lock_glitch_last_notification') %}
                           {{ last_notify == 'unknown' or (as_timestamp(now()) - as_timestamp(last_notify, default=0)) >= 86400 }}
                     sequence:
-                      - service: script.telegram_notify
+                      - service: script.telegram_security_notify
                         data_template:
                           title: "Lock glitch detected"
                           message: "The door lock reported unlocked only {{ ((as_timestamp(now()) - as_timestamp(trigger.from_state.last_changed, default=0)) | int) }} seconds after being locked. Ignoring to prevent alarm loop."
@@ -704,7 +704,7 @@ automation:
       #     rgb_color: [0, 255, 0]
       - condition: template
         value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
-      - service: script.telegram_notify
+      - service: script.telegram_security_notify
         data_template:
           title: "door unlocked"
           message: "The door was unlocked by {{states.sensor.unlockedby.state}}. The alarm is {{states.input_select.alarm.state}} and the time is {{ now().hour }}:{{ now().minute }}."
@@ -733,11 +733,11 @@ automation:
       - service: lock.lock
         target:
           entity_id: lock.ytterdor_bluetooth
-      - service: script.telegram_notify
+      - service: script.telegram_security_notify
         data:
           title: "door unlocked"
           message: "The door was locked again since no one opened it within the time frame.."
-      - service: script.telegram_notify
+      - service: script.telegram_security_notify
         data:
           title: "door unlocked"
           message: "The door was locked again since no one opened it within the time frame.."

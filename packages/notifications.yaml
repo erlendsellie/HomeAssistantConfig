@@ -7,7 +7,7 @@ automation:
       event_data:
         command: "/garage"
     action:
-      - service: script.telegram_notify
+      - service: script.telegram_security_notify
         data:
           message: >-
             {% if states.cover.garage_door.state == "open" %}The garage is open. Do you want to close it?
@@ -24,7 +24,7 @@ automation:
     action:
       - service: cover.close_cover
         entity_id: cover.garage_door
-      - service: script.telegram_notify
+      - service: script.telegram_security_notify
         data:
           message: "Okay, i'll tell you if it won't close."
       - delay:
@@ -45,6 +45,6 @@ automation:
     action:
       - service: cover.open_cover
         entity_id: cover.garage_door
-      - service: script.telegram_notify
+      - service: script.telegram_security_notify
         data:
           message: "Okay, I'll open the garage."

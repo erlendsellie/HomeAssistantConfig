@@ -642,6 +642,43 @@ script:
               title: "{{ title | default('') }}"
               message: "{{ message }}"
 
+  telegram_security_notify:
+    alias: Telegram Security Notification
+    mode: queued
+    fields:
+      message:
+        description: "Security message to send"
+        required: true
+        example: "Motion detected at front door"
+      title:
+        description: "Optional title for security alert"
+        example: "Security Alert"
+      inline_keyboard:
+        description: "Optional inline keyboard buttons"
+        example: "View Camera:/camera, Dismiss:/dismiss"
+    sequence:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ inline_keyboard is defined and inline_keyboard }}"
+            sequence:
+              - action: notify.send_message
+                target:
+                  entity_id: notify.telegram_bot_712278218_1003828981138
+                data:
+                  title: "{{ title | default('🔒 Security Alert') }}"
+                  message: "{{ message }}"
+                  data:
+                    inline_keyboard:
+                      - "{{ inline_keyboard }}"
+        default:
+          - action: notify.send_message
+            target:
+              entity_id: notify.telegram_bot_712278218_1003828981138
+            data:
+              title: "{{ title | default('🔒 Security Alert') }}"
+              message: "{{ message }}"
+
   notifycaroline:
     alias: Simple Notification to Caroline
     sequence:
