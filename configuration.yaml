@@ -531,11 +531,12 @@ camera: !include cameras.yaml
 
 stream:
 
-telegram_bot:
-  - platform: polling
-    api_key: !secret telegram_bot
-    allowed_chat_ids:
-      - !secret telegram_chatid
+#now set up in UI.
+# telegram_bot:
+#   - platform: polling
+#     api_key: !secret telegram_bot
+#     allowed_chat_ids:
+#       - !secret telegram_chatid
 
 twilio:
   account_sid: !secret twilio_sid

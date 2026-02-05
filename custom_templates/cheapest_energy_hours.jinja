@@ -1,4 +1,4 @@
-{%- set _version = 'v7.1.1'-%}
+{%- set _version = 'v7.2.2'-%}
 
 {#- set settings for source sensors -#}
 {#- list values are 'attr_today', 'attr_tomorrow', 'attr_all', 'time_key', 'value_key' -#}
@@ -128,7 +128,7 @@
         {# check if all days use same datapoints per hour #}
         {%- set dph_ystrd = (output | map(attribute=time_key) | map('as_local') | map('string') | select('search', (time.date() - timedelta(days=1)) | string) | list | count / 24) | round | int -%}
         {%- set dph_today = (output | map(attribute=time_key) | map('as_local') | map('string') | select('search', time.date() | string) | list | count / 24) | round | int -%}
-        {%- set dph_tmrw = (output | map(attribute=time_key) | map('as_local') | map('string') | select('search', (time.date() + timedelta(days=1)) | string) | list  | count / 24) | round | int -%}
+        {%- set dph_tmrw = (output | map(attribute=time_key) | map('as_local') | map('string') | select('search', (time.date() + timedelta(days=1)) | string) | list | count / 24) | round | int -%}
         {%- set dph_list = [dph_ystrd, dph_today, dph_tmrw, force_dph] | select | list -%}
         {%- endif -%}
     {%- set dph = force_dph or use_hourly_avg | int or dph_list | max -%}
@@ -196,6 +196,7 @@
                                     use_hourly_avg=false,
                                     source_settings='default',
                                     _now=none,
+                                    min_split_hours=none,
                                     returns=none
                                 ) -%}
     {%- set modes = ['min', 'max', 'average', 'start', 'end', 'list', 'weighted_average','time_min','time_max', 'split', 'all', 'is_now', 'extreme_now', 'estimated_costs'] -%}
@@ -233,7 +234,8 @@
                                         plot_attr='energy_plots',
                                         split=false,
                                         use_hourly_avg=false,
-                                        source_settings='nordpool'
+                                        source_settings='nordpool',
+                                        min_split_hours=none
                                     )
             -%}
             {%- set user_input = dict(
@@ -268,7 +270,8 @@
                                         plot_attr=plot_attr,
                                         split=split,
                                         use_hourly_avg=use_hourly_avg,
-                                        source_settings=source_settings
+                                        source_settings=source_settings,
+                                        min_split_hours=min_split_hours
                                     )
             -%}
             {%- set non_default = dict(user_input.items() | reject('in', defaults.items())) -%}
@@ -545,7 +548,8 @@
                                         plot_sensor=plot_sensor,
                                         plot_attr=plot_attr,
                                         split=split,
-                                        use_hourly_avg=use_hourly_avg
+                                        use_hourly_avg=use_hourly_avg,
+                                        dph=dph
                                     )
             -%}
             {%- set set_by_macro = dict(macro_input.items() | reject('in', user_input.items())) -%}
@@ -606,11 +610,13 @@
                         {%- set dp_minutes, wp_minutes = 60 / dph, 60 / no_weight_points -%}
                 {# add weights for additional datapoints if needed #}
                     {%- elif dp_minutes < wp_minutes and w is not none -%}
+                        {%- set multiplier = (wp_minutes/dp_minutes) | round | int -%}
                         {%- set weight_adjust = namespace(weight=[]) -%}
                         {%- for item in w -%}
-                            {%- set weight_adjust.weight = weight_adjust.weight + [item] * int(round(wp_minutes/dp_minutes),0) -%}
+                            {%- set weight_adjust.weight = weight_adjust.weight + [item] * multiplier -%}
                         {%- endfor -%}
                         {%- set w = weight_adjust.weight -%}
+                        {%- set no_weight_points = no_weight_points * multiplier -%}
                     {%- endif -%}
             {#- debugging data -#}
                 {%- if debug -%}
@@ -648,30 +654,64 @@
                     {%- set split = mode == 'split' or split -%}
                     {%- set pr = precision | default(5) -%}
                     {%- if split -%} {#- start of calculations for split -#}
-                        {#- sort values and take out hours needed -#}
-                            {%- set prices = (values | sort(attribute=value_key, reverse=not lowest) | map(attribute=value_key) | list)[:dp] -%}
-                            {%- set values = values | selectattr(value_key, 'in', prices) | sort(attribute=time_key) | list -%}
-                            {%- set last_value = prices | max if lowest else prices | min -%}
-                            {%- set values_last = values | selectattr(value_key, 'eq', last_value) | list -%}
-                            {%- set last_needed = dp - (values | count - values_last | count) -%}
-                        {#- make sure values are in the least possible number of time blocks -#}
-                            {%- if last_needed != values_last | count -%}
-                                    {#- select those datetimes which are connected to datetimes with the other values -#}
-                                    {%- set ns = namespace(needed=last_needed, other=values | rejectattr(value_key, 'eq', last_value) | list, max=values_last) -%}
-                                    {%- for v in values_last -%}
-                                        {%- set above = ns.other | selectattr(time_key, 'eq', v[time_key] + timedelta(minutes=dp_minutes)) | list | count -%}
-                                        {%- set below = ns.other | selectattr(time_key, 'eq', v[time_key] - timedelta(minutes=dp_minutes)) | list | count -%}
-                                        {%- if above or below -%}
-                                            {%- set ns.other = ns.other + [v] -%}
-                                            {%- set ns.max = ns.max | reject('eq', v) | sort(attribute=time_key) | list -%}
-                                            {%- set ns.needed = ns.needed - 1 -%}
-                                        {%- endif -%}
-                                        {%- if ns.needed == 0 -%}
-                                            {%- break -%}
-                                        {%- endif -%}
-                                    {%- endfor -%}
-                                    {%- set values = (ns.other + ns.max[:ns.needed]) | sort(attribute=time_key) -%}
-                            {%- endif -%}
+                        {# check if a minimum number of hours for split is provided #}
+                            {%- if min_split_hours is not none -%}
+                                {# create split data using minimum number of hours #}
+                                {%- set split_dp = [min_split_hours * dph, h * dph] | min | round(0) | int -%}
+                                {%- set ns = namespace(parts=[], selected=[], wanted=h*dph) -%}
+                                {%- for i in range((h*dph) | int) -%}
+                                    {# check if there are still values to be added #}
+                                    {%- if ns.wanted > 0 -%}
+                                        {# create list with value blocks #}
+                                        {%- set ns.parts = [] -%}
+                                        {%- for i in range((values | count - split_dp + 1) | round(0) | int) -%}
+                                            {%- set part = values[i:i+split_dp] | reject('in', ns.selected) | list -%}
+                                            {%- set avg = part | map(attribute=value_key) | average if part | count > 0 else none -%}
+                                            {%- set ns.parts = ns.parts + [dict(avg=avg, count=part|count, part=part)] -%}
+                                        {%- endfor -%}
+                                        {# select which part to add #}
+                                        {%- set to_add = ns.parts
+                                                            | selectattr('count', '<=', ns.wanted)
+                                                            | rejectattr('avg', 'none')
+                                                            | sort(attribute='avg', reverse=not lowest)
+                                                            | list
+                                                            | first
+                                        -%}
+                                        {# add to selection #}
+                                        {%- set ns.wanted = ns.wanted - to_add.count -%}
+                                        {%- set ns.selected = ns.selected + to_add.part -%}
+                                    {%- else -%}
+                                        {%- break -%}
+                                    {%- endif -%}
+                                {%- endfor -%}
+                                {%- set values = ns.selected | sort(attribute=time_key) -%}
+                            {%- else -%}
+                                {#- no minimum number of hours provided #}
+                                {#- sort values and take out hours needed using all data -#}
+                                    {%- set prices = (values | sort(attribute=value_key, reverse=not lowest) | map(attribute=value_key) | list)[:dp] -%}
+                                    {%- set values = values | selectattr(value_key, 'in', prices) | sort(attribute=time_key) | list -%}
+                                    {%- set last_value = prices | max if lowest else prices | min -%}
+                                    {%- set values_last = values | selectattr(value_key, 'eq', last_value) | list -%}
+                                    {%- set last_needed = dp - (values | count - values_last | count) -%}
+                                {#- make sure values are in the least possible number of time blocks -#}
+                                    {%- if last_needed != values_last | count -%}
+                                            {#- select those datetimes which are connected to datetimes with the other values -#}
+                                            {%- set ns = namespace(needed=last_needed, other=values | rejectattr(value_key, 'eq', last_value) | list, max=values_last) -%}
+                                            {%- for v in values_last -%}
+                                                {%- set above = ns.other | selectattr(time_key, 'eq', v[time_key] + timedelta(minutes=dp_minutes)) | list | count -%}
+                                                {%- set below = ns.other | selectattr(time_key, 'eq', v[time_key] - timedelta(minutes=dp_minutes)) | list | count -%}
+                                                {%- if above or below -%}
+                                                    {%- set ns.other = ns.other + [v] -%}
+                                                    {%- set ns.max = ns.max | reject('eq', v) | sort(attribute=time_key) | list -%}
+                                                    {%- set ns.needed = ns.needed - 1 -%}
+                                                {%- endif -%}
+                                                {%- if ns.needed == 0 -%}
+                                                    {%- break -%}
+                                                {%- endif -%}
+                                            {%- endfor -%}
+                                            {%- set values = (ns.other + ns.max[:ns.needed]) | sort(attribute=time_key) -%}
+                                    {%- endif -%}
+                                {%- endif -%}
                         {#- create the split data -#}
                             {%- set split = namespace(split=[], start=none, prices=[], datapoints=0) -%}
                             {%- for i in range(dp) -%}
@@ -691,7 +731,7 @@
                                     -%}
                                     {%- set split.start = dt -%}
                                     {%- set split.datapoints = 1 -%}
-                                    {%- set price = values[loop.index0][value_key] if pt == 0 else values[loop.index0].original_value %}
+                                    {%- set price = values[loop.index0][value_key] if pt == 0 else values[loop.index0].original_value -%}
                                     {%- set split.prices = [price | round(pr)] -%}
                                     {%- if loop.last -%}
                                         {%- set is_now = split.start <= _now < dt + timedelta(hours=1/dph) -%}
@@ -710,7 +750,7 @@
                                 {%- else -%}
                                     {%- set split.start = split.start | default(dt, true) -%}
                                     {%- set split.datapoints = split.datapoints + 1 -%}
-                                    {%- set price = values[loop.index0][value_key] if pt == 0 else values[loop.index0].original_value %}
+                                    {%- set price = values[loop.index0][value_key] if pt == 0 else values[loop.index0].original_value -%}
                                     {%- set split.prices = split.prices + [price | round(pr)] -%}
                                     {%- if loop.last -%}
                                         {%- set is_now = split.start <= _now < dt + timedelta(hours=1/dph) -%}
@@ -755,6 +795,7 @@
                         {#- create output for all modes if split is set to false -#}
                             {%- set output = namespace(average=none, start=none, min=none, max=none, weighted_average=none, compare=none, time_min=none, time_max=none, prices_list=[], list=[], is_now=false, extreme_now=none, estimated_costs="unknown") -%}
                             {%- set last_values = (h * no_weight_points) | round(0) | int -%}
+                            {%- set to_add = dict(dp=dp, no_weight_points=no_weight_points, dph=dph)-%}
                             {%- for i in range(values | count - (last_values - 1)) -%}
                                 {%- set prices_list = values[i:i + last_values] | map(attribute=value_key) | list -%}
                                 {%- set original_price_list =
@@ -854,7 +895,7 @@
                     {%- set v = values | count -%}
                     {%- set h_v = v / no_weight_points | round(3) -%}
                     {%- set error_msg = '1 error: {} datapoints ({} hours) in selection, where {} ({} hours) are expected'.format(v | int, h_v | round(3), dp | int, h | round(3)) -%}
-                    {%- set macro_output = value_on_error if use_voe and not debug else error_msg -%}
+                    {%- set macro_output = value_on_error if use_voe else error_msg -%}
                 {%- endif -%}
                 {%- if debug -%}
                     {%- set find_used = dict(
@@ -870,7 +911,7 @@
                                             values_count=values|count,
                                             datapoints_source=datapoints_source,
                                             datapoints_used=datapoints_used,
-                                            original_prices=output.prices_list,
+                                            original_prices=output.prices_list if output is defined else [],
                                             price_count=price_count | default(0),
                                             kwh_list=kwh_list | default([])
                                         ) | combine(find_used) if not split else find_used
@@ -888,7 +929,10 @@
                     -%}
                 {%- endif -%}
         {%- endif -%}
-        {%- do returns(macro_output) -%}
+        {%- if add_data is defined -%}
+            {%- set macro_output = add_data | combine(dict(output=macro_output))-%}
+        {%- endif -%}
+        {%- do returns(macro_output) -%} 
 {%- endmacro -%}
 
 {%- set cheapest_energy_hours = _cheapest_energy_hours | as_function -%}
