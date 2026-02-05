@@ -81,6 +81,11 @@ automation:
       for:
         minutes: 90
     action:
+      - service: script.telegram_security_notify
+        data:
+          title: "Garage Open 90 Minutes"
+          message: "The garage has been open for 90 minutes. Close it?"
+          inline_keyboard: "Close Garage:/closegarage, Remind in 5min:/garageremind"
       - service: notify.mobile_app_erlend_mobil
         data_template:
           title: "Garage has been open for 90 minutes"

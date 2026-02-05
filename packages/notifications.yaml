@@ -17,10 +17,14 @@ automation:
   - id: CloseGarageByTelegram
     alias: Close Garage by Telegram
     trigger:
-      platform: event
-      event_type: telegram_callback
-      event_data:
-        data: "/closeGarage"
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          data: "/closeGarage"
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          data: "/closegarage"
     action:
       - service: cover.close_cover
         entity_id: cover.garage_door
@@ -38,13 +42,34 @@ automation:
   - id: OpenGarageByTelegram
     alias: Open Garage by Telegram
     trigger:
-      platform: event
-      event_type: telegram_callback
-      event_data:
-        data: "/openGarage"
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          data: "/openGarage"
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          data: "/opengarage"
     action:
       - service: cover.open_cover
         entity_id: cover.garage_door
       - service: script.telegram_security_notify
         data:
           message: "Okay, I'll open the garage."
+
+  - id: GarageRemindByTelegram
+    alias: Garage Remind by Telegram
+    trigger:
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          data: "/garageremind"
+    action:
+      - service: script.telegram_security_notify
+        data:
+          message: "Okay, I'll remind you in 5 minutes."
+      - delay:
+          minutes: 5
+      - service: automation.trigger
+        target:
+          entity_id: automation.garageopenhtml5_p30

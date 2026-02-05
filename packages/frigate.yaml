@@ -38,6 +38,10 @@ automation:
         entity_id: input_select.alarm
         state: "Arm Away"
     action:
+      - service: script.telegram_security_notify
+        data:
+          title: "🐕 Barking Detected (Armed)"
+          message: "Barking was detected while the alarm is armed away."
       - service: notify.mobile_app_erlend_mobil
         data:
           message: "Barking was detected."
