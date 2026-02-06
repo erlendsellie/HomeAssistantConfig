@@ -57,7 +57,7 @@ template:
         unit_of_measurement: "%"
         state: >-
           {%set soc = states('sensor.e_golf_battery_level') | int %}
-          {{90 - soc | float(default=0)}}
+          {{states('input_number.golf_soc_limit') | int - soc | float(default=0)}}
       - name: "Golf kWh To Charge"
         unit_of_measurement: "kWh"
         state: >-
