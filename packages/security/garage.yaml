@@ -140,7 +140,7 @@ automation:
           minutes: 4
       - platform: state
         entity_id: cover.garage_door
-        to: "on"
+        to: "open"
         for:
           minutes: 5
     condition:
@@ -372,6 +372,50 @@ automation:
     action:
       - action: cover.close_cover
         entity_id: cover.garage_door
+
+  - id: garage_safety_net_close
+    alias: "Garage Safety Net - Close after 15 minutes"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: cover.garage_door
+        to: "open"
+        for:
+          minutes: 15
+    condition:
+      - condition: state
+        entity_id: cover.garage_door
+        state: "open"
+    action:
+      - service: script.turn_on
+        entity_id: script.notify
+        data:
+          variables:
+            title: "Garage Safety Net Activated"
+            message: "Garage has been open for 15 minutes. Closing automatically."
+      - service: cover.close_cover
+        entity_id: cover.garage_door
+
+  - id: garage_external_open_alert
+    alias: "Garage Opened Externally Alert"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: cover.garage_door
+        to: "open"
+        from: "closed"
+    condition:
+      # Check if the ESP32 switch has NOT been triggered in the last 60 seconds
+      - condition: template
+        value_template: >
+          {{ (as_timestamp(now()) - as_timestamp(states.switch.garage_esp32.last_changed)) > 60 }}
+    action:
+      - service: script.turn_on
+        entity_id: script.notify
+        data:
+          variables:
+            title: "ALERT: Garage Opened Externally"
+            message: "The garage door was opened without using Home Assistant (Switch not triggered recently). This may indicate radio interference or someone using a physical remote. The garage was opened at {{ now().strftime('%H:%M') }}."
     # - service: script.turn_on
     #   entity_id: script.notify
     #   data_template:
