@@ -1184,7 +1184,7 @@ script:
         data_template:
           entity_id: media_player.minis
           message: "{{message}}"
-          language: "no"
+          language: "nb-NO"
       - delay:
           seconds: 3
       - service: media_player.volume_set

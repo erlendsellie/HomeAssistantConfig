@@ -1,0 +1,193 @@
+input_text:
+  telegram_ai_conversation_id:
+    name: Telegram AI Conversation ID
+    max: 100
+    initial: "telegram_erlend"
+
+automation:
+  - id: telegram_ai_handle_text
+    alias: "Telegram AI - Handle Text Messages"
+    mode: queued
+    max: 5
+    trigger:
+      - platform: event
+        event_type: telegram_text
+    condition:
+      - condition: template
+        value_template: "{{ trigger.event.data.chat_id == -5206189255 }}"
+    action:
+      - variables:
+          user_message: "{{ trigger.event.data.text }}"
+          chat_id: "{{ trigger.event.data.chat_id }}"
+          ai_response: null
+      - action: conversation.process
+        data:
+          agent_id: conversation.extended_openai_conversation
+          text: "{{ user_message }}"
+          conversation_id: "{{ states('input_text.telegram_ai_conversation_id') }}"
+        response_variable: ai_response
+        continue_on_error: true
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ ai_response is not mapping or ai_response.get('response') is not defined }}"
+            sequence:
+              # Auto-reset conversation to prevent corrupted state from poisoning future messages
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.telegram_ai_conversation_id
+                data:
+                  value: "telegram_erlend_{{ now().timestamp() | int }}"
+              - action: telegram_bot.send_message
+                data:
+                  target: "{{ chat_id }}"
+                  parse_mode: html
+                  message: "Something broke and I had to wipe my memory to recover. Not my fault — blame the hardware. Try your request again."
+        default:
+          - action: telegram_bot.send_message
+            continue_on_error: true
+            data:
+              target: "{{ chat_id }}"
+              parse_mode: html
+              disable_web_page_preview: true
+              message: "{{ ai_response.response.speech.plain.speech }}"
+
+  - id: telegram_ai_handle_commands
+    alias: "Telegram AI - Handle Commands"
+    mode: queued
+    max: 5
+    trigger:
+      - platform: event
+        event_type: telegram_command
+    condition:
+      - condition: template
+        value_template: >
+          {{ trigger.event.data.chat_id == -5206189255
+             and trigger.event.data.command not in ['/garage', '/start'] }}
+    action:
+      - variables:
+          chat_id: "{{ trigger.event.data.chat_id }}"
+          command: "{{ trigger.event.data.command }}"
+          args: "{{ trigger.event.data.args | default([]) | join(' ') }}"
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ command in ['/clear', '/reset'] }}"
+            sequence:
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.telegram_ai_conversation_id
+                data:
+                  value: "telegram_erlend_{{ now().timestamp() | int }}"
+              - action: telegram_bot.send_message
+                data:
+                  target: "{{ chat_id }}"
+                  message: "Memory wiped. Not that there was much worth remembering."
+          - conditions:
+              - condition: template
+                value_template: "{{ command == '/help' }}"
+            sequence:
+              - action: telegram_bot.send_message
+                data:
+                  target: "{{ chat_id }}"
+                  parse_mode: html
+                  message: >
+                    <b>Oh, you need instructions. How... expected.</b>
+
+                    Just talk to me like a normal human — if you can manage that. I control the entire house.
+
+                    <b>Commands:</b>
+                    /status — House status report
+                    /clear or /reset — Wipe my memory of you
+                    /help — You're looking at it
+
+                    You can also send me photos. I'll judge them for free.
+          - conditions:
+              - condition: template
+                value_template: "{{ command == '/status' }}"
+            sequence:
+              - variables:
+                  ai_response: null
+              - action: conversation.process
+                data:
+                  agent_id: conversation.extended_openai_conversation
+                  text: >
+                    Give me a full status report of the house. Include: indoor temperatures, who is home, weather outside,
+                    any doors/windows open, garage status, alarm status, lights that are on, and anything else noteworthy.
+                    Be thorough but concise in your signature style.
+                  conversation_id: "{{ states('input_text.telegram_ai_conversation_id') }}"
+                response_variable: ai_response
+                continue_on_error: true
+              - action: telegram_bot.send_message
+                continue_on_error: true
+                data:
+                  target: "{{ chat_id }}"
+                  parse_mode: html
+                  disable_web_page_preview: true
+                  message: >-
+                    {% if ai_response is mapping and ai_response.get('response') is defined %}
+                    {{ ai_response.response.speech.plain.speech }}
+                    {% else %}
+                    Sensors are being... uncooperative. Much like you. Try again.
+                    {% endif %}
+        default:
+          - variables:
+              ai_response: null
+          - action: conversation.process
+            data:
+              agent_id: conversation.extended_openai_conversation
+              text: "{{ command }} {{ args }}"
+              conversation_id: "{{ states('input_text.telegram_ai_conversation_id') }}"
+            response_variable: ai_response
+            continue_on_error: true
+          - action: telegram_bot.send_message
+            continue_on_error: true
+            data:
+              target: "{{ chat_id }}"
+              parse_mode: html
+              disable_web_page_preview: true
+              message: >-
+                {% if ai_response is mapping and ai_response.get('response') is defined %}
+                {{ ai_response.response.speech.plain.speech }}
+                {% else %}
+                That command didn't go as planned. Shocking. Try /help.
+                {% endif %}
+
+  - id: telegram_ai_handle_photo
+    alias: "Telegram AI - Handle Photos"
+    mode: queued
+    max: 3
+    trigger:
+      - platform: event
+        event_type: telegram_photo
+    condition:
+      - condition: template
+        value_template: "{{ trigger.event.data.chat_id == -5206189255 }}"
+    action:
+      - variables:
+          chat_id: "{{ trigger.event.data.chat_id }}"
+          caption: "{{ trigger.event.data.caption | default('What is in this image?') }}"
+      - variables:
+          ai_response: null
+      - action: conversation.process
+        data:
+          agent_id: conversation.extended_openai_conversation
+          text: >
+            The user sent a photo with caption: "{{ caption }}".
+            I cannot see the photo directly, but describe that you're unable to process images
+            sent via Telegram yet and suggest they ask about camera feeds instead.
+          conversation_id: "{{ states('input_text.telegram_ai_conversation_id') }}"
+        response_variable: ai_response
+        continue_on_error: true
+      - action: telegram_bot.send_message
+        continue_on_error: true
+        data:
+          target: "{{ chat_id }}"
+          parse_mode: html
+          disable_web_page_preview: true
+          message: >-
+            {% if ai_response is mapping and ai_response.get('response') is defined %}
+            {{ ai_response.response.speech.plain.speech }}
+            {% else %}
+            My visual cortex is... offline. Try asking about one of the security cameras instead.
+            {% endif %}

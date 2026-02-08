@@ -182,8 +182,8 @@ logbook:
   exclude:
     domains:
       - sensor
-# pyscript:
-#   allow_all_imports: true
+pyscript:
+  allow_all_imports: true
 
 sun:
 

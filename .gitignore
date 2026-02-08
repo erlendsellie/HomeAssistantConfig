@@ -123,4 +123,8 @@ sensors_ending_with_2.txt
 rename_entities.sh
 sensors_missing_base.txt
 
+# AI bot config (contains credentials)
+.windsurf/ai_system_prompt.md
+.windsurf/ai_functions.yaml
+
 ignored
