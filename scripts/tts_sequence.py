@@ -14,11 +14,11 @@ import time
 import urllib.request
 
 def _read_token():
-    with open("/config/secrets.yaml") as f:
+    with open("/config/.env") as f:
         for line in f:
-            if line.startswith("ha_token:"):
-                return line.split(":", 1)[1].strip().strip('"')
-    raise RuntimeError("ha_token not found in /config/secrets.yaml")
+            if line.startswith("HA_TOKEN="):
+                return line.split("=", 1)[1].strip().strip('"')
+    raise RuntimeError("HA_TOKEN not found in /config/.env")
 
 TOKEN = _read_token()
 HA_URL = "http://localhost:8123/api/services"
