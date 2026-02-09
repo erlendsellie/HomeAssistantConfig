@@ -669,7 +669,9 @@ script:
             sequence:
               - action: notify.send_message
                 target:
-                  entity_id: notify.telegram_bot_712278218_1003828981138
+                  #entity_id: notify.telegram_bot_712278218_1003828981138
+                  entity_id: notify.telegram_bot_712278218_760178173
+
                 data:
                   title: "{{ title | default('🔒 Security Alert') }}"
                   message: "{{ message }}"
@@ -679,7 +681,8 @@ script:
         default:
           - action: notify.send_message
             target:
-              entity_id: notify.telegram_bot_712278218_1003828981138
+#              entity_id: notify.telegram_bot_712278218_1003828981138
+              entity_id: notify.telegram_bot_712278218_760178173
             data:
               title: "{{ title | default('🔒 Security Alert') }}"
               message: "{{ message }}"

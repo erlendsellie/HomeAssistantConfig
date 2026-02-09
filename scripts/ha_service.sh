@@ -12,7 +12,7 @@ ENTITY_ID="$3"
 DELAY="${4:-0}"
 EXTRA_JSON="${5:-}"
 
-TOKEN="REDACTED_HA_TOKEN"
+TOKEN=$(grep '^ha_token:' /config/secrets.yaml | sed 's/^ha_token: *"\{0,1\}\(.*\)"\{0,1\}$/\1/')
 
 if [ -z "$DOMAIN" ] || [ -z "$SERVICE" ] || [ -z "$ENTITY_ID" ]; then
   echo "Usage: ha_service.sh <domain> <service> <entity_id> [delay_seconds] [extra_json]"

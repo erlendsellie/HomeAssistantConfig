@@ -20,7 +20,7 @@ template:
           {% elif states.input_boolean.powernap.state == 'on' %} 
             0.0
           {% elif states.input_select.alarm.state == 'Disarm' %} 
-            0.5
+            0.6
           {% elif states.input_select.alarm.state == 'Arm Home'%}
             0.1
           {% else %}

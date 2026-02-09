@@ -1,4 +1,4 @@
-{%- set _version = 'v7.2.2'-%}
+{%- set _version = 'v7.2.3'-%}
 
 {#- set settings for source sensors -#}
 {#- list values are 'attr_today', 'attr_tomorrow', 'attr_all', 'time_key', 'value_key' -#}
@@ -433,6 +433,7 @@
                         {%- set start = today_at(start) if start is string and ':' in start and start | replace(':', '') | is_number else today_at() -%}
                         {%- set start = start if include_today else start + day -%}
                     {%- endif -%}
+                    {%- set original_start = start -%}
                     {%- if look_ahead -%}
                         {%- set start = [_now, start] | max -%}
                     {%- endif -%}
@@ -449,7 +450,7 @@
                         {%- set end = end + day if end == today_at() else end -%}
                         {%- set end = end + day if include_tomorrow else end -%}
                     {%- endif -%}
-                    {%- if start > end -%} {#- START = 20:00, END = 8:00 -#}
+                    {%- if original_start > end -%} {#- START = 20:00, END = 8:00 -#}
                         {%- if end > _now and not start_is_dt -%} {#- NOW() = 04:00, END = 8:00 -#}
                             {%- set start = start - day -%} {#- Set start yesterday -#}
                         {%- elif end < _now and not end_is_dt -%} {#- NOW() = 12:00, END = 8:00 -#}

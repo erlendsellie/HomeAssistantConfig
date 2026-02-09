@@ -133,7 +133,8 @@ def ai_delete_automation(automation_id=None):
     if not automation_id:
         return {"error": "automation_id is required (the config ID, not entity_id)"}
     try:
-        token = "REDACTED_HA_TOKEN"
+        token = open("/config/secrets.yaml").read()
+        token = [l.split(":", 1)[1].strip().strip('"') for l in token.splitlines() if l.startswith("ha_token:")][0]
         cmd = f'curl -s -X DELETE -H "Authorization: Bearer {token}" http://localhost:8123/api/config/automation/config/{automation_id}'
         result = task.executor(
             subprocess.run, cmd, shell=True, capture_output=True, text=True, timeout=10
