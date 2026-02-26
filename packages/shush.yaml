@@ -21,7 +21,8 @@ script:
           entity_id: media_player.tyra
           volume_level: 0.5
       - service: media_player.play_media
-        entity_id: media_player.tyra
+        target:
+          entity_id: media_player.tyra
         data:
           media_content_id: https://hjem.sellie.no/local/sounds/shush.m4a
           media_content_type: music
@@ -32,4 +33,5 @@ script:
           entity_id: media_player.tyra
           volume_level: 0.0
       - service: switch.turn_off
-        entity_id: switch.tyra_shush
+        target:
+          entity_id: switch.tyra_shush

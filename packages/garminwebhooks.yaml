@@ -24,18 +24,21 @@ script:
   toggletv:
     sequence:
       - service: automation.trigger
-        entity_id: automation.watchleftbattery
+        target:
+          entity_id: automation.watchleftbattery
   dimdowntvsone:
     sequence:
       - service: light.turn_on
-        entity_id: light.tvsone
+        target:
+          entity_id: light.tvsone
         data:
           brightness_step_pct: -20
           transition: 1
   dimuptvsone:
     sequence:
       - service: light.turn_on
-        entity_id: light.tvsone
+        target:
+          entity_id: light.tvsone
         data:
           brightness_step_pct: 20
           transition: 1
@@ -81,10 +84,12 @@ automation:
                         value_template: "{{ states.input_boolean.easleep.state == 'on'}}"
                     sequence:
                       - service: media_player.volume_up
-                        entity_id: media_player.tv_soverommet
+                        target:
+                          entity_id: media_player.tv_soverommet
                 default:
                   - service: light.turn_on
-                    entity_id: light.tvsone
+                    target:
+                      entity_id: light.tvsone
                     data:
                       brightness_step_pct: 20
                       transition: 1
@@ -93,19 +98,22 @@ automation:
                 value_template: "{{ states.input_select.garmincontrol.state == 'KitchenLights'}}"
             sequence:
               - service: light.turn_on
-                entity_id: light.kitchensone
+                target:
+                  entity_id: light.kitchensone
           - conditions:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrol.state == 'SofaLight'}}"
             sequence:
               - service: light.turn_on
-                entity_id: light.sofa
+                target:
+                  entity_id: light.sofa
           - conditions:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrol.state == 'Media'}}"
             sequence:
               - service: automation.trigger
-                entity_id: automation.watchleftbattery
+                target:
+                  entity_id: automation.watchleftbattery
           - conditions:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrol.state == 'Cover'}}"
@@ -139,10 +147,12 @@ automation:
                         value_template: "{{ states.input_boolean.easleep.state == 'on'}}"
                     sequence:
                       - service: media_player.volume_down
-                        entity_id: media_player.tv_soverommet
+                        target:
+                          entity_id: media_player.tv_soverommet
                 default:
                   - service: light.turn_on
-                    entity_id: light.tvsone
+                    target:
+                      entity_id: light.tvsone
                     data:
                       brightness_step_pct: -20
                       transition: 1
@@ -151,13 +161,15 @@ automation:
                 value_template: "{{ states.input_select.garmincontrol.state == 'KitchenLights'}}"
             sequence:
               - service: light.turn_off
-                entity_id: light.kitchensone
+                target:
+                  entity_id: light.kitchensone
           - conditions:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrol.state == 'SofaLight'}}"
             sequence:
               - service: light.turn_off
-                entity_id: light.sofa
+                target:
+                  entity_id: light.sofa
           # - conditions:
           #     - condition: template
           #       value_template: "{{ states.input_select.garmincontrol.state == 'Cover'}}"
@@ -228,13 +240,15 @@ automation:
                 value_template: "{{ states.input_select.garmincontrol.state == 'Media'}}"
             sequence:
               - service: automation.trigger
-                entity_id: automation.watch1
+                target:
+                  entity_id: automation.watch1
           - conditions:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrol.state == 'Cover'}}"
             sequence:
               - service: cover.toggle
-                entity_id: cover.garage_door
+                target:
+                  entity_id: cover.garage_door
 
         # - alias: 'GarminWebHookBack'
         #   id: 'GarminWebHookBack'

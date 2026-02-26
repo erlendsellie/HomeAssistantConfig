@@ -39,11 +39,13 @@ automation:
       #   target:
       #     entity_id: media_player.living_room_tv_cast
       - service: input_boolean.turn_on
-        entity_id: input_boolean.doorbelljustrang
+        target:
+          entity_id: input_boolean.doorbelljustrang
       - delay:
           minutes: 4
       - service: input_boolean.turn_off
-        entity_id: input_boolean.doorbelljustrang
+        target:
+          entity_id: input_boolean.doorbelljustrang
 
   - alias: stopDoorbell
     trigger:
@@ -55,9 +57,11 @@ automation:
         value_template: "{{((as_timestamp(utcnow()) - as_timestamp(states.script.doorbell.last_changed, default=0)) / 60) | round(0) < 3}}"
     action:
       - service: script.turn_off
-        entity_id: script.doorbell
+        target:
+          entity_id: script.doorbell
       - service: script.turn_off
-        entity_id: script.blink_lights_doorbell
+        target:
+          entity_id: script.blink_lights_doorbell
       - service: media_player.media_stop
         target:
           entity_id: media_player.minis
@@ -78,7 +82,8 @@ automation:
         minutes: 1
     action:
       - service: switch.turn_off
-        entity_id: switch.doorbutton
+        target:
+          entity_id: switch.doorbutton
 
   - alias: Door Bell done
     trigger:
@@ -93,7 +98,8 @@ automation:
       # - service: media_player.turn_off
       #   entity_id: media_player.kitchen_display
       - service: switch.turn_off
-        entity_id: switch.doorbutton
+        target:
+          entity_id: switch.doorbutton
 
 script:
   doorbell:
@@ -101,7 +107,8 @@ script:
     mode: restart
     sequence:
       - service: switch.turn_off
-        entity_id: switch.doorbutton
+        target:
+          entity_id: switch.doorbutton
       # - service: light.turn_on
       #   entity_id: light.gateway_light_7c49eb1c2d6b
       #   data:

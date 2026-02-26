@@ -39,7 +39,8 @@ automation:
         state: "off"
     action:
       - service: light.turn_on
-        entity_id: light.bathroom
+        target:
+          entity_id: light.bathroom
         data:
           brightness_pct: "{{ states.sensor.brightnessforbathroomlights.state }}"
 
@@ -52,4 +53,5 @@ automation:
         to: "off"
     action:
       - service: light.turn_off
-        entity_id: light.bathroom
+        target:
+          entity_id: light.bathroom

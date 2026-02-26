@@ -17,7 +17,8 @@ automation:
           minutes: 15 #20, if considering the delay_off.
     action:
       - service: switch.turn_off
-        entity_id: switch.stasjonar
+        target:
+          entity_id: switch.stasjonar
 template:
   - binary_sensor:
       - name: "motion_office_nexa"

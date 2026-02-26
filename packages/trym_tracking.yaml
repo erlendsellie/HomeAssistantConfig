@@ -31,10 +31,12 @@ automation:
           title: Trym kom på skolen
           message: The time is {{ now().hour }}:{{ now().minute }}.
       - service: input_boolean.turn_off
-        entity_id:
+        target:
+          entity_id:
           - input_boolean.trymasleep
       - service: input_boolean.turn_on
-        entity_id: input_boolean.trym_in_school
+        target:
+          entity_id: input_boolean.trym_in_school
 
   - alias: Trym picked up from School
     id: trymnotinschool
@@ -75,7 +77,8 @@ automation:
           variables:
             message: "Trym dro fra skolen"
       - service: input_boolean.turn_off
-        entity_id: input_boolean.trym_in_school
+        target:
+          entity_id: input_boolean.trym_in_school
       - service: script.turn_on
         target:
           entity_id: script.blinkliving
@@ -116,10 +119,12 @@ automation:
           title: Trym kom på skolen
           message: The time is {{ now().hour }}:{{ now().minute }}.
       - service: input_boolean.turn_off
-        entity_id:
+        target:
+          entity_id:
           - input_boolean.trymasleep
       - service: input_boolean.turn_on
-        entity_id: input_boolean.trym_in_school
+        target:
+          entity_id: input_boolean.trym_in_school
 
   # -------------------------------------------------------------------
   # 2) Turn TRYMIN SCHOOL OFF when the school’s “Checked out” arrives after 13:30
@@ -157,7 +162,8 @@ automation:
           variables:
             message: "Trym dro fra skolen"
       - service: input_boolean.turn_off
-        entity_id: input_boolean.trym_in_school
+        target:
+          entity_id: input_boolean.trym_in_school
       - service: script.turn_on
         target:
           entity_id: script.blinkliving

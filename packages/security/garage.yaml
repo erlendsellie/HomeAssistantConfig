@@ -67,7 +67,8 @@ script:
       - condition: template
         value_template: "{{ states.cover.garage_door.state == 'closed' }}"
       - service: switch.turn_on
-        entity_id: switch.garage_esp32
+        target:
+          entity_id: switch.garage_esp32
       - wait_for_trigger:
           - platform: state
             entity_id: binary_sensor.garage
@@ -108,7 +109,8 @@ script:
                     message: Garage will not close before turning it off.
         default:
           - service: switch.turn_on
-            entity_id: switch.garage_esp32
+            target:
+              entity_id: switch.garage_esp32
           - wait_for_trigger:
               - platform: state
                 entity_id: binary_sensor.garage
@@ -149,7 +151,8 @@ script:
                     message: Garage will not close before turning it off.
         default:
           - service: switch.turn_on
-            entity_id: switch.garage_esp32
+            target:
+              entity_id: switch.garage_esp32
 
   garagetoggle:
     sequence:
@@ -183,7 +186,8 @@ automation:
           and states.binary_sensor.motion_driveway_or_garage.state == 'off'}}"
     action:
       - service: cover.close_cover
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
 
   - id: garageopened
     alias: garageopened
@@ -305,7 +309,8 @@ automation:
         state: "off"
     action:
       - service: cover.open_cover
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
       - service: script.turn_on
         target:
           entity_id: script.notify
@@ -335,7 +340,8 @@ automation:
         state: "off"
     action:
       - service: cover.open_cover
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
       - service: script.turn_on
         target:
           entity_id: script.notify
@@ -361,7 +367,8 @@ automation:
         timeout: "00:45:00"
         continue_on_timeout: false
       - service: cover.open_cover
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
       - service: script.turn_on
         target:
           entity_id: script.notify
@@ -434,7 +441,8 @@ automation:
             title: "Garage Safety Net Activated"
             message: "Garage has been open for 15 minutes. Closing automatically."
       - service: cover.close_cover
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
 
   - id: garage_external_open_alert
     alias: "Garage Opened Externally Alert"

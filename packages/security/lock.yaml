@@ -16,7 +16,8 @@ script:
       # - condition: template
       #   value_template: "{{ states.lock.ytterdor_bluetooth.state != 'locked' }}"
       - service: lock.lock
-        entity_id: lock.ytterdor_bluetooth
+        target:
+          entity_id: lock.ytterdor_bluetooth
         data:
           code: !secret lock_code
 
@@ -24,7 +25,8 @@ script:
     alias: "Unlock door"
     sequence:
       - service: lock.unlock
-        entity_id: lock.ytterdor_bluetooth
+        target:
+          entity_id: lock.ytterdor_bluetooth
         data:
           code: !secret lock_code
 

@@ -140,7 +140,8 @@ automation:
         state: "Disarm"
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.trymasleep
+        target:
+          entity_id: input_boolean.trymasleep
 
   - alias: "TurnOffTrymAsleepByDoor"
     trigger:
@@ -155,7 +156,8 @@ automation:
         value_template: "{{ states('sensor.trym_traffic_color') != 'red'}}"
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.trymasleep
+        target:
+          entity_id: input_boolean.trymasleep
 
   - alias: "TurnOnTrymAsleepAtTime"
     trigger:
@@ -169,7 +171,8 @@ automation:
         state: "Disarm"
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.trymasleep
+        target:
+          entity_id: input_boolean.trymasleep
 
   - alias: "TurnOffTrymAsleepAtTime"
     trigger:
@@ -177,7 +180,8 @@ automation:
       at: "09:30:00"
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.trymasleep
+        target:
+          entity_id: input_boolean.trymasleep
 
   - alias: turnOnTrymLight
     mode: single
@@ -195,11 +199,13 @@ automation:
         state: "off"
     action:
       - service: light.turn_on
-        entity_id: light.trym_roof
+        target:
+          entity_id: light.trym_roof
         data:
           brightness_pct: "{{ states.sensor.brightnessfortrymlight.state }}"
       - service: light.turn_on
-        entity_id: light.trym_balloon
+        target:
+          entity_id: light.trym_balloon
         data:
           color_name: "{{states('sensor.trym_traffic_color')}}"
           brightness_pct: "100"
@@ -214,9 +220,11 @@ automation:
       - condition: template
         value_template: "{{ states.input_boolean.trymasleep.state == 'off' }}"
       - service: light.turn_off
-        entity_id: light.trym_roof
+        target:
+          entity_id: light.trym_roof
       - service: light.turn_off
-        entity_id: light.trym_balloon
+        target:
+          entity_id: light.trym_balloon
 
   - alias: turnOffTrymBallLight
     trigger:
@@ -231,7 +239,8 @@ automation:
         state: "off"
     action:
       - service: light.turn_off
-        entity_id: light.trym_balloon
+        target:
+          entity_id: light.trym_balloon
 
   - alias: DimTrymBallLight
     trigger:
@@ -243,7 +252,8 @@ automation:
         state: "on"
     action:
       - service: light.turn_on
-        entity_id:
+        target:
+          entity_id:
           - light.trym_balloon
           - light.trym_roof
         data:
@@ -280,7 +290,8 @@ automation:
           minutes: 10
     action:
       - service: light.turn_on
-        entity_id: light.trym_roof
+        target:
+          entity_id: light.trym_roof
         data:
           brightness_pct: "{{ states.sensor.brightnessfortrymlight.state }}"
 
@@ -295,7 +306,8 @@ automation:
         state: "off"
     action:
       - service: light.turn_off
-        entity_id: light.trym_balloon
+        target:
+          entity_id: light.trym_balloon
 
   # - alias: turnOffTrymLight
   #   trigger:
@@ -397,4 +409,5 @@ script:
   toggle_trym_player:
     sequence:
       - service: media_player.media_play_pause
-        entity_id: media_player.trym
+        target:
+          entity_id: media_player.trym

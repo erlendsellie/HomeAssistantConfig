@@ -83,7 +83,8 @@ automation:
         value_template: "{{ now().isoweekday() == 3 }}" # Onsdag
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.maki_medisin_gitt
+        target:
+          entity_id: input_boolean.maki_medisin_gitt
 
   - alias: "Varsle om Maki sin medisin ved kjøkkenbesøk"
     trigger:
@@ -128,7 +129,8 @@ automation:
           action: MAKI_MEDISIN_GITT
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.maki_medisin_gitt
+        target:
+          entity_id: input_boolean.maki_medisin_gitt
       - service: script.notifyboth
         data:
           variables:

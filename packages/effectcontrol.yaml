@@ -209,13 +209,15 @@ automation:
             sequence:
               - service: script.pausecharging
               - service: input_boolean.turn_on
-                entity_id: input_boolean.limit_water_heater
+                target:
+                  entity_id: input_boolean.limit_water_heater
           - conditions:
               - condition: template
                 value_template: "{{ states.input_boolean.limit_heaters.state == 'off'}}"
             sequence:
               - service: input_boolean.turn_on
-                entity_id: input_boolean.limit_heaters
+                target:
+                  entity_id: input_boolean.limit_heaters
               - service: script.turn_on
                 target:
                   entity_id: script.notify
@@ -229,9 +231,11 @@ automation:
             sequence:
               - service: script.pausecharging
               - service: input_boolean.turn_on
-                entity_id: input_boolean.limit_water_heater
+                target:
+                  entity_id: input_boolean.limit_water_heater
               - service: input_boolean.turn_on
-                entity_id: input_boolean.limit_heaters
+                target:
+                  entity_id: input_boolean.limit_heaters
               - service: script.notify_tts_max_if_home
                 data:
                   message: "Warning, high power usage. The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now."
@@ -245,9 +249,11 @@ automation:
         default:
           - service: script.pausecharging
           - service: input_boolean.turn_on
-            entity_id: input_boolean.limit_water_heater
+            target:
+              entity_id: input_boolean.limit_water_heater
           - service: input_boolean.turn_on
-            entity_id: input_boolean.limit_heaters
+            target:
+              entity_id: input_boolean.limit_heaters
           - service: script.turn_on
             target:
               entity_id: script.notify
@@ -274,9 +280,11 @@ automation:
         value_template: "{{ states.input_boolean.limit_power.state == 'on'}}"
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.limit_heaters
+        target:
+          entity_id: input_boolean.limit_heaters
       - service: input_boolean.turn_off
-        entity_id: input_boolean.limit_water_heater
+        target:
+          entity_id: input_boolean.limit_water_heater
       - condition: template
         value_template: "{{ states.input_boolean.charging_was_paused.state == 'on'}}"
       - service: script.resumecharging
@@ -378,7 +386,8 @@ script:
       - condition: template
         value_template: "{{ states.input_boolean.charging_was_paused.state == 'on'}}"
       - service: input_boolean.turn_off
-        entity_id: input_boolean.charging_was_paused
+        target:
+          entity_id: input_boolean.charging_was_paused
       - service: easee.action_command
         data:
           device_id: 6253823754803a08f0b3d8c4d7acbd30
@@ -392,7 +401,8 @@ script:
     alias: Limit Charging
     sequence:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.charging_was_paused
+        target:
+          entity_id: input_boolean.charging_was_paused
       - service: easee.set_charger_dynamic_limit
         data:
           charger_id: "EHRMB4AF"
@@ -404,7 +414,8 @@ script:
       - condition: template
         value_template: "{{ states.input_boolean.charging_was_paused.state == 'on'}}"
       - service: input_boolean.turn_off
-        entity_id: input_boolean.charging_was_paused
+        target:
+          entity_id: input_boolean.charging_was_paused
       - service: easee.set_charger_dynamic_limit
         data:
           charger_id: "EHRMB4AF"
@@ -415,7 +426,8 @@ script:
     alias: Pause Charging
     sequence:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.charging_was_paused
+        target:
+          entity_id: input_boolean.charging_was_paused
       - service: easee.action_command
         data:
           device_id: 6253823754803a08f0b3d8c4d7acbd30

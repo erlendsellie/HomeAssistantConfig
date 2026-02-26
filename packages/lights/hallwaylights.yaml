@@ -100,7 +100,8 @@ automation:
         to: "on"
     action:
       - service: light.turn_on
-        entity_id: group.hallwaylights, light.vindfang
+        target:
+          entity_id: group.hallwaylights, light.vindfang
         data:
           brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
 
@@ -132,7 +133,8 @@ automation:
           minutes: 30
     action:
       - service: light.turn_off
-        entity_id: group.hallwaylights, light.vindfang
+        target:
+          entity_id: group.hallwaylights, light.vindfang
 
   #Turn on sokkel by motion
   - id: turnOnSokkelLight
@@ -147,7 +149,8 @@ automation:
         to: "on"
     action:
       - service: light.turn_on
-        entity_id: light.sokkel
+        target:
+          entity_id: light.sokkel
         data:
           brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
       # - service: light.turn_on
@@ -182,9 +185,11 @@ automation:
         value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
     action:
       - service: light.turn_on
-        entity_id: light.vindfang
+        target:
+          entity_id: light.vindfang
       - service: light.turn_on
-        entity_id: group.hallwaylights
+        target:
+          entity_id: group.hallwaylights
         data:
           brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
   #         - binary_sensor.door_livingroom

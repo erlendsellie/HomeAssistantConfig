@@ -163,7 +163,8 @@ automation:
         state: "on"
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.tyraasleep
+        target:
+          entity_id: input_boolean.tyraasleep
 
   - alias: "TurnOTyraAsleepByDoor"
     trigger:
@@ -182,7 +183,8 @@ automation:
         state: "off"
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.tyraasleep
+        target:
+          entity_id: input_boolean.tyraasleep
 
   - alias: "TurnOfftyraAsleepByDoor"
     trigger:
@@ -197,7 +199,8 @@ automation:
         value_template: "{{ states('sensor.tyra_traffic_color') != 'red'}}"
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.tyraasleep
+        target:
+          entity_id: input_boolean.tyraasleep
 
   - alias: "TurnOntyraAsleepAtTime"
     trigger:
@@ -211,7 +214,8 @@ automation:
         state: "Disarm"
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.tyraasleep
+        target:
+          entity_id: input_boolean.tyraasleep
 
   # - alias: 'TurnOfftyraAsleepAtTime'
   #   trigger:
@@ -276,7 +280,8 @@ automation:
         entity_id: input_boolean.tyraasleep
     action:
       - service: climate.set_temperature
-        entity_id: climate.tyra_heater
+        target:
+          entity_id: climate.tyra_heater
         data:
           temperature: "{{states.sensor.tyratemp.state | float}}"
 
@@ -287,7 +292,8 @@ automation:
         to: "off"
     action:
       - service: climate.turn_on
-        entity_id: climate.tyra_heater
+        target:
+          entity_id: climate.tyra_heater
 
   - alias: "TyraHeaterOff"
     trigger:
@@ -296,7 +302,8 @@ automation:
         to: "on"
     action:
       - service: climate.turn_off
-        entity_id: climate.tyra_heater
+        target:
+          entity_id: climate.tyra_heater
 
   - alias: turnOnTyraLight
     id: turnOnTyraLight
@@ -313,7 +320,8 @@ automation:
         state: "off"
     action:
       - service: light.turn_on
-        entity_id: light.tyra
+        target:
+          entity_id: light.tyra
         data:
           brightness_pct: "{{ states.sensor.tyra_light.state }}"
       - service: light.turn_on
@@ -332,9 +340,11 @@ automation:
       - condition: template
         value_template: "{{ states.input_boolean.tyraasleep.state == 'off' }}"
       - service: light.turn_off
-        entity_id: light.tyra
+        target:
+          entity_id: light.tyra
       - service: light.turn_off
-        entity_id: light.tyra_ball
+        target:
+          entity_id: light.tyra_ball
 
   - id: "ToggleTyraLightsSwitch"
     alias: ToggletyraLightsSwitch
@@ -370,7 +380,8 @@ automation:
       to: "off"
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.tyrainkindergarden
+        target:
+          entity_id: input_boolean.tyrainkindergarden
 
   - id: TyraInKinderGardenChangedToON
     alias: TyraInKinderGardenChangedToON
@@ -380,7 +391,8 @@ automation:
       to: "on"
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.tyrainkindergarden
+        target:
+          entity_id: input_boolean.tyrainkindergarden
 
   - id: TyraLeftInKindergarden
     alias: Tyra left in kindergarden
@@ -402,11 +414,13 @@ automation:
           title: Tyra left in kindergarden
           message: The time is {{ now().hour }}:{{ now().minute }}.
       - service: input_boolean.turn_off
-        entity_id:
+        target:
+          entity_id:
           - input_boolean.trymasleep
           - input_boolean.tyraasleep
       - service: input_boolean.turn_on
-        entity_id: input_boolean.tryminkindergarden
+        target:
+          entity_id: input_boolean.tryminkindergarden
 
   - id: TyraPickedUpInKindergarden
     alias: Tyra picked up in kindergarden
@@ -443,7 +457,8 @@ automation:
           variables:
             message: "Tyra ble hentet i barnehagen"
       - service: input_boolean.turn_off
-        entity_id: input_boolean.tryminkindergarden
+        target:
+          entity_id: input_boolean.tryminkindergarden
       - service: script.turn_on
         target:
           entity_id: script.blinkliving

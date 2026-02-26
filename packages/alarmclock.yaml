@@ -29,7 +29,8 @@ automation:
         state: "on"
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.force_to_wake_up
+        target:
+          entity_id: input_boolean.force_to_wake_up
       - repeat:
           while:
             condition: and
@@ -233,7 +234,8 @@ script:
   wakeupai:
     sequence:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.waking_up
+        target:
+          entity_id: input_boolean.waking_up
       - variables:
           nextAlarm: "{{ states.sensor.erlend_mobil_next_alarm.state }}"
       - repeat:
@@ -251,7 +253,8 @@ script:
                   state: "off"
               then:
                 - service: light.turn_on
-                  entity_id: light.bedroom
+                  target:
+                    entity_id: light.bedroom
                   data:
                     brightness_pct: 100
                     transition: 100
@@ -260,11 +263,13 @@ script:
                     entity_id: media_player.clock
                     volume_level: "0.7"
                 - service: input_text.set_value
-                  entity_id: input_text.openaibedroom
+                  target:
+                    entity_id: input_text.openaibedroom
                   data:
                     value: ""
                 - service: input_text.set_value
-                  entity_id: input_text.openaibedroom
+                  target:
+                    entity_id: input_text.openaibedroom
                   data:
                     value: >-
                       {%set time = now().hour | string + ':' + now().minute | string%}
@@ -286,11 +291,13 @@ script:
                 - delay:
                     seconds: 10
                 - service: light.turn_off
-                  entity_id: light.bedroom
+                  target:
+                    entity_id: light.bedroom
                 - delay:
                     seconds: 5
                 - service: light.turn_on
-                  entity_id: light.bedroom
+                  target:
+                    entity_id: light.bedroom
                   data:
                     brightness_pct: 100
                     transition: 100
@@ -476,19 +483,26 @@ script:
           title: Erlend har ikke stått opp enda.
           message: Han burde vekkes!
       - service: light.turn_on
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights
       - service: light.turn_off
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights
       - service: light.turn_on
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights
       - service: light.turn_off
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights
       - service: light.turn_on
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights
       - service: light.turn_off
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights
       - service: light.turn_on
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights
 
   stilloverslept:
     sequence:
@@ -501,16 +515,23 @@ script:
           title: Erlend har ikke dratt på jobb enda
           message: Vekk han om han skal på jobb!
       - service: light.turn_on
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights
       - service: light.turn_off
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights
       - service: light.turn_on
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights
       - service: light.turn_off
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights
       - service: light.turn_on
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights
       - service: light.turn_off
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights
       - service: light.turn_on
-        entity_id: group.bedroomlights
+        target:
+          entity_id: group.bedroomlights

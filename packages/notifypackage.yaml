@@ -131,7 +131,8 @@ automation:
       # - service: notify.html5_p30_dismiss
       #   tag: garage-door-notification
       - service: automation.trigger
-        entity_id: automation.garageopenhtml5_p30
+        target:
+          entity_id: automation.garageopenhtml5_p30
 
   - alias: html5_p30 push notification action button clicked
     trigger:
@@ -147,7 +148,8 @@ automation:
       #       title: 'Okay, closing the garage'
       #       message: Okay, closing the garage.
       - service: cover.close_cover
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
 
   # - alias: restarthaevent
   #   trigger:
@@ -389,7 +391,8 @@ automation:
               # - service: switch.turn_off
               #   entity_id: switch.circadian_lighting_circadian_stua
               - service: light.turn_on
-                entity_id: light.peis
+                target:
+                  entity_id: light.peis
                 data:
                   brightness_pct: "40"
                   color_name: red
@@ -400,7 +403,8 @@ automation:
                 timeout: "02:00:00"
                 continue_on_timeout: true
               - service: light.turn_off
-                entity_id: light.peis
+                target:
+                  entity_id: light.peis
                 # data:
                 #   brightness_pct: '100'
                 #hs_color: "{{states.switch.circadian_lighting_circadian_stua.attributes.hs_color}}"
@@ -419,7 +423,8 @@ automation:
                   or states.binary_sensor.trym_home.state == 'off' }}
             sequence:
               - service: media_player.media_pause
-                entity_id: media_player.living_room_tv
+                target:
+                  entity_id: media_player.living_room_tv
               - wait_for_trigger:
                   - platform: state
                     entity_id: sensor.erlend_mobil_audio_mode
@@ -429,7 +434,8 @@ automation:
               - condition: template
                 value_template: "{{ states.media_player.living_room_tv.state != 'playing'}}"
               - service: media_player.media_play
-                entity_id: media_player.living_room_tv
+                target:
+                  entity_id: media_player.living_room_tv
 
   - alias: lunchtime
     trigger:

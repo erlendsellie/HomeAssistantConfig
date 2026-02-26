@@ -39,7 +39,8 @@ automation:
                 value_template: "{{ action == one }}"
             sequence:
               - service: input_select.select_option
-                entity_id: input_select.stua_tapdial
+                target:
+                  entity_id: input_select.stua_tapdial
                 data:
                   option: sofa
           - conditions:
@@ -47,7 +48,8 @@ automation:
                 value_template: "{{ action == two }}"
             sequence:
               - service: input_select.select_option
-                entity_id: input_select.stua_tapdial
+                target:
+                  entity_id: input_select.stua_tapdial
                 data:
                   option: tv
           - conditions:
@@ -55,7 +57,8 @@ automation:
                 value_template: "{{ action == three }}"
             sequence:
               - service: input_select.select_option
-                entity_id: input_select.stua_tapdial
+                target:
+                  entity_id: input_select.stua_tapdial
                 data:
                   option: chillsofa
           - conditions:
@@ -63,7 +66,8 @@ automation:
                 value_template: "{{ action == four }}"
             sequence:
               - service: input_select.select_option
-                entity_id: input_select.stua_tapdial
+                target:
+                  entity_id: input_select.stua_tapdial
                 data:
                   option: peis
           - conditions:
@@ -80,7 +84,8 @@ automation:
                 value_template: "{{ action == four_hold }}"
             sequence:
               - service: input_select.select_option
-                entity_id: input_select.stua_tapdial
+                target:
+                  entity_id: input_select.stua_tapdial
                 data:
                   option: media_volume
           - conditions:
@@ -88,17 +93,20 @@ automation:
                 value_template: "{{ action == three_hold }}"
             sequence:
               - service: media_player.toggle
-                entity_id: media_player.tv_stua
+                target:
+                  entity_id: media_player.tv_stua
           - conditions:
               - condition: template
                 value_template: "{{ action == two_hold }}"
             sequence:
               - service: media_player.media_play_pause
-                entity_id: media_player.living_room_tv
+                target:
+                  entity_id: media_player.living_room_tv
       - delay:
           seconds: 10
       - service: input_select.select_option
-        entity_id: input_select.stua_tapdial
+        target:
+          entity_id: input_select.stua_tapdial
         data:
           option: tvsone
 
@@ -210,30 +218,42 @@ automation:
                 value_template: "{{ action == left_fast or action == left_slow or action == left_step}}"
             sequence:
               - service: media_player.volume_down
-                entity_id: media_player.tv_stua
+                target:
+                  entity_id: media_player.tv_stua
               - service: media_player.volume_down
-                entity_id: media_player.tv_stua
+                target:
+                  entity_id: media_player.tv_stua
               - service: media_player.volume_down
-                entity_id: media_player.tv_stua
+                target:
+                  entity_id: media_player.tv_stua
               - service: media_player.volume_down
-                entity_id: media_player.tv_stua
+                target:
+                  entity_id: media_player.tv_stua
               - service: media_player.volume_down
-                entity_id: media_player.tv_stua
+                target:
+                  entity_id: media_player.tv_stua
               - service: media_player.volume_down
-                entity_id: media_player.tv_stua
+                target:
+                  entity_id: media_player.tv_stua
           - conditions:
               - condition: template
                 value_template: "{{ action == right_fast or action == right_slow or action == right_step}}"
             sequence:
               - service: media_player.volume_up
-                entity_id: media_player.tv_stua
+                target:
+                  entity_id: media_player.tv_stua
               - service: media_player.volume_up
-                entity_id: media_player.tv_stua
+                target:
+                  entity_id: media_player.tv_stua
               - service: media_player.volume_up
-                entity_id: media_player.tv_stua
+                target:
+                  entity_id: media_player.tv_stua
               - service: media_player.volume_up
-                entity_id: media_player.tv_stua
+                target:
+                  entity_id: media_player.tv_stua
               - service: media_player.volume_up
-                entity_id: media_player.tv_stua
+                target:
+                  entity_id: media_player.tv_stua
               - service: media_player.volume_up
-                entity_id: media_player.tv_stua
+                target:
+                  entity_id: media_player.tv_stua

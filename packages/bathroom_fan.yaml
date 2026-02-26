@@ -18,8 +18,10 @@ script:
   bathroom_fan_on:
     sequence:
       - service: switch.turn_on
-        entity_id: switch.bathroom_fan
+        target:
+          entity_id: switch.bathroom_fan
   bathroom_fan_off:
     sequence:
       - service: switch.turn_off
-        entity_id: switch.bathroom_fan
+        target:
+          entity_id: switch.bathroom_fan

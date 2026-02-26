@@ -57,13 +57,15 @@ automation:
       #     variables:
       #       message: Erlend må ta medisinen sin
       - service: tts.google_cloud_say
-        entity_id: media_player.kitchen_display
+        target:
+          entity_id: media_player.kitchen_display
         data:
           message: "Ta medisin"
       - delay:
           seconds: 10
       - service: media_player.media_stop
-        entity_id: media_player.kitchen_display
+        target:
+          entity_id: media_player.kitchen_display
       - delay:
           minutes: 2
 
@@ -86,7 +88,8 @@ automation:
     #     state: "off"
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.takemeds
+        target:
+          entity_id: input_boolean.takemeds
       # - condition: template
       #   value_template: "{{ states.person.erlend.state != 'home' }}"
       - service: notify.mobile_app_erlend_mobil
@@ -112,4 +115,5 @@ automation:
         at: "02:00:00"
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.takemeds
+        target:
+          entity_id: input_boolean.takemeds

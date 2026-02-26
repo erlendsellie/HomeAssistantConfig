@@ -830,7 +830,8 @@ automation:
         entity_id: input_select.heat_pump_swing_mode
     action:
       - service: climate.set_swing_mode
-        entity_id: climate.varmepumpe
+        target:
+          entity_id: climate.varmepumpe
         data:
           swing_mode: >-
             {% set mode = states('input_select.heat_pump_swing_mode')%}
@@ -1001,7 +1002,8 @@ automation:
     #     value_template: "{{(states.sensor.stua_temperature.state >= states.input_number.hjemmetemp.state) and is_state('input_boolean.warmupmorning', 'on')}}"
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.warmupmorning
+        target:
+          entity_id: input_boolean.warmupmorning
       - service: climate.set_temperature
         data:
           entity_id: climate.varmepumpe
@@ -1107,7 +1109,8 @@ automation:
         entity_id: sensor.trymtemp
     action:
       - service: climate.set_temperature
-        entity_id: climate.trym
+        target:
+          entity_id: climate.trym
         data:
           temperature: "{{states.sensor.trymtemp.state | float(default=13)}}"
 # - alias: WarmupMorningWeekend
@@ -1214,7 +1217,8 @@ script:
           entity_id: climate.varmepumpe
           hvac_mode: "heat"
       - service: input_boolean.turn_on
-        entity_id: input_boolean.warmupmorning
+        target:
+          entity_id: input_boolean.warmupmorning
       - service: climate.set_fan_mode
         data:
           entity_id: climate.varmepumpe
@@ -1253,7 +1257,8 @@ script:
             {% endif %}
             {{temp}}
       - service: input_boolean.turn_off
-        entity_id: input_boolean.warmupmorning
+        target:
+          entity_id: input_boolean.warmupmorning
       # - service: climate.set_hvac_mode
       #   data:
       #     entity_id: climate.stua_heater

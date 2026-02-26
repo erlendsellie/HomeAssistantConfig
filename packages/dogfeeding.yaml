@@ -169,7 +169,8 @@ automation:
         value_template: "{{  states.input_boolean.dogs_dinner_fed.state == 'off' or states.input_boolean.dog_breakfast_done.state == 'off' }}"
     action:
       - service: input_boolean.turn_on
-        entity_id:
+        target:
+          entity_id:
           - input_boolean.dogs_dinner_fed
           - input_boolean.dog_breakfast_done
       - service: script.turn_on

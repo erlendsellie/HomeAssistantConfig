@@ -14,7 +14,9 @@ automation:
             {{easleep or casleep}}
         then:
           - service: switch.turn_on
-            entity_id: switch.adaptive_lighting_sleep_mode_bedroom
+            target:
+              entity_id: switch.adaptive_lighting_sleep_mode_bedroom
         else:
           - service: switch.turn_off
-            entity_id: switch.adaptive_lighting_sleep_mode_bedroom
+            target:
+              entity_id: switch.adaptive_lighting_sleep_mode_bedroom

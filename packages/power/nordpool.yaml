@@ -36,7 +36,8 @@ automation:
         to: "on"
     action:
       - service: homeassistant.reload_config_entry
-        entity_id: sensor.nordpool
+        target:
+          entity_id: sensor.nordpool
       - delay:
           seconds: 10
       # Varsling med sensor-verdi, 10 sekunder etter relasting av integrasjonen.

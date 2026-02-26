@@ -272,27 +272,33 @@ automation:
         state: "Arm Home"
     action:
       - service: tts.google_cloud_say
-        entity_id: media_player.clock
+        target:
+          entity_id: media_player.clock
         data:
           message: Hundene har gått inn på stua
       - service: light.turn_on
-        entity_id: light.bedroom
+        target:
+          entity_id: light.bedroom
       - delay:
           seconds: 2
       - service: light.turn_off
-        entity_id: light.bedroom
+        target:
+          entity_id: light.bedroom
       - delay:
           seconds: 2
       - service: light.turn_on
-        entity_id: light.bedroom
+        target:
+          entity_id: light.bedroom
       - delay:
           seconds: 2
       - service: light.turn_off
-        entity_id: light.bedroom
+        target:
+          entity_id: light.bedroom
       - delay:
           seconds: 2
       - service: light.turn_on
-        entity_id: light.bedroom
+        target:
+          entity_id: light.bedroom
 
   - alias: KidsAfoot
     trigger:
@@ -318,15 +324,18 @@ automation:
           entity_id: media_player.clock
           volume_level: 0.5
       - service: tts.google_cloud_say
-        entity_id: media_player.clock
+        target:
+          entity_id: media_player.clock
         data:
           message: Trym eller Tyra har gått ut fra rommet sitt
       - service: light.turn_on
-        entity_id: light.bedroom
+        target:
+          entity_id: light.bedroom
       - delay:
           seconds: 2
       - service: light.turn_off
-        entity_id: light.bedroom
+        target:
+          entity_id: light.bedroom
       - delay:
           seconds: 2
       - service: media_player.volume_set
@@ -715,7 +724,8 @@ automation:
       from: "on"
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.washer_emptied
+        target:
+          entity_id: input_boolean.washer_emptied
 
   - alias: WasherDoneNotify
     id: WasherDoneNotify
@@ -766,7 +776,8 @@ automation:
         state: "off"
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.washer_emptied
+        target:
+          entity_id: input_boolean.washer_emptied
       - service: script.turn_on
         target:
           entity_id: script.notifyhome
@@ -1001,7 +1012,8 @@ automation:
           title: Erlend just got to work
           message: The time is {{ now().hour }}:{{ now().minute }}.
       - service: input_boolean.turn_on
-        entity_id: input_boolean.alarmclock
+        target:
+          entity_id: input_boolean.alarmclock
       - condition: template
         value_template: "{{ states.person.caroline.state == 'Sykehuset' and states.input_boolean.tryminkindergarden.state == 'off'}}"
       - service: script.telegram_notify
@@ -1039,13 +1051,15 @@ script:
       - condition: template
         value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
       - service: input_text.set_value
-        entity_id: input_text.openaikitchen
+        target:
+          entity_id: input_text.openaikitchen
         data:
           value: "Informer om at {{message}}"
       - delay:
           seconds: 50
       - service: input_text.set_value
-        entity_id: input_text.openaikitchen
+        target:
+          entity_id: input_text.openaikitchen
         data:
           value: ""
 
@@ -1124,7 +1138,8 @@ script:
           entity_id: media_player.clock
           volume_level: "0.7"
       - service: tts.google_cloud_say
-        entity_id:
+        target:
+          entity_id:
           - media_player.clock
         data:
           message: "{{message}}"

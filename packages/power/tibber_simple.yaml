@@ -13,7 +13,8 @@ automation:
           minutes: 2
     action:
       - service: homeassistant.reload_config_entry
-        entity_id: sensor.pulse_power
+        target:
+          entity_id: sensor.pulse_power
       - service: persistent_notification.create
         data:
           title: Tibber var utilgjengelig, relastet integrasjonen

@@ -327,7 +327,8 @@ automation:
         value_template: "{{states.sensor.garage_status.state == 'disconnected'}}"
     action:
       - service: switch.turn_off
-        entity_id: switch.garage_is_enabled
+        target:
+          entity_id: switch.garage_is_enabled
 
   - alias: "EnableChargerWhenHome"
     id: "EnableChargerWhenHome"
@@ -340,7 +341,8 @@ automation:
         to: "Arm Home"
     action:
       - service: switch.turn_on
-        entity_id: switch.garage_is_enabled
+        target:
+          entity_id: switch.garage_is_enabled
 
   # - alias: "defrostTeslaWhenHome"
   #   id: "defrostTeslaWhenHome"
@@ -439,7 +441,8 @@ automation:
       local_only: false
     action:
       - service: cover.open_cover
-        entity_id: cover.modely_trunk
+        target:
+          entity_id: cover.modely_trunk
       # - service: lock.unlock
       #   entity_id: lock.modely_trunk_lock
       - service: script.turn_on
@@ -458,7 +461,8 @@ automation:
       local_only: false
     action:
       - service: cover.close_cover
-        entity_id: cover.modely_trunk
+        target:
+          entity_id: cover.modely_trunk
       # - service: lock.lock
       #   entity_id: lock.modely_trunk_lock
       - service: script.turn_on
@@ -479,7 +483,8 @@ automation:
       # - service: lock.unlock
       #   entity_id: lock.modely_charger_door_lock
       - service: cover.open_cover
-        entity_id: cover.modely_charger_door
+        target:
+          entity_id: cover.modely_charger_door
       - service: script.turn_on
         target:
           entity_id: script.notify
@@ -500,7 +505,8 @@ automation:
           action: frunk_sleipner
     action:
       - service: cover.open_cover
-        entity_id: cover.modely_frunk
+        target:
+          entity_id: cover.modely_frunk
       # - service: lock.unlock
       #   entity_id: lock.modely_frunk_lock
       - service: script.turn_on
@@ -519,7 +525,8 @@ automation:
       local_only: false
     action:
       - service: cover.open_cover
-        entity_id: cover.modely_frunk
+        target:
+          entity_id: cover.modely_frunk
       # - service: lock.unlock
       #   entity_id: lock.modely_frunk_lock
       - service: script.turn_on

@@ -20,14 +20,16 @@ automation:
                 state: "off"
             sequence:
               - service: light.turn_off
-                entity_id: light.office_light, light.play
+                target:
+                  entity_id: light.office_light, light.play
           - conditions:
               - condition: state
                 entity_id: binary_sensor.motion_downstairs_office
                 state: "off"
             sequence:
               - service: light.turn_off
-                entity_id:
+                target:
+                  entity_id:
                   - light.tvsone
                   - light.peis
     #- service: light.turn_off
@@ -53,7 +55,8 @@ automation:
                 state: "off"
             sequence:
               - service: light.turn_on
-                entity_id: light.office_light, light.play
+                target:
+                  entity_id: light.office_light, light.play
                 data:
                   brightness_pct: "100"
           - conditions:
@@ -70,7 +73,8 @@ automation:
                   entity_id: input_number.brightness
                   value: 100
               - service: light.turn_on
-                entity_id: light.peis
+                target:
+                  entity_id: light.peis
 
   #dim middels
   - alias: "Watch6"
@@ -91,7 +95,8 @@ automation:
           entity_id: input_number.brightness
           value: 50
       - service: light.turn_on
-        entity_id: light.peis
+        target:
+          entity_id: light.peis
 
   #Dim lavt
   - alias: "Watch3"
@@ -112,7 +117,8 @@ automation:
           entity_id: input_number.brightness
           value: 10
       - service: light.turn_on
-        entity_id: light.peis
+        target:
+          entity_id: light.peis
 
   # Åpne Garasje
   - alias: "WatchTime"
@@ -127,7 +133,8 @@ automation:
       # - service: script.turn_on
       #   entity_id: script.garagetoggle
       - service: cover.toggle
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
         #- service: script.turn_on
         # entity_id: script.notify
         # data:
@@ -147,7 +154,8 @@ automation:
       # - service: script.turn_on
       #   entity_id: script.garagetoggle
       - service: cover.toggle
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
       - service: script.turn_on
         target:
           entity_id: script.notifycaroline
@@ -176,7 +184,8 @@ automation:
           action: togglegarage
     action:
       - service: cover.toggle
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
       - service: script.turn_on
         target:
           entity_id: script.notify
@@ -195,7 +204,8 @@ automation:
         value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
     action:
       - service: light.turn_off
-        entity_id: light.kitchensone
+        target:
+          entity_id: light.kitchensone
   #  - service: light.turn_off
   #    entity_id: light.kjokkenbord
 
@@ -215,15 +225,18 @@ automation:
           entity_id: group.notdimmableliving
           # profile: "{{ states.input_number.light_profile.state }}"
       - service: light.turn_on
-        entity_id: light.kjokkenbord, light.cabinet, light.table_lamp
+        target:
+          entity_id: light.kjokkenbord, light.cabinet, light.table_lamp
         data:
           #rgb_color: [255,128,25]
           brightness_pct: 100
           rgb_color: [255, 128, 25] #caroline liker
       - service: light.turn_on
-        entity_id: light.ledstrip_kitchen
+        target:
+          entity_id: light.ledstrip_kitchen
       - service: light.turn_on
-        entity_id: light.kitchen_ceiling_led, light.kitchen
+        target:
+          entity_id: light.kitchen_ceiling_led, light.kitchen
         data:
           #rgb_color: [255,128,25]
           brightness_pct: 100
@@ -246,27 +259,31 @@ automation:
                 value_template: "{{ states.person.erlend.state  != 'home'}}"
             sequence:
               - service: media_player.media_play_pause
-                entity_id: media_player.spotify_erlend_sellie
+                target:
+                  entity_id: media_player.spotify_erlend_sellie
           - conditions:
               - condition: state
                 entity_id: input_boolean.easleep
                 state: "on"
             sequence:
               - service: media_player.media_play_pause
-                entity_id: media_player.bedroom_tv
+                target:
+                  entity_id: media_player.bedroom_tv
           - conditions:
               - condition: template
                 value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.living_room_tv.state != 'paused' and states.media_player.living_room_tv.state != 'playing'))}}"
             sequence:
               - service: media_player.media_play_pause
-                entity_id: media_player.musikkstua
+                target:
+                  entity_id: media_player.musikkstua
           - conditions:
               - condition: state
                 entity_id: input_boolean.easleep
                 state: "off"
             sequence:
               - service: media_player.media_play_pause
-                entity_id: media_player.tv_stua #shield
+                target:
+                  entity_id: media_player.tv_stua #shield
               # - service: androidtv.adb_command
               #   data:
               #     entity_id: media_player.living_room_tv
@@ -306,7 +323,8 @@ automation:
               # - service: media_player.toggle
               #   entity_id: media_player.living_room_tv
               - service: media_player.toggle
-                entity_id: media_player.tv_stua
+                target:
+                  entity_id: media_player.tv_stua
           - conditions:
               - condition: state
                 entity_id: input_boolean.easleep
@@ -316,7 +334,8 @@ automation:
                 state: "off"
             sequence:
               - service: media_player.toggle
-                entity_id: media_player.bedroom_tv
+                target:
+                  entity_id: media_player.bedroom_tv
           - conditions:
               - condition: state
                 entity_id: input_boolean.easleep
@@ -326,7 +345,8 @@ automation:
               #   state: "on"
             sequence:
               - service: media_player.turn_off
-                entity_id: media_player.tv_soverommet
+                target:
+                  entity_id: media_player.tv_soverommet
 
   - alias: "Watch11"
     trigger:
@@ -338,7 +358,8 @@ automation:
         value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
     action:
       - service: light.toggle
-        entity_id: light.sofa
+        target:
+          entity_id: light.sofa
 
   - alias: "klokke7"
     trigger:
@@ -384,7 +405,8 @@ automation:
         value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
     action:
       - service: switch.turn_on
-        entity_id: switch.mower
+        target:
+          entity_id: switch.mower
 
   # - alias: "WatchCarStartHeating"
   #   id: "watchcarstartheating"
@@ -492,7 +514,8 @@ automation:
           action: clean
     action:
       - service: vacuum.start
-        entity_id: vacuum.xiaomi_vacuum_cleaner
+        target:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
 
   - alias: notification_trym_toggle
     trigger:
@@ -502,7 +525,8 @@ automation:
           action: trymtoggle
     action:
       - service: input_boolean.toggle
-        entity_id: input_boolean.trymasleep
+        target:
+          entity_id: input_boolean.trymasleep
 
   - alias: notification_tyra_toggle
     trigger:
@@ -512,7 +536,8 @@ automation:
           action: tyratoggle
     action:
       - service: input_boolean.toggle
-        entity_id: input_boolean.tyraasleep
+        target:
+          entity_id: input_boolean.tyraasleep
 
 script:
   notifyblanket:

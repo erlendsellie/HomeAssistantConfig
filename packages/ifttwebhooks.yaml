@@ -6,7 +6,8 @@ automation:
       local_only: false
     action:
       - service: cover.close_cover
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
       - service: script.turn_on
         target:
           entity_id: script.notify
@@ -22,7 +23,8 @@ automation:
       local_only: false
     action:
       - service: cover.open_cover
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
       - service: script.turn_on
         target:
           entity_id: script.notify
@@ -53,7 +55,8 @@ automation:
       local_only: false
     action:
       - service: media_player.turn_off
-        entity_id: media_player.tv_stua
+        target:
+          entity_id: media_player.tv_stua
 
   - alias: "IFTTTPauseTV"
     trigger:
@@ -62,7 +65,8 @@ automation:
       local_only: false
     action:
       - service: media_player.media_pause
-        entity_id: media_player.tv_stua
+        target:
+          entity_id: media_player.tv_stua
 
   - alias: "Run Vacuum IFTT"
     trigger:
@@ -71,7 +75,8 @@ automation:
       local_only: false
     action:
       - service: vacuum.start
-        entity_id: vacuum.xiaomi_vacuum_cleaner
+        target:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
 
   - alias: "lockDoorIftt"
     trigger:
@@ -80,7 +85,8 @@ automation:
       local_only: false
     action:
       - service: lock.lock
-        entity_id: lock.ytterdor_bluetooth
+        target:
+          entity_id: lock.ytterdor_bluetooth
         data:
           code: "{{ trigger.json.value}}"
 

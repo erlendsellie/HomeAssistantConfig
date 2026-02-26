@@ -55,19 +55,22 @@ automation:
                   entity_id: input_number.brightness
                   value: "{{[states.input_number.brightness.state | float(default=0)+ 20, 100] | min}}"
               - service: light.turn_on
-                entity_id: light.peis
+                target:
+                  entity_id: light.peis
           - conditions:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrolcaroline.state == 'KitchenLights'}}"
             sequence:
               - service: light.turn_on
-                entity_id: light.kitchensone
+                target:
+                  entity_id: light.kitchensone
           - conditions:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrolcaroline.state == 'SofaLight'}}"
             sequence:
               - service: light.turn_on
-                entity_id: light.sofa
+                target:
+                  entity_id: light.sofa
           - conditions:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Media'}}"
@@ -79,20 +82,23 @@ automation:
                         state: "on"
                     sequence:
                       - service: media_player.media_play_pause
-                        entity_id: media_player.bedroom_tv
+                        target:
+                          entity_id: media_player.bedroom_tv
                   - conditions:
                       - condition: template
                         value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.living_room_tv.state != 'paused' and states.media_player.living_room_tv.state != 'playing'))}}"
                     sequence:
                       - service: media_player.media_play_pause
-                        entity_id: media_player.musikkstua
+                        target:
+                          entity_id: media_player.musikkstua
                   - conditions:
                       - condition: state
                         entity_id: input_boolean.casleep
                         state: "off"
                     sequence:
                       - service: media_player.media_play_pause
-                        entity_id: media_player.living_room_tv
+                        target:
+                          entity_id: media_player.living_room_tv
           - conditions:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
@@ -133,13 +139,15 @@ automation:
                 value_template: "{{ states.input_select.garmincontrolcaroline.state == 'KitchenLights'}}"
             sequence:
               - service: light.turn_off
-                entity_id: light.kitchensone
+                target:
+                  entity_id: light.kitchensone
           - conditions:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrolcaroline.state == 'SofaLight'}}"
             sequence:
               - service: light.turn_off
-                entity_id: light.sofa
+                target:
+                  entity_id: light.sofa
           - conditions:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
@@ -216,7 +224,8 @@ automation:
                       # - service: media_player.toggle
                       #   entity_id: media_player.living_room_tv
                       - service: media_player.toggle
-                        entity_id: media_player.tv_stua
+                        target:
+                          entity_id: media_player.tv_stua
                   - conditions:
                       - condition: state
                         entity_id: input_boolean.casleep
@@ -226,7 +235,8 @@ automation:
                         state: "off"
                     sequence:
                       - service: media_player.turn_on
-                        entity_id: media_player.bedroom_tv
+                        target:
+                          entity_id: media_player.bedroom_tv
                   - conditions:
                       - condition: state
                         entity_id: input_boolean.casleep
@@ -236,14 +246,16 @@ automation:
                         state: "on"
                     sequence:
                       - service: media_player.turn_off
-                        entity_id: media_player.tv_soverommet
+                        target:
+                          entity_id: media_player.tv_soverommet
 
           - conditions:
               - condition: template
                 value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
             sequence:
               - service: cover.toggle
-                entity_id: cover.garage_door
+                target:
+                  entity_id: cover.garage_door
 
   # - alias: 'GarminWebHookBack'
   #   id: 'GarminWebHookBack'

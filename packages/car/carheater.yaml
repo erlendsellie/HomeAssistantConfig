@@ -63,7 +63,8 @@ automation:
           action: turnoncarheater
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.carheatermounted
+        target:
+          entity_id: input_boolean.carheatermounted
 
   - id: TurnOnCarHeater
     alias: TurnOnCarHeater
@@ -88,7 +89,8 @@ automation:
           state: "on"
     action:
       - service: switch.turn_on
-        entity_id: switch.carheater
+        target:
+          entity_id: switch.carheater
       - service: script.telegram_notify
         data:
           message: "Car Heater turned on."
@@ -119,7 +121,8 @@ automation:
           below: -8
     action:
       - service: switch.turn_on
-        entity_id: switch.carheater
+        target:
+          entity_id: switch.carheater
       - service: script.telegram_notify
         data:
           message: "Car Heater turned on."
@@ -131,4 +134,5 @@ automation:
         at: "14:00:00"
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.carheatermounted
+        target:
+          entity_id: input_boolean.carheatermounted

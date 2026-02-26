@@ -13,7 +13,8 @@ automation:
         - PUT
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.cleandustbin
+        target:
+          entity_id: input_boolean.cleandustbin
 
   - alias: SendToKitchen
     trigger:
@@ -39,7 +40,8 @@ automation:
           after: "12:00:00"
     action:
       - service: vacuum.stop
-        entity_id: vacuum.xiaomi_vacuum_cleaner
+        target:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
       - service: script.turn_on
         target:
           entity_id: script.sendvacuumtokitchen
@@ -49,7 +51,8 @@ automation:
       #     command: app_goto_target
       #     params: [25000,32800]
       - service: input_boolean.turn_on
-        entity_id: input_boolean.vacuum_just_emptied
+        target:
+          entity_id: input_boolean.vacuum_just_emptied
       - service: script.turn_on
         target:
           entity_id: script.say
@@ -66,7 +69,8 @@ automation:
         state: "on"
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.vacuum_just_emptied
+        target:
+          entity_id: input_boolean.vacuum_just_emptied
 
   - id: vacuum_return_home_when_idle_or_stuck
     alias: "Vacuum return home when idle/stuck"
@@ -143,7 +147,8 @@ script:
     alias: "Send Svetlana to kitchen"
     sequence:
       - service: vacuum.stop
-        entity_id: vacuum.xiaomi_vacuum_cleaner
+        target:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
       - service: vacuum.send_command
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
@@ -154,7 +159,8 @@ script:
     alias: "Send Svetlana to Dock"
     sequence:
       - service: vacuum.return_to_base
-        entity_id: vacuum.xiaomi_vacuum_cleaner
+        target:
+          entity_id: vacuum.xiaomi_vacuum_cleaner
 
   vacuum_living_room:
     alias: "Vacuum the Living Room"

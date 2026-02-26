@@ -302,7 +302,8 @@ automation:
           #addon: addon_core_zwave_js
           addon: 45df7312_zigbee2mqtt
       - service: homeassistant.reload_config_entry
-        entity_id: binary_sensor.water_kitchen
+        target:
+          entity_id: binary_sensor.water_kitchen
       - wait_for_trigger:
           - platform: state
             entity_id: binary_sensor.water_kitchen
@@ -510,7 +511,8 @@ script:
       - delay:
           seconds: 30
       - service: "{{ washer_emptied }}"
-        entity_id: input_boolean.washer_emptied
+        target:
+          entity_id: input_boolean.washer_emptied
 
   reload_ha:
     alias: "Reload HA"

@@ -6,7 +6,8 @@ automation:
       local_only: false
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.guestmode
+        target:
+          entity_id: input_boolean.guestmode
 
   - alias: "GuestLeavingWebhook"
     trigger:
@@ -15,7 +16,8 @@ automation:
       local_only: false
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.guestmode
+        target:
+          entity_id: input_boolean.guestmode
 
   #webhook test with json. Just call with body json and key light.
   - alias: turnonLightWebhook
@@ -82,11 +84,13 @@ automation:
       - delay:
           seconds: 600
       - service: light.turn_on
-        entity_id: light.erlend_bedroom
+        target:
+          entity_id: light.erlend_bedroom
         data:
           brightness_pct: 1
       - service: light.turn_on
-        entity_id: light.erlend_bedroom
+        target:
+          entity_id: light.erlend_bedroom
         data:
           brightness_pct: 100
           transition: 600
@@ -118,7 +122,8 @@ automation:
       local_only: false
     action:
       - service: cover.toggle
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
       - service: script.turn_on
         target:
           entity_id: script.notify
@@ -156,7 +161,8 @@ automation:
       local_only: false
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.trymasleep
+        target:
+          entity_id: input_boolean.trymasleep
 
   - alias: "TrymAwakeWebhook"
     trigger:
@@ -165,7 +171,8 @@ automation:
       local_only: false
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.trymasleep
+        target:
+          entity_id: input_boolean.trymasleep
 
   #asleep
   - alias: "CarolineAwakeWebhook"
@@ -189,7 +196,8 @@ automation:
           state: "home"
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.casleep
+        target:
+          entity_id: input_boolean.casleep
 
   - id: caroline_asleep
     alias: "Caroline Asleep"
@@ -252,7 +260,8 @@ automation:
           state: "home"
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.casleep
+        target:
+          entity_id: input_boolean.casleep
 
   # - alias: 'ErlendAsleepWithMotion'
   #   trigger:
@@ -353,7 +362,8 @@ automation:
             {{ is_state('binary_sensor.motion_bedroom', 'on') or (last_change and (as_timestamp(now()) - last_change) < 600) }}
     action:
       - service: input_boolean.turn_on
-        entity_id: input_boolean.easleep
+        target:
+          entity_id: input_boolean.easleep
 
   - alias: "ErlendAwakeWebhook"
     trigger:
@@ -374,7 +384,8 @@ automation:
         state: "home"
     action:
       - service: input_boolean.turn_off
-        entity_id: input_boolean.easleep
+        target:
+          entity_id: input_boolean.easleep
 
   - alias: "webhookServicecall"
     trigger:

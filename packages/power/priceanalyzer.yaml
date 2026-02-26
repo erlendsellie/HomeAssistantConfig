@@ -8,9 +8,11 @@ automation:
       #   at: "00:02:00"
     action:
       - service: homeassistant.reload_config_entry
-        entity_id: sensor.priceanalyzer
+        target:
+          entity_id: sensor.priceanalyzer
       - service: homeassistant.reload_config_entry
-        entity_id: sensor.nordpool
+        target:
+          entity_id: sensor.nordpool
       # - service: homeassistant.reload_config_entry
       #   entity_id: sensor.priceanalyzer_se2
       # - service: homeassistant.reload_config_entry

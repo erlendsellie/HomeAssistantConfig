@@ -13,11 +13,13 @@ automation:
         value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
     action:
       - service: light.turn_on
-        entity_id: light.toilet
+        target:
+          entity_id: light.toilet
         data:
           brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
       - service: light.turn_on
-        entity_id: group.hallwaylights
+        target:
+          entity_id: group.hallwaylights
 
   - id: TurnOffToiletLight
     alias: TurnOffToiletLight
@@ -39,7 +41,8 @@ automation:
           minutes: 30
     action:
       - service: light.turn_off
-        entity_id: light.toilet
+        target:
+          entity_id: light.toilet
 
   - id: BathroomHumidityHigh
     alias: Bathroom Humidity High
@@ -48,7 +51,8 @@ automation:
         value_template: "{{states.sensor.bathroom_humidity.state | float(default=0) > float(30)}}"
     action:
       - service: switch.turn_on
-        entity_id: switch.bathroom_fan
+        target:
+          entity_id: switch.bathroom_fan
 
   - id: BathroomHumidityNormal
     alias: Bathroom Humidity Normal
@@ -65,7 +69,8 @@ automation:
           minutes: 60
     action:
       - service: switch.turn_off
-        entity_id: switch.bathroom_fan
+        target:
+          entity_id: switch.bathroom_fan
 
   - id: BathroomFanWhenVVBOn
     alias: BathroomFanWhenVVBOn
@@ -79,8 +84,10 @@ automation:
         state: "on"
     action:
       - service: switch.turn_on
-        entity_id: switch.bathroom_fan
+        target:
+          entity_id: switch.bathroom_fan
       - delay:
           minutes: 30
       - service: switch.turn_off
-        entity_id: switch.bathroom_fan
+        target:
+          entity_id: switch.bathroom_fan

@@ -13,7 +13,8 @@ automation:
           {{id == 0 or id == 10 or id == stian_finger}}
     action:
       - service: cover.toggle
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
 
   - id: fingerprint_ytterdor
     alias: fingerprint_ytterdor

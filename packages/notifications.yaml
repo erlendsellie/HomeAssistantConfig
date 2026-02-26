@@ -27,7 +27,8 @@ automation:
           data: "/closegarage"
     action:
       - service: cover.close_cover
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
       - service: script.telegram_security_notify
         data:
           message: "Okay, i'll tell you if it won't close."
@@ -52,7 +53,8 @@ automation:
           data: "/opengarage"
     action:
       - service: cover.open_cover
-        entity_id: cover.garage_door
+        target:
+          entity_id: cover.garage_door
       - service: script.telegram_security_notify
         data:
           message: "Okay, I'll open the garage."

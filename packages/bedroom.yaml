@@ -36,9 +36,11 @@ automation:
         state: "off"
     action:
       - service: media_player.turn_off
-        entity_id: media_player.tv_soverommet
+        target:
+          entity_id: media_player.tv_soverommet
       - service: media_player.turn_off
-        entity_id: media_player.bedroom_tv
+        target:
+          entity_id: media_player.bedroom_tv
 
   - id: TVStillOn
     alias: TV Still on
@@ -57,9 +59,11 @@ automation:
         data:
           message: "TV på soverommet er fortsatt på"
       - service: media_player.turn_off
-        entity_id: media_player.tv_soverommet
+        target:
+          entity_id: media_player.tv_soverommet
       - service: media_player.turn_off
-        entity_id: media_player.bedroom_tv
+        target:
+          entity_id: media_player.bedroom_tv
 
   - id: erlendnatta70
     alias: Erlend legger seg + 70 min
@@ -72,9 +76,11 @@ automation:
         minutes: 60
     action:
       - service: media_player.turn_off
-        entity_id: media_player.tv_soverommet
+        target:
+          entity_id: media_player.tv_soverommet
       - service: media_player.turn_off
-        entity_id: media_player.bedroom_tv
+        target:
+          entity_id: media_player.bedroom_tv
 
   - id: tv2long
     alias: tv2long
@@ -99,7 +105,8 @@ automation:
       - delay:
           seconds: 10
       - service: media_player.turn_off
-        entity_id: media_player.tv_stua
+        target:
+          entity_id: media_player.tv_stua
 
   - id: tvWrongChromecast
     alias: Castet to wrong cromecast
@@ -120,7 +127,8 @@ automation:
       - delay:
           seconds: 10
       - service: media_player.turn_off
-        entity_id: media_player.tv_stua
+        target:
+          entity_id: media_player.tv_stua
 
   - id: bedroomtvOnWrong
     alias: bedroomtvOnWrong
@@ -181,9 +189,11 @@ automation:
         action: tvbedroomoff
     action:
       - service: media_player.turn_off
-        entity_id: media_player.tv_soverommet
+        target:
+          entity_id: media_player.tv_soverommet
       - service: media_player.turn_off
-        entity_id: media_player.bedroom_tv
+        target:
+          entity_id: media_player.bedroom_tv
 
   - id: bedroomtvoff
     alias: bedroomtvoff
@@ -203,9 +213,11 @@ automation:
           minutes: 5
     action:
       - service: media_player.media_stop
-        entity_id: media_player.bedroom_tv
+        target:
+          entity_id: media_player.bedroom_tv
       - service: media_player.turn_off
-        entity_id: media_player.tv_soverommet
+        target:
+          entity_id: media_player.tv_soverommet
 
   - id: bedroomtvonfor120
     alias: bedroomtvonfor120
@@ -227,9 +239,11 @@ automation:
           minutes: 118
     action:
       - service: media_player.turn_off
-        entity_id: media_player.tv_soverommet
+        target:
+          entity_id: media_player.tv_soverommet
       - service: media_player.turn_off
-        entity_id: media_player.bedroom_tv
+        target:
+          entity_id: media_player.bedroom_tv
 
   - id: BedroomChromecastNotPlaying
     alias: BedroomChromecastNotPlaying
@@ -259,9 +273,11 @@ automation:
           minutes: 15
     action:
       - service: media_player.turn_off
-        entity_id: media_player.tv_soverommet
+        target:
+          entity_id: media_player.tv_soverommet
       - service: media_player.turn_off
-        entity_id: media_player.bedroom_tv
+        target:
+          entity_id: media_player.bedroom_tv
 
   - id: OfficeCasleep
     alias: OfficeCasleep
@@ -278,7 +294,8 @@ automation:
         state: "off"
     action:
       - service: light.turn_on
-        entity_id: light.play
+        target:
+          entity_id: light.play
         data:
           color_name: purple
       - service: script.restoreofficecolor
@@ -300,7 +317,8 @@ automation:
           state: "not_home"
     action:
       - service: light.turn_off
-        entity_id:
+        target:
+          entity_id:
           - light.bedroom
           - light.caroline_bedroom
           - light.erlend_bedroom

@@ -52,7 +52,8 @@ script:
           entity_id: input_number.gametimer1
           value: 0
       - service: input_boolean.turn_on
-        entity_id: input_boolean.gametimer
+        target:
+          entity_id: input_boolean.gametimer
 
 input_number:
   gametimer1:

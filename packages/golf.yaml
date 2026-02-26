@@ -254,14 +254,16 @@ script:
       - delay:
           seconds: 30
       - service: switch.turn_on
-        entity_id: switch.e_golf_force_data_refresh
+        target:
+          entity_id: switch.e_golf_force_data_refresh
       - delay:
           minutes: 3
       - condition: state
         entity_id: sensor.e_golf_request_results
         state: "fail"
       - service: switch.turn_on
-        entity_id:
+        target:
+          entity_id:
           - switch.e_golf_window_heater
           - switch.e_golf_electric_climatisation
 
@@ -271,7 +273,8 @@ script:
       - action: climate.turn_off
         entity_id: climate.e_golf_electric_climatisation
       - service: switch.turn_off
-        entity_id:
+        target:
+          entity_id:
           - switch.e_golf_window_heater
           - switch.e_golf_electric_climatisation
           #- switch.e_golf_electric_climatisation
@@ -282,4 +285,5 @@ script:
       # - delay:
       #     seconds: 30
       - service: switch.turn_on
-        entity_id: switch.e_golf_force_data_refresh
+        target:
+          entity_id: switch.e_golf_force_data_refresh

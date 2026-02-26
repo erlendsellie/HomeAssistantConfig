@@ -33,7 +33,8 @@ automation:
           while: "{{is_state('binary_sensor.tibber_unavailable','on') and repeat.index < 5 }}" #Do it 4 times.
           sequence:
             - service: homeassistant.reload_config_entry
-              entity_id: sensor.power_sivert_thonstads_vei_6b
+              target:
+                entity_id: sensor.power_sivert_thonstads_vei_6b
             - delay:
                 seconds: 10
             #Varsling med sensor-verdi, 10 sekunder etter relasting av integrasjonen.

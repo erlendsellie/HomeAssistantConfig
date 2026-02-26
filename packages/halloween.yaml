@@ -9,7 +9,8 @@ automation:
         from: "off"
     action:
       - service: light.turn_on
-        entity_id:
+        target:
+          entity_id:
           - light.driveway
           - light.outdoor_led_strip
         data:

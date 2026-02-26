@@ -77,7 +77,8 @@ script:
     alias: Pause Music
     sequence:
       - service: media_player.play_media
-        entity_id: media_player.musikkstua
+        target:
+          entity_id: media_player.musikkstua
         data:
           media_content_id: spotify:fs92:spotify:playlist:3DJdPc1IElBST1DfjCrxsP
           media_content_type: music
