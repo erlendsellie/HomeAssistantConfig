@@ -68,8 +68,23 @@ script:
         value_template: "{{ states.cover.garage_door.state == 'closed' }}"
       - service: switch.turn_on
         entity_id: switch.garage_esp32
-      - delay:
-          seconds: 20
+      - wait_for_trigger:
+          - platform: state
+            entity_id: binary_sensor.garage
+            to: "on"
+        timeout: "00:00:20"
+        continue_on_timeout: true
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ not wait.completed }}"
+            sequence:
+              - service: script.turn_on
+                entity_id: script.notify
+                data:
+                  variables:
+                    title: "Garage sensor did not change"
+                    message: "Garage door magnet did not change to open after running open_garage_door."
 
   close_garage_door:
     alias: close_garage_door
@@ -92,8 +107,23 @@ script:
         default:
           - service: switch.turn_on
             entity_id: switch.garage_esp32
-          - delay:
-              seconds: 20
+          - wait_for_trigger:
+              - platform: state
+                entity_id: binary_sensor.garage
+                to: "off"
+            timeout: "00:00:30"
+            continue_on_timeout: true
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ not wait.completed }}"
+                sequence:
+                  - service: script.turn_on
+                    entity_id: script.notify
+                    data:
+                      variables:
+                        title: "Garage sensor did not change"
+                        message: "Garage door magnet did not change to closed after running close_garage_door."
 
   stop_garage_door:
     alias: stop_garage_door
@@ -408,7 +438,7 @@ automation:
       # Check if the ESP32 switch has NOT been triggered in the last 60 seconds
       - condition: template
         value_template: >
-          {{ (as_timestamp(now()) - as_timestamp(states.switch.garage_esp32.last_changed)) > 60 }}
+          {{ (as_timestamp(now()) - as_timestamp(states.switch.garage_door_gpio.last_changed)) > 60 }}
     action:
       - service: script.turn_on
         entity_id: script.notify

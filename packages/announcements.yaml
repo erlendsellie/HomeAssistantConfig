@@ -5,15 +5,15 @@ template:
         delay_off:
           minutes: 1
         attributes:
-          musikkstua: "{{states.media_player.musikkstua.state}}"
-          livingroom: "{{states.media_player.living_room_speaker.state}}"
-          kitchen: "{{states.media_player.kitchen_display.state}}"
-          bathroom: "{{states.media_player.bathroom.state}}"
+          musikkstua: "{{ states('media_player.musikkstua') }}"
+          livingroom: "{{ states('media_player.living_room_speaker') }}"
+          kitchen: "{{ states('media_player.kitchen_display') }}"
+          bathroom: "{{ states('media_player.bathroom') }}"
         state: >-
           {{
-            states.media_player.musikkstua.state in ['playing', 'buffering', 'paused']
-            or states.media_player.living_room_speaker.state in ['playing', 'buffering', 'paused']
-            or states.media_player.bathroom.state in ['playing', 'buffering', 'paused']
+            states('media_player.musikkstua') in ['playing', 'buffering', 'paused']
+            or states('media_player.living_room_speaker') in ['playing', 'buffering', 'paused']
+            or states('media_player.bathroom') in ['playing', 'buffering', 'paused']
           }}
 
     # or states.media_player.kitchen_display.state in ['playing', 'buffering', 'paused']
@@ -109,7 +109,7 @@ automation:
       - service: media_player.volume_set
         data_template:
           entity_id: media_player.minis
-          volume_level: "{{states.sensor.speakervolume.state}}"
+          volume_level: "{{ states('sensor.speakervolume') | float(default=0.4) }}"
           #### Media for door sensors
 
   - id: PlayMediaWhenDoorLocks

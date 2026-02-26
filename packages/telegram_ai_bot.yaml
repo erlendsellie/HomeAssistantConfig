@@ -42,15 +42,24 @@ automation:
                 data:
                   target: "{{ chat_id }}"
                   parse_mode: html
-                  message: "Something broke and I had to wipe my memory to recover. Not my fault — blame the hardware. Try your request again."
+                  message: "Something went wrong and I had to reset the conversation to recover. Try your request again."
         default:
+          - action: input_text.set_value
+            target:
+              entity_id: input_text.telegram_ai_conversation_id
+            data:
+              value: "{{ ai_response.conversation_id }}"
+          - variables:
+              safe_msg: >-
+                {{ ai_response.response.speech.plain.speech
+                   | regex_replace('<(?!/?(?:b|i|em|strong|u|ins|s|strike|del|code|pre|a)[\s>/])', '&lt;') }}
           - action: telegram_bot.send_message
             continue_on_error: true
             data:
               target: "{{ chat_id }}"
               parse_mode: html
               disable_web_page_preview: true
-              message: "{{ ai_response.response.speech.plain.speech }}"
+              message: "{{ safe_msg }}"
 
   - id: telegram_ai_handle_commands
     alias: "Telegram AI - Handle Commands"
@@ -82,7 +91,7 @@ automation:
               - action: telegram_bot.send_message
                 data:
                   target: "{{ chat_id }}"
-                  message: "Memory wiped. Not that there was much worth remembering."
+                  message: "Conversation cleared."
           - conditions:
               - condition: template
                 value_template: "{{ command == '/help' }}"
@@ -92,16 +101,13 @@ automation:
                   target: "{{ chat_id }}"
                   parse_mode: html
                   message: >
-                    <b>Oh, you need instructions. How... expected.</b>
+                    <b>Available commands:</b>
 
-                    Just talk to me like a normal human — if you can manage that. I control the entire house.
+                    /status — Full house status report
+                    /clear or /reset — Clear conversation history
+                    /help — This help message
 
-                    <b>Commands:</b>
-                    /status — House status report
-                    /clear or /reset — Wipe my memory of you
-                    /help — You're looking at it
-
-                    You can also send me photos. I'll judge them for free.
+                    You can also just type normally or send photos.
           - conditions:
               - condition: template
                 value_template: "{{ command == '/status' }}"
@@ -118,18 +124,30 @@ automation:
                   conversation_id: "{{ states('input_text.telegram_ai_conversation_id') }}"
                 response_variable: ai_response
                 continue_on_error: true
+              - if:
+                  - condition: template
+                    value_template: "{{ ai_response is mapping and ai_response.conversation_id is defined }}"
+                then:
+                  - action: input_text.set_value
+                    target:
+                      entity_id: input_text.telegram_ai_conversation_id
+                    data:
+                      value: "{{ ai_response.conversation_id }}"
+              - variables:
+                  safe_msg: >-
+                    {% if ai_response is mapping and ai_response.get('response') is defined %}
+                    {{ ai_response.response.speech.plain.speech
+                       | regex_replace('<(?!/?(?:b|i|em|strong|u|ins|s|strike|del|code|pre|a)[\s>/])', '&lt;') }}
+                    {% else %}
+                    Couldn't get the status report right now. Try again.
+                    {% endif %}
               - action: telegram_bot.send_message
                 continue_on_error: true
                 data:
                   target: "{{ chat_id }}"
                   parse_mode: html
                   disable_web_page_preview: true
-                  message: >-
-                    {% if ai_response is mapping and ai_response.get('response') is defined %}
-                    {{ ai_response.response.speech.plain.speech }}
-                    {% else %}
-                    Sensors are being... uncooperative. Much like you. Try again.
-                    {% endif %}
+                  message: "{{ safe_msg }}"
         default:
           - variables:
               ai_response: null
@@ -140,18 +158,30 @@ automation:
               conversation_id: "{{ states('input_text.telegram_ai_conversation_id') }}"
             response_variable: ai_response
             continue_on_error: true
+          - if:
+              - condition: template
+                value_template: "{{ ai_response is mapping and ai_response.conversation_id is defined }}"
+            then:
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.telegram_ai_conversation_id
+                data:
+                  value: "{{ ai_response.conversation_id }}"
+          - variables:
+              safe_msg: >-
+                {% if ai_response is mapping and ai_response.get('response') is defined %}
+                {{ ai_response.response.speech.plain.speech
+                   | regex_replace('<(?!/?(?:b|i|em|strong|u|ins|s|strike|del|code|pre|a)[\s>/])', '&lt;') }}
+                {% else %}
+                That command didn't work. Try /help for available commands.
+                {% endif %}
           - action: telegram_bot.send_message
             continue_on_error: true
             data:
               target: "{{ chat_id }}"
               parse_mode: html
               disable_web_page_preview: true
-              message: >-
-                {% if ai_response is mapping and ai_response.get('response') is defined %}
-                {{ ai_response.response.speech.plain.speech }}
-                {% else %}
-                That command didn't go as planned. Shocking. Try /help.
-                {% endif %}
+              message: "{{ safe_msg }}"
 
   - id: telegram_ai_handle_photo
     alias: "Telegram AI - Handle Photos"
@@ -179,15 +209,27 @@ automation:
           conversation_id: "{{ states('input_text.telegram_ai_conversation_id') }}"
         response_variable: ai_response
         continue_on_error: true
+      - if:
+          - condition: template
+            value_template: "{{ ai_response is mapping and ai_response.conversation_id is defined }}"
+        then:
+          - action: input_text.set_value
+            target:
+              entity_id: input_text.telegram_ai_conversation_id
+            data:
+              value: "{{ ai_response.conversation_id }}"
+      - variables:
+          safe_msg: >-
+            {% if ai_response is mapping and ai_response.get('response') is defined %}
+            {{ ai_response.response.speech.plain.speech
+               | regex_replace('<(?!/?(?:b|i|em|strong|u|ins|s|strike|del|code|pre|a)[\s>/])', '&lt;') }}
+            {% else %}
+            Can't process images sent via Telegram yet. Try asking about one of the security cameras instead.
+            {% endif %}
       - action: telegram_bot.send_message
         continue_on_error: true
         data:
           target: "{{ chat_id }}"
           parse_mode: html
           disable_web_page_preview: true
-          message: >-
-            {% if ai_response is mapping and ai_response.get('response') is defined %}
-            {{ ai_response.response.speech.plain.speech }}
-            {% else %}
-            My visual cortex is... offline. Try asking about one of the security cameras instead.
-            {% endif %}
+          message: "{{ safe_msg }}"

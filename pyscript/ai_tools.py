@@ -205,3 +205,119 @@ def ai_manage_cron(action="list", schedule=None, command=None, comment=None):
             return {"error": f"Unknown action: {action}. Use list, add, or remove."}
     except Exception as e:
         return {"error": str(e)}
+
+
+@service(supports_response="optional")
+def ai_unifi_request(action=None, path=None, mac=None, body=None, **kwargs):
+    """Query or manage the UniFi network. Actions: clients, client_detail, devices, block, unblock, reconnect, custom."""
+    if not action:
+        return {"error": "action is required (clients, client_detail, devices, block, unblock, reconnect, custom)"}
+
+    base = "https://192.168.1.1"
+    cookie = "/tmp/unifi_cookie.txt"
+    site = "/proxy/network/api/s/default"
+
+    try:
+        # Build the target URL and curl command
+        if action == "clients":
+            url = f"{base}{site}/stat/sta"
+        elif action == "client_detail":
+            if not mac:
+                return {"error": "mac is required for client_detail"}
+            url = f"{base}{site}/stat/sta/{mac}"
+        elif action == "devices":
+            url = f"{base}{site}/stat/device"
+        elif action in ("block", "unblock", "reconnect"):
+            if not mac:
+                return {"error": f"mac is required for {action}"}
+            url = f"{base}{site}/cmd/stamgr"
+            cmd_map = {"block": "block-sta", "unblock": "unblock-sta", "reconnect": "kick-sta"}
+            body = json.dumps({"cmd": cmd_map[action], "mac": mac})
+        elif action == "custom":
+            if not path:
+                return {"error": "path is required for custom action"}
+            url = f"{base}{path}"
+        else:
+            return {"error": f"Unknown action: {action}. Use: clients, client_detail, devices, block, unblock, reconnect, custom"}
+
+        is_post = action in ("block", "unblock", "reconnect") or (action == "custom" and body)
+        method = "POST" if is_post else "GET"
+
+        # Login if no cookie exists
+        if not os.path.exists(cookie):
+            creds = {}
+            for line in open("/config/secrets.yaml"):
+                if line.startswith("unifi_username:"):
+                    creds["username"] = line.split(":", 1)[1].strip().strip('"')
+                elif line.startswith("unifi_password:"):
+                    creds["password"] = line.split(":", 1)[1].strip().strip('"')
+            login_cmd = f'curl -sk -X POST -H "Content-Type: application/json" -d \'{json.dumps(creds)}\' -c {cookie} {base}/api/auth/login'
+            task.executor(subprocess.run, login_cmd, shell=True, capture_output=True, text=True, timeout=10)
+
+        # Make the API call
+        cmd = f'curl -sk -b {cookie} -X {method} -H "Content-Type: application/json"'
+        if body and is_post:
+            body_str = body if isinstance(body, str) else json.dumps(body)
+            cmd += f" -d '{body_str}'"
+        cmd += f" {url}"
+
+        result = task.executor(subprocess.run, cmd, shell=True, capture_output=True, text=True, timeout=15)
+
+        # Handle empty response (likely expired session)
+        if not result.stdout.strip():
+            # Re-login
+            creds = {}
+            for line in open("/config/secrets.yaml"):
+                if line.startswith("unifi_username:"):
+                    creds["username"] = line.split(":", 1)[1].strip().strip('"')
+                elif line.startswith("unifi_password:"):
+                    creds["password"] = line.split(":", 1)[1].strip().strip('"')
+            login_cmd = f'curl -sk -X POST -H "Content-Type: application/json" -d \'{json.dumps(creds)}\' -c {cookie} {base}/api/auth/login'
+            task.executor(subprocess.run, login_cmd, shell=True, capture_output=True, text=True, timeout=10)
+            # Retry
+            result = task.executor(subprocess.run, cmd, shell=True, capture_output=True, text=True, timeout=15)
+            if not result.stdout.strip():
+                return {"error": "Empty response from UniFi API after re-login", "stderr": result.stderr[:500]}
+
+        parsed = json.loads(result.stdout)
+
+        # Handle auth failure
+        if isinstance(parsed, dict) and parsed.get("code") == "AUTHENTICATION_FAILED_INVALID_CREDENTIALS":
+            return {"error": "UniFi authentication failed - check credentials in secrets.yaml"}
+
+        # Format output for clients/devices
+        if action == "clients" and isinstance(parsed, dict) and "data" in parsed:
+            clients = []
+            for c in parsed["data"]:
+                clients.append({
+                    "name": c.get("name") or c.get("hostname", "unknown"),
+                    "mac": c.get("mac"),
+                    "ip": c.get("ip"),
+                    "experience": c.get("satisfaction"),
+                    "uptime": c.get("uptime"),
+                    "is_wired": c.get("is_wired", False),
+                })
+            return {"count": len(clients), "clients": clients}
+
+        if action == "devices" and isinstance(parsed, dict) and "data" in parsed:
+            devices = []
+            for d in parsed["data"]:
+                devices.append({
+                    "name": d.get("name", "unknown"),
+                    "mac": d.get("mac"),
+                    "ip": d.get("ip"),
+                    "model": d.get("model"),
+                    "type": d.get("type"),
+                    "version": d.get("version"),
+                    "uptime": d.get("uptime"),
+                    "num_sta": d.get("num_sta"),
+                    "status": "online" if d.get("state") == 1 else "offline",
+                })
+            return {"count": len(devices), "devices": devices}
+
+        return parsed
+
+    except json.JSONDecodeError:
+        return {"raw": result.stdout[:5000]}
+    except Exception as e:
+        return {"error": str(e)}

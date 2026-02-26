@@ -66,6 +66,62 @@ automation:
       - service: input_boolean.turn_off
         entity_id: input_boolean.vacuum_just_emptied
 
+  - id: vacuum_return_home_when_idle_or_stuck
+    alias: "Vacuum return home when idle/stuck"
+    mode: single
+    trigger:
+      - id: idle_30
+        platform: state
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+        to: "idle"
+        for:
+          minutes: 30
+      - id: stuck_30
+        platform: state
+        entity_id: vacuum.xiaomi_vacuum_cleaner
+        to: "error"
+        for:
+          minutes: 30
+      - id: alarm_changed
+        platform: state
+        entity_id: input_select.alarm
+    condition:
+      - condition: state
+        entity_id: input_select.alarm
+        state:
+          - "Arm Away"
+          - "Disarm"
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id:
+                  - idle_30
+                  - stuck_30
+            sequence:
+              - service: script.turn_on
+                target:
+                  entity_id: script.dockvacuum
+          - conditions:
+              - condition: trigger
+                id: alarm_changed
+              - condition: or
+                conditions:
+                  - condition: state
+                    entity_id: vacuum.xiaomi_vacuum_cleaner
+                    state: "idle"
+                    for:
+                      minutes: 30
+                  - condition: state
+                    entity_id: vacuum.xiaomi_vacuum_cleaner
+                    state: "stuck"
+                    for:
+                      minutes: 30
+            sequence:
+              - service: script.turn_on
+                target:
+                  entity_id: script.dockvacuum
+
 template:
   - sensor:
       - name: "vacuum_battery"

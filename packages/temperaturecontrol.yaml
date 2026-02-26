@@ -11,6 +11,10 @@ homeassistant:
 
 template:
   - sensor:
+      - name: "Norgespris"
+        unique_id: norgespris_sensor
+        state: "{{ 50 }}"
+
       - name: "pricelevel"
         unique_id: pricelevel_sensor
         state: "{{ state_attr('sensor.electricity_price_sivert_thonstads_vei_6b', 'price_level') | default('unknown') }}"
