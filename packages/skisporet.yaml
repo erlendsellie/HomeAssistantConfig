@@ -76,7 +76,7 @@ sensor:
 #     action:
 #       - service: script.turn_on
 #         entity_id: script.notify
-#         data_template:
+#         data:
 #           variables:
 #             title: "{{trigger.from_state.name}} ble oppkjørt nå."
 #             message: "{{trigger.from_state.name}} ble oppkjørt nå."

@@ -5,7 +5,7 @@ automation:
         entity_id: input_number.googlevolume, input_select.radio_station, input_select.chromecast_radio
     action:
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: "{{ states.input_number.googlevolume.state | float(default=0)/ 100 }}"
 
@@ -15,7 +15,8 @@ automation:
         entity_id: input_select.radio_station
     action:
       - service: script.turn_on
-        entity_id: script.playradio
+        target:
+          entity_id: script.playradio
 script:
   stopradio:
     alias: Stop Radio on Chromecast
@@ -31,11 +32,11 @@ script:
     alias: Play Radio on Chromecast
     sequence:
       # - service: media_player.volume_set
-      #   data_template:
+      #   data:
       #     entity_id: media_player.hyttalere
       #     volume_level: "{{ states.input_number.googlevolume.state | float(default=0)/ 100 }}"
       - service: media_player.play_media
-        data_template:
+        data:
           entity_id: >-
             {% if is_state("input_select.chromecast_radio", "Living Room") %} media_player.living_room_speaker
             {% elif is_state("input_select.chromecast_radio", "Living Room TV") %} media_player.living_room_tv
@@ -57,11 +58,11 @@ script:
     alias: Play Radio on Chromecast With Remote
     sequence:
       # - service: media_player.volume_set
-      #   data_template:
+      #   data:
       #     entity_id: media_player.hyttalere
       #     volume_level: "{{ states.input_number.googlevolume.state | float(default=0)/ 100 }}"
       - service: media_player.play_media
-        data_template:
+        data:
           entity_id: media_player.living_room_speaker
           media_content_id: >-
             {% if is_state("input_select.radio_station", "P4") %} https://p4.p4groupaudio.com/P04_MH

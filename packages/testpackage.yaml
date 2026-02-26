@@ -5,7 +5,7 @@
 #         at: '23:59:00'
 #       action:
 #       - service: input_number.set_value
-#         data_template:
+#         data:
 #           entity_id: input_number.costyesterday
 #           value: '{{ states.sensor.daily_cost_vaskemaskin.state | float(default=0)+ states.input_number.running_cost_vaskemaskin.state | float(default=0)}}'
 

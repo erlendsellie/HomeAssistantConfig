@@ -57,7 +57,7 @@ automation:
           state: "on"
     action:
       - service: light.turn_on
-        data_template:
+        data:
           entity_id:
             - light.tv
             - light.chillsofa
@@ -70,7 +70,7 @@ automation:
   #     entity_id: sensor.peoplehome
   #   action:
   #   - service: input_select.select_option
-  #     data_template:
+  #     data:
   #       entity_id: input_select.light_profile
   #       option: >-
   #           {% if(trigger.to_state.state == 'Erlend') %}
@@ -103,7 +103,7 @@ automation:
       - service: light.turn_on
         entity_id:
           - light.ledstrip_kitchen
-        data_template:
+        data:
           brightness_pct: 100
           rgb_color: [255, 182, 218]
 
@@ -136,7 +136,7 @@ automation:
 
     # - service: light.turn_on
     #   entity_id: light.upstairs
-    #   data_template:
+    #   data:
     #     brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
   # #delay and then turn off?
   # - alias: notifyPlayLights
@@ -153,7 +153,7 @@ automation:
   #   action:
   #   - service: script.turn_on
   #     entity_id: script.notify
-  #     data_template:
+  #     data:
   #       variables:
   #         title: Play turned on.
   #         message: Play Turned on.
@@ -254,7 +254,7 @@ automation:
         value_template: "{{  is_state('input_boolean.automatic_bedroom_lights', 'on') or (is_state('input_boolean.casleep', 'off') or is_state('input_boolean.easleep', 'off')) }}"
       - service: light.turn_on
         entity_id: group.bedroomlights
-        data_template:
+        data:
           brightness_pct: "{{ states.sensor.brightnessforbedroomlights.state }}"
           # Only turn on roof light if daytime.
     # - condition: template
@@ -375,7 +375,7 @@ automation:
   #     entity_id: switch.bedroomlight
   #   - service: light.turn_on
   #     entity_id: light.erlend_bedroom, light.caroline_bedroom
-  #     data_template:
+  #     data:
   #       brightness_pct: 100
 
   #living switch off turns off IKEA trådfri lights
@@ -397,7 +397,7 @@ automation:
   #     to: 'on'
   #   action:
   #   - service: light.turn_on
-  #     data_template:
+  #     data:
   #       entity_id: group.living
   #       brightness_pct: '{{ states.input_number.brightness.state | int(default=0) }}'
   #       profile: '{{ states.input_number.light_profile.state }}'
@@ -483,16 +483,17 @@ script:
   lightson:
     sequence:
       - service: light.turn_on
-        data_template:
+        data:
           entity_id: group.living
           brightness_pct: 100
           #profile: '{{ states.input_number.light_profile.state }}'
       - service: light.turn_on
-        data_template:
+        data:
           entity_id: light.tvsone
           brightness_pct: "{{ max([states.input_number.brightness.state | int(default=0) ,20]) }}"
       - service: script.turn_on
-        entity_id: script.restorelivingcolor
+        target:
+          entity_id: script.restorelivingcolor
 
   lightsoff:
     sequence:
@@ -520,36 +521,39 @@ script:
   restorelightcolor:
     sequence:
       - service: script.turn_on
-        entity_id: script.restorelivingcolor
+        target:
+          entity_id: script.restorelivingcolor
       - service: script.turn_on
-        entity_id: script.restoreofficecolor
+        target:
+          entity_id: script.restoreofficecolor
 
   restorelivingcolor:
     sequence:
       - service: light.turn_on
         entity_id: light.peis
-        data_template:
+        data:
           brightness_pct: "100"
           #light.peis.color
           #rgb_color: [255,128,25]
           rgb_color: [255, 128, 25] #caroline liker
       - service: light.turn_on
         entity_id: light.kitchen_ceiling_led
-        data_template:
+        data:
           brightness_pct: "100"
           color_temp_kelvin: "235"
       - service: light.turn_on
         entity_id: light.ledstrip_kitchen
-        data_template:
+        data:
           brightness_pct: "100"
           rgb_color: [255, 182, 218]
       # - service: light.turn_on
       #   entity_id: light.hyperion
-      #   data_template:
+      #   data:
       #     brightness_pct: 100
       #     rgb_color: [255, 226, 217]
       - service: script.turn_on
-        entity_id: script.restoreofficecolor
+        target:
+          entity_id: script.restoreofficecolor
       - condition: template
         value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
       - service: light.turn_off
@@ -848,7 +852,8 @@ script:
         data:
           color_name: blue
       - service: script.turn_on
-        entity_id: script.restorelightcolor
+        target:
+          entity_id: script.restorelightcolor
 
   turnoffvindfanglights:
     alias: Turn off vindfang lights
@@ -880,4 +885,5 @@ script:
       - delay:
           seconds: 5
       - service: script.turn_on
-        entity_id: script.restorelightcolor
+        target:
+          entity_id: script.restorelightcolor

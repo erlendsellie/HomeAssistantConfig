@@ -196,7 +196,7 @@ automation:
         to: "on"
     action:
       - service: script.telegram_notify
-        data_template:
+        data:
           message: "Vannskifte fullført?"
       - delay:
           minutes: 30
@@ -227,7 +227,7 @@ automation:
           {{temp > 28}}
     action:
       - service: script.telegram_notify
-        data_template:
+        data:
           message: "Oisann! Temperaturen i akvariet er på {{states('sensor.aquarium_temp')}}"
       - delay:
           minutes: 60

@@ -67,7 +67,7 @@ automation:
     action:
       # - service: tts.google_cloud_say
       #   entity_id: media_player.hallway_speaker
-      #   data_template:
+      #   data:
       #     message: "Fin banan!"
       - service: media_player.play_media
         target:

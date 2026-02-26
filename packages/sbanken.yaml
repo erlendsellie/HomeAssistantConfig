@@ -71,7 +71,7 @@
 #     action:
 #       - service: script.turn_on
 #         entity_id: script.notifyboth
-#         data_template:
+#         data:
 #           variables:
 #             title: "Lite penger igjen på felleskortet"
 #             message: "Disponibel saldo er {{states('sensor.felleskortet') | round(0)}} kroner"
@@ -107,7 +107,7 @@
 # #         value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
 # #     action:
 # #       - service: notify.mobile_app_erlend_mobil
-# #         data_template:
+# #         data:
 # #           title: Nytt trekk på felleskortet
 # #           message: "{{states('sensor.felleskortet_last_transaction')}}"
 # #           data:

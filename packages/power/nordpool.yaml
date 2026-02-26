@@ -41,8 +41,9 @@ automation:
           seconds: 10
       # Varsling med sensor-verdi, 10 sekunder etter relasting av integrasjonen.
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Nordpool var utilgjengelig
             message: Lastet på nytt. Verdi nå er {{states.sensor.nordpool.state}}

@@ -222,7 +222,7 @@ script:
           media_content_id: "https://p4.p4groupaudio.com/P04_MH"
           media_content_type: "music"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.clock
           volume_level: "0.45"
       # - service: media_player.play_media
@@ -256,7 +256,7 @@ script:
                     brightness_pct: 100
                     transition: 100
                 - service: media_player.volume_set
-                  data_template:
+                  data:
                     entity_id: media_player.clock
                     volume_level: "0.7"
                 - service: input_text.set_value

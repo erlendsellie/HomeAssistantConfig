@@ -54,7 +54,7 @@ automation:
             sequence:
               - service: light.turn_on
                 entity_id: light.office_light, light.play
-                data_template:
+                data:
                   brightness_pct: "100"
           - conditions:
               - condition: state
@@ -130,7 +130,7 @@ automation:
         entity_id: cover.garage_door
         #- service: script.turn_on
         # entity_id: script.notify
-        # data_template:
+        # data:
         #   variables:
         #     title: Toggling garage.
         #     message: Toggling garage by watch.
@@ -149,18 +149,19 @@ automation:
       - service: cover.toggle
         entity_id: cover.garage_door
       - service: script.turn_on
-        entity_id: script.notifycaroline
-        data_template:
+        target:
+          entity_id: script.notifycaroline
+        data:
           variables:
             title: Toggling garage.
             message: Toggling garage.
 
   #    - service: notify.html5_p30
-  #      data_template:
+  #      data:
   #          message: 'You {% if states.cover.garage_door.state == "open" %} closed {% else %} opened {% endif %}the garage'
 
   # - service: notify.html5_p30
-  #   data_template:
+  #   data:
   #     message: The Garage is {{ states.cover.garage_door.state }}. Toggle?
   #     data:
   #       actions:
@@ -177,8 +178,9 @@ automation:
       - service: cover.toggle
         entity_id: cover.garage_door
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: "Garage toggled"
             message: 'You {% if states.cover.garage_door.state == "open" %} closed {% else %} opened {% endif %}the garage'
@@ -208,7 +210,7 @@ automation:
         value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
     action:
       - service: light.turn_on
-        data_template:
+        data:
           # brightness_pct: '{{ trigger.to_state.state | int(default=0) }}'
           entity_id: group.notdimmableliving
           # profile: "{{ states.input_number.light_profile.state }}"
@@ -282,7 +284,8 @@ automation:
         value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
     action:
       - service: script.turn_on
-        entity_id: script.lightson
+        target:
+          entity_id: script.lightson
 
   - alias: "watch1"
     id: watch1
@@ -344,7 +347,7 @@ automation:
       local_only: false
     action:
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           message: "Sleipner"
           data:
             ttl: 0
@@ -358,7 +361,7 @@ automation:
                 destructive: true
 
       # - service: notify.mobile_app_erlend_mobil
-      #   data_template:
+      #   data:
       #     message: "Actions"
       #     data:
       #       ttl: 0
@@ -429,7 +432,7 @@ automation:
                 state: "off"
             sequence:
               - service: notify.mobile_app_erlend_mobil
-                data_template:
+                data:
                   message: "Actions"
                   data:
                     ttl: 0
@@ -516,7 +519,7 @@ script:
     alias: notifyblanket
     sequence:
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           title: "Blanket is {{states.switch.blanket.state}}"
           message: "Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom."
           data:
@@ -536,7 +539,7 @@ script:
     alias: notifyblanketcaroline
     sequence:
       - service: notify.mobile_app_pixel_10_pro
-        data_template:
+        data:
           title: "Blanket is {{states.switch.blanket.state}}"
           message: "Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom."
           data:
@@ -556,7 +559,7 @@ script:
     alias: notifykids
     sequence:
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           message: "Kids"
           data:
             ttl: 0
@@ -573,7 +576,7 @@ script:
     alias: notifytesla
     sequence:
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           message: "Sleipner"
           data:
             ttl: 0

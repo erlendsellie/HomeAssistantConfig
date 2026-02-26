@@ -34,7 +34,7 @@
 #         to: "on"
 #     action:
 #       - service: notify.mobile_app_erlend_mobil
-#         data_template:
+#         data:
 #           title: Passtime er tilgjengelig i løpet av en måned!
 #           message: >-
 #             Neste ledige dag er {{states.sensor.next_available_passport_appointment.state}}.

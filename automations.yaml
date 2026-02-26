@@ -282,7 +282,7 @@
   - service: script.turn_on
     target:
       entity_id: script.notify
-    data_template:
+    data:
       variables:
         title: Nordlysvarsel
         message: I kveld er det {{states.sensor.aurora_visibility_visibility.state}}

@@ -80,16 +80,18 @@ automation:
       #       Event {{ trigger.calendar_event.summary }} @
       #       {{ trigger.calendar_event.start }}
       - service: script.turn_on
-        entity_id: script.notifyboth
-        data_template:
+        target:
+          entity_id: script.notifyboth
+        data:
           variables:
             title: >-
               {{ trigger.calendar_event.summary }}
             message: >-
               {{ trigger.calendar_event.summary }} tømmes snart
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             title: >-
               {{ trigger.calendar_event.summary }}
@@ -113,12 +115,12 @@ automation:
   #           sequence:
   #             - service: script.turn_on
   #               entity_id: script.say
-  #               data_template:
+  #               data:
   #                 variables:
   #                   message: Restavfall tømmes i morgen
   #             - service: script.turn_on
   #               entity_id: script.notifyboth
-  #               data_template:
+  #               data:
   #                 variables:
   #                   title: Restavfall
   #                   message: tømmes i morgen
@@ -126,7 +128,7 @@ automation:
   #                 hours: 14
   #             - service: script.turn_on
   #               entity_id: script.notifyboth
-  #               data_template:
+  #               data:
   #                 variables:
   #                   title: Restavfall
   #                   message: tømmes i dag
@@ -137,7 +139,7 @@ automation:
   #           sequence:
   #             - service: script.turn_on
   #               entity_id: script.say
-  #               data_template:
+  #               data:
   #                 variables:
   #                   title: Papir
   #                   message: Papir tømmes i morgen
@@ -145,13 +147,13 @@ automation:
   #                 hours: 14
   #             - service: script.turn_on
   #               entity_id: script.notifyboth
-  #               data_template:
+  #               data:
   #                 variables:
   #                   title: Papir
   #                   message: tømmes i dag
   #             - service: script.turn_on
   #               entity_id: script.notifyboth
-  #               data_template:
+  #               data:
   #                 variables:
   #                   title: Papir
   #                   message: tømmes i morgen
@@ -159,7 +161,7 @@ automation:
   #                 hours: 14
   #             - service: script.turn_on
   #               entity_id: script.notifyboth
-  #               data_template:
+  #               data:
   #                 variables:
   #                   title: Papir
   #                   message: tømmes i dag
@@ -170,12 +172,12 @@ automation:
   #           sequence:
   #             - service: script.turn_on
   #               entity_id: script.say
-  #               data_template:
+  #               data:
   #                 variables:
   #                   message: Plastemballasje tømmes i morgen
   #             - service: script.turn_on
   #               entity_id: script.notifyboth
-  #               data_template:
+  #               data:
   #                 variables:
   #                   title: Plastemballasje
   #                   message: tømmes i morgen
@@ -183,7 +185,7 @@ automation:
   #                 hours: 14
   #             - service: script.turn_on
   #               entity_id: script.notifyboth
-  #               data_template:
+  #               data:
   #                 variables:
   #                   title: Plastemballasje
   #                   message: tømmes i dag

@@ -17,7 +17,7 @@ script:
     alias: Play Shushing Tyra
     sequence:
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.tyra
           volume_level: 0.5
       - service: media_player.play_media
@@ -28,7 +28,7 @@ script:
       - delay:
           minutes: 30
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.tyra
           volume_level: 0.0
       - service: switch.turn_off

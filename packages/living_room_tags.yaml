@@ -5,8 +5,9 @@ automation:
       tag_id: brikke
     action:
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: brikke scannet!
 

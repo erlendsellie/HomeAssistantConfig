@@ -9,11 +9,11 @@ automation:
         state: "on"
     action:
       - service: input_number.set_value
-        data_template:
+        data:
           entity_id: input_number.gametimer1
           value: "{{ states.input_number.gametimer1.state | int(default=0) + states.sensor.gametemp.state | int(default=0) }}"
     # - service: input_number.set_value
-    #   data_template:
+    #   data:
     #     entity_id: input_number.gametimer2
     #     value: '{{ states.input_number.gametimer2.state | int(default=0) + states.sensor.ute_temperature.state | int(default=0) }}'
 
@@ -27,7 +27,7 @@ automation:
         above: 960
     action:
       - service: script.telegram_notify
-        data_template:
+        data:
           message: "Mørningstimer er ferdig! Nåværende døgngrader er {{((states.input_number.gametimer1.state | int(default=0) / 24)) | round(1)}}"
 
   - alias: GarageCold
@@ -41,14 +41,14 @@ automation:
         state: "on"
     action:
       - service: script.telegram_notify
-        data_template:
+        data:
           message: "Mørningstemperaturen er under null grader, mens vilt henger til mørning. Temp nå: {{states.sensor.gametemp.state}}"
 
 script:
   resetgametimer1:
     sequence:
       - service: input_number.set_value
-        data_template:
+        data:
           entity_id: input_number.gametimer1
           value: 0
       - service: input_boolean.turn_on

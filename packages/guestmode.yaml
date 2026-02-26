@@ -109,7 +109,7 @@ automation:
           state: "on"
     action:
       - service: script.telegram_notify
-        data_template:
+        data:
           message: "Motion detected in {{ trigger.from_state.name }}."
 
   - id: guestmode_auto_disable
@@ -139,12 +139,14 @@ automation:
         data:
           message: "Gjestemodus automatisk slått av fordi du er hjemme og våken."
       - service: script.turn_on
-        entity_id: script.notifycaroline
+        target:
+          entity_id: script.notifycaroline
         data:
           variables:
             message: "Gjestemodus automatisk slått av fordi noen er hjemme og våken."
       - service: script.turn_on
-        entity_id: script.ai_say
+        target:
+          entity_id: script.ai_say
         data:
           prompt: "Gjestemodus er nå slått av."
 

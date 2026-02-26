@@ -196,11 +196,11 @@ automation:
     action:
       - service: light.turn_on
         entity_id: light.trym_roof
-        data_template:
+        data:
           brightness_pct: "{{ states.sensor.brightnessfortrymlight.state }}"
       - service: light.turn_on
         entity_id: light.trym_balloon
-        data_template:
+        data:
           color_name: "{{states('sensor.trym_traffic_color')}}"
           brightness_pct: "100"
       - wait_for_trigger:
@@ -246,7 +246,7 @@ automation:
         entity_id:
           - light.trym_balloon
           - light.trym_roof
-        data_template:
+        data:
           color_name: "{{states('sensor.trym_traffic_color')}}"
           transition: 300
           brightness_pct: "10"
@@ -281,7 +281,7 @@ automation:
     action:
       - service: light.turn_on
         entity_id: light.trym_roof
-        data_template:
+        data:
           brightness_pct: "{{ states.sensor.brightnessfortrymlight.state }}"
 
   - alias: turnOffTrymLightBall
@@ -304,18 +304,18 @@ automation:
   #     to: 'on'
   #   action:
   #   - service: light.turn_off
-  #     data_template:
+  #     data:
   #       entity_id:
   #         - light.trym_2
   #         - light.trym_3
   #   - service: light.turn_on
-  #     data_template:
+  #     data:
   #       entity_id:
   #         - light.trym_1
   #       brightness: 1
   #   - service: light.turn_on
   #     entity_id: light.upstairs
-  #     data_template:
+  #     data:
   #       brightness_pct: '{{ states.sensor.brightnessforupstairslights.state }}'
   #delay and then turn off?
 
@@ -329,7 +329,7 @@ automation:
         value_template: "{{ states.input_select.alarm.state == 'Disarm' }}"
     action:
       - service: light.turn_on
-        data_template:
+        data:
           brightness_pct: "100"
           color_name: "{{states('sensor.trym_traffic_color')}}"
           entity_id:

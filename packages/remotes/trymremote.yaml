@@ -49,7 +49,7 @@
 #             sequence:
 #               - service: light.turn_on
 #                 entity_id: light.trym_balloon
-#                 data_template:
+#                 data:
 #                   hs_color:
 #                     - "{{ (1 + ((state_attr('light.trym_balloon', 'hs_color') or [0,0])[0])) % 360 }}"
 #                     - "{{ (80 + ((state_attr('light.trym_balloon', 'hs_color') or [0,0])[1])) % 100 }}"
@@ -61,7 +61,7 @@
 #             sequence:
 #               - service: light.turn_on
 #                 entity_id: light.trym_balloon
-#                 data_template:
+#                 data:
 #                   hs_color:
 #                     - "{{ (-10 + (state_attr('light.trym_balloon', 'hs_color')[0] or 0)) % 360 }}"
 #                     - 100

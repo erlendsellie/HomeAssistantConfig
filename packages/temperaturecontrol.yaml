@@ -707,7 +707,7 @@ automation:
   #       entity_id: input_number.garagetemp
   #   action:
   #     - service: climate.set_temperature
-  #       data_template:
+  #       data:
   #         entity_id: climate.garage_heater
   #         temperature: '{{ [states.input_number.garagetemp.state | float(default=0)+ [((states.sensor.pricecorrection.state | float(default=0) * 5)), 1] | max, 0] | min }}'
 
@@ -723,7 +723,7 @@ automation:
           - sensor.priceanalyzer
     action:
       - service: climate.set_temperature
-        data_template:
+        data:
           entity_id: climate.sokkel
           temperature: >-
             {%-set baseTemp = states.input_number.sokkeltemp.state | float(default=0)%}
@@ -741,7 +741,7 @@ automation:
           - sensor.bathroomtemp
     action:
       - service: climate.set_temperature
-        data_template:
+        data:
           entity_id: climate.bathroom
           temperature: "{{ states.sensor.bathroomtemp.state | int(default=0) }}"
 
@@ -756,7 +756,7 @@ automation:
           - sensor.vindfangtemp
     action:
       - service: climate.set_temperature
-        data_template:
+        data:
           entity_id: climate.vindfang
           temperature: "{{ states.sensor.vindfangtemp.state | int(default=0) }}"
 
@@ -791,23 +791,23 @@ automation:
           above: 15
     action:
       # - service: climate.set_hvac_mode
-      #   data_template:
+      #   data:
       #     entity_id: climate.toilet_heater
       #     hvac_mode: "heat"
       - service: climate.set_hvac_mode
-        data_template:
+        data:
           entity_id: climate.varmepumpe
           hvac_mode: "{{states.input_select.operationmode.state}}"
       - service: climate.set_temperature
-        data_template:
+        data:
           entity_id: climate.varmepumpe
           temperature: "{{ states.sensor.tempsenttoheater.state | int(default=0) }}"
       # - service: climate.set_temperature
-      #   data_template:
+      #   data:
       #     entity_id: climate.stua_heater
       #     temperature: "{{ states.sensor.baseheat.state | int(default=0) - 1 }}"
       # - service: climate.set_temperature
-      #   data_template:
+      #   data:
       #     entity_id: climate.stua_heater
       #     temperature: "{{ (states.sensor.baseheat.state | float) - 2}}"
 
@@ -862,13 +862,14 @@ automation:
           state: "off"
     action:
       - service: climate.turn_off
-        data_template:
+        data:
           entity_id:
             - climate.varmepumpe
             # - climate.toilet_heater
             #- climate.stua_heater
       - service: script.turn_on
-        entity_id: script.turnoffheaters
+        target:
+          entity_id: script.turnoffheaters
 
   # - id: adjustfan
   #   alias: Climate Stua - Adjust fan
@@ -893,7 +894,7 @@ automation:
   #       #   above: 15
   #   action:
   #   - service: climate.set_fan_mode
-  #     data_template:
+  #     data:
   #       entity_id: climate.varmepumpe
   #       fan_mode: '{{states.sensor.fanmode.state}}'
 
@@ -935,7 +936,8 @@ automation:
         to: "fan"
     action:
       - service: script.turn_on
-        entity_id: script.turnoffheaters
+        target:
+          entity_id: script.turnoffheaters
         # TODO turn on heaters when on?
 
   - alias: WarmupMorningExtraCold
@@ -958,7 +960,8 @@ automation:
       #   value_template: "{{ float(states.sensor.stua_temperature.state) < (float(states.input_number.hjemmetemp.state) - 1) }}"
     action:
       - service: script.turn_on
-        entity_id: script.warmupmorning
+        target:
+          entity_id: script.warmupmorning
 
   - alias: WarmupMorningExtraExtraCold2
     id: WarmupmorningExtraExtraCold2
@@ -979,7 +982,8 @@ automation:
       #   value_template: "{{ float(states.sensor.stua_temperature.state) < (float(states.input_number.hjemmetemp.state) - 2) }}"
     action:
       - service: script.turn_on
-        entity_id: script.warmupmorning
+        target:
+          entity_id: script.warmupmorning
 
   - id: endWarmupMorning
     alias: EndWarmupUp
@@ -999,17 +1003,17 @@ automation:
       - service: input_boolean.turn_off
         entity_id: input_boolean.warmupmorning
       - service: climate.set_temperature
-        data_template:
+        data:
           entity_id: climate.varmepumpe
           temperature: "{{ states.sensor.tempsenttoheater.state | float(default=22)}}"
       - service: climate.set_hvac_mode
-        data_template:
+        data:
           entity_id: climate.varmepumpe
           hvac_mode: "{{ states.input_select.operationmode.state}}"
       - condition: template
         value_template: "{{ states.input_select.operationmode.state == 'heat'}}"
       # - service: climate.set_hvac_mode
-      #   data_template:
+      #   data:
       #     entity_id: climate.stua_heater
       #     hvac_mode: "heat"
 
@@ -1044,7 +1048,8 @@ automation:
           below: 10
     action:
       - service: script.turn_on
-        entity_id: script.warmupmorning
+        target:
+          entity_id: script.warmupmorning
       - service: script.telegram_notify
         data:
           message: "Warmup morning started. Temp is {{states.climate.varmepumpe.attributes.current_temperature}}"
@@ -1093,7 +1098,8 @@ automation:
           state: "Arm Home"
     action:
       - service: script.turn_on
-        entity_id: script.turnoffheaters
+        target:
+          entity_id: script.turnoffheaters
 
   - alias: TrymTemp
     trigger:
@@ -1102,7 +1108,7 @@ automation:
     action:
       - service: climate.set_temperature
         entity_id: climate.trym
-        data_template:
+        data:
           temperature: "{{states.sensor.trymtemp.state | float(default=13)}}"
 # - alias: WarmupMorningWeekend
 #   id: WarmupmorningWeekend
@@ -1127,7 +1133,7 @@ automation:
 #     #   value_template: "{{ float(states.sensor.stua_temperature.state) < (float(states.sensor.tempsenttoheater.state) - 2) }}"
 #   action:
 #   - service: climate.set_temperature
-#     data_template:
+#     data:
 #       entity_id: climate.varmepumpe
 #       temperature: 28
 #       #temperature: '{{ float(states.sensor.tempsenttoheater.state) | int(default=0) + 3 }}'
@@ -1135,7 +1141,7 @@ automation:
 #   - delay:
 #       minutes: 120
 #   - service: climate.set_temperature
-#     data_template:
+#     data:
 #       entity_id: climate.varmepumpe
 #       temperature: '{{ float(states.sensor.tempsenttoheater.state)}}'
 
@@ -1160,40 +1166,40 @@ script:
       - condition: template
         value_template: "{{(states.climate.varmepumpe.attributes.current_temperature | int(default=0)) < (states.input_number.hjemmetemp.state | int(default=0))}}"
       - service: script.telegram_notify
-        data_template:
+        data:
           message: "Warmup started. Temp is {{states.climate.varmepumpe.attributes.current_temperature}}"
       - service: climate.set_hvac_mode
-        data_template:
+        data:
           entity_id: climate.varmepumpe
           hvac_mode: "heat"
       - service: climate.set_temperature
-        data_template:
+        data:
           entity_id: climate.varmepumpe
           temperature: 28
       - service: climate.set_hvac_mode
-        data_template:
+        data:
           entity_id: climate.varmepumpe
           hvac_mode: "high"
       # - service: climate.set_hvac_mode
-      #   data_template:
+      #   data:
       #     entity_id: climate.toilet_heater
       #     hvac_mode: "heat"
       # - service: climate.set_temperature
-      #   data_template:
+      #   data:
       #     entity_id: climate.toilet_heater
       #     temperature: "{{ states.input_number.hjemmetemp.state | int(default=0)}}"
       - wait_template: "{{(states.sensor.stua_temperature.state > states.input_number.hjemmetemp.state) or (states.input_select.alarm.state == 'Disarm')}}"
         timeout: "0:45:00"
       - service: climate.set_hvac_mode
-        data_template:
+        data:
           entity_id: climate.varmepumpe
           hvac_mode: "heat"
       - service: climate.set_temperature
-        data_template:
+        data:
           entity_id: climate.varmepumpe
           temperature: "{{ float(states.input_number.bortetemp.state)}}"
       - service: climate.set_hvac_mode
-        data_template:
+        data:
           entity_id: climate.varmepumpe
           hvac_mode: "{{ states.input_select.operationmode.state}}"
   #TODO: Set tempsenttoheater instead of bortetemp(or just run automation), but override this if something indicates that we are not coming home.
@@ -1204,35 +1210,35 @@ script:
       - condition: template
         value_template: "{{ false }}" #Plombert
       - service: climate.set_hvac_mode
-        data_template:
+        data:
           entity_id: climate.varmepumpe
           hvac_mode: "heat"
       - service: input_boolean.turn_on
         entity_id: input_boolean.warmupmorning
       - service: climate.set_fan_mode
-        data_template:
+        data:
           entity_id: climate.varmepumpe
           fan_mode: "high"
       - service: climate.set_temperature
-        data_template:
+        data:
           entity_id: climate.varmepumpe
           temperature: 28
       # - service: climate.set_hvac_mode
-      #   data_template:
+      #   data:
       #     entity_id: climate.toilet_heater
       #     hvac_mode: "heat"
       # - service: climate.set_temperature
-      #   data_template:
+      #   data:
       #     entity_id: climate.toilet_heater
       #     temperature: "{{ states.input_number.hjemmetemp.state | int(default=0)}}"
       - wait_template: "{{ states.sensor.stua_temperature.state > states.input_number.hjemmetemp.state}}"
         timeout: "1:00:00"
       # - service: climate.set_hvac_mode
-      #   data_template:
+      #   data:
       #     entity_id: climate.varmepumpe
       #     hvac_mode: 'heat'
       - service: climate.set_temperature
-        data_template:
+        data:
           entity_id: climate.varmepumpe
           temperature: >-
             {%-set priceGaining = states.binary_sensor.pricegaining.state == 'on' -%}
@@ -1258,7 +1264,7 @@ script:
     sequence:
       #Millsmart
     # - service: climate.turn_off
-    #   data_template:
+    #   data:
     #     entity_id: climate.stua_heater
     # - service: switch.turn_off
     #   entity_id: switch.kitchen_heater

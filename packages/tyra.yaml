@@ -69,7 +69,8 @@ automation:
     #   entity_id:  group.erlend
     action:
       - service: script.turn_on
-        entity_id: script.notifyboth
+        target:
+          entity_id: script.notifyboth
         data:
           variables:
             title: "Tyra sover ble slått av"
@@ -90,7 +91,7 @@ automation:
   #       after: '18:45:00'
   #   action:
   #   - service: notify.mobile_app_erlend_mobil
-  #     data_template:
+  #     data:
   #       title: 'Slå på'
   #       message: 'Tyra sover?'
   #       data:
@@ -99,7 +100,7 @@ automation:
   #             title: Ja
   #             destructive: true
   #   - service: notify.mobile_app_pixel_10_pro
-  #     data_template:
+  #     data:
   #       title: 'Slå på'
   #       message: 'Tyra sover?'
   #       data:
@@ -119,8 +120,9 @@ automation:
     #   state: 'home'
     action:
       - service: script.turn_on
-        entity_id: script.notifyboth
-        data_template:
+        target:
+          entity_id: script.notifyboth
+        data:
           variables:
             title: "Tyra sover ble slått på"
             message: "Tyra sover ble slått på"
@@ -241,17 +243,17 @@ automation:
         value_template: "{{ states.input_select.alarm.state != 'Arm Away' }}"
     action:
       - service: light.turn_off
-        data_template:
+        data:
           entity_id:
             - light.tyra_2
             - light.tyra_3
       - service: light.turn_on
-        data_template:
+        data:
           brightness_pct: "1"
           entity_id:
             - light.tyra_1
       - service: light.turn_on
-        data_template:
+        data:
           brightness_pct: "1"
           entity_id:
             - light.tyra_ball
@@ -260,7 +262,7 @@ automation:
 
       # - service: light.turn_on
       #   entity_id: light.upstairs
-      #   data_template:
+      #   data:
       #     brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
   # #delay and then turn off?
 
@@ -275,7 +277,7 @@ automation:
     action:
       - service: climate.set_temperature
         entity_id: climate.tyra_heater
-        data_template:
+        data:
           temperature: "{{states.sensor.tyratemp.state | float}}"
 
   - alias: "TyraHeaterOn"
@@ -312,7 +314,7 @@ automation:
     action:
       - service: light.turn_on
         entity_id: light.tyra
-        data_template:
+        data:
           brightness_pct: "{{ states.sensor.tyra_light.state }}"
       - service: light.turn_on
         data:
@@ -435,21 +437,24 @@ automation:
           title: Tyra picked up from kindergarden
           message: Tyra picked up from kindergarden
       - service: script.turn_on
-        entity_id: script.say
+        target:
+          entity_id: script.say
         data:
           variables:
             message: "Tyra ble hentet i barnehagen"
       - service: input_boolean.turn_off
         entity_id: input_boolean.tryminkindergarden
       - service: script.turn_on
-        entity_id: script.blinkliving
+        target:
+          entity_id: script.blinkliving
         data:
           variables:
             color: blue
       - delay:
           seconds: 20
       - service: script.turn_on
-        entity_id: script.restorelightcolor
+        target:
+          entity_id: script.restorelightcolor
 
   - id: TrymStillInKindergarden
     alias: TrymStillInKindergarden
@@ -477,7 +482,8 @@ automation:
           title: Tyra is still in kindergarden
           message: leave now to pick him up before closing.
       - service: script.turn_on
-        entity_id: script.say
+        target:
+          entity_id: script.say
         data:
           variables:
             message: "Husk å hente Tyra i barnehagen"

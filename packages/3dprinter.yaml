@@ -42,7 +42,7 @@ automation:
         above: 99
     action:
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           title: 3D Print is ready
           message: "{{states.sensor.a1combo_task_name.state}} is done"
           data:
@@ -53,7 +53,7 @@ automation:
       - service: script.turn_on
         target:
           entity_id: script.say
-        data_template:
+        data:
           variables:
             message: "3D-printeren er ferdig med å printe."
 
@@ -67,7 +67,7 @@ automation:
         to: "on"
     action:
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           title: "Print Error Alert"
           message: "The A1 Combo printer has reported an error!"
           data:
@@ -92,7 +92,7 @@ automation:
   #       state: "on"
   #   action:
   #     - service: script.telegram_notify
-  #       data_template:
+  #       data:
   #         message: "The 3D printer has been left on while not printing. Temp: {{ states.sensor.octoprint_target_tool0_temp.state }}"
   #     - service: switch.turn_off
   #       entity_id: switch.3d_printer_failsafe
@@ -156,7 +156,7 @@ automation:
   #         state: "on"
   #   action:
   #     - service: script.telegram_notify #earlier erlendpush
-  #       data_template:
+  #       data:
   #         message: "The 3D-printer is printing, but reporting a temp of {{states.sensor.octoprint_actual_tool0_temp.state}}. Turning off the printer."
   #     - service: switch.turn_off
   #       entity_id: switch.3d_printer_failsafe

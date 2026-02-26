@@ -22,7 +22,7 @@ automation:
         value_template: "{{  states.sensor.you_park_tesla.state != 'unavailable' }}"
     action:
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           title: "Betal parkering!"
           message: "Ubetalt passering på Tesla. Dato: {{states.sensor.you_park_tesla.state}}"
           data:
@@ -40,7 +40,7 @@ automation:
         value_template: "{{  states.sensor.you_park_golf.state != 'unavailable' }}"
     action:
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           title: "Betal parkering!"
           message: "Ubetalt passering på golf. Dato: {{states.sensor.you_park_golf.state}}"
           data:

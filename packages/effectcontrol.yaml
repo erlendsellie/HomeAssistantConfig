@@ -217,8 +217,9 @@ automation:
               - service: input_boolean.turn_on
                 entity_id: input_boolean.limit_heaters
               - service: script.turn_on
-                entity_id: script.notify
-                data_template:
+                target:
+                  entity_id: script.notify
+                data:
                   variables:
                     title: Limiting Heaters to avoid extra cost
                     message: "Warning, high power usage. The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now."
@@ -235,8 +236,9 @@ automation:
                 data:
                   message: "Warning, high power usage. The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now."
               - service: script.turn_on
-                entity_id: script.notify
-                data_template:
+                target:
+                  entity_id: script.notify
+                data:
                   variables:
                     title: Warning, high power usage.
                     message: The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.
@@ -247,8 +249,9 @@ automation:
           - service: input_boolean.turn_on
             entity_id: input_boolean.limit_heaters
           - service: script.turn_on
-            entity_id: script.notify
-            data_template:
+            target:
+              entity_id: script.notify
+            data:
               variables:
                 title: Warning, high power usage.
                 message: The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.
@@ -432,8 +435,9 @@ script:
           device_id: 6253823754803a08f0b3d8c4d7acbd30
           action_command: pause
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Warning, Easee could not be paused for some reason.
             message: The trend is at {{states.sensor.effekt_denne_timen_trend.state}} now.

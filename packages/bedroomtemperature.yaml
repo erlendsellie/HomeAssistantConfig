@@ -7,14 +7,16 @@ automation:
         to: "on"
     action:
       - service: script.turn_on
-        entity_id: script.notifyhome
-        data_template:
+        target:
+          entity_id: script.notifyhome
+        data:
           variables:
             title: Temperaturen til Trym er {{states.sensor.trym_temp.state}}
             message: Vurder å åpne vinduet for å lufte litt
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: "Temperaturen til Trym er {{states.sensor.trym_temp.state}}"
 
@@ -26,14 +28,16 @@ automation:
         to: "on"
     action:
       - service: script.turn_on
-        entity_id: script.notifyhome
-        data_template:
+        target:
+          entity_id: script.notifyhome
+        data:
           variables:
             title: "Temperaturen til Tyra er {{states.sensor.tyra_temp.state}}"
             message: Vurder å åpne vinduet for å lufte litt
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: "Temperaturen til Tyra er {{states.sensor.tyra_temp.state}}"
 
@@ -45,14 +49,16 @@ automation:
         to: "on"
     action:
       - service: script.turn_on
-        entity_id: script.notifyhome
-        data_template:
+        target:
+          entity_id: script.notifyhome
+        data:
           variables:
             title: "Temperaturen på Soverommet er {{states.sensor.temp_bedroom.state}}"
             message: Vurder å åpne vinduet for å lufte litt
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: "Temperaturen på Soverommet er {{states.sensor.temp_bedroom.state}}"
 

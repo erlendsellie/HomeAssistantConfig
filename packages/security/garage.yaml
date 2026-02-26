@@ -80,7 +80,8 @@ script:
                 value_template: "{{ not wait.completed }}"
             sequence:
               - service: script.turn_on
-                entity_id: script.notify
+                target:
+                  entity_id: script.notify
                 data:
                   variables:
                     title: "Garage sensor did not change"
@@ -99,8 +100,9 @@ script:
                 value_template: "{{ states.input_boolean.tabletennis.state == 'on'}}"
             sequence:
               - service: script.turn_on
-                entity_id: script.notify
-                data_template:
+                target:
+                  entity_id: script.notify
+                data:
                   variables:
                     title: Table tennis mode is turned on
                     message: Garage will not close before turning it off.
@@ -119,7 +121,8 @@ script:
                     value_template: "{{ not wait.completed }}"
                 sequence:
                   - service: script.turn_on
-                    entity_id: script.notify
+                    target:
+                      entity_id: script.notify
                     data:
                       variables:
                         title: "Garage sensor did not change"
@@ -138,8 +141,9 @@ script:
                 value_template: "{{ states.input_boolean.tabletennis.state == 'on'}}"
             sequence:
               - service: script.turn_on
-                entity_id: script.notify
-                data_template:
+                target:
+                  entity_id: script.notify
+                data:
                   variables:
                     title: Table tennis mode is turned on
                     message: Garage will not close before turning it off.
@@ -190,8 +194,9 @@ automation:
       from: "closed"
     action:
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: Garasjen ble åpnet
       # - wait_for_trigger:
@@ -210,8 +215,9 @@ automation:
       from: "open"
     action:
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: Garasjen ble lukket
 
@@ -270,7 +276,7 @@ automation:
   #         and
   #         ((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.motion_driveway.last_changed)) / 60) | round(0) > 1}}
   #     # - service: notify.mobile_app_erlend_mobil
-  #     #   data_template:
+  #     #   data:
   #     #     title: Garage closed since someone left.
   #     #     message: Garage closed since someone left.
   #     #     data:
@@ -301,8 +307,9 @@ automation:
       - service: cover.open_cover
         entity_id: cover.garage_door
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Garage opened because Erlend came home.
             message: Garage opened because Erlend came home.
@@ -330,8 +337,9 @@ automation:
       - service: cover.open_cover
         entity_id: cover.garage_door
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Garage opened because Caroline came home.
             message: Garage opened because Caroline came home.
@@ -355,8 +363,9 @@ automation:
       - service: cover.open_cover
         entity_id: cover.garage_door
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Garage opened because Caroline came home from Work.
             message: Garage opened because Caroline came home Work.
@@ -378,7 +387,7 @@ automation:
   #       entity_id: cover.garage_door
   # - service: script.turn_on
   #   entity_id: script.notify
-  #   data_template:
+  #   data:
   #     variables:
   #       title: Garage closed because Armed away.
   #       message: Garage closed because Armed away.
@@ -418,7 +427,8 @@ automation:
         state: "open"
     action:
       - service: script.turn_on
-        entity_id: script.notify
+        target:
+          entity_id: script.notify
         data:
           variables:
             title: "Garage Safety Net Activated"
@@ -441,14 +451,15 @@ automation:
           {{ (as_timestamp(now()) - as_timestamp(states.switch.garage_door_gpio.last_changed)) > 60 }}
     action:
       - service: script.turn_on
-        entity_id: script.notify
+        target:
+          entity_id: script.notify
         data:
           variables:
             title: "ALERT: Garage Opened Externally"
             message: "The garage door was opened without using Home Assistant (Switch not triggered recently). This may indicate radio interference or someone using a physical remote. The garage was opened at {{ now().strftime('%H:%M') }}."
     # - service: script.turn_on
     #   entity_id: script.notify
-    #   data_template:
+    #   data:
     #     variables:
     #       title: Garage closed since it was open when Armed Home.
     #       message: Garage closed since it was open when Armed Home.

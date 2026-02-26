@@ -70,13 +70,13 @@
 #     action:
 #       - service: script.turn_on
 #         entity_id: script.notifyhome
-#         data_template:
+#         data:
 #           variables:
 #             title: Gressklipper sitter fast
 #             message: "Gressklipper sitter fast ({{states('sensor.esteban_error')}})"
 #       # - service: script.turn_on
 #       #   entity_id: script.sayai
-#       #   data_template:
+#       #   data:
 #       #     variables:
 #       #       message: ", på en kort og sarkastisk måte, at den teite robot-gressklipperen sitter fast igjen"
 
@@ -138,6 +138,6 @@
 #   #       state: "on"
 #   #     - service: script.turn_on
 #   #       entity_id: script.playsound
-#   #       data_template:
+#   #       data:
 #   #         variables:
 #   #           sound: "https://hjem.sellie.no/local/sounds/item.mp3"

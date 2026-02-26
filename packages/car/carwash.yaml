@@ -9,8 +9,9 @@ automation:
         event: enter
     action:
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Sleipner vaskes!
             message: Sleipner vaskes!

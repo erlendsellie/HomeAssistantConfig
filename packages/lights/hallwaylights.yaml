@@ -101,7 +101,7 @@ automation:
     action:
       - service: light.turn_on
         entity_id: group.hallwaylights, light.vindfang
-        data_template:
+        data:
           brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
 
   - id: TurnOffHallwayMiddleLight
@@ -148,11 +148,11 @@ automation:
     action:
       - service: light.turn_on
         entity_id: light.sokkel
-        data_template:
+        data:
           brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
       # - service: light.turn_on
       #   entity_id: light.hallway
-      #   data_template:
+      #   data:
       #     brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
 
   # Turn off sokkel by motion
@@ -200,15 +200,15 @@ automation:
   #     # TODO Do not turn on group, but each light induvidually and brigthness with * multiplier to account for different bulbs.
   #     - service: light.turn_on
   #       entity_id: light.vindfang
-  #     #    data_template:
+  #     #    data:
   #     #     brightness_pct: '{{ states.sensor.brightnessforlights.state }}'
   #     - service: light.turn_on
   #       entity_id: group.hallwaylights
-  #       data_template:
+  #       data:
   #         brightness_pct: "{{ states.sensor.brightnessforlights.state }}"
   #     - service: light.turn_on
   #       entity_id: light.upstairs
-  #       data_template:
+  #       data:
   #         brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
 
   # - id: turnOffHallwayLightWhenMotion

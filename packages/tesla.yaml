@@ -219,7 +219,7 @@ automation:
   #   action:
   #     - service: script.turn_on
   #       entity_id: script.notify
-  #       data_template:
+  #       data:
   #         variables:
   #           title: Kilometer på Navi holder på å gå over forsikring.
   #           message: "Kilometerstand: {{states.sensor.modely_mileage_sensor.state}}"
@@ -239,7 +239,7 @@ automation:
       - service: script.turn_on
         target:
           entity_id: script.notify
-        data_template:
+        data:
           variables:
             title: "Charge Limit Warning"
             message: >
@@ -260,8 +260,9 @@ automation:
         state: "home"
     action:
       - service: script.turn_on
-        entity_id: script.notifyhome
-        data_template:
+        target:
+          entity_id: script.notifyhome
+        data:
           variables:
             title: Sleipner er ikke koblet til lader
             message: Batteriet er på {{states.sensor.modely.state}}%.
@@ -283,8 +284,9 @@ automation:
             value_template: "{{states('device_tracker.modely_location_tracker') == 'home'}}"
       # When the car returns home, send a notification
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Sett bilen på lading?
             message: >-
@@ -374,7 +376,7 @@ automation:
   #         {{ states.climate.modely.state == 'off'}}
   #     - service: script.turn_on
   #       entity_id: script.notify
-  #       data_template:
+  #       data:
   #         variables:
   #           title: Error
   #           message: Defrosting car failed.
@@ -398,7 +400,7 @@ automation:
         state: "Work"
     action:
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           title: "Start heating Car?"
           message: >-
             Its {{states.sensor.modely_temperature_sensor_inside.state}} degrees in the car.
@@ -441,8 +443,9 @@ automation:
       # - service: lock.unlock
       #   entity_id: lock.modely_trunk_lock
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Unlocking trunk
             message: Unlocking trunk
@@ -459,8 +462,9 @@ automation:
       # - service: lock.lock
       #   entity_id: lock.modely_trunk_lock
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Locking trunk
             message: Locking trunk
@@ -477,8 +481,9 @@ automation:
       - service: cover.open_cover
         entity_id: cover.modely_charger_door
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Opening Charger
             message: Opening Charger
@@ -499,8 +504,9 @@ automation:
       # - service: lock.unlock
       #   entity_id: lock.modely_frunk_lock
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Opening frunk
             message: Opening frunk
@@ -517,8 +523,9 @@ automation:
       # - service: lock.unlock
       #   entity_id: lock.modely_frunk_lock
       - service: script.turn_on
-        entity_id: script.notifycaroline
-        data_template:
+        target:
+          entity_id: script.notifycaroline
+        data:
           variables:
             title: Åpner frunk
             message: Åpner frunk
@@ -532,8 +539,9 @@ automation:
     action:
       - service: script.climatecar
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Heating Sleipner
             message: Climating Car
@@ -551,8 +559,9 @@ automation:
     action:
       - service: script.defrostcar
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Defrosting Sleipner
             message: "its {{states.sensor.modely_temperature_sensor_inside.state}} in the car."
@@ -599,14 +608,16 @@ automation:
                 id: caroline_home
             sequence:
               - service: script.turn_on
-                entity_id: script.notifycaroline
-                data_template:
+                target:
+                  entity_id: script.notifycaroline
+                data:
                   variables:
                     title: "Lad bil"
                     message: "Sett en av bilene på lading"
               - service: script.turn_on
-                entity_id: script.notify
-                data_template:
+                target:
+                  entity_id: script.notify
+                data:
                   variables:
                     title: "Lad bil"
                     message: "Sett en av bilene på lading"
@@ -615,15 +626,17 @@ automation:
                 id: erlend_home
             sequence:
               - service: script.turn_on
-                entity_id: script.notify
-                data_template:
+                target:
+                  entity_id: script.notify
+                data:
                   variables:
                     title: "Lad bil"
                     message: "Sett en av bilene på lading"
         default:
           - service: script.turn_on
-            entity_id: script.notify
-            data_template:
+            target:
+              entity_id: script.notify
+            data:
               variables:
                 title: "Lad bil"
                 message: "Sett en av bilene på lading"
@@ -639,7 +652,7 @@ automation:
       - service: script.turn_on
         target:
           entity_id: script.notify
-        data_template:
+        data:
           variables:
             title: "Car Started Charging"
             message: >
@@ -650,8 +663,9 @@ script:
     alias: "Defost Sleipner"
     sequence:
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Defrosting car
             message: Defrosting car

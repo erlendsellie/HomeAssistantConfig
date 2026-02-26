@@ -11,8 +11,9 @@ automation:
     action:
       # Send push-varsel og lyd via notifyhome (riktig kall)
       - service: script.turn_on
-        entity_id: script.notifyhome
-        data_template:
+        target:
+          entity_id: script.notifyhome
+        data:
           variables:
             title: "Ytterdøra står åpen"
             message: "Ytterdøra har stått åpen i over 3 minutta – no e hundan garantert på rømmen!"
@@ -36,8 +37,9 @@ automation:
     action:
       # Send push-varsel og lyd via notifyhome
       - service: script.turn_on
-        entity_id: script.notifyhome
-        data_template:
+        target:
+          entity_id: script.notifyhome
+        data:
           variables:
             title: "Begge dørene e åpen!"
             message: "Ytterdør OG vindfangsdør står åpen – no e det fri utfart for bikkjan!"

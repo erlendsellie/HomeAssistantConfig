@@ -91,7 +91,7 @@ automation:
         value_template: "{{trigger.to_state.state | float(default=0) > 0}}"
     action:
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           title: Jaktklær på outlet har blitt oppdatert?
           message: "{{ states('sensor.NorronaFalketind') }}"
           data:
@@ -109,7 +109,7 @@ automation:
   #       value_template: "{{trigger.to_state.state != trigger.from_state.state}}"
   #   action:
   #     - service: notify.mobile_app_erlend_mobil
-  #       data_template:
+  #       data:
   #         title: "Pakke rører på seg: {{ states('sensor.posten_tracking') }}"
   #         message: "{{ states('sensor.posten_tracking') }}"
   #         data:

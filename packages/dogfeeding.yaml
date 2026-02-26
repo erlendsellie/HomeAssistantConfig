@@ -89,8 +89,9 @@ automation:
             {% if sudo_skip %}Ikke mat Sudo{% else %}Mat Sudo{% endif %}
           combined_message: "{{ pixel_text }}, {{ sudo_text }}"
       - service: script.turn_on
-        entity_id: script.notifyhome
-        data_template:
+        target:
+          entity_id: script.notifyhome
+        data:
           variables:
             title: "Hundefrokost"
             message: "{{ combined_message }}"
@@ -129,8 +130,9 @@ automation:
             {% if sudo_skip %}Ikke mat Sudo{% else %}Mat Sudo{% endif %}
           combined_message: "{{ pixel_text }}, {{ sudo_text }}"
       - service: script.turn_on
-        entity_id: script.notifyhome
-        data_template:
+        target:
+          entity_id: script.notifyhome
+        data:
           variables:
             title: 🐶Mat hundene!🐶
             message: "{{combined_message}}"
@@ -173,7 +175,7 @@ automation:
       - service: script.turn_on
         target:
           entity_id: script.notifyhome
-        data_template:
+        data:
           variables:
             title: "Hundene fikk mat🐶"
             message: "Hundene fikk mat🐶"

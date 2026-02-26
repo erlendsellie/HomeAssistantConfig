@@ -8,8 +8,9 @@ automation:
       - service: cover.close_cover
         entity_id: cover.garage_door
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Garage closed by IFTT.
             message: Garage closed by IFTT.
@@ -23,8 +24,9 @@ automation:
       - service: cover.open_cover
         entity_id: cover.garage_door
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Garage opened by IFTT.
             message: Garage opened by IFTT.
@@ -36,11 +38,11 @@ automation:
       local_only: false
     action:
       - service: input_number.set_value
-        data_template:
+        data:
           entity_id: input_number.brightness
           value: "{{ (trigger.json.value | float(default=0)) -1}}"
       - service: input_number.set_value
-        data_template:
+        data:
           entity_id: input_number.brightness
           value: "{{ trigger.json.value | float(default=0)}}"
 
@@ -79,7 +81,7 @@ automation:
     action:
       - service: lock.lock
         entity_id: lock.ytterdor_bluetooth
-        data_template:
+        data:
           code: "{{ trigger.json.value}}"
 
   - alias: "IFTTturnofflights"
@@ -89,7 +91,8 @@ automation:
       local_only: false
     action:
       - service: script.turn_on
-        entity_id: script.lightsoff
+        target:
+          entity_id: script.lightsoff
 
   - alias: "IFTTturnonlights"
     trigger:
@@ -98,4 +101,5 @@ automation:
       local_only: false
     action:
       - service: script.turn_on
-        entity_id: script.lightson
+        target:
+          entity_id: script.lightson

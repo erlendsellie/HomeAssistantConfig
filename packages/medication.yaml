@@ -33,7 +33,7 @@ automation:
           data:
             channel: "medication"
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           title: "Ta Medisin"
           message: "Ta Medisin"
           data:
@@ -47,18 +47,18 @@ automation:
       - condition: template
         value_template: "{{ states.media_player.kitchen_display.state != 'playing' and states.media_player.kitchen_display.state != 'paused'}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.kitchen_display
           volume_level: "{{states.sensor.speakervolume.state | float(default=0)+ 0.2}}"
 
       # - service: script.turn_on
       #   entity_id: script.sayaikitchen
-      #   data_template:
+      #   data:
       #     variables:
       #       message: Erlend må ta medisinen sin
       - service: tts.google_cloud_say
         entity_id: media_player.kitchen_display
-        data_template:
+        data:
           message: "Ta medisin"
       - delay:
           seconds: 10
@@ -90,7 +90,7 @@ automation:
       # - condition: template
       #   value_template: "{{ states.person.erlend.state != 'home' }}"
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           title: "Ta Medisin"
           message: "Ta Medisin"
           data:

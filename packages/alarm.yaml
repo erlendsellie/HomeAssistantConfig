@@ -88,7 +88,7 @@ automation:
                     {{ states('sensor.guest_network_count') }} enheter er koblet til gjestenettet.
         default:
           - service: input_select.select_option
-            data_template:
+            data:
               entity_id: input_select.alarm
               option: "{{ states.sensor.alarm.state }}"
 
@@ -134,7 +134,7 @@ automation:
   #     data:
   #       image: "/api/camera_proxy/camera.driveway"
   # - service: notify.mobile_app_erlend_mobil
-  #   data_template:
+  #   data:
   #     title: Motion
   #     message: Motion
   #     data:
@@ -176,7 +176,7 @@ automation:
   #         entity_id: camera.driveway
   #         filename: "/config/www/snapshot2.jpg"
   #   # - service: notify.mobile_app_erlend_mobil
-  #   #   data_template:
+  #   #   data:
   #   #     title: Motion
   #   #     message: Motion
   #   #     data:
@@ -206,7 +206,7 @@ automation:
       - service: script.turn_on
         target:
           entity_id: script.say
-        data_template:
+        data:
           variables:
             message: "Alarmen ble deaktivert."
 
@@ -328,13 +328,14 @@ automation:
       to: "Arm Away"
     action:
       # - service: script.telegram_notify
-      #   data_template:
+      #   data:
       #     message: 'Arm Away'
       - service: script.turn_on
         target:
           entity_id: script.lockdoor
       - service: script.turn_on
-        entity_id: script.alllightsoff
+        target:
+          entity_id: script.alllightsoff
       - delay:
           seconds: 20
       - service: script.turn_on
@@ -507,7 +508,7 @@ automation:
         to: "Arm Home"
     action:
       # - service: script.telegram_notify
-      #   data_template:
+      #   data:
       #     message: 'Arm Home'
       - service: script.turn_on
         target:
@@ -539,7 +540,7 @@ automation:
       - service: script.turn_on
         target:
           entity_id: script.say
-        data_template:
+        data:
           variables:
             message: Alarmen ble aktivert for natten
       - delay:
@@ -646,11 +647,11 @@ automation:
       - condition: template
         value_template: "{{states.sensor.alarm.state == 'Arm Away' and states.input_boolean.guestmode.state == 'off'}}"
       - service: input_select.select_option
-        data_template:
+        data:
           entity_id: input_select.alarm
           option: "{{states.sensor.alarm.state}}"
       - service: script.telegram_security_notify
-        data_template:
+        data:
           title: "Arm away by door lock"
           message: "The door was locked by {{states.sensor.unlockedby.state}}. The alarm is {{states.input_select.alarm.state}} and the time is {{ now().hour }}:{{ now().minute }}."
 
@@ -689,7 +690,7 @@ automation:
                           {{ last_notify == 'unknown' or (as_timestamp(now()) - as_timestamp(last_notify, default=0)) >= 86400 }}
                     sequence:
                       - service: script.telegram_security_notify
-                        data_template:
+                        data:
                           title: "Lock glitch detected"
                           message: "The door lock reported unlocked only {{ ((as_timestamp(now()) - as_timestamp(trigger.from_state.last_changed, default=0)) | int) }} seconds after being locked. Ignoring to prevent alarm loop."
                       - service: input_datetime.set_datetime
@@ -700,12 +701,12 @@ automation:
               - stop: "Lock was just locked, likely a glitch"
       # - service: light.turn_on
       #   entity_id: light.hyperion
-      #   data_template:
+      #   data:
       #     rgb_color: [0, 255, 0]
       - condition: template
         value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
       - service: script.telegram_security_notify
-        data_template:
+        data:
           title: "door unlocked"
           message: "The door was unlocked by {{states.sensor.unlockedby.state}}. The alarm is {{states.input_select.alarm.state}} and the time is {{ now().hour }}:{{ now().minute }}."
       # - service: script.telegram_notify
@@ -748,7 +749,7 @@ automation:
         entity_id: input_boolean.guestmode
         state: "off"
       - service: input_select.select_option
-        data_template:
+        data:
           entity_id: input_select.alarm
           option: "{{states.sensor.alarm.state}}"
   # - id: disarm
@@ -830,7 +831,7 @@ automation:
   #       entity_id: input_select.alarm
   #       option: Disarm
   #   - service: notify.html5_p30
-  #     data_template:
+  #     data:
   #       message: "Alarm turned off by {{trigger.entity_id}} from {{ trigger.from_state.state }} to {{trigger.to_state.state }}"
 
   - id: returntoDock
@@ -868,7 +869,7 @@ automation:
         data:
           fan_speed: Silent
     # - service: script.telegram_notify
-    #   data_template:
+    #   data:
     #     message: 'Alarm deaktivert.'
 
   - alias: WarningAlarmStillArmed
@@ -897,17 +898,17 @@ automation:
           value_template: "{{ states.vacuum.xiaomi_vacuum_cleaner.state != 'Cleaning' }}"
     action:
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: "0.3"
       - service: tts.google_cloud_say
         entity_id: media_player.minis
-        data_template:
+        data:
           message: "Alarmen er fortsatt aktivert!"
       - delay:
           seconds: 10
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: "{{states.sensor.speakervolume.state}}"
   #####
@@ -977,7 +978,7 @@ automation:
       - service: alarm_control_panel.alarm_trigger
         entity_id: alarm_control_panel.home_alarm
     # - service: notify.html5_p30
-    #   data_template:
+    #   data:
     #     message: "Alarm triggered by {{trigger.entity_id}}"
 
   - alias: "Trigger alarm while armed home"
@@ -1146,9 +1147,11 @@ automation:
           code: !secret alarm_code
           entity_id: alarm_control_panel.home_alarm
       - service: script.turn_on
-        entity_id: script.alarmdone
+        target:
+          entity_id: script.alarmdone
       - service: script.turn_on
-        entity_id: script.warmupmorning
+        target:
+          entity_id: script.warmupmorning
 
   - alias: "Arm alarm by Input Select"
     trigger:
@@ -1163,7 +1166,8 @@ automation:
           code: !secret alarm_code
           entity_id: alarm_control_panel.home_alarm
       - service: script.turn_on
-        entity_id: script.lockdoor
+        target:
+          entity_id: script.lockdoor
 
   - id: varsleOmÅpenDørNårDetBlirLåst
     alias: varsleOmÅpenDørNårDetBlirLåst
@@ -1176,8 +1180,9 @@ automation:
       state: "on"
     action:
       - service: script.turn_on
-        entity_id: script.notifyboth
-        data_template:
+        target:
+          entity_id: script.notifyboth
+        data:
           variables:
             title: Ytterdører er åpne!
             message: >-
@@ -1188,8 +1193,9 @@ automation:
                 {% endif %}
               {% endfor %}
       - service: script.turn_on
-        entity_id: script.saybedroom
-        data_template:
+        target:
+          entity_id: script.saybedroom
+        data:
           variables:
             message: >-
               Ytterdører er åpne: 
@@ -1230,15 +1236,17 @@ automation:
         state: "on"
     action:
       - service: script.turn_on
-        entity_id: script.notifyboth
-        data_template:
+        target:
+          entity_id: script.notifyboth
+        data:
           variables:
             title: Veranda er fortsatt åpen!
             message: >-
               Verandadøra er fortsatt åpen!
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: >-
               Verandadøra er fortsatt åpen, vennligst sjekk!

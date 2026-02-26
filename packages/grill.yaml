@@ -23,13 +23,15 @@ automation:
           {{ states('sensor.grill_2') | float(default=0) > states('input_number.grill_temp') | float(default=0) and states('sensor.grill_2') | float(default=0) < 2000}}
     action:
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: "Bonn apetitt! Steketermometeret har en temperatur på {{states.sensor.grill_1.state}} grader"
       - service: script.turn_on
-        entity_id: script.notifyboth
-        data_template:
+        target:
+          entity_id: script.notifyboth
+        data:
           variables:
             title: Middagen er klar!
             message: "Bonn apetitt! Steketermometeret har en temperatur på {{states.sensor.grill_1.state}} grader"

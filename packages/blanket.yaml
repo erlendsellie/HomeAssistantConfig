@@ -15,7 +15,7 @@ automation:
           state: "on"
     action:
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           title: "Turn on the blanket heater?"
           message: "Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom."
           data:
@@ -42,7 +42,7 @@ automation:
           state: "on"
     action:
       - service: notify.mobile_app_pixel_10_pro
-        data_template:
+        data:
           title: "Turn on the blanket heater?"
           message: "Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom."
           data:
@@ -87,7 +87,8 @@ automation:
         local_only: false
     action:
       - service: script.turn_on
-        entity_id: script.blanket30minutes
+        target:
+          entity_id: script.blanket30minutes
 
   - alias: TurnOnBlanket60
     trigger:
@@ -100,7 +101,8 @@ automation:
         local_only: false
     action:
       - service: script.turn_on
-        entity_id: script.blanket60minutes
+        target:
+          entity_id: script.blanket60minutes
 
   - alias: TurnOffBlanket
     trigger:

@@ -31,8 +31,9 @@ automation:
         state: "on"
     action:
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Tomorrow_valid is wrong for Priceanalyzer!
             message: >-

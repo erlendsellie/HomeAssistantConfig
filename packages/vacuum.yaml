@@ -41,7 +41,8 @@ automation:
       - service: vacuum.stop
         entity_id: vacuum.xiaomi_vacuum_cleaner
       - service: script.turn_on
-        entity_id: script.sendvacuumtokitchen
+        target:
+          entity_id: script.sendvacuumtokitchen
       # - service: vacuum.send_command
       #   data:
       #     entity_id: vacuum.xiaomi_vacuum_cleaner
@@ -50,8 +51,9 @@ automation:
       - service: input_boolean.turn_on
         entity_id: input_boolean.vacuum_just_emptied
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           message: "Tøm Svetlana."
 
   - alias: VaccumJustEmptiedNot

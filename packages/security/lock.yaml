@@ -115,7 +115,8 @@ automation:
             state: "unlocking"
     action:
       - service: script.turn_on
-        entity_id: script.lockdoor
+        target:
+          entity_id: script.lockdoor
 
   - alias: UnlockDoor
     id: unlockdoor
@@ -144,9 +145,10 @@ automation:
             state: "locking"
     action:
       - service: script.turn_on
-        entity_id: script.unlockdoor
+        target:
+          entity_id: script.unlockdoor
       - service: script.telegram_notify
-        data_template:
+        data:
           title: "door unlocked"
           message: "The door was unlocked automatically. {{states.sensor.peoplehome.state}} are home. Trigger: {{trigger.to_state.name}}"
       - service: script.telegram_notify
@@ -161,7 +163,8 @@ automation:
       - condition: template
         value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed)) / 60) | round(0)) > 5) and (states.lock.ytterdor_bluetooth.state == 'unlocked') }}"
       - service: script.turn_on
-        entity_id: script.lockdoor
+        target:
+          entity_id: script.lockdoor
       - service: camera.snapshot
         data:
           entity_id: camera.driveway
@@ -183,7 +186,8 @@ automation:
         value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
     action:
       - service: script.turn_on
-        entity_id: script.lockdoor
+        target:
+          entity_id: script.lockdoor
 
   - alias: UnlockDoorByGarage
     trigger:
@@ -200,13 +204,15 @@ automation:
           value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
     action:
       - service: script.turn_on
-        entity_id: script.unlockdoor
+        target:
+          entity_id: script.unlockdoor
       - delay:
           minutes: 5
       - condition: template
         value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.binary_sensor.hoveddor.last_changed, default=0)) / 60) | round(0)) > 5) and (states.lock.ytterdor_bluetooth.state == 'unlocked')}}"
       - service: script.turn_on
-        entity_id: script.lockdoor
+        target:
+          entity_id: script.lockdoor
       # - service: camera.snapshot
       #   data:
       #     entity_id: camera.driveway
@@ -220,6 +226,6 @@ automation:
       # - condition: template
       #   value_template: "{{states.input_boolean.guestmode.state == 'off' and states.sensor.alarm.state != 'Disarm' }}"
       # - service: input_select.select_option
-      #   data_template:
+      #   data:
       #     entity_id: input_select.alarm
       #     option: "{{ states.sensor.alarm.state }}"

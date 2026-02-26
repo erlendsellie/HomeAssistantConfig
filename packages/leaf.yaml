@@ -109,7 +109,7 @@
 #       sequence:
 #         - service: script.turn_on
 #           entity_id: script.notify
-#           data_template:
+#           data:
 #             variables:
 #               title: Startet oppvarming av Leaf.
 #               message: Batteriet er på {{states.sensor.leaf_charge.state}} ({{states.sensor.leaf_updated.state}}))
@@ -138,7 +138,7 @@
 #             seconds: 10
 #         - service: script.turn_on
 #           entity_id: script.notify
-#           data_template:
+#           data:
 #             variables:
 #               title: Stoppet oppvarming av Leaf.
 #               message: Batteriet er på {{states.sensor.leaf_charge.state}} ({{states.sensor.leaf_updated.state}}))
@@ -171,7 +171,7 @@
 #           below: 20
 #       action:
 #         - service: script.telegram_notify #earlier erlendpush
-#           data_template:
+#           data:
 #             message: "Leaf is at {{states.sensor.leaf_charge_filtered.state}}% battery. Turning off heating if not plugged in."
 #         - condition: state
 #           entity_id: binary_sensor.car_plugged_in
@@ -191,7 +191,7 @@
 #       action:
 #       - service: script.turn_on
 #         entity_id: script.notifyhome
-#         data_template:
+#         data:
 #           variables:
 #             title: Leaf er ikke koblet til lader
 #             message: Batteriet er på {{states.sensor.leaf_charge_filtered.state}}%.
@@ -216,7 +216,7 @@
 #           state: 'on'
 #       action:
 #         - service: notify.mobile_app_erlend_mobil
-#           data_template:
+#           data:
 #             title: "Start heating the car?"
 #             message: >-
 #               Its {{states.sensor.ute_temperature.state}} degrees outside.
@@ -241,7 +241,7 @@
 #         state: 'Work'
 #       action:
 #         - service: notify.mobile_app_erlend_mobil
-#           data_template:
+#           data:
 #             title: "Start heating the car?"
 #             message: >-
 #               Its {{states.sensor.ute_temperature.state}} degrees outside.

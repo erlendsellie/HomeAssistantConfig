@@ -29,19 +29,20 @@ automation:
             state: "Disarm"
         sequence:
           - service: script.turn_on
-            entity_id: script.notifyhome
-            data_template:
+            target:
+              entity_id: script.notifyhome
+            data:
               variables:
                 title: Dør åpen
                 message: "{{trigger.from_state.name}}"
           - condition: template
             value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
           # - service: media_player.volume_set
-          #   data_template:
+          #   data:
           #     entity_id: media_player.hallway_speaker
           #     volume_level: "{{0.4}}"
           # - service: media_player.volume_set
-          #   data_template:
+          #   data:
           #     entity_id: media_player.living_room_speaker
           #     volume_level: "{{0.4}}"
           - service: media_player.play_media
@@ -52,7 +53,7 @@ automation:
           - delay:
               seconds: 3
           - service: media_player.volume_set
-            data_template:
+            data:
               entity_id: media_player.minis
               volume_level: "{{states.sensor.speakervolume.state}}"
           - delay:

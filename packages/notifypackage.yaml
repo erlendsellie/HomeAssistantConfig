@@ -42,8 +42,9 @@ automation:
           state: "on"
     action:
       - service: script.turn_on
-        entity_id: script.notifycaroline
-        data_template:
+        target:
+          entity_id: script.notifycaroline
+        data:
           variables:
             title: "Lukk Soveromsvinduet"
             message: "Lukk Soveromsvinduet"
@@ -87,7 +88,7 @@ automation:
           message: "The garage has been open for 90 minutes. Close it?"
           inline_keyboard: "Close Garage:/closegarage, Remind in 5min:/garageremind"
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           title: "Garage has been open for 90 minutes"
           message: "Close it?"
           data:
@@ -99,7 +100,7 @@ automation:
                 title: Remind me in 5 minutes
                 destructive: true
       - service: notify.mobile_app_pixel_10_pro
-        data_template:
+        data:
           title: "Garage has been open for 90 minutes"
           message: "Close it?"
           data:
@@ -119,8 +120,9 @@ automation:
           action: garageRemind
     action:
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: okay, i'll remind you in 5 minutes
             message: okay, i'll remind you in 5 minutes.
@@ -140,7 +142,7 @@ automation:
     action:
       # - service: script.turn_on
       #   entity_id: script.notify
-      #   data_template:
+      #   data:
       #     variables:
       #       title: 'Okay, closing the garage'
       #       message: Okay, closing the garage.
@@ -156,7 +158,7 @@ automation:
   #   action:
   #   - service: script.turn_on
   #     entity_id: script.notify
-  #     data_template:
+  #     data:
   #       variables:
   #         title: Okay, Restarting HA.
   #         message: Okay, Restarting HA.
@@ -173,7 +175,7 @@ automation:
           state: "unavailable"
     action:
       - service: script.telegram_notify
-        data_template:
+        data:
           title: Device unavailable!
           message: >-
             Device is unavailable! 
@@ -192,7 +194,7 @@ automation:
   #     event: start
   #   action:
   #     - service: script.telegram_notify
-  #       data_template:
+  #       data:
   #         title: "Devices with low battery "
   #         message: >-
   #               {% for state in states-%}
@@ -210,7 +212,7 @@ automation:
   #     #   minutes: 4
   #   action:
   #     - service: persistent_notification.create
-  #       data_template:
+  #       data:
   #         title: "Unavaiable devices and devices with low battery: "
   #         notification_id: low_battery_alert
   #         message: >-
@@ -237,8 +239,9 @@ automation:
         before: "10:00:00"
     action:
       - service: script.turn_on
-        entity_id: script.notifyhome
-        data_template:
+        target:
+          entity_id: script.notifyhome
+        data:
           variables:
             title: Dørene til stua er åpen når vi har lagt oss!
             message: Dørene til stua er åpen når vi har lagt oss!
@@ -264,7 +267,7 @@ automation:
   #       value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.automation.trymmotion.attributes.last_triggered)) / 60) | round(0)) > 5)}}"
   #   action:
   #   - service: notify.mobile_app_erlend_mobil
-  #     data_template:
+  #     data:
   #       title: Did Trym wake up?
   #       message: Did trym wake up?
   #       data:
@@ -287,7 +290,7 @@ automation:
   #   action:
   #   - service: script.turn_on
   #     entity_id: script.notifyhome
-  #     data_template:
+  #     data:
   #       variables:
   #         title: Brr!
   #         message: Temperaturen på rommet til Trym er {{states.sensor.trym_temp.state}}. Vinduet er åpent.
@@ -304,7 +307,7 @@ automation:
   #   action:
   #   - service: script.turn_on
   #     entity_id: script.notifyhome
-  #     data_template:
+  #     data:
   #       variables:
   #         title: Varmt!
   #         message: Temperaturen på rommet til Trym er {{states.sensor.trym_temp.state}}.
@@ -321,11 +324,12 @@ automation:
     action:
       # - service: input_number.set_value
       #   entity_id: input_number.trymasleeptime
-      #   data_template:
+      #   data:
       #     value: "{{((as_timestamp(utcnow()) - as_timestamp(states.automation.trymsoveron.attributes.last_triggered,true,0)) / 60) | round(0)}}"
       - service: script.turn_on
-        entity_id: script.notifyboth
-        data_template:
+        target:
+          entity_id: script.notifyboth
+        data:
           variables:
             title: "Trym sover ble slått av"
             message: "Han sov i {{states.sensor.trymsleeptimeformatted.state}} minutter."
@@ -341,13 +345,14 @@ automation:
     #   state: 'home'
     action:
       - service: script.turn_on
-        entity_id: script.notifyboth
-        data_template:
+        target:
+          entity_id: script.notifyboth
+        data:
           variables:
             title: "Trym sover ble slått på"
             message: "Trym sover ble slått på"
     # - service: notify.html5_p30
-    #   data_template:
+    #   data:
     #     message: 'Trym sover ble slått på'
 
   # - alias: "ByasenOffline"
@@ -359,7 +364,7 @@ automation:
   #       minutes: 10
   #   action:
   #     - service: script.telegram_notify
-  #       data_template:
+  #       data:
   #         message: "Home Assistant på Byåsen er nede!"
 
   - alias: incall
@@ -385,7 +390,7 @@ automation:
               #   entity_id: switch.circadian_lighting_circadian_stua
               - service: light.turn_on
                 entity_id: light.peis
-                data_template:
+                data:
                   brightness_pct: "40"
                   color_name: red
               - wait_for_trigger:
@@ -396,7 +401,7 @@ automation:
                 continue_on_timeout: true
               - service: light.turn_off
                 entity_id: light.peis
-                # data_template:
+                # data:
                 #   brightness_pct: '100'
                 #hs_color: "{{states.switch.circadian_lighting_circadian_stua.attributes.hs_color}}"
             # - service: switch.turn_on
@@ -435,8 +440,9 @@ automation:
         value_template: "{{ states.person.erlend.state == 'Work' }}"
     action:
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: "Lunchtime!"
             message: "Lunchtime!"
@@ -445,14 +451,16 @@ script:
     alias: Simple Notification To Both
     sequence:
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: "{{title}}"
             message: "{{message}}"
       - service: script.turn_on
-        entity_id: script.notifycaroline
-        data_template:
+        target:
+          entity_id: script.notifycaroline
+        data:
           variables:
             title: "{{title}}"
             message: "{{message}}"
@@ -476,21 +484,23 @@ script:
     sequence:
       # - service: script.turn_on
       #   entity_id: script.remove_channel
-      #   data_template:
+      #   data:
       #     variables:
       #       channel: "{{channel or title}}"
       # - delay:
       #     seconds: 1
       - service: script.turn_on
-        entity_id: script.notifymehome
-        data_template:
+        target:
+          entity_id: script.notifymehome
+        data:
           variables:
             title: "{{title}}"
             message: "{{message}}"
             channel: "{{channel | default('Home Assistant')}}"
       - service: script.turn_on
-        entity_id: script.notifycarolinehome
-        data_template:
+        target:
+          entity_id: script.notifycarolinehome
+        data:
           variables:
             title: "{{title}}"
             message: "{{message}}"
@@ -498,7 +508,7 @@ script:
       - condition: template
         value_template: "{{ states.media_player.tv_stua.state != 'off' and states.media_player.tv_stua.state != 'unavailable'}}"
       - service: notify.tv_stua
-        data_template:
+        data:
           message: "{{message}}"
 
   notifymehome:
@@ -603,7 +613,7 @@ script:
     alias: Simple Notification
     sequence:
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           title: "{{title}}"
           message: "{{message}}"
           data:
@@ -691,7 +701,7 @@ script:
     alias: Simple Notification to Caroline
     sequence:
       - service: notify.mobile_app_pixel_10_pro
-        data_template:
+        data:
           title: "{{title}}"
           message: "{{message}}"
           data:
@@ -705,7 +715,7 @@ script:
       - condition: template
         value_template: "{{states.media_player.living_room_tv.state != 'off'}}"
       # - service: notify.shield_gentle
-      #   data_template:
+      #   data:
       #     message: 'Motion Outside'
       #     title: 'Motion Outside'
       #     data:

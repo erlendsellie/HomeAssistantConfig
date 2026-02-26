@@ -65,25 +65,28 @@ automation:
         state: "on"
     action:
       - service: script.telegram_notify
-        data_template:
+        data:
           title: Trym dro fra skolen
           message: Trym dro fra skolen
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: "Trym dro fra skolen"
       - service: input_boolean.turn_off
         entity_id: input_boolean.trym_in_school
       - service: script.turn_on
-        entity_id: script.blinkliving
-        data_template:
+        target:
+          entity_id: script.blinkliving
+        data:
           variables:
             color: blue
       - delay:
           seconds: 20
       - service: script.turn_on
-        entity_id: script.restorelightcolor
+        target:
+          entity_id: script.restorelightcolor
 
   # -------------------------------------------------------------------
   # 1) Turn TRYMINSCHOOL ON when the school’s “Checked in” notification arrives
@@ -144,22 +147,25 @@ automation:
         state: "on"
     action:
       - service: script.telegram_notify
-        data_template:
+        data:
           title: Trym dro fra skolen (Vigilo)
           message: Trym dro fra skolen (Vigilo)
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: "Trym dro fra skolen"
       - service: input_boolean.turn_off
         entity_id: input_boolean.trym_in_school
       - service: script.turn_on
-        entity_id: script.blinkliving
-        data_template:
+        target:
+          entity_id: script.blinkliving
+        data:
           variables:
             color: blue
       - delay:
           seconds: 20
       - service: script.turn_on
-        entity_id: script.restorelightcolor
+        target:
+          entity_id: script.restorelightcolor

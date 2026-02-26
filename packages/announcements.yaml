@@ -47,27 +47,27 @@ automation:
 
     action:
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: "{{max(states.sensor.speakervolume.state | float(default=0.1),0)}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.hallway_speaker
           volume_level: "{{max(states.sensor.speakervolume.state | float(default=0.1),0)}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.living_room_speaker
           volume_level: "{{max(states.sensor.speakervolume.state | float(default=0.5) - 0.1,0)}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: "{{max(states.sensor.speakervolume.state | float(default=0.1),0)}} "
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.hallway_speaker
           volume_level: "{{max(states.sensor.speakervolume.state | float(default=0.1),0)}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.living_room_speaker
           volume_level: "{{max(states.sensor.speakervolume.state | float(default=0.2)- 0.1,0)}}"
 
@@ -91,11 +91,11 @@ automation:
       - condition: template
         value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.hallway_speaker
           volume_level: "{{states.sensor.speakervolume.state | float(default=0)- 0.1}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.living_room_speaker
           volume_level: "{{states.sensor.speakervolume.state | float(default=0)- 0.2}}"
       - service: media_player.play_media
@@ -107,7 +107,7 @@ automation:
       - delay:
           seconds: 3
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: "{{ states('sensor.speakervolume') | float(default=0.4) }}"
           #### Media for door sensors
@@ -131,11 +131,11 @@ automation:
       - condition: template
         value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.hallway_speaker
           volume_level: "{{states.sensor.speakervolume.state | float}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.living_room_speaker
           volume_level: "{{states.sensor.speakervolume.state | float}}"
       - service: media_player.play_media
@@ -148,7 +148,7 @@ automation:
       - delay:
           seconds: 3
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: "{{states.sensor.speakervolume.state}}"
           #### Media for door sensors
@@ -171,8 +171,9 @@ automation:
         below: 5
     action:
       - service: script.turn_on
-        entity_id: script.playsound
-        data_template:
+        target:
+          entity_id: script.playsound
+        data:
           variables:
             sound: "https://hjem.sellie.no/local/sounds/item.mp3"
             extraVolume: 0.3
@@ -210,11 +211,11 @@ automation:
       - condition: template
         value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: "{{max(states.sensor.speakervolume.state | float(default=0)+ 0.1,0)}}"
       - service: media_player.play_media
-        data_template:
+        data:
           entity_id: media_player.minis
           #media_content_id: https://hjem.sellie.no/local/sounds/BOTW_Secret.wav
           #media_content_id: https://hjem.sellie.no/local/sounds/OOT_Navi_Listen1.wav
@@ -225,7 +226,7 @@ automation:
       - delay:
           seconds: 3
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: "{{states.sensor.speakervolume.state}}"
       - delay:
@@ -272,7 +273,7 @@ automation:
     action:
       - service: tts.google_cloud_say
         entity_id: media_player.clock
-        data_template:
+        data:
           message: Hundene har gått inn på stua
       - service: light.turn_on
         entity_id: light.bedroom
@@ -313,12 +314,12 @@ automation:
     action:
       # Todo do this if some is asleep. Do it on speakers if someone is awake and home.
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.clock
           volume_level: 0.5
       - service: tts.google_cloud_say
         entity_id: media_player.clock
-        data_template:
+        data:
           message: Trym eller Tyra har gått ut fra rommet sitt
       - service: light.turn_on
         entity_id: light.bedroom
@@ -329,7 +330,7 @@ automation:
       - delay:
           seconds: 2
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.clock
           volume_level: 0.1
       # - service: light.turn_on
@@ -362,15 +363,16 @@ automation:
             state: "on"
         sequence:
           - service: script.turn_on
-            entity_id: script.notifyhome
-            data_template:
+            target:
+              entity_id: script.notifyhome
+            data:
               variables:
                 title: Stairs Exposed
                 message: Stairs are exposed!
           - condition: template
             value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
           - service: media_player.volume_set
-            data_template:
+            data:
               entity_id: media_player.minis
               volume_level: 0.4
           - service: media_player.play_media
@@ -381,7 +383,7 @@ automation:
           - delay:
               seconds: 3
           - service: media_player.volume_set
-            data_template:
+            data:
               entity_id: media_player.minis
               volume_level: "{{states.sensor.speakervolume.state}}"
           - delay:
@@ -404,14 +406,14 @@ automation:
   #         seconds: 3
   #     - service: script.turn_on
   #       entity_id: script.notifyhome
-  #       data_template:
+  #       data:
   #         variables:
   #           title: Grinda og hoveddøra
   #           message: er åpen!
   #     - condition: template
   #       value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
   #     - service: media_player.volume_set
-  #       data_template:
+  #       data:
   #         entity_id: media_player.minis
   #         volume_level: 0.4
   #     - service: media_player.play_media
@@ -422,7 +424,7 @@ automation:
   #     - delay:
   #         seconds: 3
   #     - service: media_player.volume_set
-  #       data_template:
+  #       data:
   #         entity_id: media_player.minis
   #         volume_level: "{{states.sensor.speakervolume.state}}"
 
@@ -441,15 +443,16 @@ automation:
             state: "on"
         sequence:
           - service: script.turn_on
-            entity_id: script.notifyhome
-            data_template:
+            target:
+              entity_id: script.notifyhome
+            data:
               variables:
                 title: Stairs Exposed
                 message: Grinda oppe ble ikke lukket
           - condition: template
             value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
           - service: media_player.volume_set
-            data_template:
+            data:
               entity_id: media_player.minis
               volume_level: "{{states.sensor.speakervolume.state}}"
           - service: media_player.play_media
@@ -490,8 +493,9 @@ automation:
           minutes: 2
     action:
       - service: script.turn_on
-        entity_id: script.notifyhome
-        data_template:
+        target:
+          entity_id: script.notifyhome
+        data:
           variables:
             title: Hundene kan stikke av
             message: Hundene kan stikke av
@@ -499,7 +503,7 @@ automation:
         value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
 
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: "{{states.sensor.speakervolume.state}}"
       - service: media_player.play_media
@@ -516,7 +520,7 @@ automation:
   #     to: 'on'
   #   action:
   #   - service: media_player.volume_set
-  #     data_template:
+  #     data:
   #       entity_id: media_player.minis
   #       volume_level: 0.6
   #   - service: tts.google_cloud_say
@@ -526,7 +530,7 @@ automation:
   #   - delay:
   #       seconds: 3
   #   - service: media_player.volume_set
-  #     data_template:
+  #     data:
   #       entity_id: media_player.minis
   #       volume_level: 0.5
 
@@ -541,7 +545,7 @@ automation:
         value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
     action:
       - service: script.telegram_notify
-        data_template:
+        data:
           title: "Svetlana was paused."
           message: "Why?"
 
@@ -554,7 +558,7 @@ automation:
   #   action:
   #   - service: script.turn_on
   #     entity_id: script.say
-  #     data_template:
+  #     data:
   #       variables:
   #         message: 'Svetlana er ferdig med å støvsuge.'
 
@@ -571,11 +575,12 @@ automation:
         below: 40
     action:
       - service: script.telegram_notify
-        data_template:
+        data:
           message: "Bonsai vil ha vann. Nåværende fuktighet er  {{ states.sensor.bonsai2_moisture.state }}"
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: "Bonsai vil ha vann. Nåværende fuktighet er  {{ states.sensor.bonsai2_moisture.state }}"
 
@@ -592,12 +597,13 @@ automation:
         below: 40
     action:
       - service: script.telegram_notify
-        data_template:
+        data:
           title: "Eføy"
           message: "Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.efoy_moisture.state }}"
       - service: script.turn_on
-        entity_id: script.playmessage
-        data_template:
+        target:
+          entity_id: script.playmessage
+        data:
           message: "Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.efoy_moisture.state }}"
 
   # - alias: 'WaterAvocado'
@@ -607,10 +613,10 @@ automation:
   #     to: 'problem'
   #   action:
   #   - service: script.telegram_notify
-  #     data_template:
+  #     data:
   #       message: 'Avocado needs attention: {{ states.plant.avocado.attributes.problem }}' #z2m-problem
   #   - service: media_player.volume_set
-  #     data_template:
+  #     data:
   #       entity_id: media_player.minis
   #       volume_level: 0.3
   #   - service: tts.google_cloud_say
@@ -620,7 +626,7 @@ automation:
   #   - delay:
   #       seconds: 10
   #   - service: media_player.volume_set
-  #     data_template:
+  #     data:
   #       entity_id: media_player.minis
   #       volume_level: 0.5
 
@@ -633,7 +639,7 @@ automation:
       to: "error"
     action:
       - service: script.telegram_notify
-        data_template:
+        data:
           message: "Something is wrong with Svetlana. Error message: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.error }}"
           data:
             inline_keyboard:
@@ -641,7 +647,7 @@ automation:
       - condition: template
         value_template: "{{ states.media_player.tv_stua != 'off'}}"
       - service: notify.tv_stua
-        data_template:
+        data:
           message: "Something is wrong with Svetlana. Error message: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.error }}"
       - delay:
           minutes: 30
@@ -667,7 +673,7 @@ automation:
         minutes: 60
     action:
       - service: notify.mobile_app_erlend_mobil
-        data_template:
+        data:
           title: "Garage has been open for 60 minutes"
           message: "Close it?"
           data:
@@ -679,7 +685,7 @@ automation:
                 title: Remind me in 5 minutes
                 destructive: true
       - service: notify.mobile_app_pixel_10_pro
-        data_template:
+        data:
           title: "Garage has been open for 60 minutes"
           message: "Close it?"
           data:
@@ -694,8 +700,9 @@ automation:
         data:
           message: The garageport has been open for 60 minutes
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: Garasjen har vært åpen i 60 minutter
 
@@ -727,13 +734,15 @@ automation:
           # - condition: template
           #   value_template: "{{ states.input_select.alarm.state == 'Disarm' }}"
           - service: script.turn_on
-            entity_id: script.say
-            data_template:
+            target:
+              entity_id: script.say
+            data:
               variables:
                 message: Vaskemaskinen er ferdig
           - service: script.turn_on
-            entity_id: script.notifyhome
-            data_template:
+            target:
+              entity_id: script.notifyhome
+            data:
               variables:
                 title: Vaskemaskinen er ferdig
                 message: Vaskemaskinen er ferdig
@@ -759,8 +768,9 @@ automation:
       - service: input_boolean.turn_on
         entity_id: input_boolean.washer_emptied
       - service: script.turn_on
-        entity_id: script.notifyhome
-        data_template:
+        target:
+          entity_id: script.notifyhome
+        data:
           variables:
             title: Vaskemaskinen ble kanskje tømt nå
             message: Vaskemaskinen ble kanskje tømt nå
@@ -773,13 +783,15 @@ automation:
       from: "on"
     action:
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: Tørketrommelen er ferdig
       - service: script.turn_on
-        entity_id: script.notifyhome
-        data_template:
+        target:
+          entity_id: script.notifyhome
+        data:
           variables:
             title: Tørketrommelen er ferdig
             message: Tørketrommelen er ferdig
@@ -828,19 +840,22 @@ automation:
       #   event: leave
     action:
       - service: script.turn_on
-        entity_id: script.warmupcominghome
+        target:
+          entity_id: script.warmupcominghome
       - service: script.telegram_notify
-        data_template:
+        data:
           title: "Caroline is probably home within 25 minutes."
           message: "The time is {{ now().hour }}:{{ now().minute }}."
       - service: script.turn_on
-        entity_id: script.sayai
-        data_template:
+        target:
+          entity_id: script.sayai
+        data:
           variables:
             message: "Mamma er på vei hjem, og er hjemme om  ca 25 minutter"
       - service: script.turn_on
-        entity_id: script.blinkliving
-        data_template:
+        target:
+          entity_id: script.blinkliving
+        data:
           variables:
             color: purple
 
@@ -906,7 +921,7 @@ automation:
       - service: script.turn_on
         target:
           entity_id: script.notify
-        data_template:
+        data:
           variables:
             title: Post leveres i dag.
             message: Post leveres i dag.
@@ -953,12 +968,12 @@ automation:
   #       entity_id: script.warmupcominghome
   #     - service: script.turn_on
   #       entity_id: script.say
-  #       data_template:
+  #       data:
   #         variables:
   #           message: "Pappa er kanskje på vei hjem"
   #     - service: script.turn_on
   #       entity_id: script.blinkliving
-  #       data_template:
+  #       data:
   #         variables:
   #           color: green
 
@@ -1004,14 +1019,16 @@ automation:
         state: "on"
     action:
       - service: script.turn_on
-        entity_id: script.notify
-        data_template:
+        target:
+          entity_id: script.notify
+        data:
           variables:
             title: Post leveres i dag.
             message: Post leveres i dag.
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: "Post leveres i dag."
 script:
@@ -1038,8 +1055,9 @@ script:
     mode: queued
     sequence:
       - service: script.turn_on
-        entity_id: script.say
-        data_template:
+        target:
+          entity_id: script.say
+        data:
           variables:
             message: "{{message}}"
       # - condition: template
@@ -1061,14 +1079,14 @@ script:
     sequence:
       # - service: tts.google_cloud_say
       #   entity_id: media_player.mirror
-      #   data_template:
+      #   data:
       #     message: "{{message}}"
       - condition: template
         value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
       # - condition: template
       #   value_template: "{{(states.media_player.kitchen_display.state != 'playing' and states.media_player.kitchen_display.state != 'playing') and (states.media_player.living_room_speaker.state != 'playing' and states.media_player.hallway_speaker.state != 'playing') and states.media_player.living_room_speaker.state != 'paused' and states.media_player.hallway_speaker.state != 'paused'}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: "{{states.sensor.speakervolume.state}}"
       - delay:
@@ -1085,13 +1103,13 @@ script:
       #     #- media_player.mirror
       #   # language: nb-NO
       #   # cache: true
-      #   data_template:
+      #   data:
       #     voice: "nb-NO-Wavenet-F	"
       #     message: "{{message}}"
       - delay:
           seconds: 10
     # - service: media_player.volume_set
-    #   data_template:
+    #   data:
     #     entity_id: media_player.minis
     #     volume_level: "{{states.input_number.default_volume_level.state}}"
 
@@ -1102,13 +1120,13 @@ script:
       - condition: template
         value_template: "{{ (states.media_player.clock.state != 'playing' and states.media_player.clock.state != 'paused')}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.clock
           volume_level: "0.7"
       - service: tts.google_cloud_say
         entity_id:
           - media_player.clock
-        data_template:
+        data:
           message: "{{message}}"
 
   playsound:
@@ -1119,11 +1137,11 @@ script:
       # - condition: template
       #   value_template: "{{ (states.media_player.living_room_speaker.state != 'playing') and (states.media_player.kitchen_display.state != 'playing' and states.media_player.kitchen_display.state != 'playing')}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.hallway_speaker
           volume_level: "{{(0.2 + (extraVolume or 0.0) | float) | round(2)}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.living_room_speaker
           volume_level: "{{(0.2 + (extraVolume or 0.0) | float) | round(2)}}"
       - service: media_player.play_media
@@ -1134,7 +1152,7 @@ script:
       - delay:
           seconds: 3
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: "{{states.sensor.speakervolume.state}}"
 
@@ -1152,17 +1170,17 @@ script:
       - condition: template
         value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: 0.4
       - service: tts.cloud_say
-        data_template:
+        data:
           entity_id: media_player.minis
           message: "{{message}}"
       - delay:
           seconds: 3
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: "{{states.sensor.speakervolume.state}}"
 
@@ -1177,17 +1195,17 @@ script:
       - condition: template
         value_template: "{{ states.media_player.living_room_speaker.state != 'playing'}}"
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: 0.4
       - service: tts.google_cloud_say
-        data_template:
+        data:
           entity_id: media_player.minis
           message: "{{message}}"
           language: "nb-NO"
       - delay:
           seconds: 3
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id: media_player.minis
           volume_level: "{{states.sensor.speakervolume.state}}"
