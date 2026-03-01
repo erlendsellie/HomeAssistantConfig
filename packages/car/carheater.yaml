@@ -40,7 +40,7 @@ automation:
       - service: notify.mobile_app_erlend_mobil
         data:
           title: "Is the Car Heater Mounted?"
-          message: "Its {{states.sensor.ute_temperature.state}} degrees outside."
+          message: "Its {{states('sensor.ute_temperature')}} degrees outside."
           data:
             actions:
               - action: turnoncarheater
@@ -48,7 +48,7 @@ automation:
       - service: notify.mobile_app_pixel_10_pro
         data:
           title: "Is the Car Heater Mounted?"
-          message: "Its {{states.sensor.ute_temperature.state}} degrees outside."
+          message: "Its {{states('sensor.ute_temperature')}} degrees outside."
           data:
             actions:
               - action: turnoncarheater

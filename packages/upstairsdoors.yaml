@@ -55,7 +55,7 @@ automation:
           - service: media_player.volume_set
             data:
               entity_id: media_player.minis
-              volume_level: "{{states.sensor.speakervolume.state}}"
+              volume_level: "{{states('sensor.speakervolume')}}"
           - delay:
               minutes: 10
 
@@ -65,14 +65,14 @@ template:
         unique_id: stairsexposed_sensor
         device_class: opening
         state: >-
-          {{ (states.binary_sensor.grind.state == 'on' and states.group.innedorsensorer.state == 'on')
-          and ((states.input_boolean.trymasleep.state == 'off' and states.binary_sensor.trym_home.state == 'on') 
-          or (states.input_boolean.tyraasleep.state == 'off' and states.binary_sensor.tyra_home.state == 'on')) }}
+          {{ (states('binary_sensor.grind') == 'on' and states('group.innedorsensorer') == 'on')
+          and ((states('input_boolean.trymasleep') == 'off' and states('binary_sensor.trym_home') == 'on') 
+          or (states('input_boolean.tyraasleep') == 'off' and states('binary_sensor.tyra_home') == 'on')) }}
 
       - name: "upstairstairs"
         unique_id: upstairstairs_sensor
         device_class: opening
-        state: "{{ states.binary_sensor.grind_oppe.state == 'on' and states.binary_sensor.tyra_home.state == 'on' and states.input_boolean.tyraasleep.state == 'on' }}"
+        state: "{{ states('binary_sensor.grind_oppe') == 'on' and states('binary_sensor.tyra_home') == 'on' and states('input_boolean.tyraasleep') == 'on' }}"
 
       - name: "bathroomleftopen"
         unique_id: bathroomleftopen_sensor
@@ -80,8 +80,8 @@ template:
         delay_on:
           minutes: 5
         state: >-
-          {{ states.binary_sensor.motionupstairs.state == 'off' and
-          states.binary_sensor.door_bathroom.state == 'on' }}
+          {{ states('binary_sensor.motionupstairs') == 'off' and
+          states('binary_sensor.door_bathroom') == 'on' }}
 
       - name: "trymdoorleftopen"
         unique_id: trymdoorleftopen_sensor
@@ -89,9 +89,9 @@ template:
         delay_on:
           minutes: 5
         state: >-
-          {{ states.binary_sensor.motionupstairs.state == 'off' and
-          states.binary_sensor.trym_door.state == 'on' and
-          states.input_boolean.trymasleep.state == 'off' }}
+          {{ states('binary_sensor.motionupstairs') == 'off' and
+          states('binary_sensor.trym_door') == 'on' and
+          states('input_boolean.trymasleep') == 'off' }}
 
       - name: "tyradoorleftopen"
         unique_id: tyradoorleftopen_sensor
@@ -99,6 +99,6 @@ template:
         delay_on:
           minutes: 5
         state: >-
-          {{ states.binary_sensor.motionupstairs.state == 'off' and
-          states.binary_sensor.tyra_door.state == 'on' and
-          states.input_boolean.tyraasleep.state == 'off' }}
+          {{ states('binary_sensor.motionupstairs') == 'off' and
+          states('binary_sensor.tyra_door') == 'on' and
+          states('input_boolean.tyraasleep') == 'off' }}

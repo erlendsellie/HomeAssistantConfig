@@ -28,18 +28,18 @@
 #         unit_of_measurement: NOK
 #         device_class: monetary
 #         state: >-
-#           {{ states.sensor.rammelan.attributes.balance }}
+#           {{ state_attr('sensor.rammelan', 'balance') }}
 #       - name: Rammelån Last transaction
 #         state: >-
-#           {%set last = states.sensor.rammelan.attributes.transactions[0]%}
+#           {%set last = state_attr('sensor.rammelan', 'transactions')[0]%}
 #           {{last.amount}} på {{last.text}}
 #       - name: Felleskortet Last transaction
 #         state: >-
-#           {%set last = states.sensor.felleskortet.attributes.transactions[0]%}
+#           {%set last = state_attr('sensor.felleskortet', 'transactions')[0]%}
 #           {{last.amount}} på {{last.text}}
 #       - name: Regningskonto Last transaction
 #         state: >-
-#           {%set last = states.sensor.regningskonto.attributes.transactions[0]%}
+#           {%set last = state_attr('sensor.regningskonto', 'transactions')[0]%}
 #           {{last.amount}} på {{last.text}}
 #       - name: Sbanken Egen Cash
 #         unique_id: sensor.sbanken_egen_cash
@@ -82,7 +82,7 @@
 #       # - platform: state
 #       #   entity_id: sensor.rammelan_last_transaction
 #       - platform: template
-#         value_template: "{{ states.sensor.rammelan.attributes.transactions[0] }}"
+#         value_template: "{{ state_attr('sensor.rammelan', 'transactions')[0] }}"
 #     condition:
 #       - condition: template
 #         value_template: "{{trigger.to_state.state != ''}}"
@@ -94,9 +94,9 @@
 #           config_entry: c24dd893a5b4a2667d24610dc5b5577a
 #           worksheet: Rammelånbevegelser
 #           data:
-#             Dato: "{{states.sensor.rammelan.attributes.transactions[0].accountingDate}}"
-#             Sum: "{{states.sensor.rammelan.attributes.transactions[0].amount}}"
-#             Årsak: "{{states.sensor.rammelan.attributes.transactions[0].text}}"
+#             Dato: "{{state_attr('sensor.rammelan', 'transactions')[0].accountingDate}}"
+#             Sum: "{{state_attr('sensor.rammelan', 'transactions')[0].amount}}"
+#             Årsak: "{{state_attr('sensor.rammelan', 'transactions')[0].text}}"
 #             Fra: Home Assistant - Endre meg
 # #   - alias: NotifyFelleskortet
 # #     trigger:

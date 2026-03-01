@@ -64,7 +64,7 @@ script:
     alias: Flash Tesla if home
     sequence:
       - condition: template
-        value_template: "{{states.device_tracker.modely_location_tracker.state == 'home'}}"
+        value_template: "{{states('device_tracker.modely_location_tracker') == 'home'}}"
       - service: button.press
         data:
           entity_id: button.modely_flash_lights
@@ -113,7 +113,7 @@ script:
       - service: media_player.volume_set
         data:
           entity_id: media_player.allehome
-          volume_level: "{{states.sensor.speakervolume.state}}"
+          volume_level: "{{states('sensor.speakervolume')}}"
       - service: media_player.media_stop
         data:
           entity_id: media_player.allehome

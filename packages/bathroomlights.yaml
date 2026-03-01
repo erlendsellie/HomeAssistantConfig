@@ -5,16 +5,16 @@ template:
         delay_off:
           minutes: 20
         attributes:
-          motion_bathroom: "{{states.binary_sensor.motion_bathroom.state == 'on'}}"
+          motion_bathroom: "{{states('binary_sensor.motion_bathroom') == 'on'}}"
         state: >-
           {{
-            states.binary_sensor.motion_bathroom.state == 'on'
+            states('binary_sensor.motion_bathroom') == 'on'
           }}
   - sensor:
       - name: "brightnessforbathroomlights"
         unit_of_measurement: "%"
         state: >-
-          {% if states.input_select.alarm.state == 'Arm Home' %} 
+          {% if states('input_select.alarm') == 'Arm Home' %} 
           20
           {% elif now().hour >= 21 %}
           50
@@ -38,11 +38,11 @@ automation:
         entity_id: light.bathroom
         state: "off"
     action:
-      - service: light.turn_on
+      - action: light.turn_on
         target:
           entity_id: light.bathroom
         data:
-          brightness_pct: "{{ states.sensor.brightnessforbathroomlights.state }}"
+          brightness_pct: "{{ states('sensor.brightnessforbathroomlights') }}"
 
   - id: turnOffBathroomLights
     alias: turnOffBathroomLights
@@ -52,6 +52,6 @@ automation:
         entity_id: binary_sensor.should_bathroom_lights_be_on
         to: "off"
     action:
-      - service: light.turn_off
+      - action: light.turn_off
         target:
           entity_id: light.bathroom

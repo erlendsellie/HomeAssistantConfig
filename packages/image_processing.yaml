@@ -28,13 +28,13 @@
 #       carindriveway:
 #         friendly_name: 'Car in driveway'
 #         value_template: >-
-#           {{states.image_processing.doods_driveway_stream.attributes.matches.car[0].score > 60}}	
+#           {{state_attr('image_processing.doods_driveway_stream', 'matches').car[0].score > 60}}	
 #       tyrainbed:
 #         friendly_name: 'Tyra in bed'
 #         delay_off:
 #           minutes: 5
 #         value_template: >-
-#           {{states.image_processing.doods_tyra_tapo_hd.attributes.summary.person or 0 > 0}}	
+#           {{state_attr('image_processing.doods_tyra_tapo_hd', 'summary').person or 0 > 0}}	
 #   camera:
 #   - platform: generic
 #     name: doods driveway

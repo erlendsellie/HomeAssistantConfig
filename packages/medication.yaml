@@ -45,11 +45,11 @@ automation:
                 title: Taken!
                 destructive: true
       - condition: template
-        value_template: "{{ states.media_player.kitchen_display.state != 'playing' and states.media_player.kitchen_display.state != 'paused'}}"
+        value_template: "{{ states('media_player.kitchen_display') != 'playing' and states('media_player.kitchen_display') != 'paused'}}"
       - service: media_player.volume_set
         data:
           entity_id: media_player.kitchen_display
-          volume_level: "{{states.sensor.speakervolume.state | float(default=0)+ 0.2}}"
+          volume_level: "{{states('sensor.speakervolume') | float(default=0)+ 0.2}}"
 
       # - service: script.turn_on
       #   entity_id: script.sayaikitchen
@@ -91,7 +91,7 @@ automation:
         target:
           entity_id: input_boolean.takemeds
       # - condition: template
-      #   value_template: "{{ states.person.erlend.state != 'home' }}"
+      #   value_template: "{{ states('person.erlend') != 'home' }}"
       - service: notify.mobile_app_erlend_mobil
         data:
           title: "Ta Medisin"

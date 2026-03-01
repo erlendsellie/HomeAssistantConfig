@@ -266,14 +266,14 @@ automation:
   #       entity_id:  binary_sensor.trym_door
   #       state: 'off'
   #     - condition: template # More than 5 minutes since last time. Does not work correctly?
-  #       value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(states.automation.trymmotion.attributes.last_triggered)) / 60) | round(0)) > 5)}}"
+  #       value_template: "{{((((as_timestamp(utcnow()) - as_timestamp(state_attr('automation.trymmotion', 'last_triggered'))) / 60) | round(0)) > 5)}}"
   #   action:
   #   - service: notify.mobile_app_erlend_mobil
   #     data:
   #       title: Did Trym wake up?
   #       message: Did trym wake up?
   #       data:
-  #         image: 'https://hjem.sellie.no{{states.camera.trym_dafang.attributes.entity_picture}}'
+  #         image: 'https://hjem.sellie.no{{state_attr('camera.trym_dafang', 'entity_picture')}}'
 
   # - alias: 'TrymCold'
   #   trigger:
@@ -295,7 +295,7 @@ automation:
   #     data:
   #       variables:
   #         title: Brr!
-  #         message: Temperaturen på rommet til Trym er {{states.sensor.trym_temp.state}}. Vinduet er åpent.
+  #         message: Temperaturen på rommet til Trym er {{states('sensor.trym_temp')}}. Vinduet er åpent.
 
   # - alias: 'TrymWarm'
   #   trigger:
@@ -312,7 +312,7 @@ automation:
   #     data:
   #       variables:
   #         title: Varmt!
-  #         message: Temperaturen på rommet til Trym er {{states.sensor.trym_temp.state}}.
+  #         message: Temperaturen på rommet til Trym er {{states('sensor.trym_temp')}}.
 
   - alias: "TrymSoverOff"
     trigger:
@@ -327,14 +327,14 @@ automation:
       # - service: input_number.set_value
       #   entity_id: input_number.trymasleeptime
       #   data:
-      #     value: "{{((as_timestamp(utcnow()) - as_timestamp(states.automation.trymsoveron.attributes.last_triggered,true,0)) / 60) | round(0)}}"
+      #     value: "{{((as_timestamp(utcnow()) - as_timestamp(state_attr('automation.trymsoveron', 'last_triggered'),true,0)) / 60) | round(0)}}"
       - service: script.turn_on
         target:
           entity_id: script.notifyboth
         data:
           variables:
             title: "Trym sover ble slått av"
-            message: "Han sov i {{states.sensor.trymsleeptimeformatted.state}} minutter."
+            message: "Han sov i {{states('sensor.trymsleeptimeformatted')}} minutter."
 
   - alias: "TrymSoverOn"
     trigger:
@@ -407,7 +407,7 @@ automation:
                   entity_id: light.peis
                 # data:
                 #   brightness_pct: '100'
-                #hs_color: "{{states.switch.circadian_lighting_circadian_stua.attributes.hs_color}}"
+                #hs_color: "{{state_attr('switch.circadian_lighting_circadian_stua', 'hs_color')}}"
             # - service: switch.turn_on
             #   entity_id: switch.circadian_lighting_circadian_stua
           - conditions:
@@ -419,8 +419,8 @@ automation:
                 state: "home"
               - condition: template
                 value_template: >-
-                  {{ states.input_boolean.trymasleep.state == 'on'
-                  or states.binary_sensor.trym_home.state == 'off' }}
+                  {{ states('input_boolean.trymasleep') == 'on'
+                  or states('binary_sensor.trym_home') == 'off' }}
             sequence:
               - service: media_player.media_pause
                 target:
@@ -432,7 +432,7 @@ automation:
                 timeout: "02:00:00"
                 continue_on_timeout: false
               - condition: template
-                value_template: "{{ states.media_player.living_room_tv.state != 'playing'}}"
+                value_template: "{{ states('media_player.living_room_tv') != 'playing'}}"
               - service: media_player.media_play
                 target:
                   entity_id: media_player.living_room_tv
@@ -443,7 +443,7 @@ automation:
         at: "11:00:00"
     condition:
       - condition: template
-        value_template: "{{ states.person.erlend.state == 'Work' }}"
+        value_template: "{{ states('person.erlend') == 'Work' }}"
     action:
       - service: script.turn_on
         target:
@@ -512,7 +512,7 @@ script:
             message: "{{message}}"
             channel: "{{channel | default('Home Assistant')}}"
       - condition: template
-        value_template: "{{ states.media_player.tv_stua.state != 'off' and states.media_player.tv_stua.state != 'unavailable'}}"
+        value_template: "{{ states('media_player.tv_stua') != 'off' and states('media_player.tv_stua') != 'unavailable'}}"
       - service: notify.tv_stua
         data:
           message: "{{message}}"
@@ -719,11 +719,11 @@ script:
     alias: Notify When Motion Outside On Shield
     sequence:
       - condition: template
-        value_template: "{{states.media_player.living_room_tv.state != 'off'}}"
+        value_template: "{{states('media_player.living_room_tv') != 'off'}}"
       # - service: notify.shield_gentle
       #   data:
       #     message: 'Motion Outside'
       #     title: 'Motion Outside'
       #     data:
       #       file:
-      #         url: https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}
+      #         url: https://hjem.sellie.no{{state_attr('camera.driveway', 'entity_picture')}}

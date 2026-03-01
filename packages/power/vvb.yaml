@@ -6,14 +6,14 @@ template:
       #       delay_off:
       #         seconds: 10
       #       state: >-
-      #         {%-set notUsingSpot = states.binary_sensor.usingspot.state == 'off' -%}
-      #         {%-set pause = states.input_boolean.vvb_on.state == 'on' -%}
-      #         {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
-      #         {%-set shouldNotBother = states.binary_sensor.pricedifferenceissmall.state == 'on' -%}
+      #         {%-set notUsingSpot = states('binary_sensor.usingspot') == 'off' -%}
+      #         {%-set pause = states('input_boolean.vvb_on') == 'on' -%}
+      #         {%-set isLowPrice = states('binary_sensor.islowprice') == 'on' -%}
+      #         {%-set shouldNotBother = states('binary_sensor.pricedifferenceissmall') == 'on' -%}
       #         {%set pricelevel = states('sensor.pricelevel')%}
       #         {%set pricecorrectionDown = states('sensor.pricecorrection') | int  < 0%}
       #         {%set isCheap = pricelevel ==  'CHEAP' or pricelevel == 'VERY_CHEAP'%}
-      #         {%set current_hour = states.sensor.priceanalyzer.attributes.current_hour%}
+      #         {%set current_hour = state_attr('sensor.priceanalyzer', 'current_hour')%}
       #         {%set is_ten_cheapest = current_hour.is_ten_cheapest %}
       #         {% if pause%}
       #           {{true}}
@@ -31,32 +31,32 @@ template:
           seconds: 10
         state: >-
           {{
-            states.sensor.vvb_difference_statistics.state | float(default=0) < -0.5
+            states('sensor.vvb_difference_statistics') | float(default=0) < -0.5
           }}
 
   - sensor:
       - name: "vvb_temp"
         unit_of_measurement: "°C"
         state: >-
-          {%-set notUsingSpot = states.binary_sensor.usingspot.state == 'off' -%}
-          {%-set turn_on = states.input_boolean.vvb_on.state == 'on' -%}
-          {%-set turn_off = states.input_boolean.vvb_off.state == 'on' -%}
-          {%-set limit = states.input_boolean.limit_water_heater.state == 'on' -%}
-          {%-set isLowPrice = states.binary_sensor.islowprice.state == 'on' -%}
-          {%-set shouldNotBother = states.binary_sensor.pricedifferenceissmall.state == 'on' -%}
+          {%-set notUsingSpot = states('binary_sensor.usingspot') == 'off' -%}
+          {%-set turn_on = states('input_boolean.vvb_on') == 'on' -%}
+          {%-set turn_off = states('input_boolean.vvb_off') == 'on' -%}
+          {%-set limit = states('input_boolean.limit_water_heater') == 'on' -%}
+          {%-set isLowPrice = states('binary_sensor.islowprice') == 'on' -%}
+          {%-set shouldNotBother = states('binary_sensor.pricedifferenceissmall') == 'on' -%}
           {%set pricelevel = states('sensor.pricelevel')%}
           {%set pricecorrectionDown = states('sensor.pricecorrection') | int  < 0%}
           {%set isCheap = pricelevel ==  'CHEAP' or pricelevel == 'VERY_CHEAP'%}
-          {%set current_hour = states.sensor.priceanalyzer.attributes.current_hour%}
+          {%set current_hour = state_attr('sensor.priceanalyzer', 'current_hour')%}
           {%set is_ten_cheapest = current_hour.is_ten_cheapest %}
-          {%set current_temp = states.climate.varmtvannsbereder.attributes.current_temperature  | float(default=50)%}
+          {%set current_temp = state_attr('climate.varmtvannsbereder', 'current_temperature')  | float(default=50)%}
           {%set temp = 60%}
           {% if limit or turn_off%}
             {%set temp = 20%}
           {% elif notUsingSpot or turn_on%}
             {%set temp = 80%}
           {%else%}
-            {%set temp = states.sensor.vvbsensor.state %}
+            {%set temp = states('sensor.vvbsensor') %}
           {% endif %}
           {{temp}}
       - name: "VVB Average"
@@ -96,8 +96,8 @@ template:
       - name: "VVB Difference"
         unit_of_measurement: "°C"
         state: >-
-          {%set bottom = states.sensor.vvb_bottom.state | float(default=50)%}
-          {%set top = states.sensor.vvb_top.state | float(default=50)%}
+          {%set bottom = states('sensor.vvb_bottom') | float(default=50)%}
+          {%set top = states('sensor.vvb_top') | float(default=50)%}
           {{bottom - top}}
 
 #Set to on always at some hours at night, to ensure hot water at morning?
@@ -219,7 +219,7 @@ automation:
         target:
           entity_id: climate.varmtvannsbereder
       - alias: "TurnOn VVB"
-        service: >-
+        action: >-
           climate.turn_on
         target:
           entity_id: climate.varmtvannsbereder

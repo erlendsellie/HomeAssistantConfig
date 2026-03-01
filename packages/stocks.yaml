@@ -26,14 +26,14 @@ automation:
   #   max_exceeded: silent
   #   trigger:
   #   - platform: template
-  #     value_template: "{{ (states.sensor.gme.state | int(default=0)) and (states.sensor.gme.state | int(default=0)  < states.input_number.cheapgme.state | int(default=0))}}"
+  #     value_template: "{{ (states('sensor.gme') | int(default=0)) and (states('sensor.gme') | int(default=0)  < states('input_number.cheapgme') | int(default=0))}}"
   #   action:
   #   - service: script.turn_on
   #     entity_id: script.notify
   #     data:
   #       variables:
   #         title: GME below threshold
-  #         message: Now at {{states.sensor.gme.state}}.
+  #         message: Now at {{states('sensor.gme')}}.
   #   - delay:
   #       minutes: 15
 
@@ -42,14 +42,14 @@ automation:
   #   max_exceeded: silent
   #   trigger:
   #   - platform: template
-  #     value_template: "{{ (states.sensor.gme.state | int(default=0)) and (states.sensor.gme.state | int(default=0)  > states.input_number.expensivegme.state | int(default=0))}}"
+  #     value_template: "{{ (states('sensor.gme') | int(default=0)) and (states('sensor.gme') | int(default=0)  > states('input_number.expensivegme') | int(default=0))}}"
   #   action:
   #   - service: script.turn_on
   #     entity_id: script.notify
   #     data:
   #       variables:
   #         title: GME over threshold
-  #         message: Now at {{states.sensor.gme.state}}.
+  #         message: Now at {{states('sensor.gme')}}.
   #   - delay:
   #       minutes: 15
 
@@ -58,7 +58,7 @@ automation:
     max_exceeded: silent
     trigger:
       - platform: template
-        value_template: "{{ (states.sensor.tsla.state | int(default=0)) and (states.sensor.tsla.state | int(default=0)  < states.input_number.stockprice.state | int(default=0))}}"
+        value_template: "{{ (states('sensor.tsla') | int(default=0)) and (states('sensor.tsla') | int(default=0)  < states('input_number.stockprice') | int(default=0))}}"
     action:
       - service: script.turn_on
         target:
@@ -66,7 +66,7 @@ automation:
         data:
           variables:
             title: TSLA below threshold
-            message: Now at {{states.sensor.tsla.state}}.
+            message: Now at {{states('sensor.tsla')}}.
       - delay:
           minutes: 15
 
@@ -75,7 +75,7 @@ automation:
     max_exceeded: silent
     trigger:
       - platform: template
-        value_template: "{{ (states.sensor.tsla.state | int(default=0)) and (states.sensor.tsla.state | int(default=0)  > states.input_number.expensive_stock_price.state | int(default=0))}}"
+        value_template: "{{ (states('sensor.tsla') | int(default=0)) and (states('sensor.tsla') | int(default=0)  > states('input_number.expensive_stock_price') | int(default=0))}}"
     action:
       - service: script.turn_on
         target:
@@ -83,7 +83,7 @@ automation:
         data:
           variables:
             title: TSLA over threshold
-            message: Now at {{states.sensor.tsla.state}}.
+            message: Now at {{states('sensor.tsla')}}.
       - delay:
           minutes: 15
 
@@ -92,7 +92,7 @@ automation:
     max_exceeded: silent
     trigger:
       - platform: template
-        value_template: "{{ (states.sensor.pltr.state | int(default=0)) and (states.sensor.pltr.state | int(default=0)  < states.input_number.cheap_pltr.state | int(default=0))}}"
+        value_template: "{{ (states('sensor.pltr') | int(default=0)) and (states('sensor.pltr') | int(default=0)  < states('input_number.cheap_pltr') | int(default=0))}}"
     action:
       - service: script.turn_on
         target:
@@ -100,7 +100,7 @@ automation:
         data:
           variables:
             title: PLTR below threshold
-            message: Now at {{states.sensor.pltr.state}}.
+            message: Now at {{states('sensor.pltr')}}.
       - delay:
           minutes: 15
 
@@ -109,7 +109,7 @@ automation:
     max_exceeded: silent
     trigger:
       - platform: template
-        value_template: "{{ (states.sensor.pltr.state | int(default=0)) and (states.sensor.pltr.state | int(default=0)  > states.input_number.expensive_pltr.state | int(default=0))}}"
+        value_template: "{{ (states('sensor.pltr') | int(default=0)) and (states('sensor.pltr') | int(default=0)  > states('input_number.expensive_pltr') | int(default=0))}}"
     action:
       - service: script.turn_on
         target:
@@ -117,6 +117,6 @@ automation:
         data:
           variables:
             title: PLTR over threshold
-            message: Now at {{states.sensor.pltr.state}}.
+            message: Now at {{states('sensor.pltr')}}.
       - delay:
           minutes: 15

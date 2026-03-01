@@ -36,7 +36,7 @@ automation:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'None'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'None'}}"
             sequence:
               - service: input_select.select_option
                 data:
@@ -44,36 +44,36 @@ automation:
                   option: "Media"
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Lights'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'Lights'}}"
             sequence:
               - service: input_number.set_value
                 data:
                   entity_id: input_number.brightness
-                  value: "{{[[states.input_number.brightness.state | float(default=0)- 1, 100] | min,0] | max}}"
+                  value: "{{[[states('input_number.brightness') | float(default=0)- 1, 100] | min,0] | max}}"
               - service: input_number.set_value
                 data:
                   entity_id: input_number.brightness
-                  value: "{{[states.input_number.brightness.state | float(default=0)+ 20, 100] | min}}"
+                  value: "{{[states('input_number.brightness') | float(default=0)+ 20, 100] | min}}"
               - service: light.turn_on
                 target:
                   entity_id: light.peis
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'KitchenLights'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'KitchenLights'}}"
             sequence:
               - service: light.turn_on
                 target:
                   entity_id: light.kitchensone
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'SofaLight'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'SofaLight'}}"
             sequence:
               - service: light.turn_on
                 target:
                   entity_id: light.sofa
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Media'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'Media'}}"
             sequence:
               - choose:
                   - conditions:
@@ -86,7 +86,7 @@ automation:
                           entity_id: media_player.bedroom_tv
                   - conditions:
                       - condition: template
-                        value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.living_room_tv.state != 'paused' and states.media_player.living_room_tv.state != 'playing'))}}"
+                        value_template: "{{(states('media_player.musikkstua') == 'playing' or states('media_player.musikkstua') == 'paused') and ((states('media_player.living_room_tv') != 'paused' and states('media_player.living_room_tv') != 'playing'))}}"
                     sequence:
                       - service: media_player.media_play_pause
                         target:
@@ -101,7 +101,7 @@ automation:
                           entity_id: media_player.living_room_tv
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'Cover'}}"
             sequence:
               # - service: cover.open_cover
               #   entity_id: cover.veranda_curtains
@@ -116,7 +116,7 @@ automation:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'None'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'None'}}"
             sequence:
               - service: input_select.select_option
                 data:
@@ -124,45 +124,45 @@ automation:
                   option: "Cover"
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Lights'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'Lights'}}"
             sequence:
               # - service: input_number.set_value
               #   data:
               #     entity_id: input_number.brightness
-              #     value: "{{[[states.input_number.brightness.state | float(default=0)+ 1, 0] | max,100] | max}}"
+              #     value: "{{[[states('input_number.brightness') | float(default=0)+ 1, 0] | max,100] | max}}"
               - service: input_number.set_value
                 data:
                   entity_id: input_number.brightness
-                  value: "{{[states.input_number.brightness.state | float(default=0)- 20, 0] | max}}"
+                  value: "{{[states('input_number.brightness') | float(default=0)- 20, 0] | max}}"
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'KitchenLights'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'KitchenLights'}}"
             sequence:
               - service: light.turn_off
                 target:
                   entity_id: light.kitchensone
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'SofaLight'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'SofaLight'}}"
             sequence:
               - service: light.turn_off
                 target:
                   entity_id: light.sofa
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'Cover'}}"
             sequence:
               - service: script.verandahalfway
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Media'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'Media'}}"
             sequence:
               - service: script.notifyblanketcaroline
               # - choose:
               #   - conditions:
               #     - condition: template
               #       value_template: >-
-              #           "{{ states.switch.mower.state == 'off' and
+              #           "{{ states('switch.mower') == 'off' and
               #               states.binary_sensor.robot_charging == 'off'}}"
               #     sequence:
               #       - service: switch.toggle
@@ -181,7 +181,7 @@ automation:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'None'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'None'}}"
             sequence:
               - service: input_select.select_option
                 data:
@@ -189,7 +189,7 @@ automation:
                   option: "Lights"
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Lights'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'Lights'}}"
             sequence:
               - service: input_select.select_option
                 data:
@@ -197,7 +197,7 @@ automation:
                   option: "KitchenLights"
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'KitchenLights'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'KitchenLights'}}"
             sequence:
               - service: input_select.select_option
                 data:
@@ -205,7 +205,7 @@ automation:
                   option: "SofaLight"
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'SofaLight'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'SofaLight'}}"
             sequence:
               - service: input_select.select_option
                 data:
@@ -213,7 +213,7 @@ automation:
                   option: "KitchenLights"
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Media'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'Media'}}"
             sequence:
               - choose:
                   - conditions:
@@ -251,7 +251,7 @@ automation:
 
           - conditions:
               - condition: template
-                value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Cover'}}"
+                value_template: "{{ states('input_select.garmincontrolcaroline') == 'Cover'}}"
             sequence:
               - service: cover.toggle
                 target:
@@ -267,7 +267,7 @@ automation:
   #   - choose:
   #     - conditions:
   #       - condition: template
-  #         value_template: "{{ states.input_select.garmincontrolcaroline.state == 'None'}}"
+  #         value_template: "{{ states('input_select.garmincontrolcaroline') == 'None'}}"
   #       sequence:
   #         - service: input_select.select_option
   #           data:
@@ -275,7 +275,7 @@ automation:
   #             option: 'Back'
   #     - conditions:
   #       - condition: template
-  #         value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Back'}}"
+  #         value_template: "{{ states('input_select.garmincontrolcaroline') == 'Back'}}"
   #       sequence:
   #       - service: input_number.set_value
   #         data:
@@ -289,7 +289,7 @@ automation:
   #         entity_id: light.peis
   #     - conditions:
   #       - condition: template
-  #         value_template: "{{ states.input_select.garmincontrolcaroline.state == 'Lights'}}"
+  #         value_template: "{{ states('input_select.garmincontrolcaroline') == 'Lights'}}"
   #       sequence:
   #         - service: light.toggle
   #           entity_id: light.kitchensone

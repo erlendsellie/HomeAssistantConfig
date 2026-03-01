@@ -48,4 +48,4 @@ template:
 
       - name: "dark_outside"
         unique_id: dark_outside_sensor
-        state: "{{ states.sun.sun.attributes.elevation < 5 }}"
+        state: "{{ state_attr('sun.sun', 'elevation') < 5 }}"

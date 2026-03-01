@@ -183,12 +183,12 @@ script:
       - service: media_player.volume_set
         data:
           entity_id: media_player.living_room_speaker
-          volume_level: "{{states.sensor.speakervolume.state}}"
+          volume_level: "{{states('sensor.speakervolume')}}"
       # - service: light.turn_off
       #   entity_id: light.gateway_light_7c49eb1c2d6b
       #This is stupid. Make not stupid.
       # - condition: template
-      #   value_template: "{{ states.media_player.living_room.state != 'Playing'}}"
+      #   value_template: "{{ states('media_player.living_room') != 'Playing'}}"
       # - service: media_player.turn_off
       #   entity_id: media_player.tv_stua
 

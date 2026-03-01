@@ -17,8 +17,8 @@ template:
           {%endif%}
       - name: "tyra_light"
         state: >-
-          {%set lights = states.sensor.brightnessforlights.state%}
-          {%if states.input_boolean.tyraasleep.state == 'on'%}
+          {%set lights = states('sensor.brightnessforlights')%}
+          {%if states('input_boolean.tyraasleep') == 'on'%}
             {%set lights = 1%}
           {% elif now().hour < 8 %} 
             {%set lights = 20%}
@@ -30,15 +30,15 @@ template:
         unit_of_measurement: "minutes"
         state: >-
           {% set dummy = states("sensor.time") %}
-          {% if states.input_boolean.tyraasleep.state  == 'on'%}
+          {% if states('input_boolean.tyraasleep')  == 'on'%}
               {% if states.automation.tyrasoveron %}
-              {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveron.attributes.last_triggered, default=0)) / 60) | round(0)}}
+              {{((as_timestamp(utcnow()) - as_timestamp(state_attr('automation.tyrasoveron', 'last_triggered'), default=0)) / 60) | round(0)}}
               {% else %}
               0
               {% endif %}
           {% else %}
               {% if states.automation.tyrasoveroff %}
-              {{((as_timestamp(utcnow()) - as_timestamp(states.automation.tyrasoveroff.attributes.last_triggered, default=0)) / 60) | round(0)}}
+              {{((as_timestamp(utcnow()) - as_timestamp(state_attr('automation.tyrasoveroff', 'last_triggered'), default=0)) / 60) | round(0)}}
               {% else %}
               0
               {% endif %}
@@ -47,7 +47,7 @@ template:
       - name: "tyrasleeptimeformatted"
         unique_id: tyrasleeptimeformatted_sensor
         state: >-
-          {{ (states.sensor.tyrasleeptime.state | int(default=0)) // 60 }}:{{ '{:0>2d}'.format((states.sensor.tyrasleeptime.state | int(default=0))%60) }} hours
+          {{ (states('sensor.tyrasleeptime') | int(default=0)) // 60 }}:{{ '{:0>2d}'.format((states('sensor.tyrasleeptime') | int(default=0))%60) }} hours
 
   - binary_sensor:
       - name: "tyra_home"
@@ -74,7 +74,7 @@ automation:
         data:
           variables:
             title: "Tyra sover ble slått av"
-            message: "Hun sov i {{states.sensor.tyrasleeptimeformatted.state}} minutter."
+            message: "Hun sov i {{states('sensor.tyrasleeptimeformatted')}} minutter."
 
   # - alias: 'askToTurnOnTyraSover'
   #   trigger:
@@ -244,7 +244,7 @@ automation:
           seconds: 30
     condition:
       - condition: template
-        value_template: "{{ states.input_select.alarm.state != 'Arm Away' }}"
+        value_template: "{{ states('input_select.alarm') != 'Arm Away' }}"
     action:
       - service: light.turn_off
         data:
@@ -267,7 +267,7 @@ automation:
       # - service: light.turn_on
       #   entity_id: light.upstairs
       #   data:
-      #     brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
+      #     brightness_pct: "{{ states('sensor.brightnessforupstairslights') }}"
   # #delay and then turn off?
 
   - alias: TyraTemp
@@ -283,7 +283,7 @@ automation:
         target:
           entity_id: climate.tyra_heater
         data:
-          temperature: "{{states.sensor.tyratemp.state | float}}"
+          temperature: "{{states('sensor.tyratemp') | float}}"
 
   - alias: "TyraHeaterOn"
     trigger:
@@ -323,7 +323,7 @@ automation:
         target:
           entity_id: light.tyra
         data:
-          brightness_pct: "{{ states.sensor.tyra_light.state }}"
+          brightness_pct: "{{ states('sensor.tyra_light') }}"
       - service: light.turn_on
         data:
           brightness_pct: "33"
@@ -332,13 +332,13 @@ automation:
           #color_name: "DeepPink"
       - wait_for_trigger:
           - platform: template
-            value_template: "{{ states.binary_sensor.tyra_person_occupancy.state == 'off' and states.binary_sensor.tyra_motion.state == 'off' }}"
+            value_template: "{{ states('binary_sensor.tyra_person_occupancy') == 'off' and states('binary_sensor.tyra_motion') == 'off' }}"
             for:
               minutes: 1
         timeout: "02:20:00"
         continue_on_timeout: false
       - condition: template
-        value_template: "{{ states.input_boolean.tyraasleep.state == 'off' }}"
+        value_template: "{{ states('input_boolean.tyraasleep') == 'off' }}"
       - service: light.turn_off
         target:
           entity_id: light.tyra

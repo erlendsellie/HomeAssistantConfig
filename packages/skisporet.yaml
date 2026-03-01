@@ -53,14 +53,14 @@ sensor:
 #       saupstad_just_prepped:
 #         friendly_name: "Saupstad-Smistad"
 #         value_template: >-
-#           {%-set state = states.sensor.skisporet_saupstad_smistad.state -%}
+#           {%-set state = states('sensor.skisporet_saupstad_smistad') -%}
 #           {%-set stateAsTimestamp = as_timestamp(state, default=0) -%}
 #           {%-set twoHours = 120 * 60 -%}
 #           {{((as_timestamp(utcnow())) - stateAsTimestamp) < twoHours }}
 #       saupstad_granasen_just_prepped:
 #         friendly_name: "Saupstad-Granåsen"
 #         value_template: >-
-#           {%-set state = states.sensor.skisporet_saupstad_granasen.state -%}
+#           {%-set state = states('sensor.skisporet_saupstad_granasen') -%}
 #           {%-set stateAsTimestamp = as_timestamp(state, default=0) -%}
 #           {%-set twoHours = 120 * 60 -%}
 #           {{((as_timestamp(utcnow())) - stateAsTimestamp) < twoHours }}

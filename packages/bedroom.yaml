@@ -4,13 +4,13 @@ template:
         unique_id: brightnessforbedroomlights_sensor
         unit_of_measurement: "%"
         state: >-
-          {% if states.input_boolean.trymasleep.state == 'on' or states.input_boolean.tyraasleep.state == 'on' %}
+          {% if states('input_boolean.trymasleep') == 'on' or states('input_boolean.tyraasleep') == 'on' %}
           40
-          {% elif (states.input_boolean.casleep.state == 'on' or states.input_boolean.easleep.state == 'on')
+          {% elif (states('input_boolean.casleep') == 'on' or states('input_boolean.easleep') == 'on')
           and (now().hour < 23 or now().hour > 8)  %} 
           30
           {% else %}
-            {{ states.sensor.brightnessforlights.state }}
+            {{ states('sensor.brightnessforlights') }}
           {% endif %}
 
 automation:
@@ -70,7 +70,7 @@ automation:
     trigger:
       platform: template
       value_template: >-
-        {{states.input_boolean.easleep.state == 'on' and
+        {{states('input_boolean.easleep') == 'on' and
           states.binary_sensor.bedtvon == 'on'}}
       for:
         minutes: 60
@@ -119,7 +119,7 @@ automation:
         to: "on"
     condition:
       - condition: template
-        value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
+        value_template: "{{ states('input_select.alarm')  != 'Disarm'}}"
     action:
       - service: notify.tv_stua
         data:

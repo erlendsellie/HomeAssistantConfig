@@ -8,7 +8,7 @@ automation:
       local_only: false
     condition:
       - condition: template
-        value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off'}}"
+        value_template: "{{ states('group.erlend') == 'home' and states('input_boolean.easleep') == 'off'}}"
     action:
       - choose:
           - conditions:
@@ -43,7 +43,7 @@ automation:
       local_only: false
     condition:
       - condition: template
-        value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off'}}"
+        value_template: "{{ states('group.erlend') == 'home' and states('input_boolean.easleep') == 'off'}}"
     action:
       - choose:
           - conditions:
@@ -84,7 +84,7 @@ automation:
       local_only: false
     condition:
       - condition: template
-        value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+        value_template: "{{ states('group.erlend') == 'home' and states('input_boolean.easleep') == 'off' and states('binary_sensor.motion_downstairs_office') == 'off'}}"
     action:
       - service: input_number.set_value
         data:
@@ -106,7 +106,7 @@ automation:
       local_only: false
     condition:
       - condition: template
-        value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+        value_template: "{{ states('group.erlend') == 'home' and states('input_boolean.easleep') == 'off' and states('binary_sensor.motion_downstairs_office') == 'off'}}"
     action:
       - service: input_number.set_value
         data:
@@ -128,7 +128,7 @@ automation:
       local_only: false
     condition:
       - condition: template
-        value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
+        value_template: "{{ states('person.erlend') != 'Work' and states('input_boolean.easleep') == 'off'}}"
     action:
       # - service: script.turn_on
       #   entity_id: script.garagetoggle
@@ -149,7 +149,7 @@ automation:
       local_only: false
     condition:
       - condition: template
-        value_template: "{{ states.person.caroline.state != 'Sykehuset' }}"
+        value_template: "{{ states('person.caroline') != 'Sykehuset' }}"
     action:
       # - service: script.turn_on
       #   entity_id: script.garagetoggle
@@ -166,11 +166,11 @@ automation:
 
   #    - service: notify.html5_p30
   #      data:
-  #          message: 'You {% if states.cover.garage_door.state == "open" %} closed {% else %} opened {% endif %}the garage'
+  #          message: 'You {% if states('cover.garage_door') == "open" %} closed {% else %} opened {% endif %}the garage'
 
   # - service: notify.html5_p30
   #   data:
-  #     message: The Garage is {{ states.cover.garage_door.state }}. Toggle?
+  #     message: The Garage is {{ states('cover.garage_door') }}. Toggle?
   #     data:
   #       actions:
   #         - action: togglegarage
@@ -192,7 +192,7 @@ automation:
         data:
           variables:
             title: "Garage toggled"
-            message: 'You {% if states.cover.garage_door.state == "open" %} closed {% else %} opened {% endif %}the garage'
+            message: 'You {% if states('cover.garage_door') == "open" %} closed {% else %} opened {% endif %}the garage'
 
   - alias: "WatchTemp"
     trigger:
@@ -201,7 +201,7 @@ automation:
       local_only: false
     condition:
       - condition: template
-        value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+        value_template: "{{ states('group.erlend') == 'home' and states('input_boolean.easleep') == 'off' and states('binary_sensor.motion_downstairs_office') == 'off'}}"
     action:
       - service: light.turn_off
         target:
@@ -217,13 +217,13 @@ automation:
       local_only: false
     condition:
       - condition: template
-        value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+        value_template: "{{ states('group.erlend') == 'home' and states('input_boolean.easleep') == 'off' and states('binary_sensor.motion_downstairs_office') == 'off'}}"
     action:
       - service: light.turn_on
         data:
           # brightness_pct: '{{ trigger.to_state.state | int(default=0) }}'
           entity_id: group.notdimmableliving
-          # profile: "{{ states.input_number.light_profile.state }}"
+          # profile: "{{ states('input_number.light_profile') }}"
       - service: light.turn_on
         target:
           entity_id: light.kjokkenbord, light.cabinet, light.table_lamp
@@ -251,12 +251,12 @@ automation:
       local_only: false
     condition:
       - condition: template
-        value_template: "{{states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+        value_template: "{{states('binary_sensor.motion_downstairs_office') == 'off'}}"
     action:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ states.person.erlend.state  != 'home'}}"
+                value_template: "{{ states('person.erlend')  != 'home'}}"
             sequence:
               - service: media_player.media_play_pause
                 target:
@@ -271,7 +271,7 @@ automation:
                   entity_id: media_player.bedroom_tv
           - conditions:
               - condition: template
-                value_template: "{{(states.media_player.musikkstua.state == 'playing' or states.media_player.musikkstua.state == 'paused') and ((states.media_player.living_room_tv.state != 'paused' and states.media_player.living_room_tv.state != 'playing'))}}"
+                value_template: "{{(states('media_player.musikkstua') == 'playing' or states('media_player.musikkstua') == 'paused') and ((states('media_player.living_room_tv') != 'paused' and states('media_player.living_room_tv') != 'playing'))}}"
             sequence:
               - service: media_player.media_play_pause
                 target:
@@ -298,7 +298,7 @@ automation:
       local_only: false
     condition:
       - condition: template
-        value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+        value_template: "{{ states('group.erlend') == 'home' and states('input_boolean.easleep') == 'off' and states('binary_sensor.motion_downstairs_office') == 'off'}}"
     action:
       - service: script.turn_on
         target:
@@ -312,7 +312,7 @@ automation:
       local_only: false
     condition:
       - condition: template
-        value_template: "{{ states.group.erlend.state == 'home' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+        value_template: "{{ states('group.erlend') == 'home' and states('binary_sensor.motion_downstairs_office') == 'off'}}"
     action:
       - choose:
           - conditions:
@@ -355,7 +355,7 @@ automation:
       local_only: false
     condition:
       - condition: template
-        value_template: "{{ states.group.erlend.state == 'home' and states.input_boolean.easleep.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+        value_template: "{{ states('group.erlend') == 'home' and states('input_boolean.easleep') == 'off' and states('binary_sensor.motion_downstairs_office') == 'off'}}"
     action:
       - service: light.toggle
         target:
@@ -402,7 +402,7 @@ automation:
       local_only: false
     condition:
       - condition: template
-        value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
+        value_template: "{{ states('person.erlend') != 'Work' and states('input_boolean.easleep') == 'off'}}"
     action:
       - service: switch.turn_on
         target:
@@ -416,7 +416,7 @@ automation:
   #     local_only: false
   #   # condition:
   #   # - condition: template
-  #   #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
+  #   #   value_template: "{{ states('person.erlend') != 'Work' and states('input_boolean.easleep') == 'off'}}"
   #   action:
   #     - service: script.leaf_warmup
 
@@ -428,7 +428,7 @@ automation:
   #     local_only: false
   #   # condition:
   #   # - condition: template
-  #   #   value_template: "{{ states.person.erlend.state != 'Work' and states.input_boolean.easleep.state == 'off'}}"
+  #   #   value_template: "{{ states('person.erlend') != 'Work' and states('input_boolean.easleep') == 'off'}}"
   #   action:
   #     - service: script.leaf_stop_warmup
 
@@ -439,7 +439,7 @@ automation:
       local_only: false
     condition:
       - condition: template
-        value_template: "{{ states.person.erlend.state != 'Work'}}"
+        value_template: "{{ states('person.erlend') != 'Work'}}"
     action:
       - choose:
           - conditions:
@@ -545,8 +545,8 @@ script:
     sequence:
       - service: notify.mobile_app_erlend_mobil
         data:
-          title: "Blanket is {{states.switch.blanket.state}}"
-          message: "Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom."
+          title: "Blanket is {{states('switch.blanket')}}"
+          message: "Its {{states('sensor.temp_bedroom')}} degrees in the bedroom."
           data:
             ttl: 0
             priority: high
@@ -565,8 +565,8 @@ script:
     sequence:
       - service: notify.mobile_app_pixel_10_pro
         data:
-          title: "Blanket is {{states.switch.blanket.state}}"
-          message: "Its {{states.sensor.temp_bedroom.state}} degrees in the bedroom."
+          title: "Blanket is {{states('switch.blanket')}}"
+          message: "Its {{states('sensor.temp_bedroom')}} degrees in the bedroom."
           data:
             ttl: 0
             priority: high

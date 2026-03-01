@@ -21,7 +21,7 @@ template:
         delay_on:
           minutes: 1
         state: >-
-          {{states.light.tvsone.state == 'unknown' or states.light.tvsone.state == 'unavailable'}}
+          {{states('light.tvsone') == 'unknown' or states('light.tvsone') == 'unavailable'}}
 
 automation:
   - alias: "Z2mDeviceUnavailable"
@@ -31,7 +31,7 @@ automation:
         entity_id: binary_sensor.z2m_devices_unavailable
         to: "on"
     action:
-      - service: script.telegram_notify
+      - action: script.telegram_notify
         data:
           message: >-
             Zigbee Device unavailable?:  
@@ -52,11 +52,11 @@ automation:
         entity_id: binary_sensor.z2m_lights_unavailable
         to: "on"
     action:
-      - service: script.telegram_notify
+      - action: script.telegram_notify
         data:
           message: >-
             Zigbee Lights unavailable?
-      - service: hassio.addon_restart
+      - action: hassio.addon_restart
         data:
           addon: "45df7312_zigbee2mqtt"
       #todo wait for trigger to on again

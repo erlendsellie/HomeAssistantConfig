@@ -130,7 +130,7 @@ automation:
           left_slow: "dial_rotate_left_slow"
           right_fast: "dial_rotate_right_fast"
           left_fast: "dial_rotate_left_fast"
-          entity: light.{{states.input_select.stua_tapdial.state}}
+          entity: light.{{states('input_select.stua_tapdial')}}
       - condition: template
         value_template: "{{ entity != 'light.media_volume'}}"
       - choose:
@@ -209,7 +209,7 @@ automation:
           left_slow: "dial_rotate_left_slow"
           right_fast: "dial_rotate_right_fast"
           left_fast: "dial_rotate_left_fast"
-          entity: light.{{states.input_select.stua_tapdial.state}}
+          entity: light.{{states('input_select.stua_tapdial')}}
       - condition: template
         value_template: "{{ entity == 'light.media_volume'}}"
       - choose:

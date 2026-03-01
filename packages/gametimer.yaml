@@ -11,11 +11,11 @@ automation:
       - service: input_number.set_value
         data:
           entity_id: input_number.gametimer1
-          value: "{{ states.input_number.gametimer1.state | int(default=0) + states.sensor.gametemp.state | int(default=0) }}"
+          value: "{{ states('input_number.gametimer1') | int(default=0) + states('sensor.gametemp') | int(default=0) }}"
     # - service: input_number.set_value
     #   data:
     #     entity_id: input_number.gametimer2
-    #     value: '{{ states.input_number.gametimer2.state | int(default=0) + states.sensor.ute_temperature.state | int(default=0) }}'
+    #     value: '{{ states('input_number.gametimer2') | int(default=0) + states('sensor.ute_temperature') | int(default=0) }}'
 
   - alias: GameTimerNotify1
     trigger:
@@ -28,7 +28,7 @@ automation:
     action:
       - service: script.telegram_notify
         data:
-          message: "Mørningstimer er ferdig! Nåværende døgngrader er {{((states.input_number.gametimer1.state | int(default=0) / 24)) | round(1)}}"
+          message: "Mørningstimer er ferdig! Nåværende døgngrader er {{((states('input_number.gametimer1') | int(default=0) / 24)) | round(1)}}"
 
   - alias: GarageCold
     trigger:
@@ -42,7 +42,7 @@ automation:
     action:
       - service: script.telegram_notify
         data:
-          message: "Mørningstemperaturen er under null grader, mens vilt henger til mørning. Temp nå: {{states.sensor.gametemp.state}}"
+          message: "Mørningstemperaturen er under null grader, mens vilt henger til mørning. Temp nå: {{states('sensor.gametemp')}}"
 
 script:
   resetgametimer1:
@@ -90,7 +90,7 @@ template:
         unique_id: dogngrader1_sensor
         unit_of_measurement: "Døgngrader"
         state: >
-          {{((states.input_number.gametimer1.state | int(default=0) / 24)) | round(1)}}
+          {{((states('input_number.gametimer1') | int(default=0) / 24)) | round(1)}}
 
       - name: "gametemp"
         unique_id: gametemp_sensor
@@ -114,7 +114,7 @@ template:
       - name: "huntingseason"
         unique_id: huntingseason_sensor
         state: >
-          {{states.sensor.date_time.state.split('-')[1] | int(default=0) > 7 or states.sensor.date_time.state.split('-')[1] | int(default=0) < 3}}
+          {{states('sensor.date_time').split('-')[1] | int(default=0) > 7 or states('sensor.date_time').split('-')[1] | int(default=0) < 3}}
 
 input_select:
   gametemp:

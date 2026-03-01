@@ -23,8 +23,8 @@ automation:
   #   trigger:
   #     - platform: template
   #       value_template: >-
-  #         {{(states.climate.toilet_heater.attributes.current_temperature -
-  #         states.climate.toilet_heater.attributes.temperature)
+  #         {{(state_attr('climate.toilet_heater', 'current_temperature') -
+  #         state_attr('climate.toilet_heater', 'temperature'))
   #         > 2}}
   #   action:
   #     - service: switch.turn_off
@@ -49,8 +49,8 @@ automation:
   #         minutes: 10
   #     - platform: template
   #       value_template: >-
-  #         {{(states.climate.toilet_heater.attributes.current_temperature -
-  #           states.input_number.hjemmetemp.state | float)
+  #         {{(state_attr('climate.toilet_heater', 'current_temperature') -
+  #           states('input_number.hjemmetemp') | float)
   #         > 2}}
   #       for:
   #         hours: 2
@@ -62,7 +62,7 @@ automation:
   #       data:
   #         variables:
   #           title: "Advarsel"
-  #           message: " Temperaturen på toalettet er {{states.climate.toilet_heater.attributes.current_temperature}}"
+  #           message: " Temperaturen på toalettet er {{state_attr('climate.toilet_heater', 'current_temperature')}}"
 # template:
 #   - sensor:
 #       - name: "toilet_climate_temp"
@@ -70,6 +70,6 @@ automation:
 #         state: >-
 #           {{max
 #             ([
-#               states.sensor.motion_toilet_temperature.state | float(default=16),
-#               states.sensor.toilet_temp.state | float(default=16)
+#               states('sensor.motion_toilet_temperature') | float(default=16),
+#               states('sensor.toilet_temp') | float(default=16)
 #             ])}}

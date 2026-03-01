@@ -19,7 +19,7 @@ template:
   # - binary_sensor:
   #     - name: "Is Price Under Subsidy"
   #       state: >-
-  #         {%set price = (states.sensor.priceanalyzer.attributes.current_hour.value | float(default=0)) * 100%}
+  #         {%set price = (state_attr('sensor.priceanalyzer', 'current_hour').value | float(default=0)) * 100%}
   #         {%set subsidy = states('sensor.estimated_subsidy_for_month') | float(default=0) %}
   #         {{price < subsidy}}
   - sensor:
@@ -74,8 +74,8 @@ template:
           {{subsidy * 100| round(2)}}
         attributes:
           raw_today: >-
-            {%set hours = states.sensor.nordpool.attributes.raw_today%}
-            {%set subsidy = states.sensor.subsidy_ore.state | float(default=0)%}
+            {%set hours = state_attr('sensor.nordpool', 'raw_today')%}
+            {%set subsidy = states('sensor.subsidy_ore') | float(default=0)%}
             {%for hour in hours%}
             {{hour.value | float * 100 - subsidy}}
             {%endfor%}
@@ -128,11 +128,11 @@ template:
       - name: "Estimated Subsidy For Month"
         unit_of_measurement: "Øre"
         state: >-
-          {%set averge_price = states.sensor.monthly_avg_price_sivert_thonstads_vei_6.state | float(default=2.5) * 100%}
+          {%set averge_price = states('sensor.monthly_avg_price_sivert_thonstads_vei_6') | float(default=2.5) * 100%}
           {%set day_now = now().day%}
           {%set total_days = (now().replace(month=now().month % 12 + 1, day=1) - timedelta(days=1)).day %}
           {%set days_left = total_days - day_now %}
-          {%set averge_rest_of_month = states.input_number.average_price_rest_of_month.state | float(default=50)%}
+          {%set averge_rest_of_month = states('input_number.average_price_rest_of_month') | float(default=50)%}
           {{(((((averge_price * day_now) + (averge_rest_of_month * days_left)) / total_days) - 87.5) * 0.9) | round(2)}}
 
 # sensor:

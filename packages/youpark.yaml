@@ -19,12 +19,12 @@ automation:
         hours: "/4"
     condition:
       - condition: template
-        value_template: "{{  states.sensor.you_park_tesla.state != 'unavailable' }}"
+        value_template: "{{  states('sensor.you_park_tesla') != 'unavailable' }}"
     action:
       - service: notify.mobile_app_erlend_mobil
         data:
           title: "Betal parkering!"
-          message: "Ubetalt passering på Tesla. Dato: {{states.sensor.you_park_tesla.state}}"
+          message: "Ubetalt passering på Tesla. Dato: {{states('sensor.you_park_tesla')}}"
           data:
             clickAction: "https://www.youpark.no/payment/EN52492/1"
             ttl: 0
@@ -37,12 +37,12 @@ automation:
         hours: "/4"
     condition:
       - condition: template
-        value_template: "{{  states.sensor.you_park_golf.state != 'unavailable' }}"
+        value_template: "{{  states('sensor.you_park_golf') != 'unavailable' }}"
     action:
       - service: notify.mobile_app_erlend_mobil
         data:
           title: "Betal parkering!"
-          message: "Ubetalt passering på golf. Dato: {{states.sensor.you_park_golf.state}}"
+          message: "Ubetalt passering på golf. Dato: {{states('sensor.you_park_golf')}}"
           data:
             clickAction: "https://www.youpark.no/payment/EB31893/1"
             ttl: 0

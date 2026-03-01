@@ -26,7 +26,7 @@ automation:
       platform: homeassistant
       event: start
     action:
-      service: frontend.set_theme
+      action: frontend.set_theme
       data:
         #name: "Fluent Slate"
         name: "Catppuccin Mocha"
@@ -43,7 +43,7 @@ automation:
     action:
       - service: script.telegram_notify
         data:
-          message: "Restarted Home Assistant due to high Memory Usage at {{states.sensor.memory_use_percent.state}}"
+          message: "Restarted Home Assistant due to high Memory Usage at {{states('sensor.memory_use_percent')}}"
       - service: homeassistant.restart
 
   - alias: NotifyLowDiskSpace
@@ -54,7 +54,7 @@ automation:
     action:
       - service: script.telegram_notify
         data:
-          message: "Disk usage of Ubuntu VM is at {{states.sensor.disk_use_percent.state}}"
+          message: "Disk usage of Ubuntu VM is at {{states('sensor.disk_use_percent')}}"
 
   - alias: NotifySlowNetwork
     trigger:
@@ -64,7 +64,7 @@ automation:
     action:
       - service: script.telegram_notify
         data:
-          message: "The last Speedtest had a download speed of {{states.sensor.speedtest_download.state}}"
+          message: "The last Speedtest had a download speed of {{states('sensor.speedtest_download')}}"
 
   - alias: NotifyDoorBellLow
     trigger:
@@ -78,7 +78,7 @@ automation:
     action:
       - service: script.telegram_notify
         data:
-          message: "The Door bell battery is getting low: {{states.sensor.front_door_battery.state}}"
+          message: "The Door bell battery is getting low: {{states('sensor.front_door_battery')}}"
 
   - alias: NotifyImportantDevicesDown
     trigger:
@@ -228,7 +228,7 @@ automation:
   #   mode: single
   #   trigger:
   #     - platform: template
-  #       value_template: "{{states.binary_sensor.google_wifi_connected.state != 'on' and states.binary_sensor.google_wifi_connected.state != 'off'}}"
+  #       value_template: "{{states('binary_sensor.google_wifi_connected') != 'on' and states('binary_sensor.google_wifi_connected') != 'off'}}"
   #       for:
   #         minutes: 5
   #   action:
@@ -237,7 +237,7 @@ automation:
   #         message: "Google Wifi seems to be down. Try https://1q4u4bxleoi6poeenew920ecy5g1z4te.ui.nabu.casa"
   #     - wait_for_trigger:
   #         - platform: template
-  #           value_template: "{{states.binary_sensor.google_wifi_connected.state == 'on' or states.binary_sensor.google_wifi_connected.state == 'off'}}"
+  #           value_template: "{{states('binary_sensor.google_wifi_connected') == 'on' or states('binary_sensor.google_wifi_connected') == 'off'}}"
   #       timeout: "10:00:00"
   #       continue_on_timeout: false
   #     - service: script.telegram_notify
@@ -248,7 +248,7 @@ automation:
     mode: single
     trigger:
       - platform: template
-        value_template: "{{states.light.hallway.state != 'on' and states.light.hallway.state != 'off'}}"
+        value_template: "{{states('light.hallway') != 'on' and states('light.hallway') != 'off'}}"
         for:
           minutes: 15
     action:
@@ -263,7 +263,7 @@ automation:
           addon: addon_a0d7b954_zwavejs2mqtt
       - wait_for_trigger:
           - platform: template
-            value_template: "{{states.light.hallway.state == 'on' or states.light.hallway.state == 'off'}}"
+            value_template: "{{states('light.hallway') == 'on' or states('light.hallway') == 'off'}}"
             for:
               minutes: 2
         timeout: "03:00:00"
@@ -331,7 +331,7 @@ automation:
   #     - delay:
   #         seconds: 10
   #     - condition: template
-  #       value_template: "{{states.switch.bathroom_fan.state == 'off'}}"
+  #       value_template: "{{states('switch.bathroom_fan') == 'off'}}"
   #     - service: script.telegram_notify
   #       data:
   #         message: "The MQTT network seems to be down"
@@ -360,7 +360,7 @@ automation:
       - service: script.telegram_notify
         data:
           title: Home Asistant started
-          message: "{{ states.input_select.alarm.state }}"
+          message: "{{ states('input_select.alarm') }}"
 
   - alias: NotifyAlarmState
     trigger:
@@ -370,7 +370,7 @@ automation:
       - service: script.telegram_notify
         data:
           title: "Alarm:"
-          message: "{{ states.input_select.alarm.state }}"
+          message: "{{ states('input_select.alarm') }}"
 
   - alias: NotifyVVBOffLong
     trigger:
@@ -498,7 +498,7 @@ script:
     sequence:
       - variables:
           washer_emptied: >-
-            {% if states.input_boolean.washer_emptied.state == 'on' %}
+            {% if states('input_boolean.washer_emptied') == 'on' %}
             input_boolean.turn_on
             {% else %}
             input_boolean.turn_off

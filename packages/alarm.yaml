@@ -3,18 +3,18 @@ template:
       - name: "alarm"
         unique_id: alarm_sensor
         state: >
-          {% if states.binary_sensor.erlendhome.state == 'on' or states.binary_sensor.carolinehome.state == 'on' or states.group.people.state == 'home' %}
-            {% if (states.input_boolean.easleep.state == 'on' or states.binary_sensor.erlendhome.state == 'off')
+          {% if states('binary_sensor.erlendhome') == 'on' or states('binary_sensor.carolinehome') == 'on' or states('group.people') == 'home' %}
+            {% if (states('input_boolean.easleep') == 'on' or states('binary_sensor.erlendhome') == 'off')
                 and 
-                (states.input_boolean.casleep.state == 'on' or states.binary_sensor.carolinehome.state == 'off')
+                (states('input_boolean.casleep') == 'on' or states('binary_sensor.carolinehome') == 'off')
                 and 
-                (states.binary_sensor.erlendhome.state == 'on' or states.binary_sensor.carolinehome.state == 'on')  %}
+                (states('binary_sensor.erlendhome') == 'on' or states('binary_sensor.carolinehome') == 'on')  %}
               Arm Home
             {% elif 
-            (states.binary_sensor.erlendhome.state == 'off' and states.binary_sensor.carolinehome.state == 'off')
+            (states('binary_sensor.erlendhome') == 'off' and states('binary_sensor.carolinehome') == 'off')
               and
-              states.device_tracker.stian.state == 'home'
-              and states.input_boolean.stianasleep.state == 'on'
+              states('device_tracker.stian') == 'home'
+              and states('input_boolean.stianasleep') == 'on'
             %}
               Arm Home
             {% else %}
@@ -26,7 +26,7 @@ template:
 
       - name: "unlockedby"
         unique_id: unlockedby_sensor
-        state: "{{ states.lock.ytterdor.attributes.changed_by }}"
+        state: "{{ state_attr('lock.ytterdor', 'changed_by') }}"
 
 input_datetime:
   lock_glitch_last_notification:
@@ -90,7 +90,7 @@ automation:
           - service: input_select.select_option
             data:
               entity_id: input_select.alarm
-              option: "{{ states.sensor.alarm.state }}"
+              option: "{{ states('sensor.alarm') }}"
 
   - alias: RequestLocation
     trigger:
@@ -109,7 +109,7 @@ automation:
   #       above: 0
   #   # condition:
   #   #   - condition: template
-  #   #     value_template: "{{ states.person.erlend.state  != 'home'}}"
+  #   #     value_template: "{{ states('person.erlend')  != 'home'}}"
   #   action:
   #     - service: notify.mobile_app_erlend_mobil
   #       data:
@@ -138,7 +138,7 @@ automation:
   #     title: Motion
   #     message: Motion
   #     data:
-  #       image: https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}
+  #       image: https://hjem.sellie.no{{state_attr('camera.driveway', 'entity_picture')}}
 
   # - service: script.turn_on
   #   entity_id: script.sendvideodriveway
@@ -180,7 +180,7 @@ automation:
   #   #     title: Motion
   #   #     message: Motion
   #   #     data:
-  #   #       image: https://hjem.sellie.no{{states.camera.driveway.attributes.entity_picture}}
+  #   #       image: https://hjem.sellie.no{{state_attr('camera.driveway', 'entity_picture')}}
 
   - alias: SnapShotMeraker
     trigger:
@@ -516,10 +516,10 @@ automation:
           entity_id: script.lockdoor
       - target:
           entity_id: script.alllightsoff
-        service: script.turn_on
+        action: script.turn_on
       - target:
           entity_id: script.alllightsoff
-        service: script.turn_on
+        action: script.turn_on
       - service: media_player.turn_off
         target:
           entity_id: media_player.tv_stua
@@ -598,7 +598,7 @@ automation:
           minutes: 30
     #condition:
     # - condition: template
-    #   value_template: "{{ states.input_select.alarm.state != 'Arm Home' }}"
+    #   value_template: "{{ states('input_select.alarm') != 'Arm Home' }}"
     action:
       - service: script.telegram_notify
         data:
@@ -641,20 +641,20 @@ automation:
     # - condition: template
     #   value_template: >-
     #       {%-set alarmNotJustSet = (((as_timestamp(utcnow()) - as_timestamp(states.sensor.alarm.last_changed, default=0)) / 60) | round(0)) > 4 -%}
-    #       {%-set notDisarmedAndGarageClosed = states.input_select.alarm.state != 'Disarm' and states.cover.garage_door.state == 'closed' -%}
-    #       {%-set notmotionvindfang = states.binary_sensor.motion_vindfang.state == 'off' -%}
+    #       {%-set notDisarmedAndGarageClosed = states('input_select.alarm') != 'Disarm' and states('cover.garage_door') == 'closed' -%}
+    #       {%-set notmotionvindfang = states('binary_sensor.motion_vindfang') == 'off' -%}
     #       {{alarmNotJustSet and notDisarmedAndGarageClosed and notmotionvindfang}}
     action:
       - condition: template
-        value_template: "{{states.sensor.alarm.state == 'Arm Away' and states.input_boolean.guestmode.state == 'off'}}"
+        value_template: "{{states('sensor.alarm') == 'Arm Away' and states('input_boolean.guestmode') == 'off'}}"
       - service: input_select.select_option
         data:
           entity_id: input_select.alarm
-          option: "{{states.sensor.alarm.state}}"
+          option: "{{states('sensor.alarm')}}"
       - service: script.telegram_security_notify
         data:
           title: "Arm away by door lock"
-          message: "The door was locked by {{states.sensor.unlockedby.state}}. The alarm is {{states.input_select.alarm.state}} and the time is {{ now().hour }}:{{ now().minute }}."
+          message: "The door was locked by {{states('sensor.unlockedby')}}. The alarm is {{states('input_select.alarm')}} and the time is {{ now().hour }}:{{ now().minute }}."
 
   - alias: disarmByDoor
     trigger:
@@ -672,12 +672,12 @@ automation:
     # - condition: template
     #   value_template: >-
     #       {%-set alarmNotJustSet = (((as_timestamp(utcnow()) - as_timestamp(states.sensor.alarm.last_changed, default=0)) / 60) | round(0)) > 4 -%}
-    #       {%-set notDisarmedAndGarageClosed = states.input_select.alarm.state != 'Disarm' and states.cover.garage_door.state == 'closed' -%}
-    #       {%-set notmotionvindfang = states.binary_sensor.motion_vindfang.state == 'off' -%}
+    #       {%-set notDisarmedAndGarageClosed = states('input_select.alarm') != 'Disarm' and states('cover.garage_door') == 'closed' -%}
+    #       {%-set notmotionvindfang = states('binary_sensor.motion_vindfang') == 'off' -%}
     #       {{alarmNotJustSet and notDisarmedAndGarageClosed and notmotionvindfang}}
     action:
       - condition: template
-        value_template: "{{states.lock.ytterdor_bluetooth.state == 'unlocked'}}"
+        value_template: "{{states('lock.ytterdor_bluetooth') == 'unlocked'}}"
       - choose:
           - conditions:
               - condition: template
@@ -705,11 +705,11 @@ automation:
       #   data:
       #     rgb_color: [0, 255, 0]
       - condition: template
-        value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
+        value_template: "{{ states('input_select.alarm') != 'Disarm' }}"
       - service: script.telegram_security_notify
         data:
           title: "door unlocked"
-          message: "The door was unlocked by {{states.sensor.unlockedby.state}}. The alarm is {{states.input_select.alarm.state}} and the time is {{ now().hour }}:{{ now().minute }}."
+          message: "The door was unlocked by {{states('sensor.unlockedby')}}. The alarm is {{states('input_select.alarm')}} and the time is {{ now().hour }}:{{ now().minute }}."
       # - service: script.telegram_notify
       #   data:
       #     title: 'door unlocked'
@@ -752,7 +752,7 @@ automation:
       - service: input_select.select_option
         data:
           entity_id: input_select.alarm
-          option: "{{states.sensor.alarm.state}}"
+          option: "{{states('sensor.alarm')}}"
   # - id: disarm
   #   alias: disarm
   #   condition:
@@ -764,7 +764,7 @@ automation:
   #       entity_id: group.people
   #       state: 'home'
   #     - condition: template
-  #       value_template:   "{{ (states.input_boolean.easleep.state == off) or (states.input_boolean.casleep.state == off)}}"
+  #       value_template:   "{{ (states('input_boolean.easleep') == off) or (states('input_boolean.casleep') == off)}}"
   #     # condition: or
   #     # conditions:
   #     # #This is not true
@@ -797,9 +797,9 @@ automation:
   #     #     entity_id: group.people
   #     #     state: 'home'
   #     # - condition: template
-  #     #   value_template:   "{{ (states.input_boolean.easleep.state == off) and (states.input_boolean.casleep.state == off)}}"
+  #     #   value_template:   "{{ (states('input_boolean.easleep') == off) and (states('input_boolean.casleep') == off)}}"
   #     # # - condition: template
-  #     # #   value_template: "{{ states.input_select.alarm.state != 'Arm Away' }}"
+  #     # #   value_template: "{{ states('input_select.alarm') != 'Arm Away' }}"
   #   trigger:
   #   - platform: state
   #     entity_id: binary_sensor.erlendhome
@@ -826,7 +826,7 @@ automation:
   #   #   to: 'unlocked'
   #   action:
   #   - condition: template
-  #     value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
+  #     value_template: "{{ states('input_select.alarm') != 'Disarm' }}"
   #   - service: input_select.select_option
   #     data:
   #       entity_id: input_select.alarm
@@ -896,7 +896,7 @@ automation:
           entity_id: input_select.alarm
           state: "Arm Home"
         - condition: template
-          value_template: "{{ states.vacuum.xiaomi_vacuum_cleaner.state != 'Cleaning' }}"
+          value_template: "{{ states('vacuum.xiaomi_vacuum_cleaner') != 'Cleaning' }}"
     action:
       - service: media_player.volume_set
         data:
@@ -912,7 +912,7 @@ automation:
       - service: media_player.volume_set
         data:
           entity_id: media_player.minis
-          volume_level: "{{states.sensor.speakervolume.state}}"
+          volume_level: "{{states('sensor.speakervolume')}}"
   #####
   ###  Custom Alarm
   ####
@@ -935,7 +935,7 @@ automation:
           entity_id: alarm_control_panel.home_alarm
           state: "armed_away"
     action:
-      service: alarm_control_panel.alarm_trigger
+      action: alarm_control_panel.alarm_trigger
       entity_id: alarm_control_panel.home_alarm
 
   #This will sound the alarm when the alarm is Armed Away.
@@ -1017,7 +1017,7 @@ automation:
     action:
       - variables:
           triggered_sensors: >-
-            {%- for entity_id in states.group.awaysensors.attributes.entity_id -%}
+            {%- for entity_id in state_attr('group.awaysensors', 'entity_id') -%}
               {%- set entity = states[entity_id] -%}
               {%- if entity.state == 'on' -%}
                 {{ entity.attributes.friendly_name }}, 
@@ -1178,7 +1178,7 @@ automation:
     alias: varsleOmÅpenDørNårDetBlirLåst
     trigger:
       - platform: template
-        value_template: "{{states.input_select.alarm.state != 'Disarm'}}"
+        value_template: "{{states('input_select.alarm') != 'Disarm'}}"
     condition:
       condition: state
       entity_id: group.nightsensors
@@ -1191,7 +1191,7 @@ automation:
           variables:
             title: Ytterdører er åpne!
             message: >-
-              {% for entity_id in states.group.nightsensors.attributes.entity_id %}
+              {% for entity_id in state_attr('group.nightsensors', 'entity_id') %}
               {%set state = states[entity_id] %}
                 {% if state.state == 'on' %}
                   - {{state.attributes.friendly_name}} \n
@@ -1204,7 +1204,7 @@ automation:
           variables:
             message: >-
               Ytterdører er åpne: 
-              {% for entity_id in states.group.nightsensors.attributes.entity_id %}
+              {% for entity_id in state_attr('group.nightsensors', 'entity_id') %}
               {%set state = states[entity_id] %}
                 {% if state.state == 'on' %}
                   {{state.attributes.friendly_name}} ,
@@ -1232,10 +1232,10 @@ automation:
           minutes: 10
         value_template: >-
           {{ 
-             states.binary_sensor.veranda.state == 'on' 
+             states('binary_sensor.veranda') == 'on' 
           }}
     condition:
-      #and states.sensor.ute_temperature.state | float < 5
+      #and states('sensor.ute_temperature') | float < 5
       - condition: state
         entity_id: binary_sensor.veranda
         state: "on"
@@ -1348,7 +1348,7 @@ script:
     sequence:
       - variables:
           triggered_sensors: >-
-            {%- for entity_id in states.group.awaysensors.attributes.entity_id -%}
+            {%- for entity_id in state_attr('group.awaysensors', 'entity_id') -%}
               {%- set entity = states[entity_id] -%}
               {%- if entity.state == 'on' -%}
                 {{ entity.attributes.friendly_name }}, 

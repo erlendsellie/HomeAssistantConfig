@@ -20,7 +20,7 @@ automation:
     trigger:
       platform: template
       value_template: >-
-        {%-set nextAlarm = states.sensor.erlend_mobil_next_alarm.state -%}
+        {%-set nextAlarm = states('sensor.erlend_mobil_next_alarm') -%}
         {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
         {{(nextAlarmAsTimestamp - as_timestamp(utcnow())) < 10}}
     condition:
@@ -59,7 +59,7 @@ automation:
     trigger:
       platform: template
       value_template: >-
-        {%-set nextAlarm = states.sensor.erlend_mobil_next_alarm.state -%}
+        {%-set nextAlarm = states('sensor.erlend_mobil_next_alarm') -%}
         {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
         {%-set minutesBefore = 10 -%}
         {{(nextAlarmAsTimestamp - as_timestamp(utcnow()) < (60 * minutesBefore))}}
@@ -219,7 +219,7 @@ script:
       - service: media_player.play_media
         data:
           entity_id: media_player.clock
-          #media_content_id: "{{states.sensor.podcast_smartere_paa.state}}"
+          #media_content_id: "{{states('sensor.podcast_smartere_paa')}}"
           media_content_id: "https://p4.p4groupaudio.com/P04_MH"
           media_content_type: "music"
       - service: media_player.volume_set
@@ -229,7 +229,7 @@ script:
       # - service: media_player.play_media
       #   entity_id: media_player.clock
       #   data:
-      #     media_content_id: "{{states.sensor.podcast_smartere_paa.state}}"
+      #     media_content_id: "{{states('sensor.podcast_smartere_paa')}}"
       #     media_content_type: music
   wakeupai:
     sequence:
@@ -237,7 +237,7 @@ script:
         target:
           entity_id: input_boolean.waking_up
       - variables:
-          nextAlarm: "{{ states.sensor.erlend_mobil_next_alarm.state }}"
+          nextAlarm: "{{ states('sensor.erlend_mobil_next_alarm') }}"
       - repeat:
           while:
             - condition: state
@@ -286,8 +286,8 @@ script:
                       {%-set relativeAlarm = relativeAlarm * -1 | round (0) %}
                       Alarmen ringte for {{relativeAlarm}} minutter siden.
                       {%-endif %}
-                      Været er {{vær}}, og temperaturen ute er {{states.sensor.ute_temperature.state}}
-                      Neste ting i kalenderen er: {{states.calendar.arbeid.attributes.message}}
+                      Været er {{vær}}, og temperaturen ute er {{states('sensor.ute_temperature')}}
+                      Neste ting i kalenderen er: {{state_attr('calendar.arbeid', 'message')}}
                 - delay:
                     seconds: 10
                 - service: light.turn_off

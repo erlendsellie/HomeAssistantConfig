@@ -7,7 +7,7 @@
 #       - service: input_number.set_value
 #         data:
 #           entity_id: input_number.costyesterday
-#           value: '{{ states.sensor.daily_cost_vaskemaskin.state | float(default=0)+ states.input_number.running_cost_vaskemaskin.state | float(default=0)}}'
+#           value: '{{ states('sensor.daily_cost_vaskemaskin') | float(default=0)+ states('input_number.running_cost_vaskemaskin') | float(default=0)}}'
 
 
 #   input_number:
@@ -25,4 +25,4 @@
 #         running_cost_vaskemaskin:
 #           unit_of_measurement: 'running_cost_vaskemaskin'
 #           value_template: >
-#             {{states.input_number.running_cost_vaskemaskin.state | float}}
+#             {{states('input_number.running_cost_vaskemaskin') | float}}

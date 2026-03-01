@@ -16,7 +16,7 @@ template:
             or states('media_player.bathroom') in ['playing', 'buffering', 'paused']
           }}
 
-    # or states.media_player.kitchen_display.state in ['playing', 'buffering', 'paused']
+    # or states('media_player.kitchen_display') in ['playing', 'buffering', 'paused']
 
 input_text:
   openai:
@@ -49,27 +49,27 @@ automation:
       - service: media_player.volume_set
         data:
           entity_id: media_player.minis
-          volume_level: "{{max(states.sensor.speakervolume.state | float(default=0.1),0)}}"
+          volume_level: "{{max(states('sensor.speakervolume') | float(default=0.1),0)}}"
       - service: media_player.volume_set
         data:
           entity_id: media_player.hallway_speaker
-          volume_level: "{{max(states.sensor.speakervolume.state | float(default=0.1),0)}}"
+          volume_level: "{{max(states('sensor.speakervolume') | float(default=0.1),0)}}"
       - service: media_player.volume_set
         data:
           entity_id: media_player.living_room_speaker
-          volume_level: "{{max(states.sensor.speakervolume.state | float(default=0.5) - 0.1,0)}}"
+          volume_level: "{{max(states('sensor.speakervolume') | float(default=0.5) - 0.1,0)}}"
       - service: media_player.volume_set
         data:
           entity_id: media_player.minis
-          volume_level: "{{max(states.sensor.speakervolume.state | float(default=0.1),0)}} "
+          volume_level: "{{max(states('sensor.speakervolume') | float(default=0.1),0)}} "
       - service: media_player.volume_set
         data:
           entity_id: media_player.hallway_speaker
-          volume_level: "{{max(states.sensor.speakervolume.state | float(default=0.1),0)}}"
+          volume_level: "{{max(states('sensor.speakervolume') | float(default=0.1),0)}}"
       - service: media_player.volume_set
         data:
           entity_id: media_player.living_room_speaker
-          volume_level: "{{max(states.sensor.speakervolume.state | float(default=0.2)- 0.1,0)}}"
+          volume_level: "{{max(states('sensor.speakervolume') | float(default=0.2)- 0.1,0)}}"
 
         #### Media for door sensors
   - id: PlayMediaWhenDoorOpens
@@ -93,11 +93,11 @@ automation:
       - service: media_player.volume_set
         data:
           entity_id: media_player.hallway_speaker
-          volume_level: "{{states.sensor.speakervolume.state | float(default=0)- 0.1}}"
+          volume_level: "{{states('sensor.speakervolume') | float(default=0)- 0.1}}"
       - service: media_player.volume_set
         data:
           entity_id: media_player.living_room_speaker
-          volume_level: "{{states.sensor.speakervolume.state | float(default=0)- 0.2}}"
+          volume_level: "{{states('sensor.speakervolume') | float(default=0)- 0.2}}"
       - service: media_player.play_media
         data:
           entity_id: media_player.minis
@@ -133,11 +133,11 @@ automation:
       - service: media_player.volume_set
         data:
           entity_id: media_player.hallway_speaker
-          volume_level: "{{states.sensor.speakervolume.state | float}}"
+          volume_level: "{{states('sensor.speakervolume') | float}}"
       - service: media_player.volume_set
         data:
           entity_id: media_player.living_room_speaker
-          volume_level: "{{states.sensor.speakervolume.state | float}}"
+          volume_level: "{{states('sensor.speakervolume') | float}}"
       - service: media_player.play_media
         data:
           entity_id: media_player.minis
@@ -150,7 +150,7 @@ automation:
       - service: media_player.volume_set
         data:
           entity_id: media_player.minis
-          volume_level: "{{states.sensor.speakervolume.state}}"
+          volume_level: "{{states('sensor.speakervolume')}}"
           #### Media for door sensors
 
   - alias: PlayMediaWhenVerandaOpenWhenCold
@@ -213,7 +213,7 @@ automation:
       - service: media_player.volume_set
         data:
           entity_id: media_player.minis
-          volume_level: "{{max(states.sensor.speakervolume.state | float(default=0)+ 0.1,0)}}"
+          volume_level: "{{max(states('sensor.speakervolume') | float(default=0)+ 0.1,0)}}"
       - service: media_player.play_media
         data:
           entity_id: media_player.minis
@@ -228,7 +228,7 @@ automation:
       - service: media_player.volume_set
         data:
           entity_id: media_player.minis
-          volume_level: "{{states.sensor.speakervolume.state}}"
+          volume_level: "{{states('sensor.speakervolume')}}"
       - delay:
           minutes: 3
 
@@ -240,7 +240,7 @@ automation:
         to: "on"
     condition:
       - condition: template
-        value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
+        value_template: "{{ states('input_select.alarm')  != 'Disarm'}}"
     action:
       # - service: script.telegram_notify
       #   data:
@@ -394,7 +394,7 @@ automation:
           - service: media_player.volume_set
             data:
               entity_id: media_player.minis
-              volume_level: "{{states.sensor.speakervolume.state}}"
+              volume_level: "{{states('sensor.speakervolume')}}"
           - delay:
               minutes: 4
 
@@ -435,7 +435,7 @@ automation:
   #     - service: media_player.volume_set
   #       data:
   #         entity_id: media_player.minis
-  #         volume_level: "{{states.sensor.speakervolume.state}}"
+  #         volume_level: "{{states('sensor.speakervolume')}}"
 
   - alias: GrindOppeOpenFor5minutes
     trigger:
@@ -463,7 +463,7 @@ automation:
           - service: media_player.volume_set
             data:
               entity_id: media_player.minis
-              volume_level: "{{states.sensor.speakervolume.state}}"
+              volume_level: "{{states('sensor.speakervolume')}}"
           - service: media_player.play_media
             data:
               entity_id: media_player.minis
@@ -514,7 +514,7 @@ automation:
       - service: media_player.volume_set
         data:
           entity_id: media_player.minis
-          volume_level: "{{states.sensor.speakervolume.state}}"
+          volume_level: "{{states('sensor.speakervolume')}}"
       - service: media_player.play_media
         data:
           entity_id: media_player.minis
@@ -551,7 +551,7 @@ automation:
       from: "cleaning"
     condition:
       - condition: template
-        value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
+        value_template: "{{ states('input_select.alarm') != 'Disarm' }}"
     action:
       - service: script.telegram_notify
         data:
@@ -585,13 +585,13 @@ automation:
     action:
       - service: script.telegram_notify
         data:
-          message: "Bonsai vil ha vann. Nåværende fuktighet er  {{ states.sensor.bonsai2_moisture.state }}"
+          message: "Bonsai vil ha vann. Nåværende fuktighet er  {{ states('sensor.bonsai2_moisture') }}"
       - service: script.turn_on
         target:
           entity_id: script.say
         data:
           variables:
-            message: "Bonsai vil ha vann. Nåværende fuktighet er  {{ states.sensor.bonsai2_moisture.state }}"
+            message: "Bonsai vil ha vann. Nåværende fuktighet er  {{ states('sensor.bonsai2_moisture') }}"
 
   - alias: "WaterAvocado"
     trigger:
@@ -608,12 +608,12 @@ automation:
       - service: script.telegram_notify
         data:
           title: "Eføy"
-          message: "Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.efoy_moisture.state }}"
+          message: "Eføy vil ha vann. Nåværende fuktighet er  {{ states('sensor.efoy_moisture') }}"
       - service: script.turn_on
         target:
           entity_id: script.playmessage
         data:
-          message: "Eføy vil ha vann. Nåværende fuktighet er  {{ states.sensor.efoy_moisture.state }}"
+          message: "Eføy vil ha vann. Nåværende fuktighet er  {{ states('sensor.efoy_moisture') }}"
 
   # - alias: 'WaterAvocado'
   #   trigger:
@@ -623,7 +623,7 @@ automation:
   #   action:
   #   - service: script.telegram_notify
   #     data:
-  #       message: 'Avocado needs attention: {{ states.plant.avocado.attributes.problem }}' #z2m-problem
+  #       message: 'Avocado needs attention: {{ state_attr('plant.avocado', 'problem') }}' #z2m-problem
   #   - service: media_player.volume_set
   #     data:
   #       entity_id: media_player.minis
@@ -649,7 +649,7 @@ automation:
     action:
       - service: script.telegram_notify
         data:
-          message: "Something is wrong with Svetlana. Error message: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.error }}"
+          message: "Something is wrong with Svetlana. Error message: {{ state_attr('vacuum.xiaomi_vacuum_cleaner', 'error') }}"
           data:
             inline_keyboard:
               - "Start:/startSvetlana, Dock:/dockSvetLana"
@@ -657,7 +657,7 @@ automation:
         value_template: "{{ states.media_player.tv_stua != 'off'}}"
       - service: notify.tv_stua
         data:
-          message: "Something is wrong with Svetlana. Error message: {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.error }}"
+          message: "Something is wrong with Svetlana. Error message: {{ state_attr('vacuum.xiaomi_vacuum_cleaner', 'error') }}"
       - delay:
           minutes: 30
 
@@ -742,7 +742,7 @@ automation:
             state: "off"
         sequence:
           # - condition: template
-          #   value_template: "{{ states.input_select.alarm.state == 'Disarm' }}"
+          #   value_template: "{{ states('input_select.alarm') == 'Disarm' }}"
           - service: script.turn_on
             target:
               entity_id: script.say
@@ -887,10 +887,10 @@ automation:
         after: "15:00:00"
         before: "18:00:00"
       # - condition: template
-      #   value_template: "{{  states.person.erlend.state == 'away' }}"
+      #   value_template: "{{  states('person.erlend') == 'away' }}"
     action:
       - condition: template
-        value_template: "{{  states.person.erlend.state == 'away' or states.person.erlend.state == 'CloseBy' }}"
+        value_template: "{{  states('person.erlend') == 'away' or states('person.erlend') == 'CloseBy' }}"
       # - wait_for_trigger:
       #   - platform: state
       #     entity_id: sensor.erlenddirection
@@ -901,7 +901,7 @@ automation:
       #   entity_id: sensor.erlend_to_home
       # - wait_for_trigger:
       #     - platform: template
-      #       value_template: "{{states.sensor.erlenddirection.state == 'towards'}}"
+      #       value_template: "{{states('sensor.erlenddirection') == 'towards'}}"
       #   timeout: "00:10:00"
       #   continue_on_timeout: false
       # - service: script.turn_on
@@ -913,7 +913,7 @@ automation:
           variables:
             message: >-
               {%-set last_change = ((as_timestamp(now()) - as_timestamp(states.sensor.erlend_to_home.last_changed))/60) | round(0) %}
-              'Pappa er på vei hjem, og er hjemme om ca {{states.sensor.erlend_to_home.state}} minutter'
+              'Pappa er på vei hjem, og er hjemme om ca {{states('sensor.erlend_to_home')}} minutter'
       - service: script.turn_on
         target:
           entity_id: script.blinkliving
@@ -973,7 +973,7 @@ automation:
   #       continue_on_timeout: false
   #     - service: script.telegram_notify
   #       data:
-  #         title: "left some place. ETA : {{ states.sensor.erlend_to_home.state	}} minutes"
+  #         title: "left some place. ETA : {{ states('sensor.erlend_to_home')	}} minutes"
   #         message: The time is {{ now().hour }}:{{ now().minute }}
   #     - service: script.turn_on
   #       entity_id: script.warmupcominghome
@@ -1015,7 +1015,7 @@ automation:
         target:
           entity_id: input_boolean.alarmclock
       - condition: template
-        value_template: "{{ states.person.caroline.state == 'Sykehuset' and states.input_boolean.tryminkindergarden.state == 'off'}}"
+        value_template: "{{ states('person.caroline') == 'Sykehuset' and states('input_boolean.tryminkindergarden') == 'off'}}"
       - service: script.telegram_notify
         data:
           title: Forgot kids? Caroline at work, but kids is not in kindergarden.
@@ -1049,7 +1049,7 @@ script:
     mode: queued
     sequence:
       - condition: template
-        value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+        value_template: "{{ states('input_select.alarm')  == 'Disarm'}}"
       - service: input_text.set_value
         target:
           entity_id: input_text.openaikitchen
@@ -1075,7 +1075,7 @@ script:
           variables:
             message: "{{message}}"
       # - condition: template
-      #   value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+      #   value_template: "{{ states('input_select.alarm')  == 'Disarm'}}"
       # - service: input_text.set_value
       #   entity_id: input_text.openai
       #   data:
@@ -1098,11 +1098,11 @@ script:
       - condition: template
         value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
       # - condition: template
-      #   value_template: "{{(states.media_player.kitchen_display.state != 'playing' and states.media_player.kitchen_display.state != 'playing') and (states.media_player.living_room_speaker.state != 'playing' and states.media_player.hallway_speaker.state != 'playing') and states.media_player.living_room_speaker.state != 'paused' and states.media_player.hallway_speaker.state != 'paused'}}"
+      #   value_template: "{{(states('media_player.kitchen_display') != 'playing' and states('media_player.kitchen_display') != 'playing') and (states('media_player.living_room_speaker') != 'playing' and states('media_player.hallway_speaker') != 'playing') and states('media_player.living_room_speaker') != 'paused' and states('media_player.hallway_speaker') != 'paused'}}"
       - service: media_player.volume_set
         data:
           entity_id: media_player.minis
-          volume_level: "{{states.sensor.speakervolume.state}}"
+          volume_level: "{{states('sensor.speakervolume')}}"
       - delay:
           seconds: 1
       - service: tts.speak
@@ -1125,14 +1125,14 @@ script:
     # - service: media_player.volume_set
     #   data:
     #     entity_id: media_player.minis
-    #     volume_level: "{{states.input_number.default_volume_level.state}}"
+    #     volume_level: "{{states('input_number.default_volume_level')}}"
 
   saybedroom:
     alias: Announcement over Google Homes Bedroom
     mode: queued
     sequence:
       - condition: template
-        value_template: "{{ (states.media_player.clock.state != 'playing' and states.media_player.clock.state != 'paused')}}"
+        value_template: "{{ (states('media_player.clock') != 'playing' and states('media_player.clock') != 'paused')}}"
       - service: media_player.volume_set
         data:
           entity_id: media_player.clock
@@ -1150,7 +1150,7 @@ script:
       - condition: template
         value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
       # - condition: template
-      #   value_template: "{{ (states.media_player.living_room_speaker.state != 'playing') and (states.media_player.kitchen_display.state != 'playing' and states.media_player.kitchen_display.state != 'playing')}}"
+      #   value_template: "{{ (states('media_player.living_room_speaker') != 'playing') and (states('media_player.kitchen_display') != 'playing' and states('media_player.kitchen_display') != 'playing')}}"
       - service: media_player.volume_set
         data:
           entity_id: media_player.hallway_speaker
@@ -1169,7 +1169,7 @@ script:
       - service: media_player.volume_set
         data:
           entity_id: media_player.minis
-          volume_level: "{{states.sensor.speakervolume.state}}"
+          volume_level: "{{states('sensor.speakervolume')}}"
 
   playmessageenglish:
     alias: Play Message English
@@ -1181,9 +1181,9 @@ script:
         value_template: "{{states('binary_sensor.google_home_playing') != 'on'}}"
 
       # - condition: template
-      #   value_template: "{{(states.media_player.kitchen_display.state != 'playing' and states.media_player.kitchen_display.state != 'playing') and (states.media_player.living_room_speaker.state != 'playing' and states.media_player.hallway_speaker.state != 'playing') and states.media_player.living_room_speaker.state != 'paused' and states.media_player.hallway_speaker.state != 'paused'}}"
+      #   value_template: "{{(states('media_player.kitchen_display') != 'playing' and states('media_player.kitchen_display') != 'playing') and (states('media_player.living_room_speaker') != 'playing' and states('media_player.hallway_speaker') != 'playing') and states('media_player.living_room_speaker') != 'paused' and states('media_player.hallway_speaker') != 'paused'}}"
       - condition: template
-        value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+        value_template: "{{ states('input_select.alarm')  == 'Disarm'}}"
       - service: media_player.volume_set
         data:
           entity_id: media_player.minis
@@ -1197,7 +1197,7 @@ script:
       - service: media_player.volume_set
         data:
           entity_id: media_player.minis
-          volume_level: "{{states.sensor.speakervolume.state}}"
+          volume_level: "{{states('sensor.speakervolume')}}"
 
   playmessage:
     alias: Play Message
@@ -1206,9 +1206,9 @@ script:
       #    entity_id: input_boolean.trymasleep
       #    state: 'off'
       - condition: template
-        value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+        value_template: "{{ states('input_select.alarm')  == 'Disarm'}}"
       - condition: template
-        value_template: "{{ states.media_player.living_room_speaker.state != 'playing'}}"
+        value_template: "{{ states('media_player.living_room_speaker') != 'playing'}}"
       - service: media_player.volume_set
         data:
           entity_id: media_player.minis
@@ -1223,4 +1223,4 @@ script:
       - service: media_player.volume_set
         data:
           entity_id: media_player.minis
-          volume_level: "{{states.sensor.speakervolume.state}}"
+          volume_level: "{{states('sensor.speakervolume')}}"

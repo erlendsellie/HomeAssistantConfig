@@ -11,9 +11,9 @@ automation:
       - condition: state
         entity_id: climate.trym
         state: "unavailable"
-      - service: homeassistant.reload_config_entry
+      - action: homeassistant.reload_config_entry
         data:
           entry_id: 01K8KH18DYHH8NMSPWQY57WDTA
-      - service: homeassistant.reload_config_entry
+      - action: homeassistant.reload_config_entry
         data:
           entry_id: 01K8NGXCTMZ6N9V2T14ZFGHVD2

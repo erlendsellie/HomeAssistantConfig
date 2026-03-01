@@ -39,9 +39,9 @@
 #             - 150
 #           brightness_pct: >-
 #             {%if now().hour > 20%}
-#               {{states.input_select.arvesinkonesinkontorlysssetslider_ettereight.state | float}}
+#               {{states('input_select.arvesinkonesinkontorlysssetslider_ettereight') | float}}
 #             {%else%}
-#               {{states.input_select.arvesinkonesinkontorlysssetslider_foreight.state | float}}
+#               {{states('input_select.arvesinkonesinkontorlysssetslider_foreight') | float}}
 #             {%endif%}
 #         target:
 #           entity_id: light.office_lights

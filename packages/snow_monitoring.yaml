@@ -345,7 +345,7 @@ automation:
         id: wake_up_check
       - platform: template
         value_template: >-
-          {%-set nextAlarm = states.sensor.erlend_mobil_next_alarm.state -%}
+          {%-set nextAlarm = states('sensor.erlend_mobil_next_alarm') -%}
           {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
           {{(nextAlarmAsTimestamp - as_timestamp(utcnow())) < 10}}
         id: alarm_imminent

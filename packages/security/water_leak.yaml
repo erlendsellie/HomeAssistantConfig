@@ -85,7 +85,7 @@ script:
       - variables:
           water_message: >-
             VANNLEKKASJE! Sensor utløst: 
-            {%- for entity_id in states.group.watersensors.attributes.entity_id -%}
+            {%- for entity_id in state_attr('group.watersensors', 'entity_id') -%}
               {%- set entity = states[entity_id] -%}
               {%- if entity.state == 'on' -%}
                 {{ entity.name }}, 

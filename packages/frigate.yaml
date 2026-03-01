@@ -8,14 +8,14 @@ automation:
         #every 5 minutes to ensure we toggle it off again if we restart frigate.
         minutes: "/5"
     action:
-      - service: switch.turn_{{ 'on' if is_state('alarm_control_panel.home_alarm', 'triggered') or is_state('alarm_control_panel.home_alarm', 'armed_away') else 'off'}}
+      - action: switch.turn_{{ 'on' if is_state('alarm_control_panel.home_alarm', 'triggered') or is_state('alarm_control_panel.home_alarm', 'armed_away') else 'off'}}
         target:
           entity_id:
             - switch.dogs_recordings
             - switch.dogs_snapshots
             - switch.hallway_recordings
             - switch.hallway_snapshots
-      - service: switch.turn_{{ 'on' if is_state('alarm_control_panel.home_alarm', 'triggered') or is_state('alarm_control_panel.home_alarm', 'armed_away') else 'off'}}
+      - action: switch.turn_{{ 'on' if is_state('alarm_control_panel.home_alarm', 'triggered') or is_state('alarm_control_panel.home_alarm', 'armed_away') else 'off'}}
         target:
           entity_id:
             - switch.trym_recordings
@@ -38,11 +38,11 @@ automation:
         entity_id: input_select.alarm
         state: "Arm Away"
     action:
-      - service: script.telegram_security_notify
+      - action: script.telegram_security_notify
         data:
           title: "🐕 Barking Detected (Armed)"
           message: "Barking was detected while the alarm is armed away."
-      - service: notify.mobile_app_erlend_mobil
+      - action: notify.mobile_app_erlend_mobil
         data:
           message: "Barking was detected."
           data:
@@ -69,7 +69,7 @@ automation:
       #   entity_id: media_player.hallway_speaker
       #   data:
       #     message: "Fin banan!"
-      - service: media_player.play_media
+      - action: media_player.play_media
         target:
           entity_id: media_player.hallway_speaker
         data:

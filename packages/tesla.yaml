@@ -24,7 +24,7 @@ template:
           minutes: 2
         delay_on:
           minutes: 2
-        state: "{{ (states.sensor.ultrasonic_sensor.state | float(default=0) < 1.5) }}"
+        state: "{{ (states('sensor.ultrasonic_sensor') | float(default=0) < 1.5) }}"
         icon: >
           {% if is_state('binary_sensor.garage_occupied', 'off') %}
           mdi:car-off
@@ -41,8 +41,8 @@ template:
           seconds: 15
         state: >-
           {{
-          (states.sensor.ultrasonic_sensor.state | float(default=0) < 0.5)
-          and (states.sensor.ultrasonic_sensor.state | float(default=0) > 0.0) 
+          (states('sensor.ultrasonic_sensor') | float(default=0) < 0.5)
+          and (states('sensor.ultrasonic_sensor') | float(default=0) > 0.0) 
           }}
         icon: >
           {% if is_state('binary_sensor.tesla_in_garage', 'off') %}
@@ -118,7 +118,7 @@ template:
       # - name: "ModelY Target Soc"
       #   unit_of_measurement: "%"
       #   state: >-
-      #     {{states.sensor.sleipner_charging_state_data_sensor.attributes.charge_limit_soc}}
+      #     {{state_attr('sensor.sleipner_charging_state_data_sensor', 'charge_limit_soc')}}
       # - name: "ModelY Charge Done"
       #   state: >-
       #     {% set charge_time_left = states('sensor.modely_charge_time_left') | float(0) %}
@@ -222,7 +222,7 @@ automation:
   #       data:
   #         variables:
   #           title: Kilometer på Navi holder på å gå over forsikring.
-  #           message: "Kilometerstand: {{states.sensor.modely_mileage_sensor.state}}"
+  #           message: "Kilometerstand: {{states('sensor.modely_mileage_sensor')}}"
 
   - alias: Notify if Model Y charge limit to high
     mode: single
@@ -253,8 +253,8 @@ automation:
     condition:
       - condition: template
         value_template: >-
-          {{(states.sensor.modely.state | int(default=0) < 40) and 
-          states.binary_sensor.modely_charger_sensor.state == 'off'}}
+          {{(states('sensor.modely') | int(default=0) < 40) and 
+          states('binary_sensor.modely_charger_sensor') == 'off'}}
       - condition: state
         entity_id: device_tracker.modely_location_tracker
         state: "home"
@@ -265,7 +265,7 @@ automation:
         data:
           variables:
             title: Sleipner er ikke koblet til lader
-            message: Batteriet er på {{states.sensor.modely.state}}%.
+            message: Batteriet er på {{states('sensor.modely')}}%.
 
   - alias: notifycarchargerstate_afternoon
     id: notifycarchargerstate_afternoon
@@ -324,7 +324,7 @@ automation:
         to: "Arm Away"
     condition:
       - condition: template
-        value_template: "{{states.sensor.garage_status.state == 'disconnected'}}"
+        value_template: "{{states('sensor.garage_status') == 'disconnected'}}"
     action:
       - service: switch.turn_off
         target:
@@ -366,7 +366,7 @@ automation:
   #       below: 6
   #     - condition: template
   #       value_template: >-
-  #         {{ states.binary_sensor.modely_charger_sensor.state == 'on' or states.sensor.modely.state | int(default=0) > 70 }}
+  #         {{ states('binary_sensor.modely_charger_sensor') == 'on' or states('sensor.modely') | int(default=0) > 70 }}
   #   action:
   #     - delay:
   #         minutes: 10
@@ -375,7 +375,7 @@ automation:
   #         minutes: 1
   #     - condition: template
   #       value_template: >-
-  #         {{ states.climate.modely.state == 'off'}}
+  #         {{ states('climate.modely') == 'off'}}
   #     - service: script.turn_on
   #       entity_id: script.notify
   #       data:
@@ -405,7 +405,7 @@ automation:
         data:
           title: "Start heating Car?"
           message: >-
-            Its {{states.sensor.modely_temperature_sensor_inside.state}} degrees in the car.
+            Its {{states('sensor.modely_temperature_sensor_inside')}} degrees in the car.
           data:
             ttl: 0
             priority: high
@@ -571,7 +571,7 @@ automation:
         data:
           variables:
             title: Defrosting Sleipner
-            message: "its {{states.sensor.modely_temperature_sensor_inside.state}} in the car."
+            message: "its {{states('sensor.modely_temperature_sensor_inside')}} in the car."
 
   # - alias: "Update Available For Tesla"
   #   id: "Update Available For Tesla"

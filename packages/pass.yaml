@@ -23,7 +23,7 @@
 #           # 1 måned = 2592000 sekunder.
 #           # 1 uke = 604800 sekunder.
 #         state: >-
-#           {%- set next_available = states.sensor.next_available_passport_appointment.state -%}
+#           {%- set next_available = states('sensor.next_available_passport_appointment') -%}
 #           {{(as_timestamp(next_available) - as_timestamp(now())) < 1209600}}
 # automation:
 #   - id: passportappointmentavailable
@@ -37,7 +37,7 @@
 #         data:
 #           title: Passtime er tilgjengelig i løpet av en måned!
 #           message: >-
-#             Neste ledige dag er {{states.sensor.next_available_passport_appointment.state}}.
+#             Neste ledige dag er {{states('sensor.next_available_passport_appointment')}}.
 #             Trykk for å bestille time på Heimdal Politistasjon
 #           data:
 #             ttl: 0

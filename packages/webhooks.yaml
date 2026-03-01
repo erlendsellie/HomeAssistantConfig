@@ -130,7 +130,7 @@ automation:
         data:
           variables:
             title: "Garage toggled"
-            message: 'You {% if states.cover.garage_door.state == "open" %} closed {% else %} opened {% endif %}the garage'
+            message: 'You {% if states('cover.garage_door') == "open" %} closed {% else %} opened {% endif %}the garage'
 
   - alias: "notifymegeneric"
     trigger:
@@ -138,7 +138,7 @@ automation:
       webhook_id: !secret notifymegeneric
       local_only: false
     action:
-      service: script.telegram_notify
+      action: script.telegram_notify
       data:
         message: "This is a notification!"
 

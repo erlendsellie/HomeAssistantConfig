@@ -7,10 +7,10 @@ automation:
       event_data:
         command: "/garage"
     action:
-      - service: script.telegram_security_notify
+      - action: script.telegram_security_notify
         data:
           message: >-
-            {% if states.cover.garage_door.state == "open" %}The garage is open. Do you want to close it?
+            {% if states('cover.garage_door') == "open" %}The garage is open. Do you want to close it?
             {% else %}The Garage is closed. Do you want to open it?{% endif %}
           inline_keyboard: "Open Garage:/openGarage, Close Garage:/closeGarage"
 
@@ -26,18 +26,18 @@ automation:
         event_data:
           data: "/closegarage"
     action:
-      - service: cover.close_cover
+      - action: cover.close_cover
         target:
           entity_id: cover.garage_door
-      - service: script.telegram_security_notify
+      - action: script.telegram_security_notify
         data:
           message: "Okay, i'll tell you if it won't close."
       - delay:
           seconds: 19
-      - service: script.turn_on
+      - action: script.turn_on
         data:
           entity_id: >
-            {% if states.cover.garage_door.state == "open" %} script.garageopen
+            {% if states('cover.garage_door') == "open" %} script.garageopen
             {% else %} {% endif %}
 
   - id: OpenGarageByTelegram
@@ -52,10 +52,10 @@ automation:
         event_data:
           data: "/opengarage"
     action:
-      - service: cover.open_cover
+      - action: cover.open_cover
         target:
           entity_id: cover.garage_door
-      - service: script.telegram_security_notify
+      - action: script.telegram_security_notify
         data:
           message: "Okay, I'll open the garage."
 
@@ -67,11 +67,11 @@ automation:
         event_data:
           data: "/garageremind"
     action:
-      - service: script.telegram_security_notify
+      - action: script.telegram_security_notify
         data:
           message: "Okay, I'll remind you in 5 minutes."
       - delay:
           minutes: 5
-      - service: automation.trigger
+      - action: automation.trigger
         target:
           entity_id: automation.garageopenhtml5_p30

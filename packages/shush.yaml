@@ -2,13 +2,13 @@ template:
   - switch:
       - name: "tyra_shush"
         unique_id: tyra_shush_switch
-        state: "{{ states.media_player.tyra.state == 'playing' }}"
+        state: "{{ states('media_player.tyra') == 'playing' }}"
         turn_on:
-          - service: script.turn_on
+          - action: script.turn_on
             data:
               entity_id: script.shush_tyra
         turn_off:
-          - service: media_player.turn_off
+          - action: media_player.turn_off
             data:
               entity_id: media_player.tyra
 
@@ -16,11 +16,11 @@ script:
   shush_tyra:
     alias: Play Shushing Tyra
     sequence:
-      - service: media_player.volume_set
+      - action: media_player.volume_set
         data:
           entity_id: media_player.tyra
           volume_level: 0.5
-      - service: media_player.play_media
+      - action: media_player.play_media
         target:
           entity_id: media_player.tyra
         data:
@@ -28,10 +28,10 @@ script:
           media_content_type: music
       - delay:
           minutes: 30
-      - service: media_player.volume_set
+      - action: media_player.volume_set
         data:
           entity_id: media_player.tyra
           volume_level: 0.0
-      - service: switch.turn_off
+      - action: switch.turn_off
         target:
           entity_id: switch.tyra_shush

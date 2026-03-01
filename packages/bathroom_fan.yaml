@@ -4,9 +4,9 @@ template:
         unique_id: bathroom_fan_template
         state: "{{ states('switch.bathroom_fan') }}"
         turn_on:
-          - service: script.bathroom_fan_on
+          - action: script.bathroom_fan_on
         turn_off:
-          - service: script.bathroom_fan_off
+          - action: script.bathroom_fan_off
 
 generic_hygrostat:
   - name: Bathroom
@@ -17,11 +17,11 @@ generic_hygrostat:
 script:
   bathroom_fan_on:
     sequence:
-      - service: switch.turn_on
+      - action: switch.turn_on
         target:
           entity_id: switch.bathroom_fan
   bathroom_fan_off:
     sequence:
-      - service: switch.turn_off
+      - action: switch.turn_off
         target:
           entity_id: switch.bathroom_fan

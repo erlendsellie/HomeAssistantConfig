@@ -6,17 +6,17 @@ template:
           minutes: 20
         state: >-
           {{
-            states.binary_sensor.e_golf_vehicle_moving.state == 'off' and
-            states.binary_sensor.e_golf_doors_locked.state == 'on'
+            states('binary_sensor.e_golf_vehicle_moving') == 'off' and
+            states('binary_sensor.e_golf_doors_locked') == 'on'
           }}
       - name: ShouldKeepChargingGolf
         unique_id: ShouldKeepChargingGolf
         state: >-
-          {%set limit = states.input_number.golf_soc_limit.state | float(default=90)%}
-          {%set soc = states.sensor.e_golf_battery_level.state | float(default=10)%}
-          {%set charging = (states.binary_sensor.e_golf_charging_cable_connected.state == 'on' and states.device_tracker.e_golf_position.state == 'home') %}
-          {%set tesla_charging = states.binary_sensor.modely_charger_sensor.state == 'on'%}
-          {%set is_heating = states.switch.e_golf_auxiliary_climatisation.state == 'on' or states.switch.e_golf_window_heater == 'on'%}
+          {%set limit = states('input_number.golf_soc_limit') | float(default=90)%}
+          {%set soc = states('sensor.e_golf_battery_level') | float(default=10)%}
+          {%set charging = (states('binary_sensor.e_golf_charging_cable_connected') == 'on' and states('device_tracker.e_golf_position') == 'home') %}
+          {%set tesla_charging = states('binary_sensor.modely_charger_sensor') == 'on'%}
+          {%set is_heating = states('switch.e_golf_auxiliary_climatisation') == 'on' or states.switch.e_golf_window_heater == 'on'%}
           {%if(is_heating == true and charging == true) %}
             {{True}}
           {% elif(tesla_charging == true) %}
@@ -42,8 +42,8 @@ template:
           seconds: 15
         state: >-
           {{
-          (states.sensor.ultrasonic_sensor.state | float(default=0) < 0.65)
-          and (states.sensor.ultrasonic_sensor.state | float(default=0) > 0.55) 
+          (states('sensor.ultrasonic_sensor') | float(default=0) < 0.65)
+          and (states('sensor.ultrasonic_sensor') | float(default=0) > 0.55) 
           }}
         icon: >
           {% if is_state('binary_sensor.golf_in_garage', 'off') %}
@@ -109,7 +109,7 @@ template:
   #     - name: GuttaTemperatur
   #       unique_id: GuttaTemperatur
   #       state: >-
-  #         {%set hjemme_uke = states.binary_sensor.erhjemmeuke.state%}
+  #         {%set hjemme_uke = states('binary_sensor.erhjemmeuke')%}
   #         {%if(hjemme_uke == 'on') %}
   #           {%set temp = 18 if now().hour >= 23 else 22 if now().hour >= 16 else 10%}
   #           {{temp}}

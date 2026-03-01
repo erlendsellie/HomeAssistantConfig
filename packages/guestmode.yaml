@@ -155,4 +155,4 @@ template:
       - name: "guestmode_activated"
         unique_id: guestmode_activated_sensor
         state: >
-          {{ states.input_boolean.guestmode.state == 'on' and states.sensor.alarm.state != 'Disarm' }}
+          {{ states('input_boolean.guestmode') == 'on' and states('sensor.alarm') != 'Disarm' }}

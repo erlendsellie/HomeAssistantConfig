@@ -11,7 +11,7 @@
 #       # robot_problem:
 #       #   device_class: problem
 #       #   value_template: >-
-#       #     {{false and states.sensor.mowed_since_docked.state | float(default=0)> 1.8}}
+#       #     {{false and states('sensor.mowed_since_docked') | float(default=0)> 1.8}}
 #       #   friendly_name: "Robot Stuck"
 #       robot_should_stop:
 #         friendly_name: "Robot Should Stop"
@@ -27,7 +27,7 @@
 #       mowed_enough:
 #         friendly_name: "Mowed Enough"
 #         value_template: >-
-#           {% set mowedEnough = states.sensor.mowed_today.state | float(default=0) >= states.input_number.mowingtime.state | float(default=0)%}
+#           {% set mowedEnough = states('sensor.mowed_today') | float(default=0) >= states('input_number.mowingtime') | float(default=0)%}
 #           {{mowedEnough}}
 #         # delay_on:
 #         #   minutes: 5
@@ -38,11 +38,11 @@
 #           {{is_state('sensor.esteban_status_friendly', 'Mowing')
 #             and states('sensor.esteban_stopped') == 'false'}}
 #         # value_template: >-
-#         #   {{states.binary_sensor.mower_dock.state == 'on' and states.switch.mower.state == 'on' and states.binary_sensor.robot_problem.state == 'off'}}
+#         #   {{states('binary_sensor.mower_dock') == 'on' and states('switch.mower') == 'on' and states('binary_sensor.robot_problem') == 'off'}}
 #       # justrained:
 #       #   friendly_name: "Just Rained"
 #       #   device_class: moisture
-#       #   value_template: "{{(states.sensor.netatmo_home_rain_last_hour.state | float) > 1}}"
+#       #   value_template: "{{(states('sensor.netatmo_home_rain_last_hour') | float) > 1}}"
 #       #   delay_off:
 #       #     hours: 5
 

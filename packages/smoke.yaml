@@ -2,7 +2,7 @@ template:
   - sensor:
       - name: "smoke_triggered"
         state: >-
-          {%- for entity_id in states.group.smokesensors.attributes.entity_id -%}
+          {%- for entity_id in state_attr('group.smokesensors', 'entity_id') -%}
               {%set entity = states[entity_id] %}
               {%if entity.state == 'on' %}
                 {{entity.name}}, 

@@ -4,22 +4,22 @@ template:
         unique_id: wear_battery_sensor
         unit_of_measurement: "%"
         state: >-
-          {% if (states.input_number.wear_battery.state | float) > 0 %} 
-            {{ states.input_number.wear_battery.state | round() }}
+          {% if (states('input_number.wear_battery') | float) > 0 %} 
+            {{ states('input_number.wear_battery') | round() }}
           {% endif %}
 
       - name: "wear_heart_rate"
         unique_id: wear_heart_rate_sensor
         unit_of_measurement: "BPM"
         state: >-
-          {% if (states.input_number.wear_heart_rate.state | float) > 0 %} 
-            {{ states.input_number.wear_heart_rate.state | round() }}
+          {% if (states('input_number.wear_heart_rate') | float) > 0 %} 
+            {{ states('input_number.wear_heart_rate') | round() }}
           {% endif %}
 
       - name: "wear_steps"
         unique_id: wear_steps_sensor
         unit_of_measurement: "steps"
         state: >-
-          {% if (states.input_number.wear_steps.state | float) > 0 %} 
-            {{ states.input_number.wear_steps.state | round() }}
+          {% if (states('input_number.wear_steps') | float) > 0 %} 
+            {{ states('input_number.wear_steps') | round() }}
           {% endif %}

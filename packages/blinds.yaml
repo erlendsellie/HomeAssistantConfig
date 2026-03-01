@@ -73,7 +73,7 @@
 #           - platform: template
 #             for:
 #               minutes: 5
-#             value_template: "{{states.cover.window.state != 'unavailable' and states.cover.door.state != 'unavailable'}}"
+#             value_template: "{{states('cover.window') != 'unavailable' and states('cover.door') != 'unavailable'}}"
 #         timeout: "03:00:00"
 #         continue_on_timeout: false
 #       - service: script.turn_on

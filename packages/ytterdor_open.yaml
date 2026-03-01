@@ -10,7 +10,7 @@ automation:
           minutes: 3
     action:
       # Send push-varsel og lyd via notifyhome (riktig kall)
-      - service: script.turn_on
+      - action: script.turn_on
         target:
           entity_id: script.notifyhome
         data:
@@ -20,7 +20,7 @@ automation:
             channel: "door_alerts"
 
       # TTS – kun tale, ingen lydfil
-      - service: script.say
+      - action: script.say
         data:
           where: "hallway"
           message: "Ytterdøra har stått åpen i over tre minutt! Lukk igjen før bikkjan stikk te nabo’n!"
@@ -36,7 +36,7 @@ automation:
           minutes: 1
     action:
       # Send push-varsel og lyd via notifyhome
-      - service: script.turn_on
+      - action: script.turn_on
         target:
           entity_id: script.notifyhome
         data:
@@ -46,7 +46,7 @@ automation:
             channel: "door_alerts"
 
       # TTS – kun tale
-      - service: script.say
+      - action: script.say
         data:
           where: "living_room"
           message: "Begge dørene står åpen! no e hundan sikkert halvveis te butikken allerede!"

@@ -4,7 +4,7 @@ template:
         unique_id: brightnessforlights_sensor
         unit_of_measurement: "%"
         state: >-
-          {% if states.input_select.alarm.state == 'Arm Home' %} 
+          {% if states('input_select.alarm') == 'Arm Home' %} 
           20
           {% elif now().hour < 9 %}
           70
@@ -16,13 +16,13 @@ template:
         unique_id: brightnessforupstairslights_sensor
         unit_of_measurement: "%"
         state: >-
-          {% if states.input_boolean.trymasleep.state == 'on' or states.input_boolean.tyraasleep.state == 'on' %}
+          {% if states('input_boolean.trymasleep') == 'on' or states('input_boolean.tyraasleep') == 'on' %}
           40
-          {% elif (states.input_boolean.casleep.state == 'on' or states.input_boolean.easleep.state == 'on')
+          {% elif (states('input_boolean.casleep') == 'on' or states('input_boolean.easleep') == 'on')
           and (now().hour < 23 or now().hour > 6)  %} 
           30
           {% else %}
-          {{ states.sensor.brightnessforlights.state }}
+          {{ states('sensor.brightnessforlights') }}
           {% endif %}
 
   - binary_sensor:
@@ -31,10 +31,10 @@ template:
         delay_off:
           minutes: 5
         state: >-
-          {{ states.sun.sun.attributes.elevation < 0 and (
-          states.cover.garage_door.state == 'open' or
-          states.binary_sensor.hoveddor.state == 'on' or  
-          states.binary_sensor.motion_driveway_or_garage.state == 'on'
+          {{ state_attr('sun.sun', 'elevation') < 0 and (
+          states('cover.garage_door') == 'open' or
+          states('binary_sensor.hoveddor') == 'on' or  
+          states('binary_sensor.motion_driveway_or_garage') == 'on'
           ) }}
 
 input_boolean:
@@ -62,7 +62,7 @@ automation:
             - light.tv
             - light.chillsofa
           profile: "{{ trigger.to_state.state }}"
-          brightness_pct: "{{ states.input_number.brightness.state | int(default=0) }}"
+          brightness_pct: "{{ states('input_number.brightness') | int(default=0) }}"
 
   # - alias: Set Light profile
   #   trigger:
@@ -89,9 +89,9 @@ automation:
       condition: and
       conditions:
         - condition: template
-          value_template: "{{ states.vacuum.xiaomi_vacuum_cleaner.state != 'Cleaning' }}"
+          value_template: "{{ states('vacuum.xiaomi_vacuum_cleaner') != 'Cleaning' }}"
         - condition: template
-          value_template: "{{ states.input_select.alarm.state != 'Arm Away' }}"
+          value_template: "{{ states('input_select.alarm') != 'Arm Away' }}"
     action:
       - service: light.turn_on
         target:
@@ -121,7 +121,7 @@ automation:
       condition: and
       conditions:
         - condition: template
-          value_template: "{{ states.vacuum.xiaomi_vacuum_cleaner.state != 'Cleaning' }}"
+          value_template: "{{ states('vacuum.xiaomi_vacuum_cleaner') != 'Cleaning' }}"
         - condition: state
           entity_id: light.kjokkenbord
           state: "off"
@@ -140,7 +140,7 @@ automation:
     # - service: light.turn_on
     #   entity_id: light.upstairs
     #   data:
-    #     brightness_pct: "{{ states.sensor.brightnessforupstairslights.state }}"
+    #     brightness_pct: "{{ states('sensor.brightnessforupstairslights') }}"
   # #delay and then turn off?
   # - alias: notifyPlayLights
   #   trigger:
@@ -168,9 +168,9 @@ automation:
         value_template: >-
           {{ ((((as_timestamp(now()) + (15*60) | int(default=0))) | timestamp_custom("%Y-%m-%dT%H:%M+0200",true,0))
           == 
-          states.sensor.erlend_mobil_next_alarm.state) 
+          states('sensor.erlend_mobil_next_alarm')) 
           and
-          states.sensor.date_time.state == states.sensor.date_time.state}}
+          states('sensor.date_time') == states('sensor.date_time')}}
     condition:
       condition: and
       conditions:
@@ -254,7 +254,7 @@ automation:
               entity_id: binary_sensor.ccharging
               state: "off"
         - condition: template
-          value_template: "{{ states.media_player.tv_soverommet.state  != 'on'}}"
+          value_template: "{{ states('media_player.tv_soverommet')  != 'on'}}"
     action:
       - condition: template
         value_template: "{{  is_state('input_boolean.automatic_bedroom_lights', 'on') or (is_state('input_boolean.casleep', 'off') or is_state('input_boolean.easleep', 'off')) }}"
@@ -262,10 +262,10 @@ automation:
         target:
           entity_id: group.bedroomlights
         data:
-          brightness_pct: "{{ states.sensor.brightnessforbedroomlights.state }}"
+          brightness_pct: "{{ states('sensor.brightnessforbedroomlights') }}"
           # Only turn on roof light if daytime.
     # - condition: template
-    #   value_template: "{{ states.input_select.alarm.state != 'Disarm' }}"
+    #   value_template: "{{ states('input_select.alarm') != 'Disarm' }}"
 
   - alias: TurnOffBedroomLight
     id: turnoffbedroomlight
@@ -410,8 +410,8 @@ automation:
   #   - service: light.turn_on
   #     data:
   #       entity_id: group.living
-  #       brightness_pct: '{{ states.input_number.brightness.state | int(default=0) }}'
-  #       profile: '{{ states.input_number.light_profile.state }}'
+  #       brightness_pct: '{{ states('input_number.brightness') | int(default=0) }}'
+  #       profile: '{{ states('input_number.light_profile') }}'
 
   # - service: light.turn_on
   #   entity_id: light.kjokkenbord
@@ -433,7 +433,7 @@ automation:
       - condition: template
         value_template: "{{ state_attr('sun.sun', 'elevation') | float < 4 }}"
       # - condition: template
-      #   value_template: "{{ states.sensor.illuminance_living.state | float(default=0)< 40}}"
+      #   value_template: "{{ states('sensor.illuminance_living') | float(default=0)< 40}}"
     action:
       - action: script.turn_on
         target:
@@ -499,11 +499,11 @@ script:
         data:
           entity_id: group.living
           brightness_pct: 100
-          #profile: '{{ states.input_number.light_profile.state }}'
+          #profile: '{{ states('input_number.light_profile') }}'
       - service: light.turn_on
         data:
           entity_id: light.tvsone
-          brightness_pct: "{{ max([states.input_number.brightness.state | int(default=0) ,20]) }}"
+          brightness_pct: "{{ max([states('input_number.brightness') | int(default=0) ,20]) }}"
       - service: script.turn_on
         target:
           entity_id: script.restorelivingcolor
@@ -527,7 +527,7 @@ script:
         target:
           entity_id: group.lights
       - condition: template
-        value_template: "{{states.input_select.alarm.state == 'Arm Home'}}"
+        value_template: "{{states('input_select.alarm') == 'Arm Home'}}"
       - service: light.turn_on
         target:
           entity_id:
@@ -575,7 +575,7 @@ script:
         target:
           entity_id: script.restoreofficecolor
       - condition: template
-        value_template: "{{ states.input_select.alarm.state  != 'Disarm'}}"
+        value_template: "{{ states('input_select.alarm')  != 'Disarm'}}"
       - service: light.turn_off
         target:
           entity_id: group.colorlightsliving
@@ -912,7 +912,7 @@ script:
       - delay:
           seconds: 0.5
       - condition: template
-        value_template: "{{ states.binary_sensor.motion_downstairs_office.state == 'on' }}"
+        value_template: "{{ states('binary_sensor.motion_downstairs_office') == 'on' }}"
       - service: light.turn_on
         target:
           entity_id: light.play, light.peis, light.ledstrip_kitchen
@@ -926,7 +926,7 @@ script:
     alias: Turn off vindfang lights
     sequence:
       - condition: template
-        value_template: "{{ states.binary_sensor.motion_vindfang.state == 'off'}}"
+        value_template: "{{ states('binary_sensor.motion_vindfang') == 'off'}}"
       - service: light.turn_off
         target:
           entity_id: light.vindfang
@@ -935,7 +935,7 @@ script:
     alias: Blink Lights in livingroom
     sequence:
       - condition: template
-        value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+        value_template: "{{ states('input_select.alarm')  == 'Disarm'}}"
       - service: light.turn_on
         target:
           entity_id: group.colorlightsliving

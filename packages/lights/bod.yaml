@@ -5,8 +5,8 @@ template:
           minutes: 5
         state: >-
           {{
-            (states.binary_sensor.motion_bod.state == 'on' or
-            states.binary_sensor.motion_jaktbod.state == 'on')
+            (states('binary_sensor.motion_bod') == 'on' or
+            states('binary_sensor.motion_jaktbod') == 'on')
           }}
 
 automation:
@@ -48,7 +48,7 @@ automation:
     action:
       - condition: template
         value_template: "{{trigger.to_state.state == 'on' or trigger.to_state.state == 'off'}}"
-      - service: light.turn_{{trigger.to_state.state}}
+      - action: light.turn_{{trigger.to_state.state}}
         target:
           entity_id: light.bod
 

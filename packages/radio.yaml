@@ -4,24 +4,24 @@ automation:
       - platform: state
         entity_id: input_number.googlevolume, input_select.radio_station, input_select.chromecast_radio
     action:
-      - service: media_player.volume_set
+      - action: media_player.volume_set
         data:
           entity_id: media_player.minis
-          volume_level: "{{ states.input_number.googlevolume.state | float(default=0)/ 100 }}"
+          volume_level: "{{ states('input_number.googlevolume') | float(default=0)/ 100 }}"
 
   - alias: PlayRadio
     trigger:
       - platform: state
         entity_id: input_select.radio_station
     action:
-      - service: script.turn_on
+      - action: script.turn_on
         target:
           entity_id: script.playradio
 script:
   stopradio:
     alias: Stop Radio on Chromecast
     sequence:
-      - service: media_player.media_stop
+      - action: media_player.media_stop
         data:
           entity_id:
             - media_player.minis
@@ -34,8 +34,8 @@ script:
       # - service: media_player.volume_set
       #   data:
       #     entity_id: media_player.hyttalere
-      #     volume_level: "{{ states.input_number.googlevolume.state | float(default=0)/ 100 }}"
-      - service: media_player.play_media
+      #     volume_level: "{{ states('input_number.googlevolume') | float(default=0)/ 100 }}"
+      - action: media_player.play_media
         data:
           entity_id: >-
             {% if is_state("input_select.chromecast_radio", "Living Room") %} media_player.living_room_speaker
@@ -60,8 +60,8 @@ script:
       # - service: media_player.volume_set
       #   data:
       #     entity_id: media_player.hyttalere
-      #     volume_level: "{{ states.input_number.googlevolume.state | float(default=0)/ 100 }}"
-      - service: media_player.play_media
+      #     volume_level: "{{ states('input_number.googlevolume') | float(default=0)/ 100 }}"
+      - action: media_player.play_media
         data:
           entity_id: media_player.living_room_speaker
           media_content_id: >-
@@ -76,7 +76,7 @@ script:
   playspotify:
     alias: Pause Music
     sequence:
-      - service: media_player.play_media
+      - action: media_player.play_media
         target:
           entity_id: media_player.musikkstua
         data:

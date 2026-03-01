@@ -13,10 +13,10 @@ automation:
             {%set casleep = states('input_boolean.casleep') == 'on'%}
             {{easleep or casleep}}
         then:
-          - service: switch.turn_on
+          - action: switch.turn_on
             target:
               entity_id: switch.adaptive_lighting_sleep_mode_bedroom
         else:
-          - service: switch.turn_off
+          - action: switch.turn_off
             target:
               entity_id: switch.adaptive_lighting_sleep_mode_bedroom

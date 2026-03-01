@@ -12,7 +12,7 @@ automation:
         - POST
         - PUT
     action:
-      - service: input_boolean.turn_on
+      - action: input_boolean.turn_on
         target:
           entity_id: input_boolean.cleandustbin
 
@@ -33,16 +33,16 @@ automation:
           entity_id: input_boolean.vacuum_just_emptied
           state: "off"
         - condition: template
-          value_template: "{{ states.input_select.alarm.state  == 'Disarm'}}"
+          value_template: "{{ states('input_select.alarm') == 'Disarm'}}"
         - condition: template
-          value_template: "{{ states.media_player.living_room_tv.state  != 'playing'}}"
+          value_template: "{{ states('media_player.living_room_tv') != 'playing'}}"
         - condition: time
           after: "12:00:00"
     action:
-      - service: vacuum.stop
+      - action: vacuum.stop
         target:
           entity_id: vacuum.xiaomi_vacuum_cleaner
-      - service: script.turn_on
+      - action: script.turn_on
         target:
           entity_id: script.sendvacuumtokitchen
       # - service: vacuum.send_command
@@ -50,10 +50,10 @@ automation:
       #     entity_id: vacuum.xiaomi_vacuum_cleaner
       #     command: app_goto_target
       #     params: [25000,32800]
-      - service: input_boolean.turn_on
+      - action: input_boolean.turn_on
         target:
           entity_id: input_boolean.vacuum_just_emptied
-      - service: script.turn_on
+      - action: script.turn_on
         target:
           entity_id: script.say
         data:
@@ -68,7 +68,7 @@ automation:
         entity_id: input_boolean.vacuum_just_emptied
         state: "on"
     action:
-      - service: input_boolean.turn_off
+      - action: input_boolean.turn_off
         target:
           entity_id: input_boolean.vacuum_just_emptied
 
@@ -105,7 +105,7 @@ automation:
                   - idle_30
                   - stuck_30
             sequence:
-              - service: script.turn_on
+              - action: script.turn_on
                 target:
                   entity_id: script.dockvacuum
           - conditions:
@@ -124,7 +124,7 @@ automation:
                     for:
                       minutes: 30
             sequence:
-              - service: script.turn_on
+              - action: script.turn_on
                 target:
                   entity_id: script.dockvacuum
 
@@ -134,22 +134,22 @@ template:
         unique_id: vacuum_battery_sensor
         unit_of_measurement: "%"
         state: >-
-          {% if states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level is defined and states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level != '' %}
-            {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level }}
+          {% if state_attr('vacuum.xiaomi_vacuum_cleaner', 'battery_level') is not none and state_attr('vacuum.xiaomi_vacuum_cleaner', 'battery_level') != '' %}
+            {{ state_attr('vacuum.xiaomi_vacuum_cleaner', 'battery_level') }}
           {% else %}
             unknown
           {% endif %}
         availability: >-
-          {{ states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level is defined and states.vacuum.xiaomi_vacuum_cleaner.attributes.battery_level != '' }}
+          {{ state_attr('vacuum.xiaomi_vacuum_cleaner', 'battery_level') is not none and state_attr('vacuum.xiaomi_vacuum_cleaner', 'battery_level') != '' }}
 
 script:
   sendvacuumtokitchen:
     alias: "Send Svetlana to kitchen"
     sequence:
-      - service: vacuum.stop
+      - action: vacuum.stop
         target:
           entity_id: vacuum.xiaomi_vacuum_cleaner
-      - service: vacuum.send_command
+      - action: vacuum.send_command
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_goto_target
@@ -158,14 +158,14 @@ script:
   dockvacuum:
     alias: "Send Svetlana to Dock"
     sequence:
-      - service: vacuum.return_to_base
+      - action: vacuum.return_to_base
         target:
           entity_id: vacuum.xiaomi_vacuum_cleaner
 
   vacuum_living_room:
     alias: "Vacuum the Living Room"
     sequence:
-      - service: vacuum.send_command
+      - action: vacuum.send_command
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_zoned_clean
@@ -174,7 +174,7 @@ script:
   vacuum_kitchen:
     alias: "Vacuum the Kitchen"
     sequence:
-      - service: vacuum.send_command
+      - action: vacuum.send_command
         data:
           entity_id: vacuum.xiaomi_vacuum_cleaner
           command: app_zoned_clean

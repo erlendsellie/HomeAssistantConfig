@@ -9,7 +9,7 @@ template:
       - name: GuttaTemperatur
         unique_id: GuttaTemperatur
         state: >-
-          {%set hjemme_uke = states.binary_sensor.erhjemmeuke.state%}
+          {%set hjemme_uke = states('binary_sensor.erhjemmeuke')%}
           {%if(hjemme_uke == 'on') %}
             {%set temp = 18 if now().hour >= 23 else 22 if now().hour >= 16 else 10%}
             {{temp}}

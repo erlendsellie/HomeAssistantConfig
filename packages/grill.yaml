@@ -27,11 +27,11 @@ automation:
           entity_id: script.say
         data:
           variables:
-            message: "Bonn apetitt! Steketermometeret har en temperatur på {{states.sensor.grill_1.state}} grader"
+            message: "Bonn apetitt! Steketermometeret har en temperatur på {{states('sensor.grill_1')}} grader"
       - service: script.turn_on
         target:
           entity_id: script.notifyboth
         data:
           variables:
             title: Middagen er klar!
-            message: "Bonn apetitt! Steketermometeret har en temperatur på {{states.sensor.grill_1.state}} grader"
+            message: "Bonn apetitt! Steketermometeret har en temperatur på {{states('sensor.grill_1')}} grader"

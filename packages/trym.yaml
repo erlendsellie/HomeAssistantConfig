@@ -20,7 +20,7 @@ template:
         unique_id: brightnessfortrymlight_sensor
         unit_of_measurement: "%"
         state: >-
-          {% if states.input_boolean.trymasleep.state == 'on' %} 
+          {% if states('input_boolean.trymasleep') == 'on' %} 
           5
           {% elif now().hour < 7 %}
           70
@@ -33,25 +33,25 @@ template:
         unit_of_measurement: "minutes"
         state: >-
           {% set dummy = states("sensor.time") %}
-          {% if states.input_boolean.trymasleep.state == 'on' %}
+          {% if states('input_boolean.trymasleep') == 'on' %}
               {% if states.automation.trymsoveron %}
-              {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trymsoveron.attributes.last_triggered, default=0)) / 60) | round(0)}}
+              {{((as_timestamp(utcnow()) - as_timestamp(state_attr('automation.trymsoveron', 'last_triggered'), default=0)) / 60) | round(0)}}
               {% else %}
               0
               {% endif %}
-          {% elif states.input_boolean.tryminkindergarden.state == 'on' %}
+          {% elif states('input_boolean.tryminkindergarden') == 'on' %}
               {% if states.automation.trym_left_in_school %}
-              {{((as_timestamp(utcnow()) - as_timestamp(states.automation.trym_left_in_school.attributes.last_triggered, default=0)) / 60) | round(0)}}
+              {{((as_timestamp(utcnow()) - as_timestamp(state_attr('automation.trym_left_in_school', 'last_triggered'), default=0)) / 60) | round(0)}}
               {% else %}
               0
               {% endif %}
           {% else %}
               {% set triggers = [] %}
               {% if states.automation.trymsoveroff %}
-              {% set triggers = triggers + [states.automation.trymsoveroff.attributes.last_triggered] %}
+              {% set triggers = triggers + [state_attr('automation.trymsoveroff', 'last_triggered')] %}
               {% endif %}
               {% if states.automation.trym_picked_up_in_kindergarden %}
-              {% set triggers = triggers + [states.automation.trym_picked_up_in_kindergarden.attributes.last_triggered] %}
+              {% set triggers = triggers + [state_attr('automation.trym_picked_up_in_kindergarden', 'last_triggered')] %}
               {% endif %}
               {% if triggers %}
               {{((as_timestamp(utcnow()) - as_timestamp(triggers | max, default=0)) / 60) | round(0)}}
@@ -63,7 +63,7 @@ template:
       - name: "trymsleeptimeformatted"
         unique_id: trymsleeptimeformatted_sensor
         state: >-
-          {{ (states.sensor.trymsleeptime.state | int(default=0)) // 60 }}:{{ '{:0>2d}'.format((states.sensor.trymsleeptime.state | int(default=0))%60) }} hours
+          {{ (states('sensor.trymsleeptime') | int(default=0)) // 60 }}:{{ '{:0>2d}'.format((states('sensor.trymsleeptime') | int(default=0))%60) }} hours
 
   - binary_sensor:
       - name: "trym_home"
@@ -95,9 +95,9 @@ automation:
         minutes: "/5"
     condition:
       # - condition: template
-      #   value_template: "{{states.person.caroline.state == 'home' }}"
+      #   value_template: "{{states('person.caroline') == 'home' }}"
       - condition: template
-        value_template: "{{states.sensor.alarm.state != 'Arm Away' }}"
+        value_template: "{{states('sensor.alarm') != 'Arm Away' }}"
       - condition: time
         after: "21:00:00"
         before: "08:06:00"
@@ -202,7 +202,7 @@ automation:
         target:
           entity_id: light.trym_roof
         data:
-          brightness_pct: "{{ states.sensor.brightnessfortrymlight.state }}"
+          brightness_pct: "{{ states('sensor.brightnessfortrymlight') }}"
       - service: light.turn_on
         target:
           entity_id: light.trym_balloon
@@ -218,7 +218,7 @@ automation:
         timeout: "00:20:00"
         continue_on_timeout: false
       - condition: template
-        value_template: "{{ states.input_boolean.trymasleep.state == 'off' }}"
+        value_template: "{{ states('input_boolean.trymasleep') == 'off' }}"
       - service: light.turn_off
         target:
           entity_id: light.trym_roof
@@ -293,7 +293,7 @@ automation:
         target:
           entity_id: light.trym_roof
         data:
-          brightness_pct: "{{ states.sensor.brightnessfortrymlight.state }}"
+          brightness_pct: "{{ states('sensor.brightnessfortrymlight') }}"
 
   - alias: turnOffTrymLightBall
     trigger:
@@ -328,7 +328,7 @@ automation:
   #   - service: light.turn_on
   #     entity_id: light.upstairs
   #     data:
-  #       brightness_pct: '{{ states.sensor.brightnessforupstairslights.state }}'
+  #       brightness_pct: '{{ states('sensor.brightnessforupstairslights') }}'
   #delay and then turn off?
 
   - alias: turnOnNightLigthTrym
@@ -338,7 +338,7 @@ automation:
         to: "on"
     condition:
       - condition: template
-        value_template: "{{ states.input_select.alarm.state == 'Disarm' }}"
+        value_template: "{{ states('input_select.alarm') == 'Disarm' }}"
     action:
       - service: light.turn_on
         data:

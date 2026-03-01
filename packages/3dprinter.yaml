@@ -44,9 +44,9 @@ automation:
       - service: notify.mobile_app_erlend_mobil
         data:
           title: 3D Print is ready
-          message: "{{states.sensor.a1combo_task_name.state}} is done"
+          message: "{{states('sensor.a1combo_task_name')}} is done"
           data:
-            image: "https://hjem.sellie.no{{states.camera.a1combo_camera.attributes.entity_picture}}"
+            image: "https://hjem.sellie.no{{state_attr('camera.a1combo_camera', 'entity_picture')}}"
             channel: "printer"
             ttl: 0
             priority: high
@@ -93,7 +93,7 @@ automation:
   #   action:
   #     - service: script.telegram_notify
   #       data:
-  #         message: "The 3D printer has been left on while not printing. Temp: {{ states.sensor.octoprint_target_tool0_temp.state }}"
+  #         message: "The 3D printer has been left on while not printing. Temp: {{ states('sensor.octoprint_target_tool0_temp') }}"
   #     - service: switch.turn_off
   #       entity_id: switch.3d_printer_failsafe
 
@@ -101,7 +101,7 @@ automation:
   #   alias: turnOff3DPrinter
   #   trigger:
   #     - platform: template
-  #       value_template: "{{states.binary_sensor.octoprint_printing.state == 'off' and states.binary_sensor.motion_downstairs_office.state == 'off'}}"
+  #       value_template: "{{states('binary_sensor.octoprint_printing') == 'off' and states('binary_sensor.motion_downstairs_office') == 'off'}}"
   #       for:
   #         minutes: 20
   #   action:
@@ -157,7 +157,7 @@ automation:
   #   action:
   #     - service: script.telegram_notify #earlier erlendpush
   #       data:
-  #         message: "The 3D-printer is printing, but reporting a temp of {{states.sensor.octoprint_actual_tool0_temp.state}}. Turning off the printer."
+  #         message: "The 3D-printer is printing, but reporting a temp of {{states('sensor.octoprint_actual_tool0_temp')}}. Turning off the printer."
   #     - service: switch.turn_off
   #       entity_id: switch.3d_printer_failsafe
   #       #Add smoketriggered script if this does not happen randomly.

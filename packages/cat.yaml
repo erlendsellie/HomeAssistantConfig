@@ -6,12 +6,12 @@ automation:
         value_template: >
           {{ is_state('binary_sensor.garage_cat_occupancy', 'on') and is_state('cover.garage_door', 'closed') }}
     action:
-      - service: script.telegram_security_notify
+      - action: script.telegram_security_notify
         data:
           title: "🐱 Cat in Garage!"
           message: "Er det en katt låst fast i garasjen?"
           inline_keyboard: "Åpne Garasjen:/opengarage"
-      - service: notify.mobile_app_erlend_mobil
+      - action: notify.mobile_app_erlend_mobil
         data:
           message: Oisann!
           title: Er det en katt låst fast i garasjen?
@@ -25,7 +25,7 @@ automation:
               - action: opengarage
                 title: "Åpne Garasjen"
             tag: drive-motion
-      - service: notify.mobile_app_pixel_10_pro
+      - action: notify.mobile_app_pixel_10_pro
         data:
           message: Ringeklokke!
           title: DingDong!
@@ -50,4 +50,4 @@ automation:
         event_data:
           action: opengarage
     action:
-      - service: script.open_garage_door
+      - action: script.open_garage_door

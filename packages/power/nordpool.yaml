@@ -2,7 +2,7 @@ template:
   - binary_sensor:
       - name: "Nordpool Unknown"
         state: >-
-          {%set nordpool = states.sensor.nordpool.state%}
+          {%set nordpool = states('sensor.nordpool')%}
           {{
             nordpool == 'unknown' or
             nordpool == 'unavailable'
@@ -47,7 +47,7 @@ automation:
         data:
           variables:
             title: Nordpool var utilgjengelig
-            message: Lastet på nytt. Verdi nå er {{states.sensor.nordpool.state}}
+            message: Lastet på nytt. Verdi nå er {{states('sensor.nordpool')}}
 
   # - alias: NotifyPriceTomorrow
   #   trigger:
@@ -68,7 +68,7 @@ automation:
   #         title: >-
   #           Tomorrows spotpris is ready
   #         message: >-
-  #           Tomorrows price is {{states.sensor.tomorrow_low_price.state}} / {{states.sensor.tomorrow_max_price.state}}, todays is {{states.sensor.today_low_price.state}} / {{states.sensor.today_max_price.state}}.
+  #           Tomorrows price is {{states('sensor.tomorrow_low_price')}} / {{states('sensor.tomorrow_max_price')}}, todays is {{states('sensor.today_low_price')}} / {{states('sensor.today_max_price')}}.
 
   # - platform: pioneer
   #   host: 192.168.1.105
@@ -87,8 +87,8 @@ automation:
     action:
       - service: script.telegram_notify
         data:
-          message: "Tomorrows min price is {{states.sensor.billigste_pris_imorgen_ettermiddag.state}}, {{states.sensor.price_difference_nights.state}} difference from tonight."
-          title: "You should probably {%if states.binary_sensor.should_charge_car_tonight.state == 'off' %} not {%endif%}charge the car tonight."
+          message: "Tomorrows min price is {{states('sensor.billigste_pris_imorgen_ettermiddag')}}, {{states('sensor.price_difference_nights')}} difference from tonight."
+          title: "You should probably {%if states('binary_sensor.should_charge_car_tonight') == 'off' %} not {%endif%}charge the car tonight."
 sensor:
   # - platform: poweranalyzer
   #   # Should the prices include vat? Default True
