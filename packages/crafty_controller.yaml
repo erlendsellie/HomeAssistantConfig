@@ -163,6 +163,20 @@ rest_command:
     headers:
       Authorization: !secret crafty_api_token
 
+  crafty_creative_update:
+    url: https://192.168.1.191:8443/api/v2/servers/86274ed1-7662-4029-b0e5-f419aed322e5/action/update_executable
+    method: POST
+    verify_ssl: false
+    headers:
+      Authorization: !secret crafty_api_token
+
+  crafty_survival_update:
+    url: https://192.168.1.191:8443/api/v2/servers/db67855d-2826-4fc9-a5b2-d217f5b9bbb7/action/update_executable
+    method: POST
+    verify_ssl: false
+    headers:
+      Authorization: !secret crafty_api_token
+
 script:
   minecraft_creative_start:
     alias: "Start Minecraft Creative"
@@ -220,6 +234,30 @@ script:
     sequence:
       - service: rest_command.crafty_survival_backup
 
+  minecraft_creative_update:
+    alias: "Update Minecraft Creative"
+    icon: mdi:update
+    mode: single
+    sequence:
+      - service: rest_command.crafty_creative_update
+
+  minecraft_survival_update:
+    alias: "Update Minecraft Survival"
+    icon: mdi:update
+    mode: single
+    sequence:
+      - service: rest_command.crafty_survival_update
+
+  minecraft_update_all_servers:
+    alias: "Update All Minecraft Servers"
+    icon: mdi:update
+    mode: single
+    sequence:
+      - service: script.minecraft_creative_update
+      - delay:
+          seconds: 5
+      - service: script.minecraft_survival_update
+
 template:
   - binary_sensor:
       - name: "Minecraft Creative Online"
@@ -271,3 +309,13 @@ template:
              (states('sensor.minecraft_survival_players') | int(0)) }}
         unit_of_measurement: "players"
         icon: mdi:account-group
+
+automation:
+  - id: minecraft_nightly_update
+    alias: "Minecraft Nightly Server Updates"
+    mode: single
+    trigger:
+      - platform: time
+        at: "03:00:00"
+    action:
+      - service: script.minecraft_update_all_servers
