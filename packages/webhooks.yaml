@@ -130,7 +130,7 @@ automation:
         data:
           variables:
             title: "Garage toggled"
-            message: 'You {% if states('cover.garage_door') == "open" %} closed {% else %} opened {% endif %}the garage'
+            message: "You {% if states('cover.garage_door') == 'open' %} closed {% else %} opened {% endif %}the garage"
 
   - alias: "notifymegeneric"
     trigger:
