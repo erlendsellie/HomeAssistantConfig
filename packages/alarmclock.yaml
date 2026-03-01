@@ -22,7 +22,8 @@ automation:
       value_template: >-
         {%-set nextAlarm = states('sensor.erlend_mobil_next_alarm') -%}
         {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
-        {{(nextAlarmAsTimestamp - as_timestamp(utcnow())) < 10}}
+        {%-set package = state_attr('sensor.erlend_mobil_next_alarm', 'Package') -%}
+        {{(nextAlarmAsTimestamp - as_timestamp(utcnow())) < 10 and package != 'net.dinglisch.android.taskerm'}}
     condition:
       - condition: state
         entity_id: input_boolean.alarmclock
