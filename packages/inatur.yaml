@@ -409,8 +409,9 @@ automation:
           title: "🎣 Nye jakttilbud tilgjengelig!"
           message: >
             {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') or [] %}
+            {% set results_parsed = results if results is list else (results | from_json | default([])) %}
             {% set ns = namespace(messages = []) %}
-            {% for item in results %}
+            {% for item in results_parsed %}
               {% set title = item.tittel | default('Ukjent tittel') %}
               {% set updated = item.sistOppdatertFormatert | default('Ukjent dato') %}
               {% set message = "- " ~ title ~ " (Oppdatert: " ~ updated ~ ")" %}
@@ -428,8 +429,9 @@ automation:
                 title: "Se tilbud"
                 uri: >
                   {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') or [] %}
-                  {% if results | length > 0 %}
-                    {{ "https://www.inatur.no" ~ results[0].url }}
+                  {% set results_parsed = results if results is list else (results | from_json | default([])) %}
+                  {% if results_parsed | length > 0 %}
+                    {{ "https://www.inatur.no" ~ results_parsed[0].url }}
                   {% else %}
                     https://www.inatur.no
                   {% endif %}
@@ -438,8 +440,9 @@ automation:
           title: "🎣 Nye jakttilbud tilgjengelig!"
           message: >
             {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') or [] %}
+            {% set results_parsed = results if results is list else (results | from_json | default([])) %}
             {% set ns = namespace(messages = []) %}
-            {% for item in results %}
+            {% for item in results_parsed %}
               {% set title = item.tittel | default('Ukjent tittel') %}
               {% set updated = item.sistOppdatertFormatert | default('Ukjent dato') %}
               {% set message = "- " ~ title ~ " (Oppdatert: " ~ updated ~ ")" %}
@@ -457,8 +460,9 @@ automation:
                 title: "Se tilbud"
                 uri: >
                   {% set results = state_attr('sensor.inatur_midtre_gauldal_updated_yesterday', 'cards') or [] %}
-                  {% if results | length > 0 %}
-                    {{ "https://www.inatur.no" ~ results[0].url }}
+                  {% set results_parsed = results if results is list else (results | from_json | default([])) %}
+                  {% if results_parsed | length > 0 %}
+                    {{ "https://www.inatur.no" ~ results_parsed[0].url }}
                   {% else %}
                     https://www.inatur.no
                   {% endif %}

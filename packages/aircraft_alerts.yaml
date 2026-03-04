@@ -1,0 +1,94 @@
+automation:
+  - id: aircraft_entry_notification
+    alias: "Aircraft Entry Notification"
+    mode: queued
+    max: 10
+    trigger:
+      - platform: event
+        event_type: flightradar24_entry
+    action:
+      - variables:
+          aircraft_type: "{{ trigger.event.data.aircraft_model or 'Unknown' }}"
+          aircraft_code: "{{ trigger.event.data.aircraft_code or 'N/A' }}"
+          registration: "{{ trigger.event.data.aircraft_registration or 'N/A' }}"
+          callsign: "{{ trigger.event.data.callsign or 'N/A' }}"
+          altitude: "{{ trigger.event.data.altitude or 0 }}"
+          origin_city: "{{ trigger.event.data.airport_origin_city or 'Unknown' }}"
+          destination_city: "{{ trigger.event.data.airport_destination_city or 'Unknown' }}"
+          airline: "{{ trigger.event.data.airline_name or 'Unknown' }}"
+          photo_url: "{{ trigger.event.data.aircraft_photo_medium or '' }}"
+          flight_id: "{{ trigger.event.data.id }}"
+          is_helicopter: >
+            {% set heli_codes = ['EH10', 'B412', 'NH90', 'EC35', 'EC45', 'H125', 'AS50', 'AS55', 'AS65', 'B206', 'B407', 'B429', 'S76', 'AW09', 'AW39', 'AW69', 'AW89', 'AW19', 'EC20', 'EC25', 'EC30', 'EC55', 'EC75', 'H145', 'H160', 'H175', 'H225', 'S92'] %}
+            {{ aircraft_code in heli_codes }}
+          aircraft_category: >
+            {% set heli_codes = ['EH10', 'B412', 'NH90', 'EC35', 'EC45', 'H125', 'AS50', 'AS55', 'AS65', 'B206', 'B407', 'B429', 'S76', 'AW09', 'AW39', 'AW69', 'AW89', 'AW19', 'EC20', 'EC25', 'EC30', 'EC55', 'EC75', 'H145', 'H160', 'H175', 'H225', 'S92'] %}
+            {% if aircraft_code in heli_codes %}
+              Helikopter
+            {% else %}
+              Fly
+            {% endif %}
+          is_sar_queen: >
+            {{ aircraft_code == 'EH10' and (airline == '330 skvadron' or airline == 'Luftforsvaret' or 'LN-O' in registration) }}
+          aircraft_emoji: >
+            {% set heli_codes = ['EH10', 'B412', 'NH90', 'EC35', 'EC45', 'H125', 'AS50', 'AS55', 'AS65', 'B206', 'B407', 'B429', 'S76', 'AW09', 'AW39', 'AW69', 'AW89', 'AW19', 'EC20', 'EC25', 'EC30', 'EC55', 'EC75', 'H145', 'H160', 'H175', 'H225', 'S92'] %}
+            {% if aircraft_code in heli_codes %}
+              🚁
+            {% else %}
+              ✈️
+            {% endif %}
+          notification_title: >
+            {% set heli_codes = ['EH10', 'B412', 'NH90', 'EC35', 'EC45', 'H125', 'AS50', 'AS55', 'AS65', 'B206', 'B407', 'B429', 'S76', 'AW09', 'AW39', 'AW69', 'AW89', 'AW19', 'EC20', 'EC25', 'EC30', 'EC55', 'EC75', 'H145', 'H160', 'H175', 'H225', 'S92'] %}
+            {% if aircraft_code == 'EH10' and (airline == '330 skvadron' or airline == 'Luftforsvaret' or 'LN-O' in registration) %}
+              🚁 SAR Queen Redningshelikopter
+            {% elif aircraft_code in heli_codes %}
+              🚁 {{ aircraft_type }} Helikopter
+            {% else %}
+              ✈️ {{ aircraft_type }}
+            {% endif %}
+          notification_message: >
+            {% set heli_codes = ['EH10', 'B412', 'NH90', 'EC35', 'EC45', 'H125', 'AS50', 'AS55', 'AS65', 'B206', 'B407', 'B429', 'S76', 'AW09', 'AW39', 'AW69', 'AW89', 'AW19', 'EC20', 'EC25', 'EC30', 'EC55', 'EC75', 'H145', 'H160', 'H175', 'H225', 'S92'] %}
+            {% if aircraft_code == 'EH10' and (airline == '330 skvadron' or airline == 'Luftforsvaret' or 'LN-O' in registration) %}
+              ✅ Dette er et redningshelikopter - TRYGT
+              
+              Registrering: {{ registration }}
+              Callsign: {{ callsign }}
+              Høyde: {{ altitude }} ft
+              Operator: {{ airline }}
+            {% elif aircraft_code == 'B412' or aircraft_code == 'NH90' %}
+              ⚠️ Militært helikopter
+              
+              Type: {{ aircraft_type }} ({{ aircraft_code }})
+              Registrering: {{ registration }}
+              Callsign: {{ callsign }}
+              Høyde: {{ altitude }} ft
+              Operator: {{ airline }}
+            {% elif aircraft_code in heli_codes %}
+              Registrering: {{ registration }}
+              Callsign: {{ callsign }}
+              Høyde: {{ altitude }} ft
+              Operator: {{ airline }}
+            {% else %}
+              Callsign: {{ callsign }}
+              Fra: {{ origin_city }}
+              Til: {{ destination_city }}
+              Høyde: {{ altitude }} ft
+              Flyselskap: {{ airline }}
+            {% endif %}
+      - service: notify.mobile_app_erlend_mobil
+        data:
+          title: "{{ notification_title }}"
+          message: "{{ notification_message }}"
+          data:
+            image: "{{ photo_url if photo_url else '' }}"
+            url: "https://fr24.com/{{ callsign }}/{{ flight_id }}"
+            clickAction: "https://fr24.com/{{ callsign }}/{{ flight_id }}"
+            actions:
+              - action: "URI"
+                title: "Se live tracking"
+                uri: "https://fr24.com/{{ callsign }}/{{ flight_id }}"
+            tag: "aircraft_{{ flight_id }}"
+            channel: "Aircraft Alerts"
+            importance: high
+            ttl: 0
+            priority: high
