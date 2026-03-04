@@ -396,6 +396,15 @@ automation:
   #       data:
   #         notification_id: http-login
 
+  - alias: "Auto-dismiss TellStick repair issues"
+    id: auto_dismiss_tellstick_repairs
+    mode: single
+    trigger:
+      - platform: time_pattern
+        hours: "/1"
+    action:
+      - service: shell_command.dismiss_tellstick_repairs
+
   - alias: "Battery Alert"
     trigger:
       - platform: time
@@ -854,3 +863,6 @@ template:
         unique_id: hastats_ebd_zwaves
         state_class: measurement
         state: "{{states.zwave | count}}"
+
+shell_command:
+  dismiss_tellstick_repairs: "/config/scripts/dismiss_tellstick_repairs.sh"

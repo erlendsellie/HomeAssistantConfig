@@ -254,7 +254,7 @@ automation:
               entity_id: binary_sensor.ccharging
               state: "off"
         - condition: template
-          value_template: "{{ states('media_player.tv_soverommet')  != 'on'}}"
+          value_template: "{{ states('media_player.bedroom_tv')  != 'on'}}"
     action:
       - condition: template
         value_template: "{{  is_state('input_boolean.automatic_bedroom_lights', 'on') or (is_state('input_boolean.casleep', 'off') or is_state('input_boolean.easleep', 'off')) }}"
@@ -310,6 +310,14 @@ automation:
               - condition: state
                 entity_id: input_select.alarm
                 state: "Disarm"
+              - condition: or
+                conditions:
+                  - condition: state
+                    entity_id: input_boolean.easleep
+                    state: "off"
+                  - condition: state
+                    entity_id: input_boolean.casleep
+                    state: "off"
             sequence:
               - service: light.turn_on
                 target:

@@ -40,7 +40,7 @@ template:
           {{ (states('media_player.bedroom_tv') == 'idle' or 
           states('media_player.bedroom_tv') == 'paused' or 
           states('media_player.bedroom_tv') == 'off')
-          and states('media_player.tv_soverommet') == 'on' }}
+          and states('media_player.bedroom_tv') == 'on' }}
 
       - name: "bedtvon"
         unique_id: bedtvon_sensor

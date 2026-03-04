@@ -173,7 +173,7 @@ script:
           entity_id: switch.blanket
       - wait_for_trigger:
           - platform: state
-            entity_id: media_player.tv_soverommet
+            entity_id: media_player.bedroom_tv
             to: "on"
             for:
               minutes: 5
@@ -181,7 +181,7 @@ script:
         continue_on_timeout: true
       - wait_for_trigger:
           - platform: state
-            entity_id: media_player.tv_soverommet
+            entity_id: media_player.bedroom_tv
             to: "off"
             for:
               minutes: 2

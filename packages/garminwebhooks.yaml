@@ -85,7 +85,7 @@ automation:
                     sequence:
                       - service: media_player.volume_up
                         target:
-                          entity_id: media_player.tv_soverommet
+                          entity_id: media_player.bedroom_tv
                 default:
                   - service: light.turn_on
                     target:
@@ -148,7 +148,7 @@ automation:
                     sequence:
                       - service: media_player.volume_down
                         target:
-                          entity_id: media_player.tv_soverommet
+                          entity_id: media_player.bedroom_tv
                 default:
                   - service: light.turn_on
                     target:

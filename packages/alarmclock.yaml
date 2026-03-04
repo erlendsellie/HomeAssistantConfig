@@ -253,7 +253,7 @@ script:
                   entity_id: input_boolean.casleep
                   state: "off"
               then:
-                - service: light.turn_on
+                - action: light.turn_on
                   target:
                     entity_id: light.bedroom
                   data:
@@ -263,32 +263,37 @@ script:
                   data:
                     entity_id: media_player.clock
                     volume_level: "0.7"
-                - service: input_text.set_value
-                  target:
-                    entity_id: input_text.openaibedroom
+                - action: openai_conversation.generate_content
+                  response_variable: generated_content
                   data:
-                    value: ""
-                - service: input_text.set_value
-                  target:
-                    entity_id: input_text.openaibedroom
-                  data:
-                    value: >-
-                      {%set time = now().hour | string + ':' + now().minute | string%}
-                      {%set nextAlarm = states('sensor.erlend_mobil_next_alarm')%}
-                      {%-set nextAlarmAsTimestamp = as_timestamp(nextAlarm,(as_timestamp(utcnow())+100000)) -%}
-                      {%-set minutesBefore = 10 -%}
-                      {%set relativeAlarm = ((nextAlarmAsTimestamp - as_timestamp(utcnow())) / 60) | round (0) %}
-                      {%set vær = states('sensor.weather_norsk')%}
+                    config_entry: 7cb47cdea724030f7efc821ffaf1ae6d
+                    prompt: >-
+                      {%- set time = now().strftime('%H:%M') -%}
+                      {%- set nextAlarm = states('sensor.erlend_mobil_next_alarm') -%}
+                      {%- set nextAlarmAsTimestamp = as_timestamp(nextAlarm, (as_timestamp(utcnow())+100000)) -%}
+                      {%- set relativeAlarm = ((nextAlarmAsTimestamp - as_timestamp(utcnow())) / 60) | round(0) -%}
+                      {%- set vær = states('sensor.weather_norsk') -%}
+                      {%- set temp = states('sensor.ute_temperature') -%}
+                      {%- set kalender = state_attr('calendar.arbeid', 'message') -%}
+                      
                       Du er en vekkeklokke og skal vekke meg på en sarkastisk måte. Finn på en vits også.
-                      Klokken er {{time}}.
-                      {%-if relativeAlarm > 0%}
-                      Alarmen ringer om {{relativeAlarm}} minutter.
-                      {%-else -%}
-                      {%-set relativeAlarm = relativeAlarm * -1 | round (0) %}
-                      Alarmen ringte for {{relativeAlarm}} minutter siden.
-                      {%-endif %}
-                      Været er {{vær}}, og temperaturen ute er {{states('sensor.ute_temperature')}}
-                      Neste ting i kalenderen er: {{state_attr('calendar.arbeid', 'message')}}
+                      Klokken er {{ time }}.
+                      {%- if relativeAlarm > 0 %}
+                      Alarmen ringer om {{ relativeAlarm }} minutter.
+                      {%- else %}
+                      {%- set relativeAlarm = (relativeAlarm * -1) | round(0) %}
+                      Alarmen ringte for {{ relativeAlarm }} minutter siden.
+                      {%- endif %}
+                      Været er {{ vær }}, og temperaturen ute er {{ temp }} grader.
+                      Neste ting i kalenderen er: {{ kalender }}
+                      
+                      Svar med SSML, uten noen code-block eller noe, kun den rene SSML-teksten. Start meldingen direkte og hold til en sarkastisk stil.
+                - service: tts.speak
+                  target:
+                    entity_id: tts.google_cloud
+                  data:
+                    media_player_entity_id: media_player.clock
+                    message: "{{ generated_content.text }}"
                 - delay:
                     seconds: 10
                 - service: light.turn_off

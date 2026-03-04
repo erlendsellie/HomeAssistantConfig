@@ -330,7 +330,7 @@ automation:
                 entity_id: input_boolean.easleep
                 state: "on"
               - condition: state
-                entity_id: media_player.tv_soverommet
+                entity_id: media_player.bedroom_tv
                 state: "off"
             sequence:
               - service: media_player.toggle
@@ -341,12 +341,12 @@ automation:
                 entity_id: input_boolean.easleep
                 state: "on"
               # - condition: state
-              #   entity_id: media_player.tv_soverommet
+              #   entity_id: media_player.bedroom_tv
               #   state: "on"
             sequence:
               - service: media_player.turn_off
                 target:
-                  entity_id: media_player.tv_soverommet
+                  entity_id: media_player.bedroom_tv
 
   - alias: "Watch11"
     trigger:

@@ -231,7 +231,7 @@ automation:
                         entity_id: input_boolean.casleep
                         state: "on"
                       - condition: state
-                        entity_id: media_player.tv_soverommet
+                        entity_id: media_player.bedroom_tv
                         state: "off"
                     sequence:
                       - service: media_player.turn_on
@@ -242,12 +242,12 @@ automation:
                         entity_id: input_boolean.casleep
                         state: "on"
                       - condition: state
-                        entity_id: media_player.tv_soverommet
+                        entity_id: media_player.bedroom_tv
                         state: "on"
                     sequence:
                       - service: media_player.turn_off
                         target:
-                          entity_id: media_player.tv_soverommet
+                          entity_id: media_player.bedroom_tv
 
           - conditions:
               - condition: template
