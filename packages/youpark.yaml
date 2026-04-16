@@ -1,49 +1,61 @@
-multiscrape:
-  - resource: https://www.youpark.no/payment/EN52492/1
-    scan_interval: 7200 #2 hours
-    sensor:
-      - name: "you_park_tesla"
-        select: "div.transactions div:not(.fw-bold)"
-        icon: "mdi:road"
-  - resource: https://www.youpark.no/payment/EB31893/1
-    scan_interval: 7200 #2 hours
-    sensor:
-      - name: "you_park_golf"
-        select: "div.transactions div:not(.fw-bold)"
-        icon: "mdi:road"
+command_line:
+  - sensor:
+      name: "you_park_tesla"
+      unique_id: you_park_tesla
+      command: "/config/packages/youpark.sh EN52492"
+      scan_interval: 7200
+      command_timeout: 30
+      value_template: "{{ value | trim }}"
+      icon: mdi:road
+
+  - sensor:
+      name: "you_park_golf"
+      unique_id: you_park_golf
+      command: "/config/packages/youpark.sh EB31893"
+      scan_interval: 7200
+      command_timeout: 30
+      value_template: "{{ value | trim }}"
+      icon: mdi:road
+
 automation:
   - id: you_park_tesla
     alias: you_park_tesla
+    mode: single
     trigger:
       - platform: time_pattern
         hours: "/4"
     condition:
       - condition: template
-        value_template: "{{  states('sensor.you_park_tesla') != 'unavailable' }}"
+        value_template: >
+          {% set value = states('sensor.you_park_tesla') %}
+          {{ is_number(value) and value | int(0) > 0 }}
     action:
       - service: notify.mobile_app_erlend_mobil
         data:
           title: "Betal parkering!"
-          message: "Ubetalt passering på Tesla. Dato: {{states('sensor.you_park_tesla')}}"
+          message: "Ubetalt passering på Tesla. Antall funnet: {{ states('sensor.you_park_tesla') }}"
           data:
-            clickAction: "https://www.youpark.no/payment/EN52492/1"
+            clickAction: "https://www.youpark.no/dashboard/payment/EN52492/1"
             ttl: 0
             priority: high
 
   - id: you_park_golf
     alias: you_park_golf
+    mode: single
     trigger:
       - platform: time_pattern
         hours: "/4"
     condition:
       - condition: template
-        value_template: "{{  states('sensor.you_park_golf') != 'unavailable' }}"
+        value_template: >
+          {% set value = states('sensor.you_park_golf') %}
+          {{ is_number(value) and value | int(0) > 0 }}
     action:
       - service: notify.mobile_app_erlend_mobil
         data:
           title: "Betal parkering!"
-          message: "Ubetalt passering på golf. Dato: {{states('sensor.you_park_golf')}}"
+          message: "Ubetalt passering på Golf. Antall funnet: {{ states('sensor.you_park_golf') }}"
           data:
-            clickAction: "https://www.youpark.no/payment/EB31893/1"
+            clickAction: "https://www.youpark.no/dashboard/payment/EB31893/1"
             ttl: 0
             priority: high
