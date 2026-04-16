@@ -1,0 +1,54 @@
+input_boolean:
+  tv_stua_plombering:
+    name: "TV Stua Plombering"
+    icon: mdi:television-off
+
+automation:
+  - id: tv_stua_plombering_turn_off
+    alias: "TV Stua Plombering - Turn off TV"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: media_player.living_room_tv
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.tv_stua_plombering
+        state: "on"
+    action:
+      - delay:
+          seconds: 2
+      - service: media_player.turn_off
+        target:
+          entity_id: media_player.living_room_tv
+
+  - id: tv_stua_plombering_sync_chromecast_network
+    alias: "TV Stua Plombering - Sync Chromecast network"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_boolean.tv_stua_plombering
+      - platform: homeassistant
+        event: start
+    action:
+      - service: switch.turn_{{"off" if is_state("input_boolean.tv_stua_plombering", "on") else "on"}}
+        target:
+          entity_id: switch.chromecast_stua
+
+  - id: tv_stua_plombering_auto_disable
+    alias: "TV Stua Plombering - Auto disable after 15 min"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: media_player.living_room_tv
+        to: "off"
+        for:
+          minutes: 15
+    condition:
+      - condition: state
+        entity_id: input_boolean.tv_stua_plombering
+        state: "on"
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.tv_stua_plombering
