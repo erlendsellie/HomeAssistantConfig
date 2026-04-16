@@ -127,4 +127,7 @@ sensors_missing_base.txt
 .windsurf/ai_system_prompt.md
 .windsurf/ai_functions.yaml
 
+# Generated iNatur cache data
+www/inatur/data.json
+
 ignored

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inatur Trøndelag – Jaktoversikt</title>
+  <meta name="description" content="Oversikt over jakttilbud i Trøndelag fra Inatur">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=7">
+</head>
+<body>
+  
+  <div class="hero-viewport" id="heroViewport">
+    <div class="hero-image" style="background-image: url('bg.png')"></div>
+    <div class="hero-content">
+      <header class="header">
+        <div class="logo">
+          <div class="logo-circle">🪶</div>
+          <div class="logo-text">
+            <h1>Inatur Trøndelag</h1>
+            <p class="subtitle">Jaktterreng & Friluftsoversikt</p>
+          </div>
+        </div>
+        
+        <div class="info-bar" id="statsBar">
+          <div class="info-item"><span class="info-val" id="statTotal">—</span><label>Totalt</label></div>
+          <div class="info-sep"></div>
+          <div class="info-item"><span class="info-val" id="statDeadline">—</span><label>Med frist</label></div>
+          <div class="info-sep"></div>
+          <div class="info-item info-urgent"><span class="info-val" id="statUrgent">—</span><label>≤ 7 dager</label></div>
+          <div class="info-sep"></div>
+          <div class="info-item info-lottery"><span class="info-val" id="statLottery">—</span><label>🎲 Trekning</label></div>
+          <div class="info-sep"></div>
+          <div class="info-item info-sokt"><span class="info-val" id="statSokt">—</span><label>✓ Søkt</label></div>
+        </div>
+
+        <div class="header-meta">
+          <span id="currentUser" class="meta-badge user-badge">Laster…</span>
+          <span id="lastUpdated" class="meta-badge">Oppdatert: —</span>
+          <button id="btnBulk" class="btn-icon" style="background: #ff9800; color: white; width: auto; padding: 0 15px; border-radius: 20px; font-weight: 600; font-size: 0.85rem;" title="Kjør automatisert søk på alle synlige tilbud">⚡ Bulk-søk</button>
+          <button id="btnHelp" class="btn-icon" title="Hjelp og bokmerke-guide">❓</button>
+          <button id="btnRefresh" class="btn-icon" title="Oppdater data">⟳</button>
+        </div>
+      </header>
+
+      <section class="controls" id="stickyControls">
+        <div class="controls-row">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Søk i tilbud…" autocomplete="off">
+          </div>
+          <div class="filter-group">
+            <select id="filterKommune">
+              <option value="">Alle kommuner</option>
+            </select>
+            <select id="filterTilbyder">
+              <option value="">Alle tilbydere</option>
+            </select>
+            <select id="sortBy">
+              <option value="deadline">Frist</option>
+              <option value="updated">Sist endret</option>
+            </select>
+            <div class="toggles">
+              <label class="toggle-pill">
+                <input type="checkbox" id="filterTrekning">
+                <span>Trekning</span>
+              </label>
+              <label class="toggle-pill">
+                <input type="checkbox" id="filterSokt">
+                <span>Ikke søkt</span>
+              </label>
+              <label class="toggle-pill">
+                <input type="checkbox" id="filterExpired">
+                <span>Utløpte</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <main class="app" id="app">
+    <section class="offers-grid" id="offersGrid">
+      <div class="loading">Laster inn terreng…</div>
+    </section>
+
+    <!-- Detail Modal -->
+    <div id="modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <button class="modal-close" id="modalClose">✕</button>
+        <div id="modalBody"></div>
+      </div>
+    </div>
+
+    <!-- Bulk Modal -->
+    <div id="bulkModal" class="modal-overlay hidden">
+      <div class="modal-content" style="max-width: 500px; text-align: center;">
+        <button class="modal-close" id="bulkModalClose">✕</button>
+        <h2 class="modal-title">Bulk-søk Automatisering</h2>
+        <p id="bulkModalDesc" style="margin-bottom: 24px; color: var(--text-muted); line-height: 1.6;">Velg hvordan du vil utføre søknadene for de valgte tilbudene.</p>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <button id="btnBulkSeq" class="btn-primary" style="background: var(--emerald); color: white;">⚡ Start LYN-SEKVENS (Anbefalt)</button>
+          <p style="font-size: 0.75rem; color: var(--text-muted);">Bruker én fane og går gjennom alle tilbudene ett etter ett. Stabilt og raskt.</p>
+          <div style="height: 1px; background: var(--glass-border); margin: 8px 0;"></div>
+          <button id="btnBulkPar" class="btn-card" style="padding: 12px; font-size: 1rem; border-color: var(--russet); color: var(--russet);">🔥 Start EKSPLOSJON (Alle faner)</button>
+          <p style="font-size: 0.75rem; color: var(--text-muted);">Åpner ALLE faner samtidig. Bruker mye minne, men lukker seg selv automatisk.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal-overlay hidden">
+      <div class="modal-content" style="max-width: 600px;">
+        <button class="modal-close" id="helpModalClose">✕</button>
+        <h2 class="modal-title">Hjelp & Bokmerke-guide</h2>
+        <div class="modal-section">
+          <div class="modal-section-label">Bokmerke for venner</div>
+          <p style="font-size: 0.9rem; margin-bottom: 12px;">Dette bokmerket lar hvem som helst automatisere søknader direkte på Inatur uten å bruke Tampermonkey.</p>
+          <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+            <code id="bookmarkletCode" style="font-size: 0.7rem; color: var(--accent); word-break: break-all; display: block; max-height: 150px; overflow-y: auto;">javascript:(function(){/* kode her */})();</code>
+            <button id="btnCopyBookmarklet" class="btn-card" style="margin-top: 10px; width: 100%;">Kopier bokmerke-kode</button>
+          </div>
+          <ol style="font-size: 0.85rem; color: var(--text-muted); padding-left: 20px; line-height: 1.6;">
+            <li>Opprett et nytt bokmerke i nettleseren din (Ctrl+D).</li>
+            <li>Gi det et navn, f.eks. "Inatur Automatikk".</li>
+            <li>Lim inn koden over som "URL" eller adresse.</li>
+            <li>Når du er på en Inatur-side og logget inn, trykk på bokmerket for å starte!</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js?v=7"></script>
+</body>
+</html>

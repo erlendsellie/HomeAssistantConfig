@@ -1,0 +1,47 @@
+command_line:
+  - sensor:
+      name: "iNatur Trøndelag Utløper"
+      unique_id: inatur_trondelag_expiring
+      command: "python3 /config/packages/scripts/inatur_expiring.py"
+      scan_interval: 3600
+      value_template: "{{ value_json.count }}"
+      json_attributes:
+        - expiring
+
+automation:
+  - id: inatur_trondelag_notify_expiring
+    alias: "iNatur Trøndelag: Varsle utløp (Daglig kl 08:00)"
+    mode: single
+    trigger:
+      - platform: time
+        at: "08:00:00"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.inatur_trondelag_utloper
+        above: 0
+    action:
+      - variables:
+          offers: "{{ state_attr('sensor.inatur_trondelag_utloper', 'expiring') | default([]) }}"
+      - repeat:
+          for_each: "{{ offers }}"
+          sequence:
+            - variables:
+                offer: "{{ repeat.item }}"
+                kommune: "{{ offer.kommuner if offer.kommuner is string else offer.kommuner | join(', ') }}"
+            - service: telegram_bot.send_message
+              data:
+                target: -1003488113654
+                message: >
+                  {% if offer.days_until_expiry == 0 %}⚠️ *FRIST GÅR UT I DAG* ⚠️{% else %}⚠️ *FRIST GÅR UT I MORGEN* ⚠️{% endif %}
+
+
+                  *{{ offer.tittel }}*
+
+
+                  📍 {{ kommune }}
+
+                  ⏰ Frist: {{ offer.soknadsfrist_iso[:10] }}
+
+                  {% if offer.harTrekning %}🎲 Avgjort ved trekning
+                  {% endif %}{% if offer.ai_summary %}📝 {{ offer.ai_summary }}
+                  {% endif %}[🔗 Klikk her for å se tilbudet](https://www.inatur.no{{ offer.url }})
