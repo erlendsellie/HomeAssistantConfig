@@ -82,7 +82,7 @@ automation:
         to: "idle"
         for:
           minutes: 30
-      - id: stuck_30
+      - id: error_30
         platform: state
         entity_id: vacuum.xiaomi_vacuum_cleaner
         to: "error"
@@ -90,20 +90,19 @@ automation:
           minutes: 30
       - id: alarm_changed
         platform: state
-        entity_id: input_select.alarm
+        entity_id: alarm_control_panel.home_alarm
+        to: "armed_away"
     condition:
       - condition: state
-        entity_id: input_select.alarm
-        state:
-          - "Arm Away"
-          - "Disarm"
+        entity_id: alarm_control_panel.home_alarm
+        state: "armed_away"
     action:
       - choose:
           - conditions:
               - condition: trigger
                 id:
                   - idle_30
-                  - stuck_30
+                  - error_30
             sequence:
               - action: script.turn_on
                 target:
@@ -120,7 +119,7 @@ automation:
                       minutes: 30
                   - condition: state
                     entity_id: vacuum.xiaomi_vacuum_cleaner
-                    state: "stuck"
+                    state: "error"
                     for:
                       minutes: 30
             sequence:
